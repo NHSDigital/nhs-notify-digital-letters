@@ -1,4 +1,15 @@
-# Flow diagram
+---
+layout: page
+title: Flow diagram
+nav_order: 2
+parent: Diagrams
+has_children: false
+child_nav_order: reversed
+is_not_draft: false
+last_modified_date: 2025-10-08
+owner: Tom D'Roza
+author: Tom D'Roza
+---
 
 ```mermaid
 
