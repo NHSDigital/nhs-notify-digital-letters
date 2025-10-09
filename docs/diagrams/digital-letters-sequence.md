@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Sequence diagram
+title: Digital Letters Sequence diagram
 nav_order: 2
 parent: Diagrams
 has_children: false
