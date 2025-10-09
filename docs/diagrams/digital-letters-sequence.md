@@ -13,35 +13,32 @@ author: Tom D'Roza
 
 ## Questions
 
-- 1. Should we validate the CommunicationRequest schema?
-- 2. (&14) This would result in two separate PDS hits
-- 3. Should Notify virus check the payload given that files >10MB don't go to PDM/NDR
-- 7. When does Notify delete its local copy?
-- 11. Duration and interval of polling
-- 21. Can NHSApp read callback go to notify-letters when the message request originated from notify-core?
+1. When does Notify delete its local copy?
+2. Duration and interval of polling
+3. Can NHSApp read callback go to notify-letters when the message request originated from notify-core?
+
+## Decisions
+
+1. Out of scope for MVP: Virus checking of PDF received from Trust
+2. Don't check `CommunicationRequest` filesize. Attempt to upload all `CommunicationRequest`s to PDM. Those exceeding APIM size limit will fail.
+3. No PDS check by Digital Letters component of Date-of-Death, S-flag, RFR codes. Rely on Trusts having performed these checks.
 
 ```mermaid
 
 sequenceDiagram
   actor trust as Trust
   participant notify-letters as Notify: Digital Letters
+  participant pdm as PDM
+  participant ndr as NDR
   participant notify-core as Notify: Core
   participant notify-supplier as Notify: Supplier API
   participant pds as PDS
   participant nhsapp as NHSApp
-  participant pdm as PDM
-  participant ndr as NDR
 
-  autonumber
+
   trust -> notify-letters: MESH (CommunicationRequest)
-  notify-letters -> notify-letters: validate(schema, pdf)?
-  notify-letters -> notify-letters: virus-check?
-  opt Optionally check PDS
-    notify-letters ->> pds: GetPatient (NHSNumber)
-    pds -->> notify-letters: 200 OK (Patient)
-    notify-letters -> notify-letters: validate(death,sflag, rfr)
-  end
   notify-letters ->> notify-letters: Store CommunicationRequest (S3)
+  notify-letters ->> notify-letters: Create SendLetter TTL
   notify-letters ->> pdm: POST /CommunicationRequest
   activate pdm
   pdm -) ndr: SFTP
@@ -51,7 +48,7 @@ sequenceDiagram
     notify-letters ->> pdm: GET /CommunicationRequest/<id>
     pdm ->> notify-letters: 200 OK (CommunicationRequest)
   end
-  rect rgb(204, 223, 241)
+  rect rgba(5, 26, 46, 1)
     note over notify-letters,nhsapp: Existing Notify behaviour
     notify-letters ->> notify-core: post /v1/messages (NHSApp)
     activate notify-core
@@ -66,12 +63,11 @@ sequenceDiagram
     deactivate notify-core
   end
 
-  notify-letters ->> notify-letters: Create SendLetter TTL
   alt Letter is read in NHS App
     nhsapp ->> notify-letters: Callback(status: read)
-    notify-letters ->> notify-letters: Delete TTL
-  else Letter is not read after fallback wait time
+    notify-letters ->> notify-letters: Delete SendLetterTTL
+  else Read receipt not received within print expiry time
     notify-letters ->> notify-letters: SendLetter TTL expires
-    notify-letters ->> notify-supplier: SendLetter(PDF)
+    notify-letters ->> notify-supplier: SendLetter Event
   end
 ```
