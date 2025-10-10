@@ -77,3 +77,7 @@ There are `make` tasks for you to configure to run your tests.  Run `make test` 
 ## Contacts
 
 NHS Notify Team
+
+Ross Buggins - [ross.buggins@nhs.net](mailto:ross.buggins@nhs.net)
+
+Thomas D'Roza - [tom.droza2@nhs.net](mailto:tom.droza2@nhs.net)
