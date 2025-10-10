@@ -46,13 +46,13 @@ jobs:
         uses: actions/checkout@v5
 
       - name: "Get artifacts: jekyll docs"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: ./artifacts/jekyll-docs-${{ inputs.version }}
           name: jekyll-docs-${{ inputs.version }}
 
       - name: "Get artifacts: schema"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: ./artifacts/schemas-${{ inputs.version }}
           name: schemas-${{ inputs.version }}
