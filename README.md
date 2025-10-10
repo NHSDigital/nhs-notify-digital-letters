@@ -18,6 +18,7 @@ NHS Trusts currently generate a high volume of letters for patients and other ca
   - [Design](#design)
     - [Diagrams](#diagrams)
   - [Contacts](#contacts)
+  - [Licence](#licence)
 
 ## Setup
 
@@ -81,3 +82,7 @@ NHS Notify Team
 Ross Buggins - [ross.buggins@nhs.net](mailto:ross.buggins@nhs.net)
 
 Thomas D'Roza - [tom.droza2@nhs.net](mailto:tom.droza2@nhs.net)
+
+## Licence
+
+The source code for the repository's documentation can be found under [/docs](docs) and is deployed by the CD pipeline to [NHS Notify Digital Letters](https://nhsdigital.github.io/nhs-notify-digital-letters).
