@@ -1,0 +1,30 @@
+name: "Build Schemas"
+description: "build schemas"
+inputs:
+  version:
+    description: "Version number"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Make Config
+      working-directory: ./schemas
+      shell: bash
+      run: make config
+
+    - name: Make Build
+      working-directory: ./schemas
+      shell: bash
+      run: make build
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: "schemas/output/"
+        name: schemas-${{ inputs.version }}
