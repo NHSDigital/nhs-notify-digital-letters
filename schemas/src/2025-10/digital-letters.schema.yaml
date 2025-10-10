@@ -1,0 +1,48 @@
+$id: https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json
+$schema: https://json-schema.org/draft/2020-12/schema
+
+allOf:
+  - $ref: https://notify.nhs.uk/schemas/events/common/2025-10/nhs-notify-profile.schema.json
+
+description: Base Schema for all digital letter events
+
+properties:
+  data:
+    $ref: ./digital-letters-data.schema.json
+    description: Digital letters payload.
+
+  dataschema:
+    const: https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json
+    description: Canonical URI of the example event's data schema.
+    examples:
+      - https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json
+    type: string
+
+  source:
+    description: Event source for digital letters domain examples.
+    examples:
+      - /nhs/england/notify/production/primary/data-plane/digital-letters
+    pattern: ^/nhs/england/notify/(production|staging|development|uat)/(primary|secondary|dev-[0-9]+)/data-plane/digital-letters
+    type: string
+
+  subject:
+    description: Path in the form customer/{id}/order/{id}/item/{id} where each {{id}} is a UUID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).
+    examples:
+      - customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959
+    pattern: ^customer/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/recipient/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+    type: string
+
+  type:
+    description: Concrete versioned event type string for this example event (.vN suffix).
+    examples:
+      - uk.nhs.notify.digital.letters.letter.sent.v1
+    pattern: ^uk.nhs.notify.digital.letters.[a-z]+\.v[0-9]+$
+    type: string
+
+required:
+  - type
+  - source
+  - dataschema
+  - data
+
+title: Digital Letters Schema

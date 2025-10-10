@@ -1,12 +1,16 @@
 {
   "folders": [
     {
-      "name": "NHS Notify Repository Template",
+      "name": "NHS Notify Digital Letters",
       "path": "."
     },
     {
       "name": "Application Source Code",
       "path": "./src"
+    },
+        {
+      "name": "Schemas",
+      "path": "./schemas"
     },
     {
       "name": "Docs",
