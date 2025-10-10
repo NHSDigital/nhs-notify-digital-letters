@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Flow diagram
-nav_order: 2
+nav_order: 1
 parent: Diagrams
 has_children: false
 child_nav_order: reversed

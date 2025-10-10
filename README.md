@@ -27,6 +27,13 @@ Clone the repository
 ```shell
 git clone https://github.com/NHSDigital/nhs-notify-digital-letters.git
 cd nhs-notify-digital-letters
+code protject.code-workspace
+```
+
+Reopen with container
+
+```shell
+make debug
 ```
 
 ### Prerequisites
