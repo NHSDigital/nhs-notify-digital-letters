@@ -26,6 +26,8 @@ clean:: # Clean-up project resources (main) @Operations
 config:: _install-dependencies version # Configure development environment (main) @Configuration
 	(cd docs && make install)
 
+serve-docs:
+	(cd docs && make s)
 version:
 	rm -f .version
 	make version-create-effective-file dir=.
