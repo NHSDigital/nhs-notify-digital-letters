@@ -4,6 +4,7 @@
 
 layout: page
 title: Home
+has_children: true
 nav_order: 1
 description: Home
 summary: Home
