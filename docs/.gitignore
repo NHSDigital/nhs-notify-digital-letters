@@ -7,3 +7,5 @@ vendor
 *Zone.Identifier
 node_modules
 _config.version.yml
+schemas
+_data/schema
