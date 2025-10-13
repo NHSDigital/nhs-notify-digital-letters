@@ -6,6 +6,7 @@ Cyber
 Dependabot
 draw.io
 drawio
+D'Roza
 endcapture
 endfor
 endraw
