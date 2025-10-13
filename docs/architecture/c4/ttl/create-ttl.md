@@ -15,12 +15,12 @@ author: Tom D'Roza
     group createTtl(cloud)[Time_To_Live]
 
     service db(logos:aws-dynamodb)[DynamoDB] in createTtl
-    service createLambda(logos:aws-lambda)[Create print ttl] in createTtl
+    service createLambda(logos:aws-lambda)[Create PrintLetter TTL] in createTtl
     service queue(logos:aws-sqs)[SQS] in createTtl
     service storedEvent(logos:aws-eventbridge)[LetterStored event]
-    service scheduledEvent(logos:aws-eventbridge)[LetterPrintingScheduled event]
+    service scheduledEvent(logos:aws-eventbridge)[PrintingScheduled event]
 
     storedEvent:R --> L:queue
     queue:R --> L:createLambda
     createLambda:R --> L:db
-    db:R --> L:scheduledEvent
+    createLambda:T --> L:scheduledEvent
