@@ -15,24 +15,28 @@ author: Tom D'Roza
 
 sequenceDiagram
   actor trust as Trust
-  participant meshMailbox as MESH Mailbox
-  participant meshPoll as MESHPoll Lambda
-  participant meshRetrieve  as MESHRetrieve lambda
+  participant meshMailbox as MESH<br/>Mailbox
+  participant meshPoll as Lambda<br/>MESHPoll
   participant eventBus as EventBus
-  participant s3 as S3
+  participant sqs as SQS<br/>MeshRetrieveQueue
+  participant meshRetrieve  as Lambda<br/>MESHRetrieve
+  participant s3 as S3<br/>DigitalLettersBucket
 
   trust ->> meshMailbox: MESH (CommunicationRequest)
   activate meshMailbox
     meshMailbox ->> trust: MESH Ack
   deactivate meshMailbox
 
-  Loop Interval & Duration TBC
-    meshPoll ->> meshMailbox: Check for new files
+  Loop Interval TBC
+    eventBus -) meshPoll: Scheduled event
+    activate meshPoll
   end
-
+  meshPoll ->> meshMailbox: Check for new files
   meshPoll -) eventBus: NewFileReceived Event(meshFileId)
+  deactivate meshPoll
 
-  eventBus -) meshRetrieve: NewFileReceived Event(meshFileId)
+  eventBus -) sqs: NewFileReceived(meshFileId)
+  sqs -) meshRetrieve: NewFileReceived(meshFileId)
   activate meshRetrieve
     meshRetrieve ->> meshMailbox: Retrieve file(meshFileId)
     activate meshMailbox
