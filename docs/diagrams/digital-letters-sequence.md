@@ -51,7 +51,7 @@ sequenceDiagram
     notify-letters ->> pdm: GET /CommunicationRequest/<id>
     pdm ->> notify-letters: 200 OK (CommunicationRequest)
   end
-  rect rgba(5, 26, 46, 1)
+  rect rgba(92, 145, 196, 0.3)
     note over notify-letters,nhsapp: Existing Notify behaviour
     notify-letters ->> notify-core: post /v1/messages (NHSApp)
     activate notify-core
