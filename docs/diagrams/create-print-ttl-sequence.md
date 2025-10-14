@@ -14,8 +14,8 @@ author: Tom D'Roza
 ```mermaid
 sequenceDiagram
   participant eb as Event Bridge
-  participant sqs as SQS
-  participant createTTL as Create TTL Lambda
+  participant sqs as SQS<br/>CreateTTLQueue
+  participant createTTL as Lambda<br/>CreateTTL
   participant dynamo as DynamoDB
 
 
