@@ -175,6 +175,17 @@ export function MermaidInit(addlinks = true) {
       },
     },
   });
+
+  // copy-pasta from the documentation
+  mermaid.registerIconPacks([
+    {
+      name: "logos",
+      loader: () =>
+        fetch("https://unpkg.com/@iconify-json/logos@1/icons.json").then(
+          (res) => res.json()
+        ),
+    },
+  ]);
 }
 
 export function UseMermaidNow(
