@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Digital Letters - C4 Context
+title: Digital Letters - C4 System Context
 parent: Architecture
 nav_order: 6
 has_children: true
