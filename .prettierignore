@@ -4,4 +4,4 @@
 **/.hg
 **/node_modules
 **/package-lock.json
-assets/js/zzzz-search-data.json
+docs/assets/js/zzzz-search-data.json
