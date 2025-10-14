@@ -40,10 +40,11 @@ plugins:
   - jemoji
 
 #color_scheme: nhs
-mermaid:
-  # Version of mermaid library
-  # Pick an available version from https://cdn.jsdelivr.net/npm/mermaid/
-  version: "11.12.0"
+color_scheme: ce
+# mermaid:
+#   # Version of mermaid library
+#   # Pick an available version from https://cdn.jsdelivr.net/npm/mermaid/
+#   version: "11.12.0"
 
 aux_links:
   "NHS Notify Digital Letters on GitHub":

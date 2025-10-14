@@ -25,7 +25,7 @@ install:
 	bundle install
 
 s serve:
-	bundle exec jekyll serve --trace --livereload
+	npm run
 
 define baseurlparam =
 $(if $(BASE_URL),-- --baseurl $(BASE_URL),-- --baseurl "")

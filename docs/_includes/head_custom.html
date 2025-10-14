@@ -1,0 +1,12 @@
+<script type="text/javascript" src="{{ '/assets/js/imageopen.js' | relative_url }}"></script>
+<script type="text/javascript" src="{{ '/assets/js/nhs-notify.js' | relative_url }}"></script>
+<script type="text/javascript" src="{{ '/assets-webpack/js/main.js' | relative_url }}"></script>
+
+
+<script type="module">
+    await window.nhsce.UseMermaid(document);
+    $(document).ready(function() {
+        window.nhsce.hookFullScreen();
+    });
+</script>
+<link rel="stylesheet" href="{{ '/assets-webpack/css/main.css' | relative_url }}">
