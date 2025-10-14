@@ -188,7 +188,7 @@ export function MermaidInit(addlinks = true) {
   ]);
 }
 
-export function UseMermaidNow(
+export async function UseMermaidNow(
   useMermaidOn,
   selector = ".language-mermaid",
   addlinks = true
@@ -198,6 +198,12 @@ export function UseMermaidNow(
     toRender.forEach((item) => {
       if (!item.hasOwnProperty("rawCode")) item.rawCode = item.innerHTML;
     });
+
+    //await mermaid.run();
+
+    //await mermaid.run(undefined, toRender, (id) => {
+    //  mermaidCb(id, addlinks);
+    //});
 
     mermaid.init(undefined, toRender, (id) => {
       mermaidCb(id, addlinks);
@@ -209,15 +215,15 @@ export function UseMermaidNow(
   }
 }
 
-export function UseMermaid(
+export async function UseMermaid(
   document,
   addlinks = true,
   selector = ".language-mermaid",
   excludeSelector = "div.slides > section"
 ) {
-  $(document).ready(function () {
+  $(async function () {
     MermaidInit(addlinks);
-    UseMermaidNow(document, selector, addlinks);
+    await UseMermaidNow(document, selector, addlinks);
   });
 }
 

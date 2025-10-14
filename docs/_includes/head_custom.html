@@ -3,8 +3,8 @@
 <script type="text/javascript" src="{{ '/assets-webpack/js/main.js' | relative_url }}"></script>
 
 
-<script>
-    window.nhsce.UseMermaid(document);
+<script type="module">
+    await window.nhsce.UseMermaid(document);
     $(document).ready(function() {
         window.nhsce.hookFullScreen();
     });
