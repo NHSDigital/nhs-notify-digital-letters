@@ -23,3 +23,4 @@ architecture-beta
    manageDb:B -- T:ttlStream
    ttlStream:R -- L:manageTtlExpiry
    manageTtlExpiry:R -- L:printTTLExpired
+```
