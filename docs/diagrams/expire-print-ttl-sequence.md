@@ -15,8 +15,8 @@ author: Tom D'Roza
 sequenceDiagram
   participant dynamo as DynamoDB
   participant stream as DynamoDB Stream
-  participant expireTTL as Expire TTL Lambda
-  participant processTTLExpiry as Process TTL Expiry Lambda
+  participant expireTTL as Lambda<br/>ExpireOverdueTTL
+  participant processTTLExpiry as Lambda<br/>ProcessTTLExpiry
   participant eb as Event Bridge
 
   alt Dynamo auto-expires after TTL
@@ -27,6 +27,7 @@ sequenceDiagram
   else Polling Lamba expires after TTL
     expireTTL ->> dynamo:
     dynamo ->> stream: TTL expired
+    stream ->> processTTLExpiry:
     processTTLExpiry ->> eb: PrintTTLExpired Event
   end
 ```

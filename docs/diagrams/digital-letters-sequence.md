@@ -36,7 +36,10 @@ sequenceDiagram
   participant nhsapp as NHSApp
 
 
-  trust -> notify-letters: MESH (CommunicationRequest)
+  trust ->> notify-letters: MESH (CommunicationRequest)
+  activate notify-letters
+      notify-letters ->> trust: MESH Ack
+  deactivate notify-letters
   notify-letters ->> notify-letters: Store CommunicationRequest (S3)
   notify-letters ->> notify-letters: Create SendLetter TTL
   notify-letters ->> pdm: POST /CommunicationRequest
@@ -68,6 +71,11 @@ sequenceDiagram
     notify-letters ->> notify-letters: Delete SendLetterTTL
   else Read receipt not received within print expiry time
     notify-letters ->> notify-letters: SendLetter TTL expires
-    notify-letters ->> notify-supplier: SendLetter Event
+    notify-letters -) notify-supplier: SendLetter Event
+    notify-supplier -) notify-letters: Letter Status Events
   end
+  opt Daily status reports
+    notify-letters -) trust: CSV via MESH
+  end
+
 ```
