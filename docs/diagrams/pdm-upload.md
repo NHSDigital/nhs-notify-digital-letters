@@ -26,8 +26,8 @@ sequenceDiagram
   deactivate pdmUploadQueue
   activate pdmUpload
   pdmUpload ->> s3: Get file from S3
-  s3 -->> pdmUpload: CommunicationRequest
-  pdmUpload ->> pdm: CreateResource(CommunicationRequest)
+  s3 -->> pdmUpload: DocumentReference
+  pdmUpload ->> pdm: CreateResource(DocumentReference)
   activate pdm
   pdm -->> pdmUpload: 200 OK
   deactivate pdm

@@ -26,7 +26,7 @@ sequenceDiagram
   loop Until resource contains payload
     pdmPoller ->> pdm: GetSpecificResource(ID)
     activate pdm
-    pdm -->> pdmPoller: CommunicationRequest
+    pdm -->> pdmPoller: DocumentReference
     deactivate pdm
   end
   pdmPoller -) eventBus: PDMDocumentReadyEvent(meshFileId)
