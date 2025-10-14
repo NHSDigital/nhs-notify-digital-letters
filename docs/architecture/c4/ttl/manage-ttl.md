@@ -20,7 +20,7 @@ architecture-beta
    service printTTLExpired(logos:aws-eventbridge)[PrintTTLExpired] in manageTTL
 
    manageLambda:R -- L:manageDb
-   manageDb:B -- T:ttlStream
-   ttlStream:R -- L:manageTtlExpiry
+   manageDb:R -- L:ttlStream
+   ttlStream:B -- T:manageTtlExpiry
    manageTtlExpiry:R -- L:printTTLExpired
 ```

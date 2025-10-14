@@ -20,7 +20,7 @@ author: Tom D'Roza
 ## Decisions
 
 1. Out of scope for MVP: Virus checking of PDF received from Trust
-2. Don't check `CommunicationRequest` filesize. Attempt to upload all `CommunicationRequest`s to PDM. Those exceeding APIM size limit will fail.
+2. Don't check `DocumentReference` filesize. Attempt to upload all `DocumentReference`s to PDM. Those exceeding APIM size limit will fail.
 3. No PDS check by Digital Letters component of Date-of-Death, S-flag, RFR codes. Rely on Trusts having performed these checks.
 
 ```mermaid
@@ -36,22 +36,22 @@ sequenceDiagram
   participant nhsapp as NHSApp
 
 
-  trust ->> notify-letters: MESH (CommunicationRequest)
+  trust ->> notify-letters: MESH (DocumentReference)
   activate notify-letters
       notify-letters ->> trust: MESH Ack
   deactivate notify-letters
-  notify-letters ->> notify-letters: Store CommunicationRequest (S3)
+  notify-letters ->> notify-letters: Store DocumentReference (S3)
   notify-letters ->> notify-letters: Create SendLetter TTL
-  notify-letters ->> pdm: POST /CommunicationRequest
+  notify-letters ->> pdm: POST /DocumentReference
   activate pdm
   pdm -) ndr: SFTP
   pdm -->> notify-letters: 200 OK
   deactivate pdm
   Loop Interval & Duration TBC
-    notify-letters ->> pdm: GET /CommunicationRequest/<id>
-    pdm ->> notify-letters: 200 OK (CommunicationRequest)
+    notify-letters ->> pdm: GET /DocumentReference/<id>
+    pdm ->> notify-letters: 200 OK (DocumentReference)
   end
-  rect rgba(5, 26, 46, 1)
+  rect rgba(92, 145, 196, 0.3)
     note over notify-letters,nhsapp: Existing Notify behaviour
     notify-letters ->> notify-core: post /v1/messages (NHSApp)
     activate notify-core
