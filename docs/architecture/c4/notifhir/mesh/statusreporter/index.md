@@ -9,3 +9,5 @@ last_modified_date: 2025-10-15
 owner: Ross Buggins
 author: Tom D'Roza
 ---
+
+{% include diagram.html title="c4Component-status-reporter" %}
