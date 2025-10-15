@@ -19,15 +19,15 @@ sequenceDiagram
   participant pdmPoller as Lambda<br/>PDMPoller
   participant pdm as PDM
 
-  eventBus -) pdmPollerQueue: SavedToPDM Event(meshFileId)
+  eventBus -) pdmPollerQueue: SavedToPDM Event(pdmID)
   activate pdmPollerQueue
   pdmPollerQueue ->> pdmPoller:
   deactivate pdmPollerQueue
   loop Until resource contains payload
-    pdmPoller ->> pdm: GetSpecificResource(ID)
+    pdmPoller ->> pdm: GetSpecificResource(pdmID)
     activate pdm
     pdm -->> pdmPoller: DocumentReference
     deactivate pdm
   end
-  pdmPoller -) eventBus: PDMDocumentReadyEvent(meshFileId)
+  pdmPoller -) eventBus: PDMDocumentReadyEvent(pdmID)
 ```

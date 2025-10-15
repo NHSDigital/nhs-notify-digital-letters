@@ -7,7 +7,7 @@ vendor
 *Zone.Identifier
 node_modules
 _config.version.yml
-schemas
+/schemas
 _data/schema
 assets-webpack/*
 Gemfile-dev.lock
