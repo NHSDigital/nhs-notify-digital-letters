@@ -2,7 +2,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const devMode = process.env.NODE_ENV !== "production";
 
-const path = require('path');
+const path = require('node:path');
 
 module.exports = {
   entry: './src/index.js',
@@ -28,16 +28,16 @@ module.exports = {
       },
     ],
   },
-  plugins: [].concat(
+  plugins:
     [
       new MiniCssExtractPlugin(
-      {
-        // Options similar to the same options in webpackOptions.output
-        // all options are optional
-        filename: "css/[name].css",
-        chunkFilename: "[id].css",
-        ignoreOrder: false, // Enable to remove warnings about conflicting order
-      }),
+        {
+          // Options similar to the same options in webpackOptions.output
+          // all options are optional
+          filename: "css/[name].css",
+          chunkFilename: "[id].css",
+          ignoreOrder: false, // Enable to remove warnings about conflicting order
+        }),
       new CopyPlugin({
         patterns: [
           { from: "node_modules/reveal.js-menu/", to: "reveal.js-menu/" },
@@ -45,5 +45,5 @@ module.exports = {
           //{ from: "node_modules/reveal.js-menu/menu.css", to: "reveal.js-menu/menu.css" },
         ],
       }),
-    ]),
+    ],
 };

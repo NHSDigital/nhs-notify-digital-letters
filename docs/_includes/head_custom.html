@@ -4,9 +4,9 @@
 
 
 <script type="module">
-    await window.nhsce.UseMermaid(document);
+    await globalThis.nhsce.UseMermaid(document);
     $(document).ready(function() {
-        window.nhsce.hookFullScreen();
+        globalThis.nhsce.hookFullScreen();
     });
 </script>
 <link rel="stylesheet" href="{{ '/assets-webpack/css/main.css' | relative_url }}">
