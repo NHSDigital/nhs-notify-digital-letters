@@ -9,7 +9,6 @@ import "reveal.js-menu/menu.css";
 import mermaid from "mermaid";
 import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
 
-
 const preset = presets.offscreen();
 
 let x = RevealMarkdown;
@@ -28,7 +27,14 @@ export function UseReveal(
   showMenu = false
 ) {
   $(() => {
-    LoadUpReveal(document, deckid, useMermaid, mermaidSelector, embed, showMenu);
+    LoadUpReveal(
+      document,
+      deckid,
+      useMermaid,
+      mermaidSelector,
+      embed,
+      showMenu
+    );
   });
 }
 
@@ -124,7 +130,7 @@ function RemoveProcessed(slideToRemoveFrom) {
   let selectorToUse =
     "div.mermaid[data-processed], code.mermaid[data-processed]";
   let toRender = slideToRemoveFrom.querySelectorAll(selectorToUse);
-  for ( const item of toRender ) {
+  for (const item of toRender) {
     if (item.hasAttribute(processedAttribName)) {
       while (item.firstChild) {
         item.firstChild.remove();
@@ -175,6 +181,13 @@ export function MermaidInit(addlinks = true) {
           (res) => res.json()
         ),
     },
+    {
+      name: "aws-icons-mermaid",
+      loader: () =>
+        fetch(
+          "https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/refs/heads/main/dist/aws-icons-mermaid.json"
+        ).then((res) => res.json()),
+    },
   ]);
 }
 
@@ -185,7 +198,7 @@ export async function UseMermaidNow(
 ) {
   let toRender = useMermaidOn.querySelectorAll(selector);
   if (toRender.length > 0) {
-    for ( const item of toRender) {
+    for (const item of toRender) {
       if (!item.hasOwnProperty("rawCode")) item.rawCode = item.innerHTML;
     }
 
@@ -198,7 +211,7 @@ export async function UseMermaidNow(
 export async function UseMermaid(
   document,
   addlinks = true,
-  selector = ".language-mermaid",
+  selector = ".language-mermaid"
 ) {
   $(async function () {
     MermaidInit(addlinks);
@@ -293,7 +306,6 @@ function drawCanvas(id, callback) {
         img.src = URL.createObjectURL(blobresult);
         callback(img);
       });
-
     });
   });
 }
