@@ -43,7 +43,7 @@
   overflow: visible;
 }
 .swagger-ui pre {
-  font-family: monospace, monospace;
+  font-family: monospace;
   font-size: 1em;
 }
 .swagger-ui a {
@@ -52,7 +52,6 @@
 }
 .swagger-ui abbr[title] {
   border-bottom: none;
-  text-decoration: underline;
   -webkit-text-decoration: underline dotted;
   text-decoration: underline dotted;
 }
@@ -64,7 +63,7 @@
 .swagger-ui code,
 .swagger-ui kbd,
 .swagger-ui samp {
-  font-family: monospace, monospace;
+  font-family: monospace;
   font-size: 1em;
 }
 .swagger-ui dfn {
@@ -100,6 +99,7 @@
 }
 .swagger-ui img {
   border-style: none;
+  max-width: 100%;
 }
 .swagger-ui svg:not(:root) {
   overflow: hidden;
@@ -108,12 +108,6 @@
 .swagger-ui input,
 .swagger-ui optgroup,
 .swagger-ui select,
-.swagger-ui textarea {
-  font-family: sans-serif;
-  font-size: 100%;
-  line-height: 1.15;
-  margin: 0;
-}
 .swagger-ui button,
 .swagger-ui input {
   overflow: visible;
@@ -155,9 +149,6 @@
 .swagger-ui progress {
   display: inline-block;
   vertical-align: baseline;
-}
-.swagger-ui textarea {
-  overflow: auto;
 }
 .swagger-ui [type="checkbox"],
 .swagger-ui [type="radio"] {
@@ -457,9 +448,6 @@
     width: 100%;
     z-index: 100;
   }
-}
-.swagger-ui img {
-  max-width: 100%;
 }
 .swagger-ui .cover {
   background-size: cover !important;
@@ -1308,9 +1296,10 @@
   }
 }
 .swagger-ui .pre {
+  overflow: scroll;
   overflow-x: auto;
   overflow-y: hidden;
-  overflow: scroll;
+  white-space: pre;
 }
 .swagger-ui .top-0 {
   top: 0;
@@ -6857,9 +6846,6 @@
 .swagger-ui .nowrap {
   white-space: nowrap;
 }
-.swagger-ui .pre {
-  white-space: pre;
-}
 @media screen and (min-width: 30em) {
   .swagger-ui .ws-normal-ns {
     white-space: normal;
@@ -7143,15 +7129,13 @@
   display: flex;
   padding: 10px 20px 10px 10px;
   transition: all 0.2s;
-}
-.swagger-ui .opblock-tag:hover {
-  background: rgba(0, 0, 0, 0.02);
-}
-.swagger-ui .opblock-tag {
   color: #3b4151;
   font-family: sans-serif;
   font-size: 24px;
   margin: 0 0 5px;
+}
+.swagger-ui .opblock-tag:hover {
+  background: rgba(0, 0, 0, 0.02);
 }
 .swagger-ui .opblock-tag.no-desc span {
   flex: 1;
@@ -7610,6 +7594,7 @@
   font-size: 14px;
   max-width: 40em;
   padding-left: 2em;
+  min-width: 6em;
 }
 .swagger-ui .response-col_links .response-undocumented {
   color: #909090;
@@ -8061,12 +8046,21 @@
 .swagger-ui input[type="search"],
 .swagger-ui input[type="text"],
 .swagger-ui textarea {
+  overflow: auto;
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.15;
   background: #fff;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
-  margin: 5px 0;
+  color: #3b4151;
+  min-height: 280px;
   min-width: 100px;
+  outline: none;
   padding: 8px 10px;
+  width: 100%;
+  margin: 5px 0;
 }
 .swagger-ui input[type="email"].invalid,
 .swagger-ui input[type="file"].invalid,
@@ -8130,19 +8124,6 @@
   60% {
     transform: translate3d(4px, 0, 0);
   }
-}
-.swagger-ui textarea {
-  background: hsla(0, 0%, 100%, 0.8);
-  border: none;
-  border-radius: 4px;
-  color: #3b4151;
-  font-family: monospace;
-  font-size: 12px;
-  font-weight: 600;
-  min-height: 280px;
-  outline: none;
-  padding: 10px;
-  width: 100%;
 }
 .swagger-ui textarea:focus {
   border: 2px solid #61affe;
@@ -8318,9 +8299,6 @@
   position: absolute;
   top: -0.4em;
 }
-.swagger-ui .model-title {
-  position: relative;
-}
 .swagger-ui .model-title:hover .model-hint {
   visibility: visible;
 }
@@ -8454,6 +8432,7 @@
   color: #505050;
   font-family: sans-serif;
   font-size: 16px;
+  position: relative;
 }
 .swagger-ui .model-title img {
   bottom: 0;
@@ -8636,9 +8615,6 @@
 }
 .swagger-ui .response-col_description {
   width: 99%;
-}
-.swagger-ui .response-col_links {
-  min-width: 6em;
 }
 .swagger-ui .response__extension {
   color: gray;

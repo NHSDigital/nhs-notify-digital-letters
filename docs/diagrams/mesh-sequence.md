@@ -22,7 +22,7 @@ sequenceDiagram
   participant meshRetrieve  as Lambda<br/>MESHRetrieve
   participant s3 as S3<br/>DigitalLettersBucket
 
-  trust ->> meshMailbox: MESH (CommunicationRequest)
+  trust ->> meshMailbox: MESH (DocumentReference)
   activate meshMailbox
     meshMailbox ->> trust: MESH Ack
   deactivate meshMailbox

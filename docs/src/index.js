@@ -13,8 +13,8 @@ import RevealNotes from "reveal.js";
 
 const preset = presets.offscreen();
 
-var x = RevealMarkdown;
-var $ = require("jquery");
+let x = RevealMarkdown;
+let $ = require("jquery");
 global.jQuery = $;
 global.$ = $;
 window.jQuery = $;
@@ -30,9 +30,9 @@ export function UseReveal(
   embed = true,
   showMenu = false
 ) {
-  $(document).ready(
-    LoadUpReveal(document, deckid, useMermaid, mermaidSelector, embed, showMenu)
-  );
+  $(() => {
+    LoadUpReveal(document, deckid, useMermaid, mermaidSelector, embed, showMenu);
+  });
 }
 
 async function sleep(ms) {
@@ -47,18 +47,18 @@ function LoadUpReveal(
   embed = true,
   showMenu = false
 ) {
-  var pluginsToLoad = [];
+  let pluginsToLoad = [];
   pluginsToLoad.push(RevealMarkdown);
   if (showMenu) pluginsToLoad.push(RevealMenu);
   pluginsToLoad.push(RevealNotes);
-  var sleepTime = 100;
-  var selectorToUse =
+  let sleepTime = 100;
+  let selectorToUse =
     "div." +
     deckid +
     " > div.slides > section.present > div.mermaid, div." +
     deckid +
     " > div.slides > section.present > pre > code.mermaid";
-  var selectorToUseOnSlideChange = "div.mermaid, code.mermaid";
+  let selectorToUseOnSlideChange = "div.mermaid, code.mermaid";
   let deck1 = new Reveal(document.querySelector("div." + deckid), {
     embedded: embed,
     keyboardCondition: "focused",
@@ -105,14 +105,18 @@ function LoadUpReveal(
       },
     })
     .then(() => {
-      if (useMermaid) var currentSlide = deck1.getCurrentSlide();
-      var notes = deck1.getSlideNotes(currentSlide);
+      let currentSlide;
+
+      if (useMermaid) {
+        currentSlide = deck1.getCurrentSlide();
+      }
+      let notes = deck1.getSlideNotes(currentSlide);
       UseMermaidNow(currentSlide, selectorToUseOnSlideChange);
     });
 
   deck1.on("slidechanged", (event) => {
     if (useMermaid) {
-      var notes = deck1.getSlideNotes(event.currentSlide);
+      let notes = deck1.getSlideNotes(event.currentSlide);
       RemoveProcessed(event.previousSlide);
       UseMermaidNow(event.currentSlide, selectorToUseOnSlideChange);
     }
@@ -128,10 +132,10 @@ function LoadUpReveal(
 }
 
 function RemoveProcessed(slideToRemoveFrom) {
-  var processedAttribName = "data-processed";
-  var selectorToUse =
+  let processedAttribName = "data-processed";
+  let selectorToUse =
     "div.mermaid[data-processed], code.mermaid[data-processed]";
-  var toRender = slideToRemoveFrom.querySelectorAll(selectorToUse);
+  let toRender = slideToRemoveFrom.querySelectorAll(selectorToUse);
   toRender.forEach((item) => {
     if (item.hasAttribute(processedAttribName)) {
       while (item.firstChild) {
@@ -139,11 +143,11 @@ function RemoveProcessed(slideToRemoveFrom) {
       }
       item.removeAttribute(processedAttribName);
 
-      var rawCode = item.rawCode;
+      let rawCode = item.rawCode;
       item.innerHTML = rawCode;
     }
   });
-  var toRenderCheck = slideToRemoveFrom.querySelectorAll(selectorToUse);
+  let toRenderCheck = slideToRemoveFrom.querySelectorAll(selectorToUse);
 }
 
 function mermaidCb(id, addlinks) {
@@ -163,7 +167,6 @@ export function MermaidInit(addlinks = true) {
     c4: {
       useMaxWidth: true,
       htmlLabels: true,
-      diagramMarginX: 10,
       diagramMarginX: 10,
       c4ShapeMargin: 20,
       c4ShapePadding: 20,
@@ -193,7 +196,7 @@ export async function UseMermaidNow(
   selector = ".language-mermaid",
   addlinks = true
 ) {
-  var toRender = useMermaidOn.querySelectorAll(selector);
+  let toRender = useMermaidOn.querySelectorAll(selector);
   if (toRender.length > 0) {
     toRender.forEach((item) => {
       if (!item.hasOwnProperty("rawCode")) item.rawCode = item.innerHTML;
@@ -208,9 +211,9 @@ export async function UseMermaidNow(
     mermaid.init(undefined, toRender, (id) => {
       mermaidCb(id, addlinks);
     });
-    var afterRender = useMermaidOn.querySelectorAll(selector);
+    let afterRender = useMermaidOn.querySelectorAll(selector);
     afterRender.forEach((item) => {
-      var x = 1;
+      let x = 1;
     });
   }
 }
@@ -228,10 +231,10 @@ export async function UseMermaid(
 }
 
 function addLinks(id) {
-  var svg = document.getElementById(id);
-  var btn = document.createElement("button");
+  let svg = document.getElementById(id);
+  let btn = document.createElement("button");
   btn.id = id + "_button";
-  var pre = svg.parentNode.parentNode;
+  let pre = svg.parentNode.parentNode;
   pre.id = id + "_pre";
   btn.innerHTML = "View diagram as PNG (" + id + ")";
 
@@ -246,13 +249,13 @@ function addLinks(id) {
 
   svg.addEventListener("click", (event) => {
     console.log(event);
-    var pngVersion = document.getElementById(id + "_png");
+    let pngVersion = document.getElementById(id + "_png");
     if (pngVersion) {
       window.open(pngVersion.src);
     } else {
       drawCanvas(id, (img) => {
         img.style.display = "none";
-        var p = document.createElement("p");
+        let p = document.createElement("p");
         btn.after(p);
         p.appendChild(img);
         window.open(img.src);
@@ -261,7 +264,7 @@ function addLinks(id) {
   });
 
   btn.addEventListener("click", function () {
-    var pngVersion = document.getElementById(id + "_png");
+    let pngVersion = document.getElementById(id + "_png");
     if (pngVersion) {
       if (pngVersion.style.display === "none") {
         pngVersion.style.display = "block";
@@ -276,7 +279,7 @@ function addLinks(id) {
       btn.innerHTML = "View diagram as SVG (" + id + ")";
       drawCanvas(id, (img) => {
         img.style.display = "block";
-        var p = document.createElement("p");
+        let p = document.createElement("p");
         btn.after(p);
         p.appendChild(img);
         pre.style.display = "none";
@@ -286,17 +289,17 @@ function addLinks(id) {
 }
 
 function drawCanvas(id, callback) {
-  var svg = document.getElementById(id);
-  var { width, height } = svg.getBoundingClientRect();
-  var pixelRatio = 2; //window.devicePixelRatio || 1;
+  let svg = document.getElementById(id);
+  let { width, height } = svg.getBoundingClientRect();
+  let pixelRatio = 2; //window.devicePixelRatio || 1;
 
   // lets scale the canvas and change its CSS width/height to make it high res.
   //  canvas.style.width = canvas.width +'px';
-  var newWidth = width * pixelRatio;
-  var newHeight = height * pixelRatio;
+  let newWidth = width * pixelRatio;
+  let newHeight = height * pixelRatio;
 
-  var canvas = (canvas = new OffscreenCanvas(newWidth, newHeight)); // document.createElement('canvas'); // Create a Canvas element.
-  var ctx = canvas.getContext("2d"); // For Canvas returns 2D graphic.
+  let canvas = (canvas = new OffscreenCanvas(newWidth, newHeight)); // document.createElement('canvas'); // Create a Canvas element.
+  let ctx = canvas.getContext("2d"); // For Canvas returns 2D graphic.
 
   // ctx.fillStyle = 'white'; // background color for the canvas
   // ctx.fillRect(0, 0, width, height); // fill the color on the canvas
@@ -305,8 +308,8 @@ function drawCanvas(id, callback) {
   //normal, by scaling everything up by the pixelRatio.
   //  ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);
 
-  var img = document.createElement("img");
-  var data = svg.outerHTML; // Get SVG element as HTML code.
+  let img = document.createElement("img");
+  let data = svg.outerHTML; // Get SVG element as HTML code.
   Canvg.from(ctx, data, preset).then((result) => {
     result.resize(canvas.width, canvas.height, "xMidYMid meet");
     result.render().then(function () {
@@ -324,21 +327,21 @@ function drawCanvas(id, callback) {
 }
 
 export function hookFullScreen() {
-  var cb = document.getElementById("fullscreenCheckbox");
+  let cb = document.getElementById("fullscreenCheckbox");
   cb.checked = localStorage.getItem("cb-checked") === "true";
 
   fullScreen();
   cb.onchange = function (evt) {
-    var x = 1;
+    let x = 1;
     fullScreen();
   };
 }
 
 function fullScreen() {
-  var cb = document.getElementById("fullscreenCheckbox");
-  var sideBar = document.getElementsByClassName("side-bar")[0];
-  var main = document.getElementsByClassName("main")[0];
-  var pageInfo = document.getElementsByClassName("page-info")[0];
+  let cb = document.getElementById("fullscreenCheckbox");
+  let sideBar = document.getElementsByClassName("side-bar")[0];
+  let main = document.getElementsByClassName("main")[0];
+  let pageInfo = document.getElementsByClassName("page-info")[0];
   localStorage.setItem("cb-checked", cb.checked);
 
   if (cb.checked) {

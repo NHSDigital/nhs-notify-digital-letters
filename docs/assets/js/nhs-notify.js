@@ -1,9 +1,9 @@
 // Quick poc for view full screen
 
 window.addEventListener("load", (event) => {
-  var fullScreenParamName = "fullscreen";
-  var urlParams = new URLSearchParams(document.location.search);
-  var param = urlParams.get(fullScreenParamName);
+  let fullScreenParamName = "fullscreen";
+  let urlParams = new URLSearchParams(document.location.search);
+  let param = urlParams.get(fullScreenParamName);
   if (param) {
     tempViewFullScreen();
   } else {
@@ -14,7 +14,7 @@ window.addEventListener("load", (event) => {
 let nhsNotify = nhsNotifyDefaults();
 
 function nhsNotifyDefaults() {
-  var defaults = {};
+  let defaults = {};
   defaults.storageName = "cb-checked";
   defaults.buttonName = "fullScreenButton";
   defaults.standard = "Standard";
@@ -24,16 +24,16 @@ function nhsNotifyDefaults() {
 
 function tempViewFullScreen() {
   viewFullScreen();
-  var buttons = document.getElementsByName(nhsNotify.buttonName);
+  let buttons = document.getElementsByName(nhsNotify.buttonName);
   buttons.forEach((item) => {
     item.style.display = "none";
   });
 }
 
 function viewFullScreen() {
-  var sideBar = document.getElementsByClassName("side-bar")[0];
-  var main = document.getElementsByClassName("main")[0];
-  var pageInfo = document.getElementsByClassName("page-info")[0];
+  let sideBar = document.getElementsByClassName("side-bar")[0];
+  let main = document.getElementsByClassName("main")[0];
+  let pageInfo = document.getElementsByClassName("page-info")[0];
   sideBar.style.display = "none";
   main.style.maxWidth = "100%";
   main.style.marginLeft = "0px";
@@ -45,9 +45,9 @@ function setFullScreen() {
 }
 
 function setStandard() {
-  var sideBar = document.getElementsByClassName("side-bar")[0];
-  var main = document.getElementsByClassName("main")[0];
-  var pageInfo = document.getElementsByClassName("page-info")[0];
+  let sideBar = document.getElementsByClassName("side-bar")[0];
+  let main = document.getElementsByClassName("main")[0];
+  let pageInfo = document.getElementsByClassName("page-info")[0];
   sideBar.style.display = "";
   main.style.maxWidth = "";
   main.style.marginLeft = "";
@@ -56,7 +56,7 @@ function setStandard() {
 }
 
 function setViewAtStart() {
-  var currentStatus = localStorage.getItem(nhsNotify.storageName);
+  let currentStatus = localStorage.getItem(nhsNotify.storageName);
   if (currentStatus == nhsNotify.fullScreen) makeChange(currentStatus);
 }
 
@@ -69,9 +69,9 @@ function makeChange(newStatus) {
 }
 
 function afterChange(currentStatus, newStatus) {
-  var storageName = nhsNotify.storageName;
-  var buttonName = nhsNotify.buttonName;
-  var buttons = document.getElementsByName(buttonName);
+  let storageName = nhsNotify.storageName;
+  let buttonName = nhsNotify.buttonName;
+  let buttons = document.getElementsByName(buttonName);
   localStorage.setItem(storageName, newStatus);
 
   buttons.forEach((item) => {
@@ -80,29 +80,24 @@ function afterChange(currentStatus, newStatus) {
 }
 
 function fullScreenToggle() {
-  var standard = nhsNotify.standard;
-  var fullScreen = nhsNotify.fullScreen;
-  var storageName = nhsNotify.storageName;
-  var currentStatus = "";
-  var newStatus = "";
+  let standard = nhsNotify.standard;
+  let fullScreen = nhsNotify.fullScreen;
+  let storageName = nhsNotify.storageName;
+  let currentStatus;
+  let newStatus;
 
   currentStatus = localStorage.getItem(storageName);
 
   if (
     currentStatus == "false" ||
     currentStatus == "undefined" ||
-    currentStatus == null
+    currentStatus == null ||
+    currentStatus == standard
   ) {
-    currentStatus = standard;
     newStatus = fullScreen;
   }
-
-  if (currentStatus == standard) {
-    newStatus = fullScreen;
-    currentStatus = standard;
-  } else {
+  else {
     newStatus = standard;
-    currentStatus = fullScreen;
   }
 
   makeChange(newStatus);
