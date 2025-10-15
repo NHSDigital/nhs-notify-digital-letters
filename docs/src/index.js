@@ -185,7 +185,7 @@ export function MermaidInit(addlinks = true) {
       name: "aws",
       loader: () =>
         fetch(
-          "../../../assets/aws-icons-mermaid.json"
+          "/assets/aws-icons-mermaid.json"
         ).then((res) => res.json()),
     },
   ]);
