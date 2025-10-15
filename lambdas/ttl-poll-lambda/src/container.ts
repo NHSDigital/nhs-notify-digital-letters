@@ -1,23 +1,18 @@
-import { logger } from 'utils';
-import { deleteDynamoBatch, dynamoClient } from 'utils';
-import { loadConfig } from './infra/config';
-import { DynamoRepository } from './infra/dynamoRepository';
-import { TtlExpiryService } from './infra/ttl-expiry-service';
-import { CreateHandlerDependencies } from './apis/scheduled-event-handler';
+import { deleteDynamoBatch, dynamoClient, logger } from 'utils';
+import { loadConfig } from 'infra/config';
+import { DynamoRepository } from 'infra/dynamo-repository';
+import { TtlExpiryService } from 'infra/ttl-expiry-service';
+import { CreateHandlerDependencies } from 'apis/scheduled-event-handler';
 
 export const createContainer = (): CreateHandlerDependencies => {
-  const {
-    ttlTableName,
-    concurrency,
-    maxProcessSeconds,
-    writeShards,
-  } = loadConfig();
+  const { concurrency, maxProcessSeconds, ttlTableName, writeShards } =
+    loadConfig();
 
   const dynamoRepository = new DynamoRepository(
     ttlTableName,
     dynamoClient,
     logger,
-    deleteDynamoBatch
+    deleteDynamoBatch,
   );
 
   const ttlExpiryService = new TtlExpiryService(
@@ -26,8 +21,10 @@ export const createContainer = (): CreateHandlerDependencies => {
     dynamoRepository,
     concurrency,
     maxProcessSeconds,
-    writeShards
+    writeShards,
   );
 
   return { logger, ttlExpiryService };
 };
+
+export default createContainer;

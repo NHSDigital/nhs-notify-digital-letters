@@ -14,7 +14,7 @@ export type TtlRecord = {
 export type TtlRecordKey = Pick<TtlRecord, 'PK' | 'SK'>;
 
 export function isTtlRecord(
-  record: Record<string, unknown> | undefined
+  record: Record<string, unknown> | undefined,
 ): record is TtlRecord {
   return (
     typeof record?.PK === 'string' &&

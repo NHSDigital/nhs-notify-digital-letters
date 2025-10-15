@@ -16,19 +16,19 @@ export class DynamoRepository {
       tableName: string,
       Keys: Record<string, string>[],
       maxRetries: number,
-      logger: Logger
-    ) => Promise<BatchWriteCommandOutput>
+      logger: Logger,
+    ) => Promise<BatchWriteCommandOutput>,
   ) {}
 
   public async deleteBatch(
-    Items: Record<string, NativeAttributeValue>[]
+    Items: Record<string, NativeAttributeValue>[],
   ): Promise<BatchWriteCommandOutput> {
     return this._deleteDynamoBatch(this._tableName, Items, 10, this._logger);
   }
 
   public async queryTtlIndex(
     expiryDate: string,
-    ttlBeforeSeconds: number
+    ttlBeforeSeconds: number,
   ): Promise<QueryCommandOutput> {
     const command = new QueryCommand({
       TableName: this._tableName,
@@ -48,3 +48,5 @@ export class DynamoRepository {
     return this._dynamoClient.send(command);
   }
 }
+
+export default DynamoRepository;

@@ -4,9 +4,9 @@ import {
   BatchWriteCommandOutput,
   QueryCommandOutput,
 } from '@aws-sdk/lib-dynamodb';
-import { TtlExpiryService } from '../../infra/ttl-expiry-service';
-import { DynamoRepository } from '../../infra/dynamoRepository';
-import { TtlRecord } from '../../infra/types';
+import { TtlExpiryService } from 'infra/ttl-expiry-service';
+import { DynamoRepository } from 'infra/dynamo-repository';
+import { TtlRecord } from 'infra/types';
 
 const mockTableName = 'test';
 const [mockDate] = new Date().toISOString().split('T');
@@ -79,7 +79,7 @@ describe('TtlExpiryService', () => {
     mockDynamoRepository,
     60,
     300,
-    100
+    100,
   );
 
   beforeEach(() => {
@@ -88,16 +88,16 @@ describe('TtlExpiryService', () => {
 
   it('reports successful deletions with empty UnprocessedItems field', async () => {
     mockDynamoRepository.queryTtlIndex.mockImplementationOnce(
-      async () => queryOutput
+      async () => queryOutput,
     );
     mockDynamoRepository.deleteBatch.mockImplementationOnce(
-      async () => batchWriteOuputEmptyUnprocessedItems
+      async () => batchWriteOuputEmptyUnprocessedItems,
     );
 
     const res = await ttlExpiryService.processExpiredTtlRecords(
       mockDate,
       mockTtlBeforeSeconds,
-      mockStartTimeMs
+      mockStartTimeMs,
     );
 
     expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(200);
@@ -111,16 +111,16 @@ describe('TtlExpiryService', () => {
 
   it('reports successful deletions with undefined UnprocessedItems field', async () => {
     mockDynamoRepository.queryTtlIndex.mockImplementationOnce(
-      async () => queryOutput
+      async () => queryOutput,
     );
     mockDynamoRepository.deleteBatch.mockImplementationOnce(
-      async () => batchWriteOuputUndefinedUnprocessedItems
+      async () => batchWriteOuputUndefinedUnprocessedItems,
     );
 
     const res = await ttlExpiryService.processExpiredTtlRecords(
       mockDate,
       mockTtlBeforeSeconds,
-      mockStartTimeMs
+      mockStartTimeMs,
     );
 
     expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(200);
@@ -134,16 +134,16 @@ describe('TtlExpiryService', () => {
 
   it('reports failed items', async () => {
     mockDynamoRepository.queryTtlIndex.mockImplementationOnce(
-      async () => queryOutput
+      async () => queryOutput,
     );
     mockDynamoRepository.deleteBatch.mockImplementationOnce(
-      async () => batchWriteOutputFailedItem
+      async () => batchWriteOutputFailedItem,
     );
 
     const res = await ttlExpiryService.processExpiredTtlRecords(
       mockDate,
       mockTtlBeforeSeconds,
-      mockStartTimeMs
+      mockStartTimeMs,
     );
 
     expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(200);
@@ -157,13 +157,13 @@ describe('TtlExpiryService', () => {
 
   it('should not attempt to delete any items if no items are returned from index query', async () => {
     mockDynamoRepository.queryTtlIndex.mockImplementationOnce(
-      async () => queryOutputNoItems
+      async () => queryOutputNoItems,
     );
 
     const res = await ttlExpiryService.processExpiredTtlRecords(
       mockDate,
       mockTtlBeforeSeconds,
-      mockStartTimeMs
+      mockStartTimeMs,
     );
 
     expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(100);
@@ -185,18 +185,18 @@ describe('TtlExpiryService', () => {
       return queryOutputNoItems;
     });
     mockDynamoRepository.deleteBatch.mockImplementation(
-      async () => batchWriteOuputEmptyUnprocessedItems
+      async () => batchWriteOuputEmptyUnprocessedItems,
     );
 
     const res = await ttlExpiryService.processExpiredTtlRecords(
       mockDate,
       mockTtlBeforeSeconds,
-      mockStartTimeMs
+      mockStartTimeMs,
     );
 
     expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(300);
     expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(
-      (150 * 3) / 25
+      (150 * 3) / 25,
     );
     expect(res).toEqual({
       processed: 150 * 3,
@@ -212,20 +212,20 @@ describe('TtlExpiryService', () => {
       mockDynamoRepository,
       60,
       0,
-      100
+      100,
     );
 
     mockDynamoRepository.queryTtlIndex.mockImplementation(
-      async () => queryOutput
+      async () => queryOutput,
     );
     mockDynamoRepository.deleteBatch.mockImplementationOnce(
-      async () => batchWriteOuputEmptyUnprocessedItems
+      async () => batchWriteOuputEmptyUnprocessedItems,
     );
 
     const res = await ttlExpiryServiceZeroRuntime.processExpiredTtlRecords(
       mockDate,
       mockTtlBeforeSeconds,
-      mockStartTimeMs
+      mockStartTimeMs,
     );
 
     expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(100);
@@ -245,18 +245,18 @@ describe('TtlExpiryService', () => {
             {
               PK: 'REQUEST_ITEM#hello1',
               SK: 'REQUEST_ITEM_PLAN#hello1',
-              dateOfExpiry: 37826538762,
+              dateOfExpiry: 37_826_538_762,
               ttl: 'mockTtl',
             },
           ],
           $metadata: {},
-        } satisfies QueryCommandOutput)
+        }) satisfies QueryCommandOutput,
     );
 
     const res = await ttlExpiryService.processExpiredTtlRecords(
       mockDate,
       mockTtlBeforeSeconds,
-      mockStartTimeMs
+      mockStartTimeMs,
     );
 
     expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(100);
@@ -281,13 +281,13 @@ describe('TtlExpiryService', () => {
             },
           ],
           $metadata: {},
-        } satisfies QueryCommandOutput)
+        }) satisfies QueryCommandOutput,
     );
 
     const res = await ttlExpiryService.processExpiredTtlRecords(
       mockDate,
       mockTtlBeforeSeconds - 100,
-      mockStartTimeMs
+      mockStartTimeMs,
     );
 
     expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(100);

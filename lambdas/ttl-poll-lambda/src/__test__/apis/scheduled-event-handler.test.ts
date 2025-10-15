@@ -1,14 +1,14 @@
 import { ScheduledEvent } from 'aws-lambda';
 import { Logger } from 'utils';
 import { mock } from 'jest-mock-extended';
-import { EventDetail, createHandler } from '../../apis/scheduled-event-handler';
-import { TtlExpiryService } from '../../infra/ttl-expiry-service';
-import { ProcessingStatistics } from '../../infra/types';
+import { EventDetail, createHandler } from 'apis/scheduled-event-handler';
+import { TtlExpiryService } from 'infra/ttl-expiry-service';
+import { ProcessingStatistics } from 'infra/types';
 
 const malformedEvents = [
   {
     detail: {
-      dateOfExpiry: 2323231,
+      dateOfExpiry: 2_323_231,
     },
   } as unknown as ScheduledEvent<EventDetail>,
   {
@@ -64,18 +64,18 @@ describe('createHandler', () => {
     'throws error when receiving event %j where dateOfExpiry attribute is not in recognised date format - YYYY-MM-DD',
     async (event) => {
       await expect(handler(event)).rejects.toThrow(
-        `dateOfExpiry is not valid ISO date format (YYYY-MM-DD): ${event.detail.dateOfExpiry}`
+        `dateOfExpiry is not valid ISO date format (YYYY-MM-DD): ${event.detail.dateOfExpiry}`,
       );
-    }
+    },
   );
 
   it('throws error when receiving event where timeOfExpiry attribute is defined and cannot be parsed as a date object', async () => {
     await expect(
       handler(<ScheduledEvent<EventDetail>>{
         detail: { dateOfExpiry: '2022-03-07', timeOfExpiry: 'not_a_date' },
-      })
+      }),
     ).rejects.toThrow(
-      `timeOfExpiry is not valid date format (YYYY-MM-DD'T'HH:MM:SSZ): not_a_date`
+      `timeOfExpiry is not valid date format (YYYY-MM-DD'T'HH:MM:SSZ): not_a_date`,
     );
   });
 
@@ -86,7 +86,7 @@ describe('createHandler', () => {
           processed: 0,
           deleted: 0,
           failedToDelete: 0,
-        } satisfies ProcessingStatistics)
+        }) satisfies ProcessingStatistics,
     );
 
     await handler(<ScheduledEvent<EventDetail>>{
@@ -95,8 +95,8 @@ describe('createHandler', () => {
 
     expect(mockTtlExpiryService.processExpiredTtlRecords).toHaveBeenCalledWith(
       '2022-03-07',
-      1577880000,
-      1577880000000
+      1_577_880_000,
+      1_577_880_000_000,
     );
   });
 
@@ -107,15 +107,15 @@ describe('createHandler', () => {
           processed: 0,
           deleted: 0,
           failedToDelete: 0,
-        } satisfies ProcessingStatistics)
+        }) satisfies ProcessingStatistics,
     );
 
     await handler(<ScheduledEvent<EventDetail>>{});
 
     expect(mockTtlExpiryService.processExpiredTtlRecords).toHaveBeenCalledWith(
       '2020-01-01',
-      1577880000,
-      1577880000000
+      1_577_880_000,
+      1_577_880_000_000,
     );
   });
 
@@ -128,15 +128,15 @@ describe('createHandler', () => {
           processed: 0,
           deleted: 0,
           failedToDelete: 0,
-        } satisfies ProcessingStatistics)
+        }) satisfies ProcessingStatistics,
     );
 
     await handler(<ScheduledEvent<EventDetail>>{});
 
     expect(mockTtlExpiryService.processExpiredTtlRecords).toHaveBeenCalledWith(
       '2019-12-31',
-      1577838600,
-      1577838600000
+      1_577_838_600,
+      1_577_838_600_000,
     );
   });
 
@@ -147,17 +147,20 @@ describe('createHandler', () => {
           processed: 0,
           deleted: 0,
           failedToDelete: 0,
-        } satisfies ProcessingStatistics)
+        }) satisfies ProcessingStatistics,
     );
 
     await handler(<ScheduledEvent<EventDetail>>{
-      detail: { dateOfExpiry: '2022-03-07', timeOfExpiry: '2022-03-06T12:34:56Z' },
+      detail: {
+        dateOfExpiry: '2022-03-07',
+        timeOfExpiry: '2022-03-06T12:34:56Z',
+      },
     });
 
     expect(mockTtlExpiryService.processExpiredTtlRecords).toHaveBeenCalledWith(
       '2022-03-07',
-      1646570096,
-      1577880000000
+      1_646_570_096,
+      1_577_880_000_000,
     );
   });
 
@@ -170,7 +173,7 @@ describe('createHandler', () => {
 
     expect.assertions(3);
     await expect(handler(<ScheduledEvent<EventDetail>>{})).rejects.toThrow(
-      error
+      error,
     );
     expect(mockProcessExpiredTtlRecords).toHaveBeenCalledTimes(1);
     await expect(mockProcessExpiredTtlRecords()).rejects.toEqual(error);

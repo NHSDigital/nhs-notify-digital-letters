@@ -1,13 +1,12 @@
 import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
-import { deleteDynamoBatch, dynamoDocumentClient } from 'utils';
-import { Logger } from 'utils';
+import { Logger, deleteDynamoBatch, dynamoDocumentClient } from 'utils';
 import { mock, mockFn } from 'jest-mock-extended';
-import { DynamoRepository } from '../../infra/dynamoRepository';
+import { DynamoRepository } from 'infra/dynamo-repository';
 import 'aws-sdk-client-mock-jest';
 
 const mockInputDate = '2022-01-01#2';
-const mockInputTtl = 222222222;
+const mockInputTtl = 222_222_222;
 const mockTableName = 'test';
 
 const mockDynamoClient = mockClient(DynamoDBDocumentClient);
@@ -20,7 +19,7 @@ const dynamoRepository = new DynamoRepository(
   mockTableName,
   dynamoDocumentClient,
   logger,
-  mockDynamoDeleteBatch
+  mockDynamoDeleteBatch,
 );
 
 describe('dynamoRepository', () => {
@@ -129,7 +128,7 @@ describe('dynamoRepository', () => {
               },
             ],
           },
-        })
+        }),
       );
     });
   });
@@ -138,7 +137,7 @@ describe('dynamoRepository', () => {
     it('sends correct payload to dynamodb and returns correct response', async () => {
       const res = await dynamoRepository.queryTtlIndex(
         mockInputDate,
-        mockInputTtl
+        mockInputTtl,
       );
 
       expect(mockDynamoClient).toReceiveCommandTimes(QueryCommand, 1);
@@ -153,7 +152,7 @@ describe('dynamoRepository', () => {
         },
         ExpressionAttributeValues: {
           ':dateOfExpiry': mockInputDate,
-          ':ttlBeforeSeconds': 222222222,
+          ':ttlBeforeSeconds': 222_222_222,
         },
       });
 
@@ -167,7 +166,7 @@ describe('dynamoRepository', () => {
               ttl: mockInputTtl,
             },
           ],
-        })
+        }),
       );
     });
   });

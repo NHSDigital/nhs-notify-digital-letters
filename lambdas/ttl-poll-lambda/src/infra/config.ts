@@ -1,4 +1,4 @@
-import { defaultConfigReader } from 'nhs-notify-digital-letters-utils';
+import { defaultConfigReader } from 'utils';
 
 export type SendRequestConfig = {
   ttlTableName: string;

@@ -2,8 +2,8 @@ import { Logger } from 'utils';
 import { chunk } from 'lodash';
 import pLimit from 'p-limit';
 import { QueryCommandOutput } from '@aws-sdk/lib-dynamodb';
-import { DynamoRepository } from './dynamoRepository';
-import { isTtlRecord, ProcessingStatistics, TtlRecordKey } from './types';
+import { DynamoRepository } from 'infra/dynamo-repository';
+import { ProcessingStatistics, TtlRecordKey, isTtlRecord } from 'infra/types';
 
 export class TtlExpiryService {
   private readonly limit: pLimit.Limit;
@@ -14,7 +14,7 @@ export class TtlExpiryService {
     private readonly dynamoRepository: DynamoRepository,
     concurrency: number,
     private readonly maxProcessSeconds: number,
-    private readonly writeShards: number
+    private readonly writeShards: number,
   ) {
     this.limit = pLimit(concurrency);
   }
@@ -22,7 +22,7 @@ export class TtlExpiryService {
   public async processExpiredTtlRecords(
     date: string,
     ttlBeforeSeconds: number,
-    startTimeMs: number
+    startTimeMs: number,
   ): Promise<ProcessingStatistics> {
     const stats = {
       processed: 0,
@@ -32,7 +32,7 @@ export class TtlExpiryService {
 
     let records = await this.getTtlRecordKeys(date, ttlBeforeSeconds);
     const runUntil = startTimeMs + this.maxProcessSeconds * 1000;
-    while (records.length) {
+    while (records.length > 0) {
       const { deleted, failedToDelete, processed } =
         await this.batchDeleteTtlRecords(records);
       stats.processed += processed;
@@ -41,7 +41,7 @@ export class TtlExpiryService {
 
       if (Date.now() > runUntil) {
         this.logger.warn(
-          `Exceeded allowed runtime of ${this.maxProcessSeconds} seconds`
+          `Exceeded allowed runtime of ${this.maxProcessSeconds} seconds`,
         );
         break;
       }
@@ -53,22 +53,22 @@ export class TtlExpiryService {
 
   private async getTtlRecordKeys(
     date: string,
-    ttlBeforeSeconds: number
+    ttlBeforeSeconds: number,
   ): Promise<TtlRecordKey[]> {
-    const shards = [...Array(this.writeShards).keys()];
+    const shards = [...new Array(this.writeShards).keys()];
     this.logger.info(
       'Querying %d shards for expired records on %s before %s',
       this.writeShards,
       date,
-      new Date(ttlBeforeSeconds * 1000).toISOString()
+      new Date(ttlBeforeSeconds * 1000).toISOString(),
     );
 
     const promises = shards.map(async (shard) =>
-      this.queryDynamo(date, shard, ttlBeforeSeconds)
+      this.queryDynamo(date, shard, ttlBeforeSeconds),
     );
 
     const results = (await Promise.allSettled(promises)).flatMap((result) =>
-      result.status === 'fulfilled' ? result.value : []
+      result.status === 'fulfilled' ? result.value : [],
     );
 
     this.logger.info('Found %d expired records', results.length);
@@ -78,11 +78,11 @@ export class TtlExpiryService {
   private async queryDynamo(
     date: string,
     shard: number,
-    ttlBeforeSeconds: number
+    ttlBeforeSeconds: number,
   ): Promise<TtlRecordKey[]> {
     const res = await this.dynamoRepository.queryTtlIndex(
       `${date}#${shard}`,
-      ttlBeforeSeconds
+      ttlBeforeSeconds,
     );
 
     return this.getRecordKeysFromQueryOutput(res, ttlBeforeSeconds);
@@ -90,7 +90,7 @@ export class TtlExpiryService {
 
   private getRecordKeysFromQueryOutput(
     queryOutput: QueryCommandOutput,
-    ttlBeforeSeconds: number
+    ttlBeforeSeconds: number,
   ): TtlRecordKey[] | [] {
     if (!queryOutput.Items?.length) {
       return [];
@@ -120,7 +120,7 @@ export class TtlExpiryService {
   }
 
   private async batchDeleteTtlRecords(
-    recordKeys: TtlRecordKey[]
+    recordKeys: TtlRecordKey[],
   ): Promise<ProcessingStatistics> {
     const processed = recordKeys.length;
     let deleted = 0;
@@ -142,10 +142,10 @@ export class TtlExpiryService {
 
         if (remainingItems) {
           this.logger.error(
-            `Failed to process all delete requests: ${remainingItems} items remaining`
+            `Failed to process all delete requests: ${remainingItems} items remaining`,
           );
         }
-      })
+      }),
     );
 
     await Promise.allSettled(dynamoResponses);
@@ -157,3 +157,5 @@ export class TtlExpiryService {
     };
   }
 }
+
+export default TtlExpiryService;

@@ -1,7 +1,6 @@
-import { ScheduledEvent } from 'aws-lambda';
-import { Logger } from 'utils';
-import { validateIsoDate } from 'utils';
-import { TtlExpiryService } from '../infra/ttl-expiry-service';
+import type { ScheduledEvent } from 'aws-lambda';
+import { Logger, validateIsoDate } from 'utils';
+import { TtlExpiryService } from 'infra/ttl-expiry-service';
 
 export type CreateHandlerDependencies = {
   logger: Logger;
@@ -33,7 +32,7 @@ export const createHandler = ({
       [dateOfExpiry] = date.toISOString().split('T');
     } else if (!validateIsoDate(dateOfExpiry)) {
       throw logAndReturnError(
-        `dateOfExpiry is not valid ISO date format (YYYY-MM-DD): ${dateOfExpiry}`
+        `dateOfExpiry is not valid ISO date format (YYYY-MM-DD): ${dateOfExpiry}`,
       );
     }
 
@@ -43,7 +42,7 @@ export const createHandler = ({
       const parsedTimeOfExpiry = Date.parse(timeOfExpiry);
       if (Number.isNaN(parsedTimeOfExpiry)) {
         throw logAndReturnError(
-          `timeOfExpiry is not valid date format (YYYY-MM-DD'T'HH:MM:SSZ): ${timeOfExpiry}`
+          `timeOfExpiry is not valid date format (YYYY-MM-DD'T'HH:MM:SSZ): ${timeOfExpiry}`,
         );
       }
       ttlBeforeSeconds = Math.floor(parsedTimeOfExpiry / 1000);
@@ -54,12 +53,12 @@ export const createHandler = ({
       result = await ttlExpiryService.processExpiredTtlRecords(
         dateOfExpiry,
         ttlBeforeSeconds,
-        startTimeMs
+        startTimeMs,
       );
-    } catch (e: unknown) {
+    } catch (error: unknown) {
       throw logAndReturnError(
         'Error encountered whilst attempting to process records',
-        e
+        error,
       );
     }
 
