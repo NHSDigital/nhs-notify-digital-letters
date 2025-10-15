@@ -25,9 +25,9 @@ function nhsNotifyDefaults() {
 function tempViewFullScreen() {
   viewFullScreen();
   let buttons = document.getElementsByName(nhsNotify.buttonName);
-  buttons.forEach((item) => {
+  for (const item of buttons) {
     item.style.display = "none";
-  });
+  }
 }
 
 function viewFullScreen() {
@@ -74,9 +74,9 @@ function afterChange(currentStatus, newStatus) {
   let buttons = document.getElementsByName(buttonName);
   localStorage.setItem(storageName, newStatus);
 
-  buttons.forEach((item) => {
+  for ( const item of buttons ) {
     item.textContent = currentStatus + " View";
-  });
+  }
 }
 
 function fullScreenToggle() {

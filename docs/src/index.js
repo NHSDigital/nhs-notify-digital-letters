@@ -1,24 +1,21 @@
 import { Canvg, presets } from "canvg";
 import Reveal from "reveal.js";
 import RevealMarkdown from "reveal.js/plugin/markdown/markdown.esm.js";
-import Markdown from "reveal.js/plugin/markdown/markdown.esm.js";
+import RevealMenu from "reveal.js-menu/menu.esm.js";
 import "reveal.js/dist/reveal.css";
 import "reveal.js/dist/theme/black.css";
 import "@fontsource/source-sans-pro";
-import RevealMenu from "reveal.js-menu/menu.esm.js";
 import "reveal.js-menu/menu.css";
 import mermaid from "mermaid";
-import mermaidAPI from "mermaid";
-import RevealNotes from "reveal.js";
+import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
+
 
 const preset = presets.offscreen();
 
 let x = RevealMarkdown;
 let $ = require("jquery");
-global.jQuery = $;
-global.$ = $;
-window.jQuery = $;
-window.$ = $;
+globalThis.jQuery = $;
+globalThis.$ = $;
 
 mermaid.startOnLoad = false;
 
@@ -51,13 +48,6 @@ function LoadUpReveal(
   pluginsToLoad.push(RevealMarkdown);
   if (showMenu) pluginsToLoad.push(RevealMenu);
   pluginsToLoad.push(RevealNotes);
-  let sleepTime = 100;
-  let selectorToUse =
-    "div." +
-    deckid +
-    " > div.slides > section.present > div.mermaid, div." +
-    deckid +
-    " > div.slides > section.present > pre > code.mermaid";
   let selectorToUseOnSlideChange = "div.mermaid, code.mermaid";
   let deck1 = new Reveal(document.querySelector("div." + deckid), {
     embedded: embed,
@@ -110,13 +100,11 @@ function LoadUpReveal(
       if (useMermaid) {
         currentSlide = deck1.getCurrentSlide();
       }
-      let notes = deck1.getSlideNotes(currentSlide);
       UseMermaidNow(currentSlide, selectorToUseOnSlideChange);
     });
 
   deck1.on("slidechanged", (event) => {
     if (useMermaid) {
-      let notes = deck1.getSlideNotes(event.currentSlide);
       RemoveProcessed(event.previousSlide);
       UseMermaidNow(event.currentSlide, selectorToUseOnSlideChange);
     }
@@ -136,18 +124,17 @@ function RemoveProcessed(slideToRemoveFrom) {
   let selectorToUse =
     "div.mermaid[data-processed], code.mermaid[data-processed]";
   let toRender = slideToRemoveFrom.querySelectorAll(selectorToUse);
-  toRender.forEach((item) => {
+  for ( const item of toRender ) {
     if (item.hasAttribute(processedAttribName)) {
       while (item.firstChild) {
-        item.removeChild(item.firstChild);
+        item.firstChild.remove();
       }
       item.removeAttribute(processedAttribName);
 
       let rawCode = item.rawCode;
       item.innerHTML = rawCode;
     }
-  });
-  let toRenderCheck = slideToRemoveFrom.querySelectorAll(selectorToUse);
+  }
 }
 
 function mermaidCb(id, addlinks) {
@@ -198,22 +185,12 @@ export async function UseMermaidNow(
 ) {
   let toRender = useMermaidOn.querySelectorAll(selector);
   if (toRender.length > 0) {
-    toRender.forEach((item) => {
+    for ( const item of toRender) {
       if (!item.hasOwnProperty("rawCode")) item.rawCode = item.innerHTML;
-    });
-
-    //await mermaid.run();
-
-    //await mermaid.run(undefined, toRender, (id) => {
-    //  mermaidCb(id, addlinks);
-    //});
+    }
 
     mermaid.init(undefined, toRender, (id) => {
       mermaidCb(id, addlinks);
-    });
-    let afterRender = useMermaidOn.querySelectorAll(selector);
-    afterRender.forEach((item) => {
-      let x = 1;
     });
   }
 }
@@ -222,7 +199,6 @@ export async function UseMermaid(
   document,
   addlinks = true,
   selector = ".language-mermaid",
-  excludeSelector = "div.slides > section"
 ) {
   $(async function () {
     MermaidInit(addlinks);
@@ -291,7 +267,7 @@ function addLinks(id) {
 function drawCanvas(id, callback) {
   let svg = document.getElementById(id);
   let { width, height } = svg.getBoundingClientRect();
-  let pixelRatio = 2; //window.devicePixelRatio || 1;
+  let pixelRatio = 2;
 
   // lets scale the canvas and change its CSS width/height to make it high res.
   //  canvas.style.width = canvas.width +'px';
@@ -300,9 +276,6 @@ function drawCanvas(id, callback) {
 
   let canvas = (canvas = new OffscreenCanvas(newWidth, newHeight)); // document.createElement('canvas'); // Create a Canvas element.
   let ctx = canvas.getContext("2d"); // For Canvas returns 2D graphic.
-
-  // ctx.fillStyle = 'white'; // background color for the canvas
-  // ctx.fillRect(0, 0, width, height); // fill the color on the canvas
 
   // Now that its high res we need to compensate so our images can be drawn as
   //normal, by scaling everything up by the pixelRatio.
@@ -321,7 +294,6 @@ function drawCanvas(id, callback) {
         callback(img);
       });
 
-      //img.style.width = width +'px';
     });
   });
 }
@@ -331,8 +303,7 @@ export function hookFullScreen() {
   cb.checked = localStorage.getItem("cb-checked") === "true";
 
   fullScreen();
-  cb.onchange = function (evt) {
-    let x = 1;
+  cb.onchange = function () {
     fullScreen();
   };
 }
