@@ -15,8 +15,8 @@ author: Tom D'Roza
 ```mermaid
 architecture-beta
     group meshPoller(cloud)[MeshPoller]
-    service meshDownloaded(logos:aws-eventbridge)[Scheduled Poll Event]
-    service pdmSaved(logos:aws-eventbridge)[MESHFileAvailable Event]
+    service meshDownloaded(aws:res-amazon-eventbridge-event)[Scheduled Poll Event]
+    service pdmSaved(aws:res-amazon-eventbridge-event)[MESHFileAvailable Event]
     service meshPollQueue(logos:aws-sqs)[MeshPoll Queue] in meshPoller
     service meshPollLambda(logos:aws-lambda)[MeshPoll] in meshPoller
     service mesh(server)[MESH]
@@ -33,8 +33,8 @@ architecture-beta
 ```mermaid
 architecture-beta
     group meshRetriever(cloud)[MeshRetriever]
-    service meshDownloaded(logos:aws-eventbridge)[MESHFileAvailable Event]
-    service pdmSaved(logos:aws-eventbridge)[SavedToPDM Event]
+    service meshDownloaded(aws:res-amazon-eventbridge-event)[MESHFileAvailable Event]
+    service pdmSaved(aws:res-amazon-eventbridge-event)[MESHFileDownloaded Event]
     service meshDownloadQueue(logos:aws-sqs)[MeshDownload Queue] in meshRetriever
     service meshDownloadLambda(logos:aws-lambda)[MeshDownload] in meshRetriever
     service mesh(server)[MESH]
