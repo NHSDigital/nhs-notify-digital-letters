@@ -17,7 +17,7 @@ author: Tom D'Roza
     service db(logos:aws-dynamodb)[DynamoDB] in createTtl
     service createLambda(logos:aws-lambda)[Create PrintLetter TTL] in createTtl
     service queue(logos:aws-sqs)[SQS] in createTtl
-    service storedEvent(aws:res-amazon-eventbridge-event)[LetterStored event]
+    service storedEvent(aws:res-amazon-eventbridge-event)[MESHFileDownloaded event]
     service scheduledEvent(aws:res-amazon-eventbridge-event)[PrintingScheduled event]
 
     storedEvent:R --> L:queue
