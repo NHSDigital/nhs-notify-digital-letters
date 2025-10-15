@@ -15,7 +15,7 @@ architecture-beta
    group manageTTL(cloud)[ManageTTL]
    service manageLambda(logos:aws-lambda)[Poll TTL] in manageTTL
    service manageDb(logos:aws-dynamodb)[DynamoDB] in manageTTL
-   service ttlStream(logos:aws-stream)[Stream] in manageTTL
+   service ttlStream(aws:res-amazon-dynamodb-stream)[Stream] in manageTTL
    service manageTtlExpiry(logos:aws-lambda)[handleTTLExpiry] in manageTTL
    service printTTLExpired(logos:aws-eventbridge)[PrintTTLExpired] in manageTTL
 
