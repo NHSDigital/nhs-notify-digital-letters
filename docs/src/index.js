@@ -182,10 +182,10 @@ export function MermaidInit(addlinks = true) {
         ),
     },
     {
-      name: "aws-icons-mermaid",
+      name: "aws",
       loader: () =>
         fetch(
-          "https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/refs/heads/main/dist/aws-icons-mermaid.json"
+          "../../../assets/aws-icons-mermaid.json"
         ).then((res) => res.json()),
     },
   ]);
