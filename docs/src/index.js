@@ -274,7 +274,7 @@ function drawCanvas(id, callback) {
   let newWidth = width * pixelRatio;
   let newHeight = height * pixelRatio;
 
-  let canvas = (canvas = new OffscreenCanvas(newWidth, newHeight)); // document.createElement('canvas'); // Create a Canvas element.
+  let canvas = new OffscreenCanvas(newWidth, newHeight); // document.createElement('canvas'); // Create a Canvas element.
   let ctx = canvas.getContext("2d"); // For Canvas returns 2D graphic.
 
   // Now that its high res we need to compensate so our images can be drawn as
