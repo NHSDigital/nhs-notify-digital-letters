@@ -1,5 +1,3 @@
-## This workflow is DISABLED.
-## To enable, rename from .disabled to .yaml and replace any references as per the comments.
 name: Github Release Created
 
 on:
@@ -22,20 +20,30 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        component: [component1, component2] ## Replace with correct components
+        component: [ltrs]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5.0.0
 
-      - name: Updating Main Environment
+      - name: Deploy Nonprod Environment
         env:
           PR_TRIGGER_PAT: ${{ secrets.PR_TRIGGER_PAT }}
         run: |
           bash .github/scripts/dispatch_internal_repo_workflow.sh \
             --releaseVersion "${{ github.event.release.tag_name }}" \
-            --targetWorkflow "dispatch-deploy-static-notify-bounded-context-env.yaml" ## Replace with correct targetWorkflow \
+            --targetWorkflow "dispatch-deploy-static-notify-digital-letters-env.yaml" \
             --targetEnvironment "main" \
-            --targetAccountGroup "nhs-notify-bounded-context-nonprod" ## Replace with correct targetAccountGroup \
+            --targetAccountGroup "nhs-notify-digital-letters-nonprod" \
             --targetComponent "${{ matrix.component }}" \
             --terraformAction "apply"
+
+  acceptance-stage:
+    name: "Acceptance stage"
+    needs: [deploy-main]
+    uses: ./.github/workflows/stage-4-acceptance.yaml
+    secrets:
+      PR_TRIGGER_PAT: ${{ secrets.PR_TRIGGER_PAT }}
+    with:
+      target_environment: "main"
+      target_account_group: nhs-notify-digital-letters-nonprod
