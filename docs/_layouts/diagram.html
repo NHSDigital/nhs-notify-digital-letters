@@ -9,6 +9,19 @@ layout: table_wrappers
 {% include nhs-notify-head.html %}
 
 <body>
+
+
+<h1>{{ page.title }}</h1>
+      <div>
+{{ page.description }}
+</div>
+  <div>  <a
+        href="{{ site.gh_edit_repository }}/{{site.gh_edit_view_mode}}/{{ site.gh_edit_branch }}{% if site.gh_edit_source %}/{{ site.gh_edit_source }}{% endif %}/collections/{{ page.path }}"
+        id="edit-this-page"
+        >🧾 Edit this on GitHub</a
+      >
+      </div>
+
   {{ content }}
 </body>
 

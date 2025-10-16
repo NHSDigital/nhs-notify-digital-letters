@@ -1,14 +1,9 @@
 ---
-layout: page
-title: Digital Letters - Printed Letter TTL Creation
-parent: Architecture
-nav_order: 1
-has_children: false
-is_not_draft: false
-last_modified_date: 2025-10-09
-owner: Tom D'Roza
-author: Tom D'Roza
+
+title: c4code-printer-sendtoqueue
+description: PDM Upload
 ---
+
 
 ```mermaid
    architecture-beta

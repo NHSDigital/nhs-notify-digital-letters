@@ -12,7 +12,3 @@ author: Tom D'Roza
 
 
 {% include diagram.html title="c4Component-notifhir-1" %}
-
-{% include diagram.html title="c4Component-notifhir-2" %}
-
-{% include diagram.html title="c4Component-notifhir-3" %}

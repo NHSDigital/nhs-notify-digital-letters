@@ -9,3 +9,5 @@ last_modified_date: 2024-10-13
 owner: Tom D'Roza
 author: Tom D'Roza
 ---
+
+{% include diagram.html title="c4Component-notifhir-2" %}
