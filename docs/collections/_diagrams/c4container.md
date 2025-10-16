@@ -13,7 +13,7 @@ title: c4container
         System_Ext(trustmesh, "MESH", "Trusts mesh mailbox")
       }
       Container_Boundary(notify01, "NotiFHIR C4 Container. (all cloudevents via EventBus)") {
-        Container(statetracking, "State Tracking", "Keeps track of state", "Used for mesh to send reports")
+        Container(statetracking, "State Tracking & Report Generation", "Keeps track of state", "Used for mesh to send reports")
         Container(mesh, "MESH Services", "Python", "All things MESH", $tags="v1.0", $link="https://www.google.com")
         Container(eventbus, "Event Bus", "CloudEvents", "All Events go via here")
         Container(pdm, "PDM Services", "Typescript", "All things PDM")
