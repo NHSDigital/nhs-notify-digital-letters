@@ -142,7 +142,7 @@ jobs:
             --releaseVersion "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" \
             --targetWorkflow "dispatch-deploy-dynamic-env.yaml" \
             --targetEnvironment "pr${{ needs.metadata.outputs.pr_number }}" \
-            --targetComponent "nudge" \
+            --targetComponent "dl" \
             --targetAccountGroup "nhs-notify-digital-letters-dev" \
             --terraformAction "apply" \
             --overrideProjectName "nhs" \

@@ -70,10 +70,7 @@ data "aws_iam_policy_document" "kms" {
       test     = "ArnLike"
       variable = "kms:EncryptionContext:aws:sqs:arn"
       values = [
-        "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-nudge-inbound-event-queue",
-        "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-nudge-command-queue",
-        "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-nudge-inbound-event-dlq",
-        "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-nudge-command-dlq",
+        "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-*",
       ]
     }
   }
