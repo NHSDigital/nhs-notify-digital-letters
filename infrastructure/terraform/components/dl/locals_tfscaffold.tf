@@ -1,5 +1,5 @@
 locals {
-  component = "ltrs"
+  component = "dl"
 
   terraform_state_bucket = format(
     "%s-tfscaffold-%s-%s",

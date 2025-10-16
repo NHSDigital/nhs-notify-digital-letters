@@ -44,7 +44,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        component: [ltrs]
+        component: [dl]
 
     steps:
       - name: Checkout repository
