@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Status Reporter - C4 Code
-parent:  MESH - C4 Component
+title: MESH Status Reporter
+parent:  MESH Services
 nav_order: 3
 has_children: true
 is_not_draft: false

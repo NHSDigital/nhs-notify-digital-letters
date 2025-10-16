@@ -1,7 +1,7 @@
 ---
 layout: page
 title: PDM Poller - C4 Code
-parent:  PDM - C4 Component
+parent:  PDM Services
 nav_order: 1
 has_children: true
 is_not_draft: false

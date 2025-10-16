@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Notify Client - C4 Code
-parent:  Notifier - C4 Component
+title: Notify Client
+parent:  Core System Notifier
 nav_order: 1
 has_children: true
 is_not_draft: false

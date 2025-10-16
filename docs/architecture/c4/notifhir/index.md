@@ -1,6 +1,6 @@
 ---
 layout: page
-title: NotiFHIR - C4 Container
+title: NotiFHIR
 parent: Digital Letters - C4 System Context
 nav_order: 6
 has_children: true

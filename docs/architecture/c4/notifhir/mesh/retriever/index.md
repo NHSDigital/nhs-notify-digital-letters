@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Retriever - C4 Code
-parent:  MESH - C4 Component
+title: MESH Retriever
+parent:  MESH Services
 nav_order: 2
 has_children: true
 is_not_draft: false

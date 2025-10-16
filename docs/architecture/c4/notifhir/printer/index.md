@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Printer - C4 Component
-parent:  NotiFHIR - C4 Container
+title: Print Supplier Services
+parent:  NotiFHIR
 nav_order: 6
 has_children: true
 is_not_draft: false
