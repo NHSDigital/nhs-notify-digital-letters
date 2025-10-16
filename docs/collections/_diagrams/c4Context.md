@@ -18,9 +18,10 @@ title: c4context
          System(notify02, "NotiFHIR")
          System_Ext(notify04, "Event Bus")
          System_Boundary(notify01asd, "Event Consumers") {
-            System_Ext(notify03, "Core", "Description")
+
             System_Ext(notify05, "Reporting", "Description")
             System_Ext(notify06, "Suppliers API", "Description")
+            System_Ext(notify03, "Core", "Description")
          }
       }
 
@@ -74,8 +75,10 @@ title: c4context
       Rel(print01, citizen01, "Send Letter", "Snail Mail")
       Rel(sms01, citizen01, "Send SMS", "SMS")
       Rel(tie01, mesh01, "Submits File", "MESH")
+      Rel(notify06, notify04, "Update Print Status", "Event")
+      Rel(notify04, notify02, "Update Print Status", "Event")
 
-      UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="2")
+      UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="2")
 
 
 

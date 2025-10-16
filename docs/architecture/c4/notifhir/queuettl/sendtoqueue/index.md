@@ -1,7 +1,7 @@
 ---
 layout: page
-title: PDM Poller
-parent:  PDM Services
+title: Queue Adder
+parent:  Queue Services
 nav_order: 1
 has_children: true
 is_not_draft: false
@@ -10,4 +10,4 @@ owner: Ross Buggins
 author: Ross Buggins
 ---
 
-{% include diagram.html title="c4code-pdm-poller" %}
+{% include diagram.html title="c4code-printer-sendtoqueue" %}
