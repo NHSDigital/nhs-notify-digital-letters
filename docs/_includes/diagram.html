@@ -2,5 +2,5 @@
     | where_exp:"diagram", "diagram.title == include.title"
     | first %}
 
-[{{ diagram.url |relative_url }}]({{ diagram.url |relative_url }})
+[Link to this diagram directly: {{ diagram.url |relative_url }}]({{ diagram.url |relative_url }})
 {{ diagram.content | markdownify }}
