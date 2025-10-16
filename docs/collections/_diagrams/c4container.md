@@ -17,10 +17,10 @@ title: c4container
         Container(mesh, "MESH Services", "Python", "All things MESH", $tags="v1.0", $link="https://www.google.com")
         Container(eventbus, "Event Bus", "CloudEvents", "All Events go via here")
         Container(pdm, "PDM Services", "Typescript", "All things PDM")
-        Container(ttl, "Queue Service", "AWS", "Keeping things in a queue")
+        Container(ttl, "Queue Services", "AWS", "Keeping things in a queue")
         Container(core, "Core System Notifier", "NHS Notify", "Interacts with Notify to send App messages", $link="https://www.google.com")
         Container(fhir, "FHIR", "FHIR", "Extraction of PDF from FHIR")
-        Container(digitalletter, "Digital Letter Services", "Stuff", "Knows about digital letters")
+        Container(digitalletter, "Digital Letter Viewer Services", "Stuff", "Knows about digital letters")
 
         Container(print, "Print Supplier Services", "Print", "Sends pdfs to printer")
 
