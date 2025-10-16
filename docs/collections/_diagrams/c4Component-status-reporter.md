@@ -1,6 +1,6 @@
 ---
 
-title: c4Component-status-report
+title: c4Component-status-reporter
 
 ---
 
