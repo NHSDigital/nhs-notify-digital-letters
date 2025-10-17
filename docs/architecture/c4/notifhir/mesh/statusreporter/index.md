@@ -10,5 +10,6 @@ owner: Ross Buggins
 author: Tom D'Roza
 diagrams: [c4code-mesh-statusreporter]
 events-raised: []
-events-consumed: []
+events-consumed: [reporting-daily-report-generated]
+c4type: code
 ---

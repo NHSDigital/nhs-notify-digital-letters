@@ -11,4 +11,5 @@ author: Tom D'Roza
 diagrams: [c4code-mesh-poller]
 events-raised: []
 events-consumed: []
+c4type: code
 ---

@@ -11,4 +11,5 @@ author: Ross Buggins
 diagrams: [c4code-printer-removefromqueue]
 events-raised: []
 events-consumed: []
+c4type: code
 ---

@@ -10,5 +10,6 @@ owner: Tom D'Roza
 author: Tom D'Roza
 diagrams: [c4component-mesh]
 events-raised: []
-events-consumed: []
+events-consumed: [reporting-daily-report-generated]
+c4type: component
 ---

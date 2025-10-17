@@ -11,4 +11,5 @@ author: Ross Buggins
 diagrams: [c4context-digital-letters]
 events-raised: []
 events-consumed: []
+c4type: context
 ---

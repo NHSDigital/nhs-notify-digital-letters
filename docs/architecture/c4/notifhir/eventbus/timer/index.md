@@ -11,4 +11,5 @@ author: Ross Buggins
 events-raised: [timer-time-expired]
 events-consumed: []
 diagrams: [c4code-eventbus-timer]
+c4type: code
 ---

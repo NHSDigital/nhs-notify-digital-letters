@@ -11,4 +11,5 @@ author: Tom D'Roza
 diagrams: []
 events-raised: []
 events-consumed: []
+c4type: component
 ---

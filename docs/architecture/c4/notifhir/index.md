@@ -11,4 +11,5 @@ author: Ross Buggins
 diagrams: [c4container-notifhir]
 events-raised: []
 events-consumed: []
+c4type: container
 ---

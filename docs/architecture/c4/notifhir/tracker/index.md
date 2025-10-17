@@ -11,4 +11,6 @@ author: Ross Buggins
 diagrams: [c4component-digtiallettertatusreports]
 events-raised: [reporting-daily-report-generated]
 events-consumed: []
+c4type: component
+description: Generates reports in real time for specific time periods
 ---
