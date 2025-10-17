@@ -31,6 +31,10 @@ resource "aws_dynamodb_table" "ttl" {
     attribute_name = "ttl"
   }
 
+  point_in_time_recovery {
+    enabled = true
+  }
+
   global_secondary_index {
     name            = "dateOfExpiryIndex"
     hash_key        = "dateOfExpiry"
