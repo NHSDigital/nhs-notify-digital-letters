@@ -11,6 +11,10 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write
+  contents: write
+
 jobs:
   metadata:
     name: "Set CI/CD metadata"
@@ -27,6 +31,7 @@ jobs:
       version: ${{ steps.variables.outputs.version }}
       is_version_prerelease: ${{ steps.variables.outputs.is_version_prerelease }}
       does_pull_request_exist: ${{ steps.pr_exists.outputs.does_pull_request_exist }}
+      pr_number: ${{ steps.pr_exists.outputs.pr_number }}
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
@@ -53,13 +58,20 @@ jobs:
         run: |
           branch_name=${GITHUB_HEAD_REF:-$(echo $GITHUB_REF | sed 's#refs/heads/##')}
           echo "Current branch is '$branch_name'"
-          if gh pr list --head $branch_name | grep -q .; then
-            echo "Pull request exists"
+
+          pr_json=$(gh pr list --head "$branch_name" --state open --json number --limit 1)
+          pr_number=$(echo "$pr_json" | jq -r '.[0].number // empty')
+
+          if [[ -n "$pr_number" ]]; then
+            echo "Pull request exists: #$pr_number"
             echo "does_pull_request_exist=true" >> $GITHUB_OUTPUT
+            echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
           else
             echo "Pull request doesn't exist"
             echo "does_pull_request_exist=false" >> $GITHUB_OUTPUT
+            echo "pr_number=" >> $GITHUB_OUTPUT
           fi
+
       - name: "List variables"
         run: |
           export BUILD_DATETIME_LONDON="${{ steps.variables.outputs.build_datetime_london }}"
@@ -113,6 +125,29 @@ jobs:
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
     secrets: inherit
+  pr-create-dynamic-environment:
+    name: Trigger dynamic environment creation
+    needs: [metadata, build-stage]
+    runs-on: ubuntu-latest
+    if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
+    steps:
+      - uses: actions/checkout@v5.0.0
+      - name: Trigger dynamic environment creation
+        env:
+          PR_TRIGGER_PAT: ${{ secrets.PR_TRIGGER_PAT }}
+        shell: bash
+        run: |
+          .github/scripts/dispatch_internal_repo_workflow.sh \
+            --infraRepoName "$(echo ${{ github.repository }} | cut -d'/' -f2)" \
+            --releaseVersion "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" \
+            --targetWorkflow "dispatch-deploy-dynamic-env.yaml" \
+            --targetEnvironment "pr${{ needs.metadata.outputs.pr_number }}" \
+            --targetComponent "dl" \
+            --targetAccountGroup "nhs-notify-digital-letters-dev" \
+            --terraformAction "apply" \
+            --overrideProjectName "nhs" \
+            --overrideRoleName "nhs-main-acct-digital-letters-github-deploy" \
+            --overrides "branch_name=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
   acceptance-stage: # Recommended maximum execution time is 10 minutes
     name: "Acceptance stage"
     needs: [metadata, build-stage]

@@ -1,7 +1,7 @@
 # NHS Notify Digital Letters
 
 [![CI/CD Pull Request](https://github.com/NHSDigital/nhs-notify-digital-letters/actions/workflows/cicd-1-pull-request.yaml/badge.svg)](https://github.com/NHSDigital/nhs-notify-digital-letters/actions/workflows/cicd-1-pull-request.yaml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=nhs-notify-digital-letters&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=nhs-notify-digital-letters)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=NHSDigital_nhs-notify-digital-letters&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=NHSDigital_nhs-notify-digital-letters)
 
 This repository contains the infrastructure and code required to deliver letters digitally that would traditionally be printed and posted.
 

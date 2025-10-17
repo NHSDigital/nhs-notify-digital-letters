@@ -1,0 +1,33 @@
+name: PR Destroy Environment
+
+on:
+  pull_request:
+    types: [closed]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  create-dynamic-environment:
+    name: Destroy Dynamic Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5.0.0
+      - name: Trigger dynamic environment creation
+        env:
+          PR_TRIGGER_PAT: ${{ secrets.PR_TRIGGER_PAT }}
+        shell: bash
+        run: |
+          .github/scripts/dispatch_internal_repo_workflow.sh \
+            --infraRepoName "$(echo ${{ github.repository }} | cut -d'/' -f2)" \
+            --releaseVersion "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" \
+            --targetWorkflow "dispatch-deploy-dynamic-env.yaml" \
+            --targetEnvironment "pr${{ github.event.number }}" \
+            --targetComponent "dl" \
+            --targetAccountGroup "nhs-notify-digital-letters-dev" \
+            --terraformAction "destroy" \
+            --overrideProjectName "nhs" \
+            --overrideRoleName "nhs-main-acct-digital-letters-github-deploy" \
+            --overrides "branch_name=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"

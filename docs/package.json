@@ -1,18 +1,35 @@
 {
   "author": "",
   "dependencies": {
-    "nhsuk-frontend": "^8.1.1"
+    "@fontsource/source-sans-pro": "^5.0.8",
+    "canvg": "^4.0.1",
+    "jquery": "^3.7.0",
+    "mermaid": "11.12.0",
+    "nhsuk-frontend": "^8.1.1",
+    "reveal.js": "^4.5.0",
+    "reveal.js-menu": "^2.1.0"
   },
   "description": "",
-  "devDependencies": {},
+  "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.8.1",
+    "mini-css-extract-plugin": "^2.7.6",
+    "saas": "^1.0.0",
+    "sass": "^1.65.1",
+    "sass-loader": "^13.3.2",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
   "engines": {},
   "keywords": [],
   "license": "ISC",
   "name": "nhs-notify",
   "private": true,
   "scripts": {
-    "build": "JEKYLL_ENV=production bundle exec jekyll build --trace --config _config.yml,_config.version.yml",
-    "debug": "JEKYLL_ENV=development BUNDLE_GEMFILE=Gemfile bundle exec jekyll serve --config _config.yml,_config.dev.yml,_config.version.yml --limit_posts 100 --trace"
+    "build": "webpack && bundle config set --local path 'vendor/bundle' && bundle install && bundle exec just-the-docs rake search:init && JEKYLL_ENV=production bundle exec jekyll build --trace --config _config.yml,_config.version.yml",
+    "build-development": "webpack --mode=development && bundle config set --local path 'vendor/bundle' && bundle install && bundle exec just-the-docs rake search:init && JEKYLL_ENV=development bundle exec jekyll build --config _config.yml,_config.dev.yml",
+    "debug": "JEKYLL_ENV=development BUNDLE_GEMFILE=Gemfile-dev bundle exec jekyll serve --config _config.yml,_config.dev.yml --limit_posts 100"
   },
   "version": "1.0.0"
 }

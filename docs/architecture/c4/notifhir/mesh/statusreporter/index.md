@@ -1,11 +1,13 @@
 ---
 layout: page
-title: Status Reporter - C4 Code
-parent:  MESH - C4 Component
+title: MESH Status Reporter
+parent:  MESH Services
 nav_order: 3
 has_children: true
 is_not_draft: false
-last_modified_date: 2024-05-28
+last_modified_date: 2025-10-15
 owner: Ross Buggins
-author: Ross Buggins
+author: Tom D'Roza
 ---
+
+{% include diagram.html title="c4Component-status-reporter" %}

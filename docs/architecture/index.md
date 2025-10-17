@@ -8,3 +8,5 @@ last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
 ---
+
+{% include diagram.html title="architecture-concepts" %}

@@ -19,7 +19,7 @@ sequenceDiagram
   participant dynamo as DynamoDB
 
 
-  eb ->> sqs: LetterStored event
+  eb ->> sqs: MESHFileDownloaded event
   sqs ->> createTTL:
   createTTL ->> dynamo: Insert (24h TTL)
 ```
