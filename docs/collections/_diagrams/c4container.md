@@ -43,6 +43,7 @@ title: c4container
       Rel(eventbus, statetracking, "All Events", "CloudEvent")
       Rel(statetracking, mesh, "ReportCreated", "CloudEvent")
       Rel(core, notifycore,  "POST /v1/messages", "API")
+      Rel(eventbus, mesh,  "TimerExpired", "CloudEvent")
 
 
 

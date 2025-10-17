@@ -12,4 +12,4 @@ events-raised: [timer-time-expired]
 events-consumed: []
 ---
 
-{% include diagram.html title="" %}
+{% include diagram.html title="c4code-eventbus-timer" %}
