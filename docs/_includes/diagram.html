@@ -2,7 +2,7 @@
     | where_exp:"diagram", "diagram.title == include.title"
     | first %}
 
-<h3>{{ diagram.title }}</h3>
+<h3>{{ include.title }}</h3>
 <div>{{ diagram.description }}</div>
 <div>C4: {{ diagram.c4type }}</div>
 

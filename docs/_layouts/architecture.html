@@ -10,11 +10,11 @@ layout: default
 
 {% for diagramtitle in page.diagrams %}
 
-  {% assign diagram = site.diagrams
+  <!-- {% assign diagram = site.diagrams
       | where_exp:"diagram", "diagram.title == diagramtitle"
-      | first %}
+      | first %} -->
 
-  {% include diagram.html title=diagram.title %}
+  {% include diagram.html title=diagramtitle %}
 {% endfor %}
 
 

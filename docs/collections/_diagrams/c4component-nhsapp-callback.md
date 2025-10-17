@@ -1,6 +1,6 @@
 ---
 
-title: c4Component-nhsapp-callback
+title: c4component-nhsapp-callback
 
 ---
 
