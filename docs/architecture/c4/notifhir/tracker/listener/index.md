@@ -1,7 +1,7 @@
 ---
 
 title: Report Generator
-parent:  Status Reports
+parent:  Digital Letter Status Reports
 nav_order: 1
 has_children: true
 is_not_draft: false

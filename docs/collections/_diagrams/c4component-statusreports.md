@@ -1,6 +1,6 @@
 ---
 
-title: c4component-statusreports
+title: c4component-digtiallettertatusreports
 description: Real time generation of status reports
 c4type: code
 ---
