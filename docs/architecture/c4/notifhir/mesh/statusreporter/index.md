@@ -8,6 +8,7 @@ is_not_draft: false
 last_modified_date: 2025-10-15
 owner: Ross Buggins
 author: Tom D'Roza
+diagrams: [c4code-mesh-statusreporter]
+events-raised: []
+events-consumed: []
 ---
-
-{% include diagram.html title="c4code-mesh-statusreporter" %}

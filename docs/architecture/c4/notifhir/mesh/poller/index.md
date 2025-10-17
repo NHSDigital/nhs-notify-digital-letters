@@ -8,6 +8,7 @@ is_not_draft: false
 last_modified_date: 2024-10-13
 owner: Tom D'Roza
 author: Tom D'Roza
+diagrams: [c4code-mesh-poller]
+events-raised: []
+events-consumed: []
 ---
-
-{% include diagram.html title="c4code-mesh-poller" %}

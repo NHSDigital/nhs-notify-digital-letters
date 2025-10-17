@@ -10,6 +10,5 @@ owner: Ross Buggins
 author: Ross Buggins
 events-raised: [timer-time-expired]
 events-consumed: []
+diagrams: [c4code-eventbus-timer]
 ---
-
-{% include diagram.html title="c4code-eventbus-timer" %}

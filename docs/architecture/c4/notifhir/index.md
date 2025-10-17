@@ -8,6 +8,7 @@ is_not_draft: false
 last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
+diagrams: [c4container-notifhir]
+events-raised: []
+events-consumed: []
 ---
-
-{% include diagram.html title="c4container-notifhir" %}
