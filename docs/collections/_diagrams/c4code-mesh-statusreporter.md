@@ -1,6 +1,6 @@
 ---
 
-title: c4Component-status-reporter
+title: c4code-mesh-statusreporter
 
 ---
 

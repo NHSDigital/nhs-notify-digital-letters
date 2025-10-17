@@ -10,4 +10,4 @@ owner: Ross Buggins
 author: Tom D'Roza
 ---
 
-{% include diagram.html title="c4Component-status-reporter" %}
+{% include diagram.html title="c4code-mesh-statusreporter" %}

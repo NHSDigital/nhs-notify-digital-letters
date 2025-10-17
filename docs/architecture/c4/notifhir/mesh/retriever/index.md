@@ -10,4 +10,4 @@ owner: Ross Buggins
 author: Ross Buggins
 ---
 
-{% include diagram.html title="c4Component-notifhir-3" %}
+{% include diagram.html title="c4code-mesh-retriever" %}
