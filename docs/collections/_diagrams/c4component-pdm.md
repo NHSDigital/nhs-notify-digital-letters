@@ -10,8 +10,8 @@ title: c4component-pdm
     Container_Boundary(meshcontainer, "PDM Services Container") {
 
          Component(poller, "Trigger getting message list")
-         Component(retriemeta, "Get Message List")
-         Component(saver, "Save message contents")
+         Component(retriemeta, "PDM Poller")
+         Component(saver, "PDM Uploader")
 
 
     }
