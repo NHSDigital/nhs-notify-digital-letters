@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Notify Callbacks
 parent:  Core System Notifier
 nav_order: 2

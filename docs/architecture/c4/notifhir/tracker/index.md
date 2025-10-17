@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Status Reports
 parent:  NotiFHIR
 nav_order: 1

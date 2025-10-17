@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: MESH Services
 parent:  NotiFHIR
 nav_order: 2

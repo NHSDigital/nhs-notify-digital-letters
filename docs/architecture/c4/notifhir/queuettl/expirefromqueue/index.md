@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Expire Queue
 parent:  Queue Services
 nav_order: 3

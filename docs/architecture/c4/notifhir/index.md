@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: NotiFHIR
 parent: Digital Letters - C4 System Context
 nav_order: 6

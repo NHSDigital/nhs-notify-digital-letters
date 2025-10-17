@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Digital Letter Viewer Services
 parent:  NotiFHIR
 nav_order: 8

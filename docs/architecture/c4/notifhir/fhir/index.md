@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: FHIR
 parent:  NotiFHIR
 nav_order: 7

@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: AWS Event Bridge
 parent:   Event Bus
 nav_order: 3

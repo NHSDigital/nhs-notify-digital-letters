@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Letter Viewer Callbacks
 parent:  Digital Letter Viewer Services
 nav_order: 8

@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: vNext MESH Poller
 parent: MESH Poller
 nav_order: 6

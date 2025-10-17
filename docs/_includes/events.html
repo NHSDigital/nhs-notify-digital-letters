@@ -1,0 +1,35 @@
+<h2>Events Raised</h2>
+
+<ul>
+{% for eventraised in page.events-raised %}
+
+  {% assign event = site.events
+      | where_exp:"event", "event.title == eventraised"
+      | first %}
+
+  <li>
+      <a href="{{event.url | relative_url}}">
+      {{ event.title }} - {{ event.type }}
+    </a>
+  </li>
+{% endfor %}
+</ul>
+
+<h2>Events Consumed</h2>
+
+<ul>
+{% for eventconsumed in page.events-consumed %}
+
+  {% assign event = site.events
+      | where_exp:"event", "event.title == eventconsumed"
+      | first %}
+
+  <li>
+      <a href="{{event.url | relative_url}}">
+      {{ event.title }} - {{ event.type }}
+    </a>
+  </li>
+{% endfor %}
+</ul>
+
+</ul>

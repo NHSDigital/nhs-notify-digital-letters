@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Send to Print
 parent:  Print Supplier Services
 nav_order: 9

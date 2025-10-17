@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: MESH Status Reporter
 parent:  MESH Services
 nav_order: 3

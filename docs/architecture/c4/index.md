@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Digital Letters - C4 System Context
 parent: Architecture
 nav_order: 6

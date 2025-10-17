@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Report Generator
 parent:  Status Reports
 nav_order: 1

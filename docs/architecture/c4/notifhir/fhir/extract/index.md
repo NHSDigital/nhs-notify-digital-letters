@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Extract Attachment
 parent:  FHIR
 nav_order: 7

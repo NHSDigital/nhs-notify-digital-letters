@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Queue Services
 parent:  NotiFHIR
 nav_order: 5

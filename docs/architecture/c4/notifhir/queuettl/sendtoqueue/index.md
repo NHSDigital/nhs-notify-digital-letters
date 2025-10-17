@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Queue Adder
 parent:  Queue Services
 nav_order: 1

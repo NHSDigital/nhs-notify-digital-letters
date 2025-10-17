@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Notify Client
 parent:  Core System Notifier
 nav_order: 1

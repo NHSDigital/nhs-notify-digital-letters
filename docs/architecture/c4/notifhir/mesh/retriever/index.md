@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: MESH Retriever
 parent:  MESH Services
 nav_order: 2

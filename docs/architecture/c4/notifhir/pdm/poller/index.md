@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: PDM Poller
 parent:  PDM Services
 nav_order: 1

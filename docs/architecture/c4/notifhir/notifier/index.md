@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Core System Notifier
 parent:  NotiFHIR
 nav_order: 6

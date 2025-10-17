@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: MESH Poller
 parent:  MESH Services
 nav_order: 1

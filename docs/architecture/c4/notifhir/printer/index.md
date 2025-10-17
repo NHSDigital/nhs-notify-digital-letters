@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Print Supplier Services
 parent:  NotiFHIR
 nav_order: 9
