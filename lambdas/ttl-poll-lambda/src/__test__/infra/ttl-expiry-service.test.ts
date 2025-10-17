@@ -79,7 +79,6 @@ describe('TtlExpiryService', () => {
     mockDynamoRepository,
     60,
     300,
-    100,
   );
 
   beforeEach(() => {
@@ -212,7 +211,6 @@ describe('TtlExpiryService', () => {
       mockDynamoRepository,
       60,
       0,
-      100,
     );
 
     mockDynamoRepository.queryTtlIndex.mockImplementation(

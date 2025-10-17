@@ -14,7 +14,6 @@ export class TtlExpiryService {
     private readonly dynamoRepository: DynamoRepository,
     concurrency: number,
     private readonly maxProcessSeconds: number,
-    private readonly writeShards: number,
   ) {
     this.limit = pLimit(concurrency);
   }
@@ -55,12 +54,9 @@ export class TtlExpiryService {
     date: string,
     ttlBeforeSeconds: number,
   ): Promise<TtlRecordKey[]> {
-    const shards = [...new Array(this.writeShards).keys()];
+    const shards = [...new Array(100).keys()];
     this.logger.info(
-      'Querying %d shards for expired records on %s before %s',
-      this.writeShards,
-      date,
-      new Date(ttlBeforeSeconds * 1000).toISOString(),
+      `Querying ${shards.length} shards for expired records on ${date} before ${new Date(ttlBeforeSeconds * 1000).toISOString()}`,
     );
 
     const promises = shards.map(async (shard) =>
@@ -71,7 +67,8 @@ export class TtlExpiryService {
       result.status === 'fulfilled' ? result.value : [],
     );
 
-    this.logger.info('Found %d expired records', results.length);
+    this.logger.info(`Found ${results.length} expired records`);
+
     return results;
   }
 
@@ -130,7 +127,7 @@ export class TtlExpiryService {
     // deleted between getting and deletion - it is an idempotent
     // operation that will not fail unless condition expression
     // is specified
-    this.logger.info('Deleting %d records', recordKeys.length);
+    this.logger.info(`Deleting ${recordKeys.length} records`);
     const dynamoResponses = chunk(recordKeys, 25).map((batch) =>
       this.limit(async () => {
         const { UnprocessedItems = {} } =
