@@ -1,5 +1,4 @@
 {
-  "//": "PLEASE UPDATE THE NAME AND WORKSPACES APPROPRIATELY.",
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",
     "@types/jest": "^30.0.0",
@@ -48,6 +47,6 @@
     "typecheck": "npm run typecheck --workspaces"
   },
   "workspaces": [
-    "lambdas/example-lambda"
+    "lambdas/mesh-poll"
   ]
 }

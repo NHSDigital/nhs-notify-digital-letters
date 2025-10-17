@@ -1,0 +1,51 @@
+---
+layout: default
+---
+
+{% include page-info-header.html %}
+
+Event Type: {{page.type}}
+
+<h2>Raised by</h2>
+<ul>
+{% for archpage in site.pages %}
+
+{% if archpage.layout =="architecture" %}
+
+{% if archpage.events-raised contains page.title %}
+
+  <li>
+      <a href="{{archpage.url | relative_url}}">
+      {{ archpage.c4type }}: {{ archpage.title }}
+    </a>
+  </li>
+  {% endif %}
+{% endif %}
+{% endfor %}
+</ul>
+
+<h2>Consumed by</h2>
+<ul>
+{% for archpage in site.pages %}
+
+{% if archpage.layout =="architecture" %}
+
+{% if archpage.events-consumed contains page.title %}
+
+  <li>
+      <a href="{{archpage.url | relative_url}}">
+      {{ archpage.c4type }}: {{ archpage.title }}
+    </a>
+  </li>
+  {% endif %}
+{% endif %}
+{% endfor %}
+</ul>
+
+<h2>Envelope Schema</h2>
+<iframe title="Envelope Schema {{page.title}}" src="{{ page.schema_envelope }}" width="100%" height="600px"></iframe>
+
+<h2>Data Schema</h2>
+<iframe title="Data Schema {{page.title}}" src="{{ page.schema_data }}" width="100%" height="600px"></iframe>
+
+{{ content }}

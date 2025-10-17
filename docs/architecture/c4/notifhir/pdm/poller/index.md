@@ -1,13 +1,15 @@
 ---
-layout: page
-title: PDM Poller - C4 Code
-parent:  PDM - C4 Component
+
+title: PDM Poller
+parent:  PDM Services
 nav_order: 1
 has_children: true
 is_not_draft: false
 last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
+diagrams: [c4code-pdm-poller]
+events-raised: []
+events-consumed: []
+c4type: code
 ---
-
-{% include diagram.html title="c4code-pdm-poller" %}

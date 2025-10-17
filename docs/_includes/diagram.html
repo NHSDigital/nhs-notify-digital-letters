@@ -2,5 +2,9 @@
     | where_exp:"diagram", "diagram.title == include.title"
     | first %}
 
-[Link to this diagram directly: {{ diagram.url |relative_url }}]({{ diagram.url |relative_url }})
+<h3>{{ include.title }}</h3>
+<div>{{ diagram.description }}</div>
+<div>C4: {{ diagram.c4type }}</div>
+
+<a href="{{ diagram.url |relative_url }}">Link to this diagram directly: {{ diagram.url |relative_url }}</a>
 {{ diagram.content | markdownify }}

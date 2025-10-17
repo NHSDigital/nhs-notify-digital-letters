@@ -1,14 +1,15 @@
 ---
-layout: page
-title: MESH - C4 Component
-parent:  NotiFHIR - C4 Container
-nav_order: 6
+
+title: MESH Services
+parent:  NotiFHIR
+nav_order: 2
 has_children: true
 is_not_draft: false
 last_modified_date: 2025-10-13
 owner: Tom D'Roza
 author: Tom D'Roza
+diagrams: [c4component-mesh]
+events-raised: []
+events-consumed: [reporting-daily-report-generated]
+c4type: component
 ---
-
-
-{% include diagram.html title="c4Component-notifhir-1" %}
