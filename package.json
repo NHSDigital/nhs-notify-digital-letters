@@ -1,5 +1,7 @@
 {
   "devDependencies": {
+    "@stylistic/eslint-plugin": "^3.1.0",
+    "@stylistic/eslint-plugin-ts": "^4.4.1",
     "@tsconfig/node22": "^22.0.2",
     "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^8.46.1",
@@ -29,9 +31,10 @@
     "lcov-result-merger": "^5.0.1",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "typescript-eslint": "^8.46.1"
   },
-  "name": "nhs-notify-repository-template",
+  "name": "nhs-notify-digital-letters",
   "overrides": {
     "pretty-format": {
       "react-is": "19.0.0"
@@ -47,6 +50,9 @@
     "typecheck": "npm run typecheck --workspaces"
   },
   "workspaces": [
-    "lambdas/mesh-poll"
+    "lambdas/mesh-poll",
+    "lambdas/ttl-create-lambda",
+    "lambdas/ttl-poll-lambda",
+    "utils/utils"
   ]
 }

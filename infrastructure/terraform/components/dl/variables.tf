@@ -17,6 +17,11 @@ variable "aws_account_id" {
   description = "The AWS Account ID (numeric)"
 }
 
+variable "shared_infra_account_id" {
+  type        = string
+  description = "The AWS Shared Infra Account ID (numeric)"
+}
+
 variable "region" {
   type        = string
   description = "The AWS Region"
@@ -80,4 +85,22 @@ variable "mesh_poll_schedule" {
   type        = string
   description = "Schedule to poll MESH for messages"
   default     = "cron(0,30 8-16 ? * MON-FRI *)"  # Every 30 minutes between 8am and 4:30pm Mon-Fri
+}
+
+variable "queue_batch_size" {
+  type        = number
+  description = "maximum number of queue items to process"
+  default     = 10
+}
+
+variable "queue_batch_window_seconds" {
+  type        = number
+  description = "maximum time in seconds between processing events"
+  default     = 10
+}
+
+variable "enable_dynamodb_delete_protection" {
+  type        = bool
+  description = "Enable DynamoDB Delete Protection on all Tables"
+  default     = true
 }

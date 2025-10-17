@@ -1,0 +1,15 @@
+import { defaultConfigReader } from 'utils';
+
+export type SendRequestConfig = {
+  ttlTableName: string;
+  concurrency: number;
+  maxProcessSeconds: number;
+};
+
+export function loadConfig(): SendRequestConfig {
+  return {
+    ttlTableName: defaultConfigReader.getValue('TTL_TABLE_NAME'),
+    concurrency: defaultConfigReader.getInt('CONCURRENCY'),
+    maxProcessSeconds: defaultConfigReader.getInt('MAX_PROCESS_SECONDS'),
+  };
+}
