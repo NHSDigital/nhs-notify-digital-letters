@@ -47,6 +47,6 @@ title: c4container-notifhir
 
 
 
-       UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+      UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
 
 ```
