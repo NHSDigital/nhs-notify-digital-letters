@@ -9,7 +9,7 @@ last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
 diagrams: [c4code-pdm-poller]
-events-raised: []
-events-consumed: []
+events-raised: [pdm-file-saved]
+events-consumed: [pdm-file-uploaded]
 c4type: code
 ---
