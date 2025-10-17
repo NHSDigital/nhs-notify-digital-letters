@@ -4,6 +4,10 @@ layout: default
 
 {% include page-info-header.html %}
 
+{% include events.html %}
+
+<h2>Diagrams</h2>
+
 {% for diagramtitle in page.diagrams %}
 
   {% assign diagram = site.diagrams
@@ -13,6 +17,6 @@ layout: default
   {% include diagram.html title=diagram.title %}
 {% endfor %}
 
-{% include events.html %}
+
 
 {{ content }}

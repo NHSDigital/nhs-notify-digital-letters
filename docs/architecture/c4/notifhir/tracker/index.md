@@ -9,6 +9,6 @@ last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
 diagrams: [c4component-statusreports]
-events-raised: []
+events-raised: [reporting-daily-report-generated]
 events-consumed: []
 ---
