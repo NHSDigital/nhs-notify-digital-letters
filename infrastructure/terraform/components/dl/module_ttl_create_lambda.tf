@@ -5,7 +5,7 @@ module "ttl_create_lambda" {
   description   = "A function for creating TTL records"
 
   aws_account_id = var.aws_account_id
-  component      = var.component
+  component      = local.component
   environment    = var.environment
   project        = var.project
   region         = var.region

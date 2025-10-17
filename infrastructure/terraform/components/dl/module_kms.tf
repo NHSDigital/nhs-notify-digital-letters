@@ -70,10 +70,12 @@ data "aws_iam_policy_document" "kms" {
       test     = "ArnLike"
       variable = "kms:EncryptionContext:aws:sqs:arn"
       values = [
-        "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-*",
+        "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-ttl-queue",
+        "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-ttl-dlq",
       ]
     }
   }
+
   statement {
     sid    = "AllowCloudWatchLogsEncrypt"
     effect = "Allow"

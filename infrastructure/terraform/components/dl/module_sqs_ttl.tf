@@ -2,7 +2,7 @@ module "sqs_ttl" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.20/terraform-sqs.zip"
 
   aws_account_id = var.aws_account_id
-  component      = var.component
+  component      = local.component
   environment    = var.environment
   project        = var.project
   region         = var.region
@@ -32,13 +32,7 @@ data "aws_iam_policy_document" "sqs_ttl" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${var.component}-ttl-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-ttl-queue"
     ]
-
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = ["arn:aws:events:${var.region}:${var.eventbus_account_id}:rule/*-data-plane/*"]
-    }
   }
 }
