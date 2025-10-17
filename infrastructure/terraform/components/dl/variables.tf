@@ -17,6 +17,11 @@ variable "aws_account_id" {
   description = "The AWS Account ID (numeric)"
 }
 
+variable "shared_infra_account_id" {
+  type        = string
+  description = "The AWS Shared Infra Account ID (numeric)"
+}
+
 variable "region" {
   type        = string
   description = "The AWS Region"
