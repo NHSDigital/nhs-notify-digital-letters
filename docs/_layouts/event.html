@@ -8,9 +8,14 @@ layout: default
 Event Type: {{page.type}}
 </div>
 <div>
-Event Name: {{page.name}}
+Event Name: {{page.nice_name}}
 </div>
-
+<div>
+File Name: {{page.name}}
+</div>
+<div>
+Title: {{page.title}}
+</div>
 <h2>Raised by</h2>
 <ul>
 {% for archpage in site.pages %}

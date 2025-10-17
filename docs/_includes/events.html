@@ -7,13 +7,27 @@
   | where_exp:"event", "event.title == eventconsumed"
   | first %}
 
+  {% assign producedby = site.pages
+  | where_exp:"producer", "producer.events-raised contains event.title and producer.c4type == 'code'"
+  %}
+
   <li>
     <a href="{{event.url | relative_url}}">
       {{ event.title }} - {{ event.type }}
+      <ul>
+        {% for producer in producedby %}
+        <li>
+          <a href="{{producer.url | relative_url}}">
+            Produced By: {{ producer.c4type }}: {{ producer.title }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
     </a>
   </li>
   {% endfor %}
 </ul>
+
 
 
 <h2>Events Produced</h2>
@@ -25,10 +39,23 @@
   | where_exp:"event", "event.title == eventraised"
   | first %}
 
+  {% assign consumedby = site.pages
+  | where_exp:"consumer", "consumer.events-consumed contains event.title and consumer.c4type == 'code'"
+  %}
+
   <li>
     <a href="{{event.url | relative_url}}">
       {{ event.title }} - {{ event.type }}
     </a>
+    <ul>
+      {% for consumer in consumedby %}
+      <li>
+        <a href="{{consumer.url | relative_url}}">
+          Consumed By: {{ consumer.c4type }}: {{ consumer.title }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
   </li>
   {% endfor %}
 </ul>
