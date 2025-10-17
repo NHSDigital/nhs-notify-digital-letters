@@ -10,7 +10,7 @@ owner: Ross Buggins
 author: Ross Buggins
 diagrams: [c4component-digtiallettertatusreports]
 events-raised: [reporting-daily-report-generated]
-events-consumed: []
+events-consumed: [mesh-file-found, mesh-file-saved]
 c4type: component
 description: Generates reports in real time for specific time periods
 ---

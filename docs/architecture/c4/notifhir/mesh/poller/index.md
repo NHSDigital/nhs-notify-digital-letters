@@ -2,14 +2,14 @@
 
 title: MESH Poller
 parent:  MESH Services
-nav_order: 1
+nav_order: 2
 has_children: true
 is_not_draft: false
 last_modified_date: 2024-10-13
 owner: Tom D'Roza
 author: Tom D'Roza
 diagrams: [c4code-mesh-poller]
-events-raised: []
-events-consumed: []
+events-raised: [mesh-file-found]
+events-consumed: [mesh-timer-schedule-expired]
 c4type: code
 ---
