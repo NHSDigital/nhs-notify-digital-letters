@@ -1,10 +1,12 @@
 {% assign diagram = site.diagrams
-    | where_exp:"diagram", "diagram.title == include.title"
-    | first %}
-
-<h3>{{ include.title }}</h3>
-<div>{{ diagram.description }}</div>
-<div>C4: {{ diagram.c4type }}</div>
-
-<a href="{{ diagram.url |relative_url }}">Link to this diagram directly: {{ diagram.url |relative_url }}</a>
-{{ diagram.content | markdownify }}
+| where_exp:"diagram", "diagram.title == include.title"
+| first %}
+<div>
+  <h3>{{ include.title }}</h3>
+  <div>{{ diagram.description }}</div>
+  <div>C4: {{ diagram.c4type }}</div>
+  <a href="{{ diagram.url |relative_url }}">Link to this diagram directly: {{ diagram.url |relative_url }}</a>
+  <div>
+    {{ diagram.content | markdownify }}
+  </div>
+</div>
