@@ -7,7 +7,7 @@ title: c4component-queue
 ```mermaid
     C4Component
     title Queue Component
-    Container_Boundary(meshcontainer, "Queue Services Container") {
+    Container_Boundary(meshcontainer, "Print Queue Services Container") {
 
          Component(adder, "Add to queue")
          Component(remover, "Remove from queue")

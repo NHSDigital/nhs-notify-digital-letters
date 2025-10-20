@@ -9,7 +9,7 @@ title: c4Component-print
     title Mesh Component
     Container_Boundary(meshcontainer, "Print Supplier Services Container") {
 
-         Component(timer, "Send To Printer")
+         Component(printer, "Send To Printer")
          Component(poller, "Get Callbacks from printer")
 
 

@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Fallback to Printing Sequence Diagram
+title: Create Print TTL Sequence Diagram
 nav_order: 3
 parent: Diagrams
 has_children: false
@@ -19,7 +19,7 @@ sequenceDiagram
   participant dynamo as DynamoDB
 
 
-  eb ->> sqs: MESHFileDownloaded event
+  eb ->> sqs: MESHInboxMessageDownloaded event
   sqs ->> createTTL:
   createTTL ->> dynamo: Insert (24h TTL)
 ```
