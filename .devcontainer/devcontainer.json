@@ -23,6 +23,7 @@
         "github.remotehub",
         "github.vscode-github-actions",
         "github.vscode-pull-request-github",
+        "hashicorp.terraform",
         "hediet.vscode-drawio",
         "johnpapa.vscode-peacock",
         "joshx.workspace-terminals",
@@ -91,6 +92,7 @@
   "mounts": [
     "source=${localEnv:HOME}/.gnupg,target=/home/vscode/.gnupg,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
     "source=/usr/local/share/ca-certificates,target=/home/ca-certificates,type=bind,consistency=cached"
   ],
   "name": "NHS Notify Digital Letters",
