@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Print Supplier Services
 parent:  NotiFHIR
 nav_order: 9
@@ -8,6 +8,8 @@ is_not_draft: false
 last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
+diagrams: [c4component-printsuppliers]
+events-raised: []
+events-consumed: []
+c4type: component
 ---
-
-{% include diagram.html title="c4Component-print" %}

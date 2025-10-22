@@ -1,6 +1,6 @@
 ---
 
-title: c4container
+title: c4container-notifhir
 
 ---
 
@@ -13,7 +13,7 @@ title: c4container
         System_Ext(trustmesh, "MESH", "Trusts mesh mailbox")
       }
       Container_Boundary(notify01, "NotiFHIR C4 Container. (all cloudevents via EventBus)") {
-        Container(statetracking, "Status Reports", "Keeps track of state", "Used for mesh to send reports")
+        Container(statetracking, "Digital Letter Status Reports", "Keeps track of state", "Used for mesh to send reports")
         Container(mesh, "MESH Services", "Python", "All things MESH", $tags="v1.0", $link="https://www.google.com")
         Container(eventbus, "Event Bus", "CloudEvents", "All Events go via here")
         Container(pdm, "PDM Services", "Typescript", "All things PDM")
@@ -43,9 +43,10 @@ title: c4container
       Rel(eventbus, statetracking, "All Events", "CloudEvent")
       Rel(statetracking, mesh, "ReportCreated", "CloudEvent")
       Rel(core, notifycore,  "POST /v1/messages", "API")
+      Rel(eventbus, mesh,  "TimerExpired", "CloudEvent")
 
 
 
-       UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+      UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
 
 ```

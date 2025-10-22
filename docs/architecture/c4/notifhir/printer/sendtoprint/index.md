@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Send to Print
 parent:  Print Supplier Services
 nav_order: 9
@@ -8,6 +8,8 @@ is_not_draft: false
 last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
+diagrams: []
+events-raised: []
+events-consumed: []
+c4type: code
 ---
-
-{% include diagram.html title="" %}

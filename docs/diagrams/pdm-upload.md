@@ -20,7 +20,7 @@ sequenceDiagram
   participant s3 as S3
   participant pdm as PDM
 
-  eventBus -) pdmUploadQueue: MESHFileAvailable Event
+  eventBus -) pdmUploadQueue: MESHInboxMessageReceived Event
   activate pdmUploadQueue
   pdmUploadQueue ->> pdmUpload:
   deactivate pdmUploadQueue
@@ -31,6 +31,6 @@ sequenceDiagram
   activate pdm
   pdm -->> pdmUpload: 200 OK
   deactivate pdm
-  pdmUpload -) eventBus: SavedToPDM Event(meshFileId)
+  pdmUpload -) eventBus: PDMResourceSubmitted Event(meshFileId)
   deactivate pdmUpload
 ```

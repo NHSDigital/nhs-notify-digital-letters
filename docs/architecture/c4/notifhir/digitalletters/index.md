@@ -1,5 +1,5 @@
 ---
-layout: page
+
 title: Digital Letter Viewer Services
 parent:  NotiFHIR
 nav_order: 8
@@ -8,4 +8,7 @@ is_not_draft: false
 last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
+diagrams: [c4component-digitaletters]
+events-raised: []
+events-consumed: []
 ---

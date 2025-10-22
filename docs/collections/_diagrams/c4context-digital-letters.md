@@ -1,5 +1,5 @@
 ---
-title: c4context
+title: c4context-digital-letters
 ---
 
 ```mermaid
