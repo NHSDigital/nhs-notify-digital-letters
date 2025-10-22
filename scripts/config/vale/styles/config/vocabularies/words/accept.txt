@@ -12,10 +12,12 @@ endfor
 endraw
 Git[Hh]ub
 Gitleaks
+group_by
 Grype
 idempotence
 Jira
 Makefile
+nice_name
 OAuth
 Octokit
 onboarding
@@ -23,6 +25,7 @@ Podman
 Python
 rawContent
 sed
+service_sorted
 Syft
 Terraform
 toolchain
