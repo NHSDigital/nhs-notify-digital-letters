@@ -1,8 +1,8 @@
-module "ttl_create_lambda" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.20/terraform-lambda.zip"
+module "ttl_poll" {
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
 
-  function_name = "ttl-create-lambda"
-  description   = "A function for creating TTL records"
+  function_name = "ttl-poll"
+  description   = "A function for deleting any overdue TTL records"
 
   aws_account_id = var.aws_account_id
   component      = local.component
@@ -15,18 +15,19 @@ module "ttl_create_lambda" {
   kms_key_arn           = module.kms.key_arn
 
   iam_policy_document = {
-    body = data.aws_iam_policy_document.ttl_create_lambda.json
+    body = data.aws_iam_policy_document.ttl_poll_lambda.json
   }
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
   function_code_base_path = local.aws_lambda_functions_dir_path
-  function_code_dir       = "ttl-create-lambda/dist"
+  function_code_dir       = "ttl-poll-lambda/dist"
   function_include_common = true
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
   memory                  = 128
-  timeout                 = 60
+  timeout                 = 360
   log_level               = var.log_level
+  schedule                = var.ttl_poll_schedule
 
   force_lambda_code_deploy = var.force_lambda_code_deploy
   enable_lambda_insights   = false
@@ -37,21 +38,25 @@ module "ttl_create_lambda" {
 
   lambda_env_vars = {
     "TTL_TABLE_NAME"      = aws_dynamodb_table.ttl.name
-    "TTL_WAIT_TIME_HOURS" = 24
+    "CONCURRENCY" = 60
+    "MAX_PROCESS_SECONDS" = 300
   }
 }
 
-data "aws_iam_policy_document" "ttl_create_lambda" {
+data "aws_iam_policy_document" "ttl_poll_lambda" {
   statement {
     sid    = "AllowTtlDynamoAccess"
     effect = "Allow"
 
     actions = [
-      "dynamodb:PutItem",
+      "dynamodb:BatchWriteItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:Query"
     ]
 
     resources = [
       aws_dynamodb_table.ttl.arn,
+      "${aws_dynamodb_table.ttl.arn}/index/dateOfExpiryIndex"
     ]
   }
 
@@ -66,22 +71,6 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
 
     resources = [
       module.kms.key_arn,
-    ]
-  }
-
-  statement {
-    sid    = "SQSPermissionsTtlQueue"
-    effect = "Allow"
-
-    actions = [
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes",
-      "sqs:GetQueueUrl"
-    ]
-
-    resources = [
-      module.sqs_ttl.sqs_queue_arn,
     ]
   }
 }

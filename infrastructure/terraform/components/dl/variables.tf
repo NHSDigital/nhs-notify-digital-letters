@@ -104,3 +104,9 @@ variable "enable_dynamodb_delete_protection" {
   description = "Enable DynamoDB Delete Protection on all Tables"
   default     = true
 }
+
+variable "ttl_poll_schedule" {
+  type        = string
+  description = "Schedule to poll for any overdue TTL records"
+  default     = "rate(10 minutes)"  # Every 10 minutes
+}
