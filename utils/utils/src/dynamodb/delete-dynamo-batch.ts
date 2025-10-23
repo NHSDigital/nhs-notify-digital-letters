@@ -1,18 +1,18 @@
-import { Logger } from '../logger';
 import {
   BatchWriteCommand,
   BatchWriteCommandOutput,
 } from '@aws-sdk/lib-dynamodb';
-import { promisify } from 'util';
-import { dynamoDocumentClient } from './dynamoClient';
+import { promisify } from 'node:util';
+import { dynamoDocumentClient } from './dynamo-client';
+import { Logger } from '../logger';
 
 const sleep = promisify(setTimeout);
 
 export async function deleteDynamoBatch(
   TableName: string,
   Keys: Record<string, string>[],
-  maxRetries = 10,
   logger: Logger,
+  maxRetries = 10,
 ): Promise<BatchWriteCommandOutput> {
   let remainingRequests: BatchWriteCommandOutput['UnprocessedItems'] = {
     [TableName]: Keys.map((item) => ({
@@ -27,11 +27,11 @@ export async function deleteDynamoBatch(
     $metadata: {},
   };
 
-  while (Keys.length && remainingRequests && retryAttempt <= maxRetries) {
+  while (Keys.length > 0 && remainingRequests && retryAttempt <= maxRetries) {
     if (retryAttempt > 0) {
       const delaySeconds = 1.4 ** retryAttempt;
       logger.warn(
-        `Attempt ${retryAttempt}: ${remainingRequests[TableName].length} unprocessed batch delete requests. Waiting ${delaySeconds} seconds before retrying`
+        `Attempt ${retryAttempt}: ${remainingRequests[TableName].length} unprocessed batch delete requests. Waiting ${delaySeconds} seconds before retrying`,
       );
 
       await sleep(delaySeconds * 1000);

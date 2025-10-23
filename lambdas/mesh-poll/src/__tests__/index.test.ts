@@ -1,6 +1,6 @@
-import { handler } from '../index';
 import type { Context } from 'aws-lambda';
 import { mockDeep } from 'jest-mock-extended';
+import { handler } from '..';
 
 describe('event-logging Lambda', () => {
   it('logs the input event and returns 200', async () => {

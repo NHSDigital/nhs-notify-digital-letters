@@ -15,15 +15,15 @@ export class DynamoRepository {
     private readonly _deleteDynamoBatch: (
       tableName: string,
       Keys: Record<string, string>[],
-      maxRetries: number,
       logger: Logger,
+      maxRetries: number,
     ) => Promise<BatchWriteCommandOutput>,
   ) {}
 
   public async deleteBatch(
     Items: Record<string, NativeAttributeValue>[],
   ): Promise<BatchWriteCommandOutput> {
-    return this._deleteDynamoBatch(this._tableName, Items, 10, this._logger);
+    return this._deleteDynamoBatch(this._tableName, Items, this._logger, 10);
   }
 
   public async queryTtlIndex(

@@ -1,1 +1,1 @@
-export * from './validateIsoDate';
+export * from './validate-iso-date';

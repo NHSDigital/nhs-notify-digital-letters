@@ -1,9 +1,9 @@
 import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { region } from '../locations';
 
 export const getDynamoClient = (
-  additionalOptions: Partial<DynamoDBClientConfig> = {}
+  additionalOptions: Partial<DynamoDBClientConfig> = {},
 ) =>
   new DynamoDBClient({
     region: region(),
@@ -15,9 +15,9 @@ export const getDynamoClient = (
 export const dynamoClient = getDynamoClient();
 
 export const createDynamoDocumentClient = (
-  providedDynamoClient: DynamoDBClient
+  providedDynamoClient: DynamoDBClient,
 ) =>
-  DynamoDBDocument.from(providedDynamoClient, {
+  DynamoDBDocumentClient.from(providedDynamoClient, {
     marshallOptions: {
       removeUndefinedValues: true,
     },

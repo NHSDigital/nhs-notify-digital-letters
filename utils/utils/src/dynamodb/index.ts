@@ -1,2 +1,2 @@
-export * from './deleteDynamoBatch';
-export * from './dynamoClient';
+export * from './delete-dynamo-batch';
+export * from './dynamo-client';

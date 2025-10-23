@@ -62,8 +62,8 @@ describe('dynamoRepository', () => {
       expect(mockDynamoDeleteBatch).toHaveBeenCalledWith(
         mockTableName,
         input,
-        10,
         logger,
+        10,
       );
     });
 

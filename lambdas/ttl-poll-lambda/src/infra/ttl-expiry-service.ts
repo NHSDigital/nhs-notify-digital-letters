@@ -54,7 +54,7 @@ export class TtlExpiryService {
     date: string,
     ttlBeforeSeconds: number,
   ): Promise<TtlRecordKey[]> {
-    const shards = [...new Array(100).keys()];
+    const shards = [...Array.from({ length: 100 }).keys()];
     this.logger.info(
       `Querying ${shards.length} shards for expired records on ${date} before ${new Date(ttlBeforeSeconds * 1000).toISOString()}`,
     );
@@ -63,7 +63,8 @@ export class TtlExpiryService {
       this.queryDynamo(date, shard, ttlBeforeSeconds),
     );
 
-    const results = (await Promise.allSettled(promises)).flatMap((result) =>
+    const settledResults = await Promise.allSettled(promises);
+    const results = settledResults.flatMap((result) =>
       result.status === 'fulfilled' ? result.value : [],
     );
 
@@ -88,7 +89,7 @@ export class TtlExpiryService {
   private getRecordKeysFromQueryOutput(
     queryOutput: QueryCommandOutput,
     ttlBeforeSeconds: number,
-  ): TtlRecordKey[] | [] {
+  ): TtlRecordKey[] {
     if (!queryOutput.Items?.length) {
       return [];
     }
@@ -112,7 +113,7 @@ export class TtlExpiryService {
         return [];
       }
 
-      return { PK, SK };
+      return [{ PK, SK }];
     });
   }
 
