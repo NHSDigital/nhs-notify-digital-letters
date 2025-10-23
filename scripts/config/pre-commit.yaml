@@ -52,10 +52,6 @@ repos:
         entry: /usr/bin/env check=branch ./scripts/githooks/check-markdown-format.sh
         language: script
         pass_filenames: false
-        exclude: |
-          (?x)^(
-            .github/copilot-instructions.md
-          )$
   - repo: local
     hooks:
       - id: check-english-usage
@@ -63,10 +59,6 @@ repos:
         entry: /usr/bin/env check=branch ./scripts/githooks/check-english-usage.sh
         language: script
         pass_filenames: false
-        exclude: |
-          (?x)^(
-            .github/copilot-instructions.md
-          )$
   - repo: local
     hooks:
       - id: lint-terraform
