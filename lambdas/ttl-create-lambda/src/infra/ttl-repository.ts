@@ -7,26 +7,30 @@ interface IDynamoCaller {
 }
 
 export class TtlRepository {
+  private readonly ttlWaitTimeSeconds;
+
   constructor(
     private readonly tableName: string,
-    private readonly ttlWaitTimeSeconds: number,
+    ttlWaitTimeHours: number,
     private readonly logger: Logger,
     private readonly dynamoClient: IDynamoCaller,
-  ) {}
+  ) {
+    this.ttlWaitTimeSeconds = ttlWaitTimeHours * 60 * 60;
+  }
 
   public async insertTtlRecord(item: TtlItemEvent) {
+    const ttlTime = Math.round(Date.now() / 1000) + this.ttlWaitTimeSeconds;
+
     this.logger.info({
       description: 'Inserting item into TTL table',
       PK: item.data.uri,
+      ttlTime,
     });
-
-    const ttlWaitTimeSeconds = 60 * 60 * this.ttlWaitTimeSeconds;
-    const ttlTime = Math.round(Date.now() / 1000) + ttlWaitTimeSeconds;
 
     try {
       await this.putTtlRecord(item, ttlTime);
     } catch (error) {
-      this.logger.warn({
+      this.logger.error({
         description: 'Failed to insert TTL record into DynamoDB',
         err: error,
       });

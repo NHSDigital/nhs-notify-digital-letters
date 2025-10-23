@@ -8,7 +8,7 @@ export const $TtlItem: z.ZodType<TtlItemEvent> = z.object({
   type: z.string(),
   plane: z.string(),
   subject: z.string(),
-  time: z.string(),
+  time: z.iso.datetime(),
   datacontenttype: z.string(),
   dataschema: z.string(),
   dataschemaversion: z.string(),

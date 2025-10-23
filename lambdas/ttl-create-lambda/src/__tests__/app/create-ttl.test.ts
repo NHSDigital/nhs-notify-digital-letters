@@ -1,11 +1,12 @@
 import { CreateTtl } from 'app/create-ttl';
 import { TtlRepository } from 'infra/ttl-repository';
+import { TtlItemEvent } from 'infra/types';
 
 describe('CreateTtl', () => {
   let repo: jest.Mocked<TtlRepository>;
   let logger: any;
   let createTtl: CreateTtl;
-  const item = {
+  const item: TtlItemEvent = {
     id: 'id',
     source: 'src',
     specversion: '1',
@@ -28,7 +29,7 @@ describe('CreateTtl', () => {
   it('returns sent when insert succeeds', async () => {
     repo.insertTtlRecord.mockResolvedValue();
 
-    const result = await createTtl.send(item as any);
+    const result = await createTtl.send(item);
 
     expect(result).toBe('sent');
     expect(repo.insertTtlRecord).toHaveBeenCalledWith(item);
@@ -38,7 +39,7 @@ describe('CreateTtl', () => {
     const error = new Error('fail');
     repo.insertTtlRecord.mockRejectedValue(error);
 
-    const result = await createTtl.send(item as any);
+    const result = await createTtl.send(item);
 
     expect(result).toBe('failed');
     expect(logger.error).toHaveBeenCalledWith(

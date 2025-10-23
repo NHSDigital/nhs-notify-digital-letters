@@ -8,7 +8,7 @@ describe('$TtlItem', () => {
     type: 't',
     plane: 'p',
     subject: 's',
-    time: 'now',
+    time: '2024-07-10T14:30:00Z',
     datacontenttype: 'json',
     dataschema: 'sch',
     dataschemaversion: '1',
@@ -24,7 +24,7 @@ describe('$TtlItem', () => {
   });
 
   it('fails for invalid data types', () => {
-    const invalid = { ...valid, id: 123 };
+    const invalid = { ...valid, id: 123, time: 'now' };
     expect(() => $TtlItem.parse(invalid)).toThrow();
   });
 

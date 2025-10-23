@@ -56,13 +56,12 @@ export const createHandler = ({
     const results = await Promise.allSettled(promises);
 
     const processed: Record<CreateTtlOutcome | 'retrieved', number> = {
-      retrieved: 0,
+      retrieved: results.length,
       sent: 0,
       failed: 0,
     };
 
     for (const result of results) {
-      processed.retrieved += 1;
       if (result.status === 'fulfilled') processed[result.value] += 1;
       if (result.status === 'rejected') {
         logger.error({ err: result.reason });
