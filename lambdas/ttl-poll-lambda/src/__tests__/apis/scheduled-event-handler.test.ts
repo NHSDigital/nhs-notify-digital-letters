@@ -31,24 +31,13 @@ const malformedEvents = [
 jest.useFakeTimers();
 
 const logger = mock<Logger>();
-jest.spyOn(logger, 'error');
-jest.spyOn(logger, 'info');
 
 jest.mock('../../infra/config', () => ({
   loadConfig: jest.fn().mockReturnValue({ concurrency: 60 }),
 }));
 
-jest.mock('../../infra/ttl-expiry-service', () => ({
-  ...jest.requireActual('../../infra/ttl-expiry-service'),
-  processExpiredTtlRecords: jest.fn(),
-}));
-
 describe('createHandler', () => {
-  const mockProcessExpiredTtlRecords = jest.fn();
-
-  const mockTtlExpiryService = {
-    processExpiredTtlRecords: mockProcessExpiredTtlRecords,
-  } as unknown as TtlExpiryService;
+  const mockTtlExpiryService = mock<TtlExpiryService>();
 
   const handler = createHandler({
     logger,
@@ -79,8 +68,8 @@ describe('createHandler', () => {
     );
   });
 
-  it('should validate dateOfExpiry if provided in event payload', async () => {
-    mockProcessExpiredTtlRecords.mockImplementationOnce(
+  it('should use dateOfExpiry if provided in event payload', async () => {
+    mockTtlExpiryService.processExpiredTtlRecords.mockImplementationOnce(
       async () =>
         ({
           processed: 0,
@@ -101,7 +90,7 @@ describe('createHandler', () => {
   });
 
   it('should use system date if dateOfExpiry is not provided in event payload', async () => {
-    mockProcessExpiredTtlRecords.mockImplementationOnce(
+    mockTtlExpiryService.processExpiredTtlRecords.mockImplementationOnce(
       async () =>
         ({
           processed: 0,
@@ -122,7 +111,7 @@ describe('createHandler', () => {
   it('should query previous day if within 1 hour of date change', async () => {
     jest.setSystemTime(new Date('2020-01-01T00:30:00'));
 
-    mockProcessExpiredTtlRecords.mockImplementationOnce(
+    mockTtlExpiryService.processExpiredTtlRecords.mockImplementationOnce(
       async () =>
         ({
           processed: 0,
@@ -141,7 +130,7 @@ describe('createHandler', () => {
   });
 
   it('should use timeOfExpiry from event payload if provided', async () => {
-    mockProcessExpiredTtlRecords.mockImplementationOnce(
+    mockTtlExpiryService.processExpiredTtlRecords.mockImplementationOnce(
       async () =>
         ({
           processed: 0,
@@ -167,15 +156,18 @@ describe('createHandler', () => {
   it('should throw error if ttl poll process throws error', async () => {
     const error = new Error('Fatal error');
 
-    mockProcessExpiredTtlRecords.mockImplementation(async () => {
-      throw error;
-    });
+    mockTtlExpiryService.processExpiredTtlRecords.mockImplementation(
+      async () => {
+        throw error;
+      },
+    );
 
-    expect.assertions(3);
+    expect.assertions(2);
     await expect(handler(<ScheduledEvent<EventDetail>>{})).rejects.toThrow(
       error,
     );
-    expect(mockProcessExpiredTtlRecords).toHaveBeenCalledTimes(1);
-    await expect(mockProcessExpiredTtlRecords()).rejects.toEqual(error);
+    expect(mockTtlExpiryService.processExpiredTtlRecords).toHaveBeenCalledTimes(
+      1,
+    );
   });
 });

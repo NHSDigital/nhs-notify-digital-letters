@@ -59,12 +59,12 @@ const batchWriteOutputFailedItem = {
   $metadata: {},
 } satisfies BatchWriteCommandOutput;
 
-const batchWriteOuputEmptyUnprocessedItems = {
+const batchWriteOutputEmptyUnprocessedItems = {
   UnprocessedItems: {},
   $metadata: {},
 } satisfies BatchWriteCommandOutput;
 
-const batchWriteOuputUndefinedUnprocessedItems = {
+const batchWriteOutputUndefinedUnprocessedItems = {
   $metadata: {},
 } satisfies BatchWriteCommandOutput;
 
@@ -90,7 +90,7 @@ describe('TtlExpiryService', () => {
       async () => queryOutput,
     );
     mockDynamoRepository.deleteBatch.mockImplementationOnce(
-      async () => batchWriteOuputEmptyUnprocessedItems,
+      async () => batchWriteOutputEmptyUnprocessedItems,
     );
 
     const res = await ttlExpiryService.processExpiredTtlRecords(
@@ -113,7 +113,7 @@ describe('TtlExpiryService', () => {
       async () => queryOutput,
     );
     mockDynamoRepository.deleteBatch.mockImplementationOnce(
-      async () => batchWriteOuputUndefinedUnprocessedItems,
+      async () => batchWriteOutputUndefinedUnprocessedItems,
     );
 
     const res = await ttlExpiryService.processExpiredTtlRecords(
@@ -184,7 +184,7 @@ describe('TtlExpiryService', () => {
       return queryOutputNoItems;
     });
     mockDynamoRepository.deleteBatch.mockImplementation(
-      async () => batchWriteOuputEmptyUnprocessedItems,
+      async () => batchWriteOutputEmptyUnprocessedItems,
     );
 
     const res = await ttlExpiryService.processExpiredTtlRecords(
@@ -217,7 +217,7 @@ describe('TtlExpiryService', () => {
       async () => queryOutput,
     );
     mockDynamoRepository.deleteBatch.mockImplementationOnce(
-      async () => batchWriteOuputEmptyUnprocessedItems,
+      async () => batchWriteOutputEmptyUnprocessedItems,
     );
 
     const res = await ttlExpiryServiceZeroRuntime.processExpiredTtlRecords(

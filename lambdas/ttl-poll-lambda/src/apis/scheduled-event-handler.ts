@@ -22,7 +22,7 @@ export const createHandler = ({
   }
 
   return async (event: ScheduledEvent<EventDetail>) => {
-    logger.info({ event });
+    logger.info({ description: 'Beginning polling of DynamoDB', event });
     const startTimeMs = Date.now();
 
     let dateOfExpiry = event.detail?.dateOfExpiry;

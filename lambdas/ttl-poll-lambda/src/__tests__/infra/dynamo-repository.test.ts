@@ -1,4 +1,8 @@
-import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  BatchWriteCommandOutput,
+  DynamoDBDocumentClient,
+  QueryCommand,
+} from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 import { Logger, deleteDynamoBatch, dynamoDocumentClient } from 'utils';
 import { mock, mockFn } from 'jest-mock-extended';
@@ -12,7 +16,6 @@ const mockTableName = 'test';
 const mockDynamoClient = mockClient(DynamoDBDocumentClient);
 const logger = mock<Logger>();
 
-jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
 const mockDynamoDeleteBatch = mockFn<typeof deleteDynamoBatch>();
 
 const dynamoRepository = new DynamoRepository(
@@ -67,24 +70,7 @@ describe('dynamoRepository', () => {
       );
     });
 
-    it('returns response with no unprocessed items if successful', async () => {
-      const input = [
-        {
-          PK: 'REQUEST_ITEM#hello1',
-          SK: 'REQUEST_ITEM_PLAN#hello1',
-        },
-        {
-          PK: 'REQUEST_ITEM#hello2',
-          SK: 'REQUEST_ITEM_PLAN#hello2',
-        },
-      ];
-
-      const res = await dynamoRepository.deleteBatch(input);
-
-      expect(res.UnprocessedItems).toBeUndefined();
-    });
-
-    it('returns unprocessed items if error occurs', async () => {
+    it('returns the output from the delete function', async () => {
       const input = [
         {
           PK: 'FAIL',
@@ -96,7 +82,7 @@ describe('dynamoRepository', () => {
         },
       ];
 
-      mockDynamoDeleteBatch.mockResolvedValueOnce({
+      const deleteResponse: BatchWriteCommandOutput = {
         $metadata: {},
         UnprocessedItems: {
           [mockTableName]: [
@@ -110,26 +96,12 @@ describe('dynamoRepository', () => {
             },
           ],
         },
-      });
+      };
+      mockDynamoDeleteBatch.mockResolvedValueOnce(deleteResponse);
 
       const res = await dynamoRepository.deleteBatch(input);
 
-      expect(res).toEqual(
-        expect.objectContaining({
-          UnprocessedItems: {
-            [mockTableName]: [
-              {
-                DeleteRequest: {
-                  Key: {
-                    PK: 'FAIL',
-                    SK: 'FAIL',
-                  },
-                },
-              },
-            ],
-          },
-        }),
-      );
+      expect(res).toEqual(deleteResponse);
     });
   });
 
