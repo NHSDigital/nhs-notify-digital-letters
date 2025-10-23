@@ -1,5 +1,5 @@
 import { Logger } from 'utils';
-import { mock, mockDeep } from 'jest-mock-extended';
+import { mock, mockReset } from 'jest-mock-extended';
 import {
   BatchWriteCommandOutput,
   QueryCommandOutput,
@@ -70,7 +70,7 @@ const batchWriteOutputUndefinedUnprocessedItems = {
 
 const logger = mock<Logger>();
 
-const mockDynamoRepository = mockDeep<DynamoRepository>();
+const mockDynamoRepository = mock<DynamoRepository>();
 
 describe('TtlExpiryService', () => {
   const ttlExpiryService = new TtlExpiryService(
@@ -82,6 +82,8 @@ describe('TtlExpiryService', () => {
   );
 
   beforeEach(() => {
+    mockReset(mockDynamoRepository);
+    mockReset(logger);
     jest.clearAllMocks();
   });
 
@@ -213,11 +215,9 @@ describe('TtlExpiryService', () => {
       0,
     );
 
-    mockDynamoRepository.queryTtlIndex.mockImplementation(
-      async () => queryOutput,
-    );
-    mockDynamoRepository.deleteBatch.mockImplementationOnce(
-      async () => batchWriteOutputEmptyUnprocessedItems,
+    mockDynamoRepository.queryTtlIndex.mockResolvedValue(queryOutput);
+    mockDynamoRepository.deleteBatch.mockResolvedValue(
+      batchWriteOutputEmptyUnprocessedItems,
     );
 
     const res = await ttlExpiryServiceZeroRuntime.processExpiredTtlRecords(
@@ -227,6 +227,8 @@ describe('TtlExpiryService', () => {
     );
 
     expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(100);
+    // deleteBatch is called 12 times because 3 records are returned per query, across 100 shards,
+    // resulting in 300 records total. With a batch size of 25, this results in 12 calls (300 / 25 = 12).
     expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(12);
     expect(res).toEqual({
       processed: 300,
