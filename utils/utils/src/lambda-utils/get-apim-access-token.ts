@@ -49,7 +49,7 @@ export function createGetApimAccessToken(
       logger.debug('Access token does not require fetch');
     }
 
-    if (!accessToken || !accessToken.access_token || !accessToken.expires_at) {
+    if (!accessToken?.access_token || !accessToken?.expires_at) {
       logger.error('Access token parameter has invalid format');
       throw new Error('Invalid token');
     }

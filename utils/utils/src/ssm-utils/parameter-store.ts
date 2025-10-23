@@ -16,7 +16,7 @@ import {
 } from './types';
 
 export class ParameterStore implements IParameterStore {
-  private ssmClient: SSMClient;
+  private readonly ssmClient: SSMClient;
 
   constructor(dependencies?: { client: SSMClient }) {
     this.ssmClient = dependencies?.client ?? ssmClient;

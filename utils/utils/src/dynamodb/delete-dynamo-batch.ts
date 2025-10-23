@@ -44,7 +44,7 @@ export async function deleteDynamoBatch(
     results = await dynamoDocumentClient.send(command);
     remainingRequests = undefined;
 
-    if (results?.UnprocessedItems && results.UnprocessedItems[TableName]) {
+    if (results?.UnprocessedItems?.[TableName]) {
       remainingRequests = results.UnprocessedItems;
     }
     retryAttempt += 1;

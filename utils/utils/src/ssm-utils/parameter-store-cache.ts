@@ -18,7 +18,7 @@ export class ParameterStoreCache
   extends ParameterStore
   implements IParameterStore
 {
-  private cache: ICache;
+  private readonly cache: ICache;
 
   constructor(dependencies?: { client: SSMClient }, timeToLive?: number) {
     super(dependencies);

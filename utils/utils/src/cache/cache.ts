@@ -1,5 +1,7 @@
 import { defaultConfigReader as config } from '../config-reader';
 
+const DEFAULT_CACHE_TIME_MILLISECONDS = 60_000 * 10; // 10 minutes
+
 type Result<T> = {
   value: T;
   cacheTime?: number;
@@ -9,10 +11,9 @@ const newCache = <KeyType, ValueType>(
   getCurrentTime: () => Date,
   fetch: (k: KeyType) => Promise<Result<ValueType>>,
 ) => {
-  let cacheTimeMilliSec = config.tryGetInt('DEFAULT_CACHE_TIME_MILLISECONDS');
-  if (cacheTimeMilliSec === null) {
-    cacheTimeMilliSec = 60_000 * 10; // 10 mins
-  }
+  const cacheTimeMilliSec =
+    config.tryGetInt('DEFAULT_CACHE_TIME_MILLISECONDS') ??
+    DEFAULT_CACHE_TIME_MILLISECONDS;
 
   type Holder = {
     value: ValueType;

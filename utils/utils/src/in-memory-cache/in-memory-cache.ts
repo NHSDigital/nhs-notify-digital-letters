@@ -26,11 +26,11 @@ export interface ICache {
 export class InMemoryCache implements ICache {
   private cache = new Map<string, CacheItem>();
 
-  private lock = new Mutex();
+  private readonly lock = new Mutex();
 
-  private logger = logger;
+  private readonly logger = logger;
 
-  private ttl: TTL;
+  private readonly ttl: TTL;
 
   constructor(opts: CacheOptions = {}) {
     this.ttl = InMemoryCache.parseTtl(opts.ttl);

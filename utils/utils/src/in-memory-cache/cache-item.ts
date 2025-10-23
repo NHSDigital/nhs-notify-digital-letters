@@ -1,9 +1,9 @@
 export class CacheItem<T = unknown> {
-  private createdAt = Date.now();
+  private readonly createdAt = Date.now();
 
   constructor(
     public readonly data: T,
-    private ttl: number | null,
+    private readonly ttl: number | null,
   ) {}
 
   get isExpired(): boolean {
