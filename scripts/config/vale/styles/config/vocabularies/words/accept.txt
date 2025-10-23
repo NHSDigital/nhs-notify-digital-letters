@@ -1,6 +1,7 @@
 [A-Z]+s
 Bitwarden
 bot
+cloudevent
 Cognito
 Cyber
 Dependabot
@@ -14,12 +15,14 @@ Git[Hh]ub
 Gitleaks
 Grype
 idempotence
+jekyll
 Jira
 Makefile
 OAuth
 Octokit
 onboarding
 Podman
+pre
 Python
 rawContent
 sed
@@ -27,3 +30,4 @@ Syft
 Terraform
 toolchain
 Trufflehog
+yaml
