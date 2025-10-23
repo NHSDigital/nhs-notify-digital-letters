@@ -14,4 +14,4 @@ You can build docs with `make build` in [.docs](./docs), you will need to `make 
 
 All of our events will have their schemas stored in [./schemas/events](./schemas/events). These schemas are used for validation and code generation. The schemas are written in yaml and follow the json schema spec. You can find out more about json schema at [https://json-schema.org/](https://json-schema.org/).
 
-For each event, their will be a schema for the envelope (this is cloud events, and will reference the default NHS Notify cloudevent profile schema). And there will also be a schema for the data payload. The data payload schema will be referenced in the envelope schema.
+For each event, there will be a schema for the envelope (this is cloud events, and will reference the default NHS Notify cloudevent profile schema). And there will also be a schema for the data payload. The data payload schema will be referenced in the envelope schema.
