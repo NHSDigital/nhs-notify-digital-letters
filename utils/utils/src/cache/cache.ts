@@ -43,8 +43,7 @@ const newCache = <KeyType, ValueType>(
     // value not cached or expired, so fetch a new value from upstream
     const result: Result<ValueType> = await fetch(key);
 
-    const cacheTime =
-      result.cacheTime === undefined ? cacheTimeMilliSec : result.cacheTime;
+    const cacheTime = result.cacheTime ?? cacheTimeMilliSec;
 
     if (cacheTime) {
       stateCacheTime = cacheTime;
