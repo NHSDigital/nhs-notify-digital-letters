@@ -13,7 +13,7 @@
 
   <li>
     <a href="{{event.url | relative_url}}">
-      {{ event.title }} - {{ event.type }}
+      {{ event.nice_name }} - {{ event.title }} - {{ event.type }}
       <ul>
         {% for producer in producedby %}
         <li>
@@ -45,7 +45,7 @@
 
   <li>
     <a href="{{event.url | relative_url}}">
-      {{ event.title }} - {{ event.type }}
+      {{ event.nice_name }} - {{ event.title }} - {{ event.type }}
     </a>
     <ul>
       {% for consumer in consumedby %}

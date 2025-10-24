@@ -10,13 +10,15 @@ c4type: code
     title Status Reports Component
     Container_Boundary(meshcontainer, "Status Reports Container") {
 
+         Component(reportscheduler, "Daily Report Scheduler")
          Component(dailygenerator, "Daily Report Generator")
-         Component(meshlistener, "MESH Event Listener")
+         Component(reportsender, "Report Sender")
          Component(pdmlistener, "PDM Event Listener")
          Component(printerlistener, "Printer Event Listener")
 
 
-         Rel(meshlistener, dailygenerator, "EventX", "CloudEvent")
+         Rel(reportscheduler, dailygenerator, "GenerateReport", "CloudEvent")
+         Rel(dailygenerator, reportsender, "ReportGenerated", "CloudEvent")
          Rel(pdmlistener, dailygenerator, "EventX", "CloudEvent")
          Rel(printerlistener, dailygenerator, "EventX", "CloudEvent")
 
