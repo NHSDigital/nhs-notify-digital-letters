@@ -110,7 +110,11 @@
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "window.title": "${separator}${activeRepositoryName}${separator}${activeRepositoryBranchName}${separator}[${remoteName}]",
-    "window.titleSeparator": " : "
+    "window.titleSeparator": " : ",
+    "chat.instructionsFilesLocations": {
+      ".github": true,
+      ".github/instructions": true
+    }
   },
   "extensions": {
     "recommendations": [
