@@ -4,9 +4,10 @@ import { TtlItemEvent } from 'infra/types';
 
 jest.useFakeTimers();
 
-const randomNumber = 42;
+const randomNumber = 0.42;
 const shardCount = 3;
-jest.spyOn(Math, 'random').mockReturnValue(randomNumber / shardCount);
+const expectedShard = Math.floor(randomNumber * shardCount);
+jest.spyOn(Math, 'random').mockReturnValue(randomNumber);
 
 describe('TtlRepository', () => {
   let logger: any;
@@ -52,7 +53,7 @@ describe('TtlRepository', () => {
     const expectedTtlDate = new Date(expectedTtlSeconds * 1000)
       .toISOString()
       .split('T')[0];
-    const expectedDateOfExpiry = `${expectedTtlDate}#${randomNumber}`;
+    const expectedDateOfExpiry = `${expectedTtlDate}#${expectedShard}`;
 
     await repo.insertTtlRecord(item);
 
