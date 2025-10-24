@@ -17,7 +17,7 @@ description: PDM Poller
 ```mermaid
 architecture-beta
     service pdmResourceSubmitted(aws:res-amazon-eventbridge-event)[PDMResourceSubmitted Event]
-    service pdmResourceAvailable(aws:res-amazon-eventbridge-event)[PDMResourceAvailable Event]
+    service pdmResourceAvailable(aws:res-amazon-eventbridge-event)[PDMResourceUnavailable Event]
     service pdmResourceUnavailable2(aws:res-amazon-eventbridge-event)[PDMResourceAvailable Event]
     service pdmRetriesExceeded(aws:res-amazon-eventbridge-event)[PDMResourceRetriesExceeded Event]
     service pdmResourceUnavailable(aws:res-amazon-eventbridge-event)[PDMResourceUnavailable Event]

@@ -9,7 +9,7 @@ last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
 diagrams: [c4code-nhsapp-callback]
-events-raised: []
+events-raised: [digital-letter-read]
 events-consumed: []
 c4type: code
 ---

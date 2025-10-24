@@ -1,8 +1,7 @@
 ---
-title: mesh-file-saved
-type: uk.nhs.notify.digital.letters.mesh.file.saved.v1
-nice_name: MeshFileSaved
-service: Mesh Services
+title: mesh-inbox-message-downloaded
+type: uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1
+nice_name: MESHInboxMessageDownloaded
 schema_envelope: https://nhsdigital.github.io/nhs-notify-standards/cloudevents/nhs-notify-example-event.schema.json
 schema_data: https://nhsdigital.github.io/nhs-notify-standards/cloudevents/nhs-notify-example-event-data.schema.json
 ---

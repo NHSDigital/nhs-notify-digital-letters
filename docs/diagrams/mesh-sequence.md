@@ -20,7 +20,7 @@ sequenceDiagram
   participant eventBus as EventBus
   participant sqs as SQS<br/>MeshRetrieveQueue
   participant meshRetrieve  as Lambda<br/>MESHRetrieve
-  participant s3 as S3<br/>DigitalLettersBucket
+  participant s3 as S3 Bucket<br/>DigitalLetters
 
   trust ->> meshMailbox: MESH (DocumentReference)
   activate meshMailbox
@@ -32,17 +32,17 @@ sequenceDiagram
     activate meshPoll
   end
   meshPoll ->> meshMailbox: Check for new files
-  meshPoll -) eventBus: NewFileReceived Event(meshFileId)
+  meshPoll -) eventBus: MESHInboxMessageReceived Event(meshFileId)
   deactivate meshPoll
 
-  eventBus -) sqs: NewFileReceived(meshFileId)
-  sqs -) meshRetrieve: NewFileReceived(meshFileId)
+  eventBus -) sqs: MESHInboxMessageReceived(meshFileId)
+  sqs -) meshRetrieve: MESHInboxMessageReceived(meshFileId)
   activate meshRetrieve
     meshRetrieve ->> meshMailbox: Retrieve file(meshFileId)
     activate meshMailbox
       meshMailbox -->> meshRetrieve: File
     deactivate meshMailbox
     meshRetrieve ->> s3: Upload file
-    meshRetrieve -) eventBus: FileUploaded(S3FileId) Event
+    meshRetrieve -) eventBus: MESHInboxMessageDownloaded(S3FileId) Event
   deactivate meshRetrieve
 ```
