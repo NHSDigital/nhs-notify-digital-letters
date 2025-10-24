@@ -9,7 +9,7 @@ last_modified_date: 2024-10-13
 owner: Tom D'Roza
 author: Tom D'Roza
 diagrams: [c4code-mesh-poller]
-events-raised: [mesh-file-found]
+events-raised: [mesh-inbox-message-received]
 events-consumed: [mesh-timer-schedule-expired]
 c4type: code
 ---

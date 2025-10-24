@@ -15,7 +15,7 @@ architecture-beta
     service meshDownloadQueue(logos:aws-sqs)[MeshDownload Queue] in meshRetriever
     service meshDownloadLambda(logos:aws-lambda)[MeshDownload] in meshRetriever
     service mesh(server)[MESH]
-    service s3(logos:aws-s3)[S3 Bucket] in meshRetriever
+    service s3(logos:aws-s3)[Digital Letters Bucket] in meshRetriever
 
 
     meshDownloaded:R -- L:meshDownloadQueue
