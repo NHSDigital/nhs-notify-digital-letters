@@ -11,7 +11,7 @@ architecture-beta
     service apiGateway(aws:arch-amazon-api-gateway)[API Gateway]
     service lambda(logos:aws-lambda)[NHS App Callback Handler] in CallbackHandler
     service sqs(logos:aws-sqs)[Callback Queue] in CallbackHandler
-    service ddb(logos:aws-dynamodb)[Items With TTL] in CallbackHandler
+    service ddb(aws:arch-amazon-dynamodb)[Items With TTL] in CallbackHandler
     service docReadEvent(aws:res-amazon-eventbridge-event)[DigitalLetterRead Event]
 
     nhsapp:R --> L:apiGateway

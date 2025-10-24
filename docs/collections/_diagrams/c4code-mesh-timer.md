@@ -4,8 +4,6 @@ title: c4code-mesh-timer
 
 ---
 
-
-
 ```mermaid
 architecture-beta
     service timerexpired(aws:res-amazon-eventbridge-event)[TimerExpired]

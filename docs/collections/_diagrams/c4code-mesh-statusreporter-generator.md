@@ -11,14 +11,16 @@ title: c4code-mesh-statusreporter-generator
 
 ```mermaid
 architecture-beta
-    group reportGenerator(cloud)[ReportScheduler]
+    group reportGenerator(cloud)[ReportGenerator]
     service generateReportEvent(aws:res-amazon-eventbridge-event)[GenerateReport Event]
+    service sqs(logos:aws-sqs)[ReportGenerator Queue] in reportGenerator
     service reportGeneratorLambda(logos:aws-lambda)[Report Generator] in reportGenerator
     service s3(logos:aws-s3)[Reports] in reportGenerator
-    service reportsdb(logos:aws-dynamodb)[Reports] in reportGenerator
+    service reportsdb(aws:arch-amazon-dynamodb)[Reports] in reportGenerator
     service reportGeneratedEvent(aws:res-amazon-eventbridge-event)[ReportGenerated Event]
 
-    generateReportEvent:R -- L:reportGeneratorLambda
+    generateReportEvent:R --> L:sqs
+    sqs:R --> L:reportGeneratorLambda
     reportGeneratorLambda:T <-- B:reportsdb
     reportGeneratorLambda:B --> T:s3
     reportGeneratorLambda:R --> L:reportGeneratedEvent

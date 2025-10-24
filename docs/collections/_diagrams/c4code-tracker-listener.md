@@ -12,7 +12,7 @@ architecture-beta
     service report3Event(aws:res-amazon-eventbridge-event)[NHSAppMessageRequested Event]
     service sqs(logos:aws-sqs)[StatusRecorder Queue] in statusRecorder
     service reportGeneratorLambda(logos:aws-lambda)[StatusRecorder] in statusRecorder
-    service ddb(aws:arch-amazon-dynamodb)[LetterRequests] in statusRecorder
+    service ddb(aws:arch-amazon-dynamodb)[Reports] in statusRecorder
     junction j1
     junction j2
 
