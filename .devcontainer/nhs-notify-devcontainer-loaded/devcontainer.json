@@ -1,12 +1,12 @@
 {
   "containerEnv": {
     "GITHUBMONITOR": "false",
-    "MAKECONFIG": "false",
+    "MAKECONFIG": "true",
     "SHOWWELCOME": "true",
     "UPDATEFROMTEMPLATE": "false"
   },
-  "image": "ghcr.io/nhsdigital/nhs-notify-devcontainer-loaded:1.0.5",
-  "name": "Notify Loaded Dev Container 1.0.5",
+  "image": "ghcr.io/nhsdigital/nhs-notify-devcontainer-loaded:1.0.16",
+  "name": "Notify Loaded Dev Container 1.0.16",
   "postCreateCommand": "echo My own container created",
   "postStartCommand": "echo My own container started"
 }
