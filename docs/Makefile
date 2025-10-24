@@ -83,6 +83,7 @@ clean-schemas:
 	rm -rf $(SCHEMA_YAML_DOCS_OUTPUT_DIR)
 
 debug: version
+	bundle install --gemfile Gemfile-dev
 	npm run debug
 
 version:
