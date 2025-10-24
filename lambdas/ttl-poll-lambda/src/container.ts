@@ -5,7 +5,8 @@ import { TtlExpiryService } from 'infra/ttl-expiry-service';
 import { CreateHandlerDependencies } from 'apis/scheduled-event-handler';
 
 export const createContainer = (): CreateHandlerDependencies => {
-  const { concurrency, maxProcessSeconds, ttlTableName } = loadConfig();
+  const { concurrency, maxProcessSeconds, ttlShardCount, ttlTableName } =
+    loadConfig();
 
   const dynamoRepository = new DynamoRepository(
     ttlTableName,
@@ -20,6 +21,7 @@ export const createContainer = (): CreateHandlerDependencies => {
     dynamoRepository,
     concurrency,
     maxProcessSeconds,
+    ttlShardCount,
   );
 
   return { logger, ttlExpiryService };

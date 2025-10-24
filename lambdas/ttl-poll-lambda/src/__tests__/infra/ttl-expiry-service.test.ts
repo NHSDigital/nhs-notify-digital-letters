@@ -14,6 +14,8 @@ const mockStartTimeMs = Date.now();
 const mockTtlBeforeSeconds = Math.floor(mockStartTimeMs / 1000);
 const mockTtl = mockTtlBeforeSeconds - 60;
 
+const shardCount = 3;
+
 const queryOutputNoItems: QueryCommandOutput = {
   Items: [],
   $metadata: {},
@@ -79,6 +81,7 @@ describe('TtlExpiryService', () => {
     mockDynamoRepository,
     60,
     300,
+    shardCount,
   );
 
   beforeEach(() => {
@@ -101,7 +104,9 @@ describe('TtlExpiryService', () => {
       mockStartTimeMs,
     );
 
-    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(200);
+    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(
+      shardCount * 2,
+    ); // 2 passes * 3 shards
     expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(1);
     expect(res).toEqual({
       processed: 3,
@@ -124,7 +129,9 @@ describe('TtlExpiryService', () => {
       mockStartTimeMs,
     );
 
-    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(200);
+    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(
+      shardCount * 2,
+    );
     expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(1);
     expect(res).toEqual({
       processed: 3,
@@ -147,7 +154,9 @@ describe('TtlExpiryService', () => {
       mockStartTimeMs,
     );
 
-    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(200);
+    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(
+      shardCount * 2,
+    );
     expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(1);
     expect(res).toEqual({
       processed: 3,
@@ -167,7 +176,9 @@ describe('TtlExpiryService', () => {
       mockStartTimeMs,
     );
 
-    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(100);
+    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(
+      shardCount,
+    ); // single pass
     expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(0);
     expect(res).toEqual({
       processed: 0,
@@ -180,7 +191,7 @@ describe('TtlExpiryService', () => {
     let requestCount = 0;
     mockDynamoRepository.queryTtlIndex.mockImplementation(async () => {
       requestCount += 1;
-      if (requestCount <= 150) {
+      if (requestCount <= 9) {
         return queryOutput;
       }
       return queryOutputNoItems;
@@ -195,13 +206,17 @@ describe('TtlExpiryService', () => {
       mockStartTimeMs,
     );
 
-    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(300);
-    expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(
-      (150 * 3) / 25,
-    );
+    // 9 requests before empty, each pass makes 3 requests (so 9 / 3 = 3 passes)
+    // and then one more to find empty (9 + 3 = 12)
+    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(12);
+
+    // One delete call for each pass
+    expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(3);
+
+    // 9 requests before empty, each request returns 3 items, so 27 items total.
     expect(res).toEqual({
-      processed: 150 * 3,
-      deleted: 150 * 3,
+      processed: 27,
+      deleted: 27,
       failedToDelete: 0,
     });
   });
@@ -213,6 +228,7 @@ describe('TtlExpiryService', () => {
       mockDynamoRepository,
       60,
       0,
+      shardCount,
     );
 
     mockDynamoRepository.queryTtlIndex.mockResolvedValue(queryOutput);
@@ -226,13 +242,14 @@ describe('TtlExpiryService', () => {
       mockStartTimeMs,
     );
 
-    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(100);
-    // deleteBatch is called 12 times because 3 records are returned per query, across 100 shards,
-    // resulting in 300 records total. With a batch size of 25, this results in 12 calls (300 / 25 = 12).
-    expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(12);
+    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(
+      shardCount,
+    );
+    // 3 shards * 3 items = 9 -> one batch
+    expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(1);
     expect(res).toEqual({
-      processed: 300,
-      deleted: 300,
+      processed: 9,
+      deleted: 9,
       failedToDelete: 0,
     });
   });
@@ -259,7 +276,9 @@ describe('TtlExpiryService', () => {
       mockStartTimeMs,
     );
 
-    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(100);
+    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(
+      shardCount,
+    );
     expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(0);
     expect(res).toEqual({
       processed: 0,
@@ -290,7 +309,9 @@ describe('TtlExpiryService', () => {
       mockStartTimeMs,
     );
 
-    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(100);
+    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(
+      shardCount,
+    );
     expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(0);
     expect(res).toEqual({
       processed: 0,

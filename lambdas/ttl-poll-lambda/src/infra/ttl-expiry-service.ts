@@ -14,6 +14,7 @@ export class TtlExpiryService {
     private readonly dynamoRepository: DynamoRepository,
     concurrency: number,
     private readonly maxProcessSeconds: number,
+    private readonly shardCount: number,
   ) {
     this.limit = pLimit(concurrency);
   }
@@ -54,7 +55,7 @@ export class TtlExpiryService {
     date: string,
     ttlBeforeSeconds: number,
   ): Promise<TtlRecordKey[]> {
-    const shards = [...Array.from({ length: 100 }).keys()];
+    const shards = [...Array.from({ length: this.shardCount }).keys()];
     this.logger.info(
       `Querying ${shards.length} shards for expired records on ${date} before ${new Date(ttlBeforeSeconds * 1000).toISOString()}`,
     );

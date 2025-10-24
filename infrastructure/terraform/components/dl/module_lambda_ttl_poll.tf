@@ -38,8 +38,9 @@ module "ttl_poll" {
 
   lambda_env_vars = {
     "TTL_TABLE_NAME"      = aws_dynamodb_table.ttl.name
-    "CONCURRENCY" = 60
+    "CONCURRENCY"         = 60
     "MAX_PROCESS_SECONDS" = 300
+    "TTL_SHARD_COUNT"     = 3
   }
 }
 
