@@ -42,6 +42,11 @@ resource "aws_dynamodb_table" "ttl" {
     range_key       = "ttl"
   }
 
+  server_side_encryption {
+    enabled     = true
+    kms_key_arn = module.kms.key_arn
+  }
+
   stream_enabled   = true
   stream_view_type = "OLD_IMAGE"
 

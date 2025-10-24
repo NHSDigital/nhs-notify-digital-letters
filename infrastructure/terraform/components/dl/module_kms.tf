@@ -1,5 +1,5 @@
 module "kms" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.20/terraform-kms.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-kms.zip"
 
 
   providers = {
@@ -98,5 +98,25 @@ data "aws_iam_policy_document" "kms" {
     resources = [
       "*",
     ]
+  }
+
+  statement {
+    sid    = "AllowDynamoDBEncryption"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["dynamodb.amazonaws.com"]
+    }
+
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:Describe*"
+    ]
+
+    resources = ["*"]
   }
 }
