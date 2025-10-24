@@ -5,7 +5,8 @@ import { TtlItemEvent } from 'infra/types';
 jest.useFakeTimers();
 
 const randomNumber = 42;
-jest.spyOn(Math, 'random').mockReturnValue(randomNumber / 100);
+const shardCount = 3;
+jest.spyOn(Math, 'random').mockReturnValue(randomNumber / shardCount);
 
 describe('TtlRepository', () => {
   let logger: any;
@@ -30,7 +31,13 @@ describe('TtlRepository', () => {
   beforeEach(() => {
     logger = { info: jest.fn(), error: jest.fn() };
     dynamoClient = { send: jest.fn().mockResolvedValue({}) };
-    repo = new TtlRepository(tableName, ttlWaitTimeHours, logger, dynamoClient);
+    repo = new TtlRepository(
+      tableName,
+      ttlWaitTimeHours,
+      logger,
+      dynamoClient,
+      shardCount,
+    );
   });
 
   afterAll(() => {

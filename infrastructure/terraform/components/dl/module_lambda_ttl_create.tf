@@ -38,6 +38,7 @@ module "ttl_create" {
   lambda_env_vars = {
     "TTL_TABLE_NAME"      = aws_dynamodb_table.ttl.name
     "TTL_WAIT_TIME_HOURS" = 24
+    "TTL_SHARD_COUNT"     = local.ttl_shard_count
   }
 }
 

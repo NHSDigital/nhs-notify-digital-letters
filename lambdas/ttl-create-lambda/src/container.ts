@@ -4,13 +4,14 @@ import { TtlRepository } from 'infra/ttl-repository';
 import { CreateTtl } from 'app/create-ttl';
 
 export const createContainer = () => {
-  const { ttlTableName, ttlWaitTimeHours } = loadConfig();
+  const { ttlShardCount, ttlTableName, ttlWaitTimeHours } = loadConfig();
 
   const requestTtlRepository = new TtlRepository(
     ttlTableName,
     ttlWaitTimeHours,
     logger,
     dynamoClient,
+    ttlShardCount,
   );
 
   const createTtl = new CreateTtl(requestTtlRepository, logger);

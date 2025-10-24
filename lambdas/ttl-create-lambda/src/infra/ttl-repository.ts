@@ -14,6 +14,7 @@ export class TtlRepository {
     ttlWaitTimeHours: number,
     private readonly logger: Logger,
     private readonly dynamoClient: IDynamoCaller,
+    private readonly shardCount: number,
   ) {
     this.ttlWaitTimeSeconds = ttlWaitTimeHours * 60 * 60;
   }
@@ -39,11 +40,11 @@ export class TtlRepository {
   }
 
   private async putTtlRecord({ data: { uri } }: TtlItemEvent, ttlTime: number) {
-    // GSI PK utilising write sharding YYYY-MM-DD#<RANDOM_INT_BETWEEN_0_AND_99>
+    // GSI PK utilising write sharding YYYY-MM-DD#<RANDOM_INT_BETWEEN_0_AND_[shardCount]>
     const ttlGsiPk = `${
       new Date(ttlTime * 1000).toISOString().split('T')[0]
       // eslint-disable-next-line sonarjs/pseudo-random
-    }#${Math.floor(Math.random() * 100)}`;
+    }#${Math.floor(Math.random() * this.shardCount)}`;
     await this.dynamoClient.send(
       new PutCommand({
         TableName: this.tableName,
