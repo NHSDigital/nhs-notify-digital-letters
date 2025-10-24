@@ -15,7 +15,7 @@
   "devDependencies": {
     "@aws-sdk/types": "^3.914.0",
     "@tsconfig/node22": "^22.0.2",
-    "@types/aws-lambda": "^8.10.148",
+    "@types/aws-lambda": "^8.10.156",
     "@types/jest": "^29.5.14",
     "@types/node": "^24.0.10",
     "aws-sdk-client-mock": "^4.1.0",
