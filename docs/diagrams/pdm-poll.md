@@ -31,6 +31,10 @@ sequenceDiagram
     pdm ->> eventBus: PDMResourceUnavailable(pdmID) [if no payload]
     deactivate pdm
   end
+  alt Resource contains payload
   pdmPoller -) eventBus: PDMResourceAvailable(pdmID)
+  else after retries exceeded
+  pdmPoller -) eventBus: PDMResourceRetriesExceeded(pdmID)
   deactivate pdmPoller
+  end
 ```
