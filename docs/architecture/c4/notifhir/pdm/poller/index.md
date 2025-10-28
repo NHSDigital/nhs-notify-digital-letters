@@ -10,6 +10,6 @@ owner: Ross Buggins
 author: Tom D'Roza
 diagrams: [c4code-pdm-poller]
 events-raised: [pdm-resource-available, pdm-resource-unavailable, pdm-resource-retries-exceeded]
-events-consumed: [pdm-resource-submitted]
+events-consumed: [pdm-resource-submitted, pdm-resource-unavailable]
 c4type: code
 ---
