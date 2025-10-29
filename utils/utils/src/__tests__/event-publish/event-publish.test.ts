@@ -5,20 +5,24 @@ import {
 } from '@aws-sdk/client-eventbridge';
 import { mockClient } from 'aws-sdk-client-mock';
 import { CloudEvent } from 'types';
+import { Logger } from 'logger';
 
-import { EventPublishConfig, sendEvents } from 'event-publish';
-
-process.env.EVENT_BUS_ARN =
-  'arn:aws:events:us-east-1:123456789012:event-bus/test-bus';
-process.env.DLQ_URL =
-  'https://sqs.us-east-1.amazonaws.com/123456789012/test-dlq';
+import { EventPublishConfig, EventPublisher } from 'event-publish';
 
 const eventBridgeMock = mockClient(EventBridgeClient);
 const sqsMock = mockClient(SQSClient);
 
+const mockLogger: Logger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+} as any;
+
 const testConfig: EventPublishConfig = {
   eventBusArn: 'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
   dlqUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/test-dlq',
+  logger: mockLogger,
 };
 
 const validCloudEvent: CloudEvent = {
@@ -55,10 +59,12 @@ describe('Event Publishing', () => {
   beforeEach(() => {
     eventBridgeMock.reset();
     sqsMock.reset();
+    jest.clearAllMocks();
   });
 
   test('should return empty array when no events provided', async () => {
-    const result = await sendEvents([], testConfig);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents([]);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(0);
@@ -71,7 +77,8 @@ describe('Event Publishing', () => {
       Entries: [{ EventId: 'event-1' }],
     });
 
-    const result = await sendEvents(validEvents, testConfig);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(validEvents);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(1);
@@ -105,7 +112,8 @@ describe('Event Publishing', () => {
       ],
     });
 
-    const result = await sendEvents(invalidEvents, testConfig);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(invalidEvents);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(0);
@@ -134,7 +142,8 @@ describe('Event Publishing', () => {
       ],
     });
 
-    const result = await sendEvents(mixedEvents, testConfig);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(mixedEvents);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(1);
@@ -177,7 +186,8 @@ describe('Event Publishing', () => {
       ],
     });
 
-    const result = await sendEvents(validEvents, testConfig);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(validEvents);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(1);
@@ -207,7 +217,8 @@ describe('Event Publishing', () => {
       ],
     });
 
-    const result = await sendEvents(validEvents, testConfig);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(validEvents);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(1);
@@ -229,7 +240,8 @@ describe('Event Publishing', () => {
       });
     });
 
-    const result = await sendEvents(invalidEvents, testConfig);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(invalidEvents);
 
     expect(result).toHaveLength(1);
     expect(eventBridgeMock.calls()).toHaveLength(0);
@@ -239,7 +251,8 @@ describe('Event Publishing', () => {
   test('should handle DLQ send error and return all events as failed', async () => {
     sqsMock.on(SendMessageBatchCommand).rejects(new Error('DLQ error'));
 
-    const result = await sendEvents(invalidEvents, testConfig);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(invalidEvents);
 
     expect(result).toEqual(invalidEvents);
     expect(eventBridgeMock.calls()).toHaveLength(0);
@@ -259,7 +272,8 @@ describe('Event Publishing', () => {
       Entries: [{ EventId: 'success' }],
     });
 
-    const result = await sendEvents(largeEventArray, testConfig);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(largeEventArray);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(3);
@@ -300,7 +314,8 @@ describe('Event Publishing', () => {
       subject: 'Patient/12345',
     };
 
-    await sendEvents([customEvent], testConfig);
+    const publisher = new EventPublisher(testConfig);
+    await publisher.sendEvents([customEvent]);
 
     const eventBridgeCall = eventBridgeMock.calls()[0];
     const entry = (eventBridgeCall.args[0].input as any).Entries[0];
@@ -322,5 +337,50 @@ describe('Event Publishing', () => {
     expect(detailObject.type).toBe('letter.created');
     expect(detailObject.subject).toBe('Patient/12345');
     expect(detailObject.specversion).toBe('1.0');
+  });
+});
+
+describe('EventPublisher Class', () => {
+  beforeEach(() => {
+    eventBridgeMock.reset();
+    sqsMock.reset();
+    jest.clearAllMocks();
+  });
+
+  test('should throw error when eventBusArn is missing from config', () => {
+    expect(
+      () => new EventPublisher({ ...testConfig, eventBusArn: '' }),
+    ).toThrow('eventBusArn is required in config');
+  });
+
+  test('should throw error when dlqUrl is missing from config', () => {
+    expect(() => new EventPublisher({ ...testConfig, dlqUrl: '' })).toThrow(
+      'dlqUrl is required in config',
+    );
+  });
+
+  test('should throw error when logger is missing from config', () => {
+    expect(
+      () => new EventPublisher({ ...testConfig, logger: null as any }),
+    ).toThrow('logger is required in config');
+  });
+
+  test('should be reusable for multiple calls', async () => {
+    eventBridgeMock.on(PutEventsCommand).resolves({
+      FailedEntryCount: 0,
+      Entries: [{ EventId: 'event-1' }],
+    });
+
+    const publisher = new EventPublisher(testConfig);
+
+    // First call
+    const result1 = await publisher.sendEvents([validCloudEvent]);
+    expect(result1).toEqual([]);
+
+    // Second call with same publisher instance
+    const result2 = await publisher.sendEvents([validCloudEvent2]);
+    expect(result2).toEqual([]);
+
+    expect(eventBridgeMock.calls()).toHaveLength(2);
   });
 });

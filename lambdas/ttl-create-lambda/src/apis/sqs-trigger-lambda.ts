@@ -3,17 +3,19 @@ import type {
   SQSBatchResponse,
   SQSEvent,
 } from 'aws-lambda';
-import { Logger } from 'utils';
+import { EventPublisher, Logger } from 'utils';
 import type { CreateTtl, CreateTtlOutcome } from 'app/create-ttl';
 import { $TtlItem } from 'app/ttl-item-validator';
 
-type CreateHandlerDependencies = {
+interface CreateHandlerDependencies {
   createTtl: CreateTtl;
+  eventPublisher: EventPublisher;
   logger: Logger;
-};
+}
 
 export const createHandler = ({
   createTtl,
+  eventPublisher,
   logger,
 }: CreateHandlerDependencies) =>
   async function handler(event: SQSEvent): Promise<SQSBatchResponse> {
@@ -36,6 +38,8 @@ export const createHandler = ({
         }
 
         const result = await createTtl.send(item);
+
+        eventPublisher.sendEvents([item])
 
         if (result === 'failed') {
           batchItemFailures.push({ itemIdentifier: messageId });

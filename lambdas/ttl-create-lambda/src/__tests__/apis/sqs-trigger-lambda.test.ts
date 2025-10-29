@@ -4,6 +4,7 @@ import { $TtlItem } from 'app/ttl-item-validator';
 
 describe('createHandler', () => {
   let createTtl: any;
+  let eventPublisher: any;
   let logger: any;
   let handler: any;
 
@@ -23,8 +24,9 @@ describe('createHandler', () => {
 
   beforeEach(() => {
     createTtl = { send: jest.fn() };
+    eventPublisher = { sendEvents: jest.fn() };
     logger = { error: jest.fn(), info: jest.fn() };
-    handler = createHandler({ createTtl, logger });
+    handler = createHandler({ createTtl, eventPublisher, logger });
   });
 
   it('processes a valid SQS event and returns success', async () => {

@@ -9,3 +9,4 @@ export * from './config-reader';
 export * from './cache';
 export * from './validators';
 export * from './types';
+export * from './event-publish';
