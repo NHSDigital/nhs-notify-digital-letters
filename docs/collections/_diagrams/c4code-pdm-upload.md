@@ -13,7 +13,7 @@ architecture-beta
     group uploadToPdm(cloud)[UploadToPDM]
     service uploadQueue(logos:aws-sqs)[UploadToPDM Queue] in uploadToPdm
     service uploadLambda(logos:aws-lambda)[UploadToPDM] in uploadToPdm
-    service s3(logos:aws-s3)[S3 Bucket] in uploadToPdm
+    service s3(logos:aws-s3)[DocumentReference] in uploadToPdm
     service pdm(server)[PDM]
     junction j1
 
