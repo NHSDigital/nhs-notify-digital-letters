@@ -4,10 +4,10 @@ import {
 } from '@aws-sdk/client-eventbridge';
 import { SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { randomUUID } from 'node:crypto';
-import { sqsClient } from 'sqs-utils';
-import { CloudEvent } from 'types';
-import { $CloudEvent } from 'validators';
-import { Logger } from 'logger';
+import { sqsClient } from '../sqs-utils';
+import { CloudEvent } from '../types';
+import { $CloudEvent } from '../validators';
+import { Logger } from '../logger';
 
 const MAX_BATCH_SIZE = 10;
 

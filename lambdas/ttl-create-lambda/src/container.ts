@@ -1,4 +1,4 @@
-import { dynamoClient, EventPublisher, logger } from 'utils';
+import { EventPublisher, dynamoClient, logger } from 'utils';
 import { loadConfig } from 'infra/config';
 import { TtlRepository } from 'infra/ttl-repository';
 import { CreateTtl } from 'app/create-ttl';
