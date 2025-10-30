@@ -72,7 +72,7 @@ export class EventPublisher {
           description: 'EventBridge batch sent',
           batchSize: batch.length,
           failedEntryCount: response.FailedEntryCount || 0,
-          successfulCount: (batch.length - (response.FailedEntryCount || 0)),
+          successfulCount: batch.length - (response.FailedEntryCount || 0),
         });
 
         if (response.FailedEntryCount && response.Entries) {

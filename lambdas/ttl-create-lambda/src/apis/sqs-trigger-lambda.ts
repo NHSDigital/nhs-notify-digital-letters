@@ -28,6 +28,7 @@ export const createHandler = ({
           error: parseError,
           success: parseSuccess,
         } = $TtlItem.safeParse(JSON.parse(body));
+
         if (!parseSuccess) {
           logger.error({
             err: parseError,
@@ -51,6 +52,7 @@ export const createHandler = ({
           err: error,
           description: 'Error during SQS trigger handler',
         });
+
         batchItemFailures.push({ itemIdentifier: messageId });
 
         return 'failed';
@@ -66,8 +68,9 @@ export const createHandler = ({
     };
 
     for (const result of results) {
-      if (result.status === 'fulfilled') processed[result.value] += 1;
-      if (result.status === 'rejected') {
+      if (result.status === 'fulfilled') {
+        processed[result.value] += 1;
+      } else {
         logger.error({ err: result.reason });
         processed.failed += 1;
       }
