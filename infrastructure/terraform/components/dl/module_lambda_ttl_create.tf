@@ -97,7 +97,7 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
     ]
 
     resources = [
-      module.sqs_ttl.sqs_dlq_url,
+      module.sqs_ttl.sqs_dlq_arn,
     ]
   }
 
