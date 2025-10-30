@@ -80,11 +80,24 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
       "sqs:ReceiveMessage",
       "sqs:DeleteMessage",
       "sqs:GetQueueAttributes",
-      "sqs:GetQueueUrl"
+      "sqs:GetQueueUrl",
     ]
 
     resources = [
       module.sqs_ttl.sqs_queue_arn,
+    ]
+  }
+
+  statement {
+    sid    = "SQSPermissionsEventDlqQueue"
+    effect = "Allow"
+
+    actions = [
+      "sqs:SendMessage",
+    ]
+
+    resources = [
+      module.sqs_ttl.sqs_dlq_url,
     ]
   }
 
