@@ -101,13 +101,14 @@ export class EventPublisher {
     return failedEvents;
   }
 
-  private async sendToDLQ(events: CloudEvent[]): Promise<CloudEvent[]> {
+  private async sendToDLQ(events: CloudEvent[], reason: string): Promise<CloudEvent[]> {
     const failedDlqs: CloudEvent[] = [];
 
     this.logger.warn({
       description: 'Sending failed events to DLQ',
       dlqUrl: this.config.dlqUrl,
       eventCount: events.length,
+      reason,
     });
 
     for (let i = 0; i < events.length; i += MAX_BATCH_SIZE) {
@@ -120,6 +121,12 @@ export class EventPublisher {
         return {
           Id: id,
           MessageBody: JSON.stringify(event),
+          MessageAttributes: {
+            DlqReason: {
+              DataType: 'String',
+              StringValue: reason,
+            },
+          },
         };
       });
 
@@ -194,14 +201,14 @@ export class EventPublisher {
     const totalFailedEvents: CloudEvent[] = [];
 
     if (invalidEvents.length > 0) {
-      const failedDlqSends = await this.sendToDLQ(invalidEvents);
+      const failedDlqSends = await this.sendToDLQ(invalidEvents, 'INVALID_EVENT');
       totalFailedEvents.push(...failedDlqSends);
     }
 
     if (validEvents.length > 0) {
       const failedSends = await this.sendToEventBridge(validEvents);
       if (failedSends.length > 0) {
-        const failedDlqSends = await this.sendToDLQ(failedSends);
+        const failedDlqSends = await this.sendToDLQ(failedSends, 'EVENTBRIDGE_FAILURE');
         totalFailedEvents.push(...failedDlqSends);
       }
     }
