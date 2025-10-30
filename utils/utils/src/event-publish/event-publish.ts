@@ -68,6 +68,8 @@ export class EventPublisher {
           new PutEventsCommand({ Entries: entries }),
         );
 
+        this.logger.debug(response);
+
         if (response.FailedEntryCount && response.Entries) {
           for (const [idx, entry] of response.Entries.entries()) {
             if (entry.ErrorCode) {
@@ -123,8 +125,6 @@ export class EventPublisher {
             Entries: entries,
           }),
         );
-
-        this.logger.debug({response});
 
         if (response.Failed)
           for (const failedEntry of response.Failed) {
