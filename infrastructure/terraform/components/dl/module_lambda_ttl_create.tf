@@ -39,8 +39,8 @@ module "ttl_create" {
     "TTL_TABLE_NAME"        = aws_dynamodb_table.ttl.name
     "TTL_WAIT_TIME_HOURS"   = 24
     "TTL_SHARD_COUNT"       = local.ttl_shard_count
-    "EVENT_PUBLISH_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
-    "EVENT_PUBLISH_DLQ_URL" = module.sqs_ttl.sqs_dlq_url
+    "EVENT_PUBLISHER_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
+    "EVENT_PUBLISHER_DLQ_URL" = module.sqs_ttl.sqs_dlq_url
   }
 }
 

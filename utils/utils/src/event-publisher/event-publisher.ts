@@ -11,7 +11,7 @@ import { Logger } from '../logger';
 
 const MAX_BATCH_SIZE = 10;
 
-export interface EventPublishConfig {
+export interface EventPublisherConfig {
   eventBusArn: string;
   dlqUrl: string;
   logger: Logger;
@@ -20,11 +20,11 @@ export interface EventPublishConfig {
 export class EventPublisher {
   private readonly eventBridge: EventBridgeClient;
 
-  private readonly config: EventPublishConfig;
+  private readonly config: EventPublisherConfig;
 
   private readonly logger: Logger;
 
-  constructor(config: EventPublishConfig) {
+  constructor(config: EventPublisherConfig) {
     if (!config.eventBusArn) {
       throw new Error('eventBusArn is required in config');
     }
@@ -101,7 +101,10 @@ export class EventPublisher {
     return failedEvents;
   }
 
-  private async sendToDLQ(events: CloudEvent[], reason: string): Promise<CloudEvent[]> {
+  private async sendToDLQ(
+    events: CloudEvent[],
+    reason: string,
+  ): Promise<CloudEvent[]> {
     const failedDlqs: CloudEvent[] = [];
 
     this.logger.warn({
@@ -201,14 +204,20 @@ export class EventPublisher {
     const totalFailedEvents: CloudEvent[] = [];
 
     if (invalidEvents.length > 0) {
-      const failedDlqSends = await this.sendToDLQ(invalidEvents, 'INVALID_EVENT');
+      const failedDlqSends = await this.sendToDLQ(
+        invalidEvents,
+        'INVALID_EVENT',
+      );
       totalFailedEvents.push(...failedDlqSends);
     }
 
     if (validEvents.length > 0) {
       const failedSends = await this.sendToEventBridge(validEvents);
       if (failedSends.length > 0) {
-        const failedDlqSends = await this.sendToDLQ(failedSends, 'EVENTBRIDGE_FAILURE');
+        const failedDlqSends = await this.sendToDLQ(
+          failedSends,
+          'EVENTBRIDGE_FAILURE',
+        );
         totalFailedEvents.push(...failedDlqSends);
       }
     }

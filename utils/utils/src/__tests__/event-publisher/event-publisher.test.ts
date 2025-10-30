@@ -6,7 +6,7 @@ import {
 import { mockClient } from 'aws-sdk-client-mock';
 import { CloudEvent } from 'types';
 import { Logger } from 'logger';
-import { EventPublishConfig, EventPublisher } from 'event-publisher';
+import { EventPublisher, EventPublisherConfig } from 'event-publisher';
 
 const eventBridgeMock = mockClient(EventBridgeClient);
 const sqsMock = mockClient(SQSClient);
@@ -18,7 +18,7 @@ const mockLogger: Logger = {
   debug: jest.fn(),
 } as any;
 
-const testConfig: EventPublishConfig = {
+const testConfig: EventPublisherConfig = {
   eventBusArn: 'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
   dlqUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/test-dlq',
   logger: mockLogger,

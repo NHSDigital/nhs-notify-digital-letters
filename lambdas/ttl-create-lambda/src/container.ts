@@ -17,8 +17,8 @@ export const createContainer = () => {
   const createTtl = new CreateTtl(requestTtlRepository, logger);
 
   const eventPublisher = new EventPublisher({
-    eventBusArn: loadConfig().eventPublishBusArn,
-    dlqUrl: loadConfig().eventPublishDlqUrl,
+    eventBusArn: loadConfig().eventPublisherBusArn,
+    dlqUrl: loadConfig().eventPublisherDlqUrl,
     logger,
   });
 
