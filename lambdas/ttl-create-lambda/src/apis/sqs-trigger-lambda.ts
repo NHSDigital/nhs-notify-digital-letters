@@ -39,7 +39,7 @@ export const createHandler = ({
 
         const result = await createTtl.send(item);
 
-        eventPublisher.sendEvents([item]);
+        await eventPublisher.sendEvents([item]);
 
         if (result === 'failed') {
           batchItemFailures.push({ itemIdentifier: messageId });
