@@ -6,8 +6,7 @@ import {
 import { mockClient } from 'aws-sdk-client-mock';
 import { CloudEvent } from 'types';
 import { Logger } from 'logger';
-
-import { EventPublishConfig, EventPublisher } from 'event-publish';
+import { EventPublishConfig, EventPublisher } from 'event-publisher';
 
 const eventBridgeMock = mockClient(EventBridgeClient);
 const sqsMock = mockClient(SQSClient);
