@@ -55,14 +55,15 @@ export class EventPublisher {
         eventBusArn: this.config.eventBusArn,
         batchSize: batch.length,
       });
-      const entries = batch.map((event) => ({
-        Source: 'custom.event',
-        DetailType: event.type,
-        Detail: JSON.stringify(event),
-        EventBusName: this.config.eventBusArn,
-      }));
 
       try {
+        const entries = batch.map((event) => ({
+          Source: 'custom.event',
+          DetailType: event.type,
+          Detail: JSON.stringify(event),
+          EventBusName: this.config.eventBusArn,
+        }));
+
         const response = await this.eventBridge.send(
           new PutEventsCommand({ Entries: entries }),
         );
@@ -122,6 +123,8 @@ export class EventPublisher {
             Entries: entries,
           }),
         );
+
+        this.logger.debug({response});
 
         if (response.Failed)
           for (const failedEntry of response.Failed) {

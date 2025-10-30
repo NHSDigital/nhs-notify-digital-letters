@@ -87,4 +87,17 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
       module.sqs_ttl.sqs_queue_arn,
     ]
   }
+
+  statement {
+    sid    = "PutEvents"
+    effect = "Allow"
+
+    actions = [
+      "events:PutEvents",
+    ]
+
+    resources = [
+      aws_cloudwatch_event_bus.main.arn,
+    ]
+  }
 }
