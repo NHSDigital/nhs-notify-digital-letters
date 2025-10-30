@@ -68,7 +68,12 @@ export class EventPublisher {
           new PutEventsCommand({ Entries: entries }),
         );
 
-        this.logger.debug(response);
+        this.logger.info({
+          description: 'EventBridge batch sent',
+          batchSize: batch.length,
+          failedEntryCount: response.FailedEntryCount || 0,
+          successfulCount: (batch.length - (response.FailedEntryCount || 0)),
+        });
 
         if (response.FailedEntryCount && response.Entries) {
           for (const [idx, entry] of response.Entries.entries()) {
