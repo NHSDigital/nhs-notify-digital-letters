@@ -40,7 +40,7 @@ module "ttl_create" {
     "TTL_WAIT_TIME_HOURS"   = 24
     "TTL_SHARD_COUNT"       = local.ttl_shard_count
     "EVENT_PUBLISHER_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
-    "EVENT_PUBLISHER_DLQ_URL" = module.sqs_ttl.sqs_dlq_url
+    "EVENT_PUBLISHER_DLQ_URL" = module.sqs_event_publisher_errors.sqs_queue_url
   }
 }
 
@@ -89,19 +89,6 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
   }
 
   statement {
-    sid    = "SQSPermissionsEventDlqQueue"
-    effect = "Allow"
-
-    actions = [
-      "sqs:SendMessage",
-    ]
-
-    resources = [
-      module.sqs_ttl.sqs_dlq_arn,
-    ]
-  }
-
-  statement {
     sid    = "PutEvents"
     effect = "Allow"
 
@@ -111,6 +98,20 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
 
     resources = [
       aws_cloudwatch_event_bus.main.arn,
+    ]
+  }
+
+  statement {
+    sid    = "SQSPermissionsEventPublisherDLQ"
+    effect = "Allow"
+
+    actions = [
+      "sqs:SendMessage",
+      "sqs:SendMessageBatch",
+    ]
+
+    resources = [
+      module.sqs_event_publisher_errors.sqs_queue_arn,
     ]
   }
 }
