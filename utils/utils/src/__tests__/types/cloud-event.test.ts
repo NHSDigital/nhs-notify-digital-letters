@@ -1,6 +1,6 @@
-import { $TtlItemEvent, validateTtlItemEvent } from 'types/ttl-item-event';
+import { $CloudEvent, validateCloudEvent } from '../../types/cloud-event';
 
-describe('$TtlItemEvent', () => {
+describe('$CloudEvent', () => {
   const valid = {
     profileversion: '1.0.0',
     profilepublished: '2025-10',
@@ -9,7 +9,7 @@ describe('$TtlItemEvent', () => {
     source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
     subject:
       'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-    type: 'uk.nhs.notify.digital.letters.ttl.v1',
+    type: 'uk.nhs.notify.digital.letters.example.v1',
     time: '2024-07-10T14:30:00Z',
     recordedtime: '2024-07-10T14:30:00.250Z',
     severitynumber: 2,
@@ -21,30 +21,39 @@ describe('$TtlItemEvent', () => {
     severitytext: 'INFO',
     data: {
       'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000',
-      uri: 'https://example.com/ttl/resource',
     },
   };
 
-  it('parses a valid object', () => {
-    expect($TtlItemEvent.parse(valid)).toEqual(valid);
+  it('parses a valid CloudEvent', () => {
+    expect($CloudEvent.parse(valid)).toEqual(valid);
   });
 
   it('fails for missing required fields', () => {
-    expect(() => $TtlItemEvent.parse({})).toThrow();
+    expect(() => $CloudEvent.parse({})).toThrow();
   });
 
-  it('fails for invalid data types', () => {
-    const invalid = { ...valid, id: 123, time: 'now' };
-    expect(() => $TtlItemEvent.parse(invalid)).toThrow();
+  it('fails for invalid source pattern', () => {
+    const invalid = { ...valid, source: 'invalid-source' };
+    expect(() => $CloudEvent.parse(invalid)).toThrow();
   });
 
-  it('fails for missing data.uri', () => {
+  it('fails for invalid subject pattern', () => {
+    const invalid = { ...valid, subject: 'invalid-subject' };
+    expect(() => $CloudEvent.parse(invalid)).toThrow();
+  });
+
+  it('fails for invalid type pattern', () => {
+    const invalid = { ...valid, type: 'invalid.type' };
+    expect(() => $CloudEvent.parse(invalid)).toThrow();
+  });
+
+  it('fails for missing digital-letter-id in data', () => {
     const invalid = { ...valid, data: {} };
-    expect(() => $TtlItemEvent.parse(invalid)).toThrow();
+    expect(() => $CloudEvent.parse(invalid)).toThrow();
   });
 });
 
-describe('validateTtlItemEvent', () => {
+describe('validateCloudEvent', () => {
   const valid = {
     profileversion: '1.0.0',
     profilepublished: '2025-10',
@@ -53,7 +62,7 @@ describe('validateTtlItemEvent', () => {
     source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
     subject:
       'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-    type: 'uk.nhs.notify.digital.letters.ttl.v1',
+    type: 'uk.nhs.notify.digital.letters.example.v1',
     time: '2024-07-10T14:30:00Z',
     recordedtime: '2024-07-10T14:30:00.250Z',
     severitynumber: 2,
@@ -65,18 +74,17 @@ describe('validateTtlItemEvent', () => {
     severitytext: 'INFO',
     data: {
       'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000',
-      uri: 'https://example.com/ttl/resource',
     },
   };
 
-  it('returns success for valid TTL item event', () => {
-    const result = validateTtlItemEvent(valid);
+  it('returns success for valid CloudEvent', () => {
+    const result = validateCloudEvent(valid);
     expect(result.success).toBe(true);
     expect(result.data).toEqual(valid);
   });
 
-  it('returns failure for invalid TTL item event', () => {
-    const result = validateTtlItemEvent({});
+  it('returns failure for invalid CloudEvent', () => {
+    const result = validateCloudEvent({});
     expect(result.success).toBe(false);
   });
 });

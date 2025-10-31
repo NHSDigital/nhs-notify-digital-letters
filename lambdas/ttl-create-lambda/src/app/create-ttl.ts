@@ -1,6 +1,6 @@
 import { Logger } from 'utils';
 import { TtlRepository } from 'infra/ttl-repository';
-import { TtlItemEvent } from 'infra/types';
+import { TtlItemEvent } from 'types/ttl-item-event';
 
 export type CreateTtlOutcome = 'sent' | 'failed';
 
