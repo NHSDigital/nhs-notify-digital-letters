@@ -90,7 +90,7 @@ export const createHandler = ({
 
     if (successfulEvents.length > 0) {
       try {
-        const failedEvents = await eventPublisher.sendEvents(successfulEvents);
+        const failedEvents = await eventPublisher.sendEvents(successfulEvents); // TODO: CCM-12896 - send an actual ItemEnqueued event.
         if (failedEvents.length > 0) {
           logger.warn({
             description: 'Some events failed to publish',

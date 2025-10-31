@@ -188,7 +188,7 @@ export class EventPublisher {
     const invalidEvents: CloudEvent[] = [];
 
     for (const event of events) {
-      if ($CloudEvent.safeParse(event).success) {
+      if ($CloudEvent.safeParse(event).success) { // TODO: CCM-12896 - apply specific event validation.
         validEvents.push(event);
       } else {
         invalidEvents.push(event);
