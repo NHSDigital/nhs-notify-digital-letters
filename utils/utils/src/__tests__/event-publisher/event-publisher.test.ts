@@ -25,21 +25,25 @@ const testConfig: EventPublisherConfig = {
 };
 
 const validCloudEvent: CloudEvent = {
-  id: '1',
-  source: 'test-source',
+  id: '550e8400-e29b-41d4-a716-446655440001',
+  source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
   specversion: '1.0',
-  type: 'test-type',
-  plane: 'control',
-  subject: 'test-subject',
-  time: '2023-01-01T00:00:00Z',
+  type: 'uk.nhs.notify.digital.letters.sent.v1',
+  plane: 'data',
+  subject:
+    'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+  time: '2023-06-20T12:00:00Z',
   datacontenttype: 'application/json',
-  dataschema: 'https://example.com/schema',
+  dataschema:
+    'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
   dataschemaversion: '1.0',
+  data: { 'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000' },
 };
 
 const validCloudEvent2: CloudEvent = {
   ...validCloudEvent,
-  id: '2',
+  id: '550e8400-e29b-41d4-a716-446655440002',
+  data: { 'digital-letter-id': '123e4567-e89b-12d3-a456-426614174001' },
 };
 
 const invalidCloudEvent = {
@@ -88,14 +92,14 @@ describe('Event Publishing', () => {
       Entries: [
         {
           Source: 'custom.event',
-          DetailType: 'test-type',
+          DetailType: 'uk.nhs.notify.digital.letters.sent.v1',
           Detail: JSON.stringify(validCloudEvent),
           EventBusName:
             'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
         },
         {
           Source: 'custom.event',
-          DetailType: 'test-type',
+          DetailType: 'uk.nhs.notify.digital.letters.sent.v1',
           Detail: JSON.stringify(validCloudEvent2),
           EventBusName:
             'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
@@ -154,7 +158,7 @@ describe('Event Publishing', () => {
       Entries: [
         {
           Source: 'custom.event',
-          DetailType: 'test-type',
+          DetailType: 'uk.nhs.notify.digital.letters.sent.v1',
           Detail: JSON.stringify(validCloudEvent),
           EventBusName:
             'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
@@ -308,9 +312,11 @@ describe('Event Publishing', () => {
     const customEvent: CloudEvent = {
       ...validCloudEvent,
       id: 'custom-event-123',
-      source: 'nhs.notify.digital-letters',
-      type: 'letter.created',
-      subject: 'Patient/12345',
+      source:
+        '/nhs/england/notify/production/primary/data-plane/digital-letters',
+      type: 'uk.nhs.notify.digital.letters.created.v1',
+      subject:
+        'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
     };
 
     const publisher = new EventPublisher(testConfig);
@@ -324,7 +330,7 @@ describe('Event Publishing', () => {
 
     // Verify EventBridge-specific fields are correctly mapped
     expect(entry.Source).toBe('custom.event');
-    expect(entry.DetailType).toBe('letter.created');
+    expect(entry.DetailType).toBe('uk.nhs.notify.digital.letters.created.v1');
     expect(entry.EventBusName).toBe(
       'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
     );
@@ -332,9 +338,13 @@ describe('Event Publishing', () => {
     // Verify the original CloudEvent structure is intact in Detail
     const detailObject = JSON.parse(entry.Detail);
     expect(detailObject.id).toBe('custom-event-123');
-    expect(detailObject.source).toBe('nhs.notify.digital-letters');
-    expect(detailObject.type).toBe('letter.created');
-    expect(detailObject.subject).toBe('Patient/12345');
+    expect(detailObject.source).toBe(
+      '/nhs/england/notify/production/primary/data-plane/digital-letters',
+    );
+    expect(detailObject.type).toBe('uk.nhs.notify.digital.letters.created.v1');
+    expect(detailObject.subject).toBe(
+      'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+    );
     expect(detailObject.specversion).toBe('1.0');
   });
 });

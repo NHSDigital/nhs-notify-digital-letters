@@ -1,6 +1,6 @@
 import { createHandler } from 'apis/sqs-trigger-lambda';
 import type { SQSEvent } from 'aws-lambda';
-import { $TtlItem } from 'app/ttl-item-validator';
+import { $TtlItemEvent, TtlItemEvent } from 'types/ttl-item-event';
 
 describe('createHandler', () => {
   let createTtl: any;
@@ -8,18 +8,23 @@ describe('createHandler', () => {
   let logger: any;
   let handler: any;
 
-  const validItem = {
-    id: '1',
-    source: 'src',
-    specversion: '1',
-    type: 't',
-    plane: 'p',
-    subject: 's',
-    time: 'now',
-    datacontenttype: 'json',
-    dataschema: 'sch',
-    dataschemaversion: '1',
-    data: { uri: 'uri' },
+  const validItem: TtlItemEvent = {
+    id: '550e8400-e29b-41d4-a716-446655440001',
+    source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
+    specversion: '1.0',
+    type: 'uk.nhs.notify.digital.letters.sent.v1',
+    plane: 'data',
+    subject:
+      'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+    time: '2023-06-20T12:00:00Z',
+    datacontenttype: 'application/json',
+    dataschema:
+      'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
+    dataschemaversion: '1.0',
+    data: {
+      uri: 'uri:uri',
+      'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000',
+    },
   };
 
   beforeEach(() => {
@@ -31,7 +36,7 @@ describe('createHandler', () => {
 
   it('processes a valid SQS event and returns success', async () => {
     jest
-      .spyOn($TtlItem, 'safeParse')
+      .spyOn($TtlItemEvent, 'safeParse')
       .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('sent');
     const event: SQSEvent = {
@@ -54,7 +59,7 @@ describe('createHandler', () => {
   it('handles parse failure and logs error', async () => {
     const zodError = { errors: [] } as any;
     jest
-      .spyOn($TtlItem, 'safeParse')
+      .spyOn($TtlItemEvent, 'safeParse')
       .mockReturnValue({ success: false, error: zodError });
     const event: SQSEvent = {
       Records: [{ body: '{}', messageId: 'msg2' }],
@@ -78,7 +83,7 @@ describe('createHandler', () => {
 
   it('handles createTtl.send failure', async () => {
     jest
-      .spyOn($TtlItem, 'safeParse')
+      .spyOn($TtlItemEvent, 'safeParse')
       .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('failed');
     const event: SQSEvent = {
@@ -97,7 +102,7 @@ describe('createHandler', () => {
   });
 
   it('handles thrown error and logs', async () => {
-    jest.spyOn($TtlItem, 'safeParse').mockImplementation(() => {
+    jest.spyOn($TtlItemEvent, 'safeParse').mockImplementation(() => {
       throw new Error('bad json');
     });
     const event: SQSEvent = {
@@ -149,7 +154,7 @@ describe('createHandler', () => {
 
   it('processes multiple successful events and sends them as a batch', async () => {
     jest
-      .spyOn($TtlItem, 'safeParse')
+      .spyOn($TtlItemEvent, 'safeParse')
       .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('sent');
     const event: SQSEvent = {
@@ -164,7 +169,11 @@ describe('createHandler', () => {
 
     expect(res.batchItemFailures).toEqual([]);
     expect(createTtl.send).toHaveBeenCalledTimes(3);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([validItem, validItem, validItem]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+      validItem,
+      validItem,
+      validItem,
+    ]);
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 0,
@@ -175,7 +184,7 @@ describe('createHandler', () => {
 
   it('handles partial event publishing failures and logs warning', async () => {
     jest
-      .spyOn($TtlItem, 'safeParse')
+      .spyOn($TtlItemEvent, 'safeParse')
       .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('sent');
     const failedEvents = [validItem];
@@ -191,7 +200,10 @@ describe('createHandler', () => {
     const res = await handler(event);
 
     expect(res.batchItemFailures).toEqual([]);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([validItem, validItem]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+      validItem,
+      validItem,
+    ]);
     expect(logger.warn).toHaveBeenCalledWith({
       description: 'Some events failed to publish',
       failedCount: 1,
@@ -201,7 +213,7 @@ describe('createHandler', () => {
 
   it('handles event publishing exception and logs warning', async () => {
     jest
-      .spyOn($TtlItem, 'safeParse')
+      .spyOn($TtlItemEvent, 'safeParse')
       .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('sent');
     const publishError = new Error('EventBridge error');
@@ -224,7 +236,7 @@ describe('createHandler', () => {
 
   it('does not call eventPublisher when no successful events', async () => {
     jest
-      .spyOn($TtlItem, 'safeParse')
+      .spyOn($TtlItemEvent, 'safeParse')
       .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('failed');
 
@@ -246,11 +258,13 @@ describe('createHandler', () => {
 
   it('handles mixed success and failure scenarios', async () => {
     jest
-      .spyOn($TtlItem, 'safeParse')
+      .spyOn($TtlItemEvent, 'safeParse')
       .mockReturnValueOnce({ success: true, data: validItem })
       .mockReturnValueOnce({ success: false, error: { errors: [] } as any })
       .mockReturnValueOnce({ success: true, data: validItem });
-    createTtl.send.mockResolvedValueOnce('sent').mockResolvedValueOnce('failed');
+    createTtl.send
+      .mockResolvedValueOnce('sent')
+      .mockResolvedValueOnce('failed');
 
     const event: SQSEvent = {
       Records: [

@@ -5,9 +5,10 @@ import {
 import { SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { randomUUID } from 'node:crypto';
 import { sqsClient } from '../sqs-utils';
-import { CloudEvent } from '../types';
-import { $CloudEvent } from '../validators';
+import { $CloudEvent, CloudEvent } from '../types/cloud-event';
 import { Logger } from '../logger';
+
+type DlqReason = 'INVALID_EVENT' | 'EVENTBRIDGE_FAILURE';
 
 const MAX_BATCH_SIZE = 10;
 
@@ -103,7 +104,7 @@ export class EventPublisher {
 
   private async sendToDLQ(
     events: CloudEvent[],
-    reason: string,
+    reason: DlqReason,
   ): Promise<CloudEvent[]> {
     const failedDlqs: CloudEvent[] = [];
 

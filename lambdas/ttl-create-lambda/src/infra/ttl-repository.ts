@@ -1,6 +1,6 @@
 import { PutCommand, PutCommandOutput } from '@aws-sdk/lib-dynamodb';
 import { Logger } from 'utils';
-import { TtlItemEvent } from 'infra/types';
+import { TtlItemEvent } from 'types/ttl-item-event';
 
 interface IDynamoCaller {
   send: (updateCommand: PutCommand) => Promise<PutCommandOutput>;

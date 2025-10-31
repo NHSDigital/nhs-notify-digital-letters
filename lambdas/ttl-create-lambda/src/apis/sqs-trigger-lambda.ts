@@ -4,14 +4,13 @@ import type {
   SQSEvent,
 } from 'aws-lambda';
 import type { CreateTtl, CreateTtlOutcome } from 'app/create-ttl';
+import { $TtlItemEvent, TtlItemEvent } from 'types/ttl-item-event';
+import { EventPublisher, Logger } from 'utils';
 
 interface ProcessingResult {
   result: CreateTtlOutcome;
   item?: TtlItemEvent;
 }
-import { $TtlItem } from 'app/ttl-item-validator';
-import { TtlItemEvent } from 'infra/types';
-import { EventPublisher, Logger } from 'utils';
 
 interface CreateHandlerDependencies {
   createTtl: CreateTtl;
@@ -28,42 +27,44 @@ export const createHandler = ({
     const batchItemFailures: SQSBatchItemFailure[] = [];
     const successfulEvents: TtlItemEvent[] = [];
 
-    const promises = event.Records.map(async ({ body, messageId }): Promise<ProcessingResult> => {
-      try {
-        const {
-          data: item,
-          error: parseError,
-          success: parseSuccess,
-        } = $TtlItem.safeParse(JSON.parse(body));
+    const promises = event.Records.map(
+      async ({ body, messageId }): Promise<ProcessingResult> => {
+        try {
+          const {
+            data: item,
+            error: parseError,
+            success: parseSuccess,
+          } = $TtlItemEvent.safeParse(JSON.parse(body));
 
-        if (!parseSuccess) {
+          if (!parseSuccess) {
+            logger.error({
+              err: parseError,
+              description: 'Error parsing ttl queue entry',
+            });
+            batchItemFailures.push({ itemIdentifier: messageId });
+            return { result: 'failed' };
+          }
+
+          const result = await createTtl.send(item);
+
+          if (result === 'failed') {
+            batchItemFailures.push({ itemIdentifier: messageId });
+            return { result: 'failed' };
+          }
+
+          return { result, item };
+        } catch (error) {
           logger.error({
-            err: parseError,
-            description: 'Error parsing ttl queue entry',
+            err: error,
+            description: 'Error during SQS trigger handler',
           });
+
           batchItemFailures.push({ itemIdentifier: messageId });
+
           return { result: 'failed' };
         }
-
-        const result = await createTtl.send(item);
-
-        if (result === 'failed') {
-          batchItemFailures.push({ itemIdentifier: messageId });
-          return { result: 'failed' };
-        }
-
-        return { result, item };
-      } catch (error) {
-        logger.error({
-          err: error,
-          description: 'Error during SQS trigger handler',
-        });
-
-        batchItemFailures.push({ itemIdentifier: messageId });
-
-        return { result: 'failed' };
-      }
-    });
+      },
+    );
 
     const results = await Promise.allSettled(promises);
 
@@ -75,7 +76,7 @@ export const createHandler = ({
 
     for (const result of results) {
       if (result.status === 'fulfilled') {
-        const { result: outcome, item } = result.value;
+        const { item, result: outcome } = result.value;
         processed[outcome] += 1;
 
         if (outcome === 'sent' && item) {
