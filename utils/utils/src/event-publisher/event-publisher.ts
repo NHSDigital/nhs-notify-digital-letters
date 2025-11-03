@@ -30,19 +30,19 @@ export class EventPublisher {
 
   constructor(config: EventPublisherDependencies) {
     if (!config.eventBusArn) {
-      throw new Error('eventBusArn is required in config');
+      throw new Error('eventBusArn has not been specified');
     }
     if (!config.dlqUrl) {
-      throw new Error('dlqUrl is required in config');
+      throw new Error('dlqUrl has not been specified');
     }
     if (!config.logger) {
-      throw new Error('logger is required in config');
+      throw new Error('logger has not been provided');
     }
     if (!config.sqsClient) {
-      throw new Error('sqsClient is required in config');
+      throw new Error('sqsClient has not been provided');
     }
     if (!config.eventBridgeClient) {
-      throw new Error('eventBridgeClient is required in config');
+      throw new Error('eventBridgeClient has not been provided');
     }
 
     this.config = config;

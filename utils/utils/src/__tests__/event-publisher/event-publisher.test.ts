@@ -363,32 +363,32 @@ describe('EventPublisher Class', () => {
   test('should throw error when eventBusArn is missing from config', () => {
     expect(
       () => new EventPublisher({ ...testConfig, eventBusArn: '' }),
-    ).toThrow('eventBusArn is required in config');
+    ).toThrow('eventBusArn has not been specified');
   });
 
   test('should throw error when dlqUrl is missing from config', () => {
     expect(() => new EventPublisher({ ...testConfig, dlqUrl: '' })).toThrow(
-      'dlqUrl is required in config',
+      'dlqUrl has not been specified',
     );
   });
 
   test('should throw error when logger is missing from config', () => {
     expect(
       () => new EventPublisher({ ...testConfig, logger: null as any }),
-    ).toThrow('logger is required in config');
+    ).toThrow('logger has not been providedg');
   });
 
   test('should throw error when sqsClient is missing from config', () => {
     expect(
       () => new EventPublisher({ ...testConfig, sqsClient: null as any }),
-    ).toThrow('sqsClient is required in config');
+    ).toThrow('sqsClient has not been provided');
   });
 
   test('should throw error when eventBridgeClient is missing from config', () => {
     expect(
       () =>
         new EventPublisher({ ...testConfig, eventBridgeClient: null as any }),
-    ).toThrow('eventBridgeClient is required in config');
+    ).toThrow('eventBridgeClient has not been provided');
   });
 
   test('should be reusable for multiple calls', async () => {
