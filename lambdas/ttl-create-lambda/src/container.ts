@@ -10,7 +10,13 @@ import { TtlRepository } from 'infra/ttl-repository';
 import { CreateTtl } from 'app/create-ttl';
 
 export const createContainer = () => {
-  const { ttlShardCount, ttlTableName, ttlWaitTimeHours } = loadConfig();
+  const {
+    eventPublisherDlqUrl,
+    eventPublisherEventBusArn,
+    ttlShardCount,
+    ttlTableName,
+    ttlWaitTimeHours,
+  } = loadConfig();
 
   const requestTtlRepository = new TtlRepository(
     ttlTableName,
@@ -23,8 +29,8 @@ export const createContainer = () => {
   const createTtl = new CreateTtl(requestTtlRepository, logger);
 
   const eventPublisher = new EventPublisher({
-    eventBusArn: loadConfig().eventPublisherBusArn,
-    dlqUrl: loadConfig().eventPublisherDlqUrl,
+    eventBusArn: eventPublisherEventBusArn,
+    dlqUrl: eventPublisherDlqUrl,
     logger,
     sqsClient,
     eventBridgeClient,

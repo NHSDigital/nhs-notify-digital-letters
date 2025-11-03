@@ -36,11 +36,11 @@ module "ttl_create" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    "TTL_TABLE_NAME"        = aws_dynamodb_table.ttl.name
-    "TTL_WAIT_TIME_HOURS"   = 24
-    "TTL_SHARD_COUNT"       = local.ttl_shard_count
-    "EVENT_PUBLISHER_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
-    "EVENT_PUBLISHER_DLQ_URL" = module.sqs_event_publisher_errors.sqs_queue_url
+    "TTL_TABLE_NAME"                = aws_dynamodb_table.ttl.name
+    "TTL_WAIT_TIME_HOURS"           = 24
+    "TTL_SHARD_COUNT"               = local.ttl_shard_count
+    "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
+    "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
   }
 }
 
