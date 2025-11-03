@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@aws-sdk/client-eventbridge": "^3.922.0",
     "@aws-sdk/lib-dynamodb": "^3.908.0",
     "utils": "^0.0.1",
     "zod": "^4.1.12"

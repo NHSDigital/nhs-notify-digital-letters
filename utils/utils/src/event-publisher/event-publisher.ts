@@ -2,9 +2,8 @@ import {
   EventBridgeClient,
   PutEventsCommand,
 } from '@aws-sdk/client-eventbridge';
-import { SendMessageBatchCommand } from '@aws-sdk/client-sqs';
+import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { randomUUID } from 'node:crypto';
-import { sqsClient } from '../sqs-utils';
 import { $CloudEvent, CloudEvent } from '../types/cloud-event';
 import { Logger } from '../logger';
 
@@ -12,20 +11,24 @@ type DlqReason = 'INVALID_EVENT' | 'EVENTBRIDGE_FAILURE';
 
 const MAX_BATCH_SIZE = 10;
 
-export interface EventPublisherConfig {
+export interface EventPublisherDependencies {
   eventBusArn: string;
   dlqUrl: string;
   logger: Logger;
+  sqsClient: SQSClient;
+  eventBridgeClient: EventBridgeClient;
 }
 
 export class EventPublisher {
   private readonly eventBridge: EventBridgeClient;
 
-  private readonly config: EventPublisherConfig;
+  private readonly sqs: SQSClient;
+
+  private readonly config: EventPublisherDependencies;
 
   private readonly logger: Logger;
 
-  constructor(config: EventPublisherConfig) {
+  constructor(config: EventPublisherDependencies) {
     if (!config.eventBusArn) {
       throw new Error('eventBusArn is required in config');
     }
@@ -35,10 +38,17 @@ export class EventPublisher {
     if (!config.logger) {
       throw new Error('logger is required in config');
     }
+    if (!config.sqsClient) {
+      throw new Error('sqsClient is required in config');
+    }
+    if (!config.eventBridgeClient) {
+      throw new Error('eventBridgeClient is required in config');
+    }
 
     this.config = config;
     this.logger = config.logger;
-    this.eventBridge = new EventBridgeClient({});
+    this.eventBridge = config.eventBridgeClient;
+    this.sqs = config.sqsClient;
   }
 
   private async sendToEventBridge(events: CloudEvent[]): Promise<CloudEvent[]> {
@@ -135,7 +145,7 @@ export class EventPublisher {
       });
 
       try {
-        const response = await sqsClient.send(
+        const response = await this.sqs.send(
           new SendMessageBatchCommand({
             QueueUrl: this.config.dlqUrl,
             Entries: entries,
@@ -188,7 +198,8 @@ export class EventPublisher {
     const invalidEvents: CloudEvent[] = [];
 
     for (const event of events) {
-      if ($CloudEvent.safeParse(event).success) { // TODO: CCM-12896 - apply specific event validation.
+      // NOTE: CCM-12896 created to apply specific event validation.
+      if ($CloudEvent.safeParse(event).success) {
         validEvents.push(event);
       } else {
         invalidEvents.push(event);

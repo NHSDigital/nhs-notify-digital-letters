@@ -7,7 +7,7 @@ import { randomUUID } from 'node:crypto';
 import { mockClient } from 'aws-sdk-client-mock';
 import { CloudEvent } from 'types';
 import { Logger } from 'logger';
-import { EventPublisher, EventPublisherConfig } from 'event-publisher';
+import { EventPublisher, EventPublisherDependencies } from 'event-publisher';
 
 const eventBridgeMock = mockClient(EventBridgeClient);
 const sqsMock = mockClient(SQSClient);
@@ -19,10 +19,12 @@ const mockLogger: Logger = {
   debug: jest.fn(),
 } as any;
 
-const testConfig: EventPublisherConfig = {
+const testConfig: EventPublisherDependencies = {
   eventBusArn: 'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
   dlqUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/test-dlq',
   logger: mockLogger,
+  sqsClient: sqsMock as unknown as SQSClient,
+  eventBridgeClient: eventBridgeMock as unknown as EventBridgeClient,
 };
 
 const validCloudEvent: CloudEvent = {
@@ -374,6 +376,19 @@ describe('EventPublisher Class', () => {
     expect(
       () => new EventPublisher({ ...testConfig, logger: null as any }),
     ).toThrow('logger is required in config');
+  });
+
+  test('should throw error when sqsClient is missing from config', () => {
+    expect(
+      () => new EventPublisher({ ...testConfig, sqsClient: null as any }),
+    ).toThrow('sqsClient is required in config');
+  });
+
+  test('should throw error when eventBridgeClient is missing from config', () => {
+    expect(
+      () =>
+        new EventPublisher({ ...testConfig, eventBridgeClient: null as any }),
+    ).toThrow('eventBridgeClient is required in config');
   });
 
   test('should be reusable for multiple calls', async () => {

@@ -1,4 +1,5 @@
-import { EventPublisher, dynamoClient, logger } from 'utils';
+import { EventPublisher, dynamoClient, logger, sqsClient } from 'utils';
+import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
 import { loadConfig } from 'infra/config';
 import { TtlRepository } from 'infra/ttl-repository';
 import { CreateTtl } from 'app/create-ttl';
@@ -20,6 +21,8 @@ export const createContainer = () => {
     eventBusArn: loadConfig().eventPublisherBusArn,
     dlqUrl: loadConfig().eventPublisherDlqUrl,
     logger,
+    sqsClient,
+    eventBridgeClient: new EventBridgeClient({}),
   });
 
   return {
