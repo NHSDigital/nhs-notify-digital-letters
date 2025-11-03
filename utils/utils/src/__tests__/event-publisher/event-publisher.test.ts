@@ -375,7 +375,7 @@ describe('EventPublisher Class', () => {
   test('should throw error when logger is missing from config', () => {
     expect(
       () => new EventPublisher({ ...testConfig, logger: null as any }),
-    ).toThrow('logger has not been providedg');
+    ).toThrow('logger has not been provided');
   });
 
   test('should throw error when sqsClient is missing from config', () => {

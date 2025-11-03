@@ -1,4 +1,7 @@
-import { $TtlItemEvent, validateTtlItemEvent } from 'types/ttl-item-event';
+import {
+  $TtlItemEvent,
+  validateTtlItemEvent,
+} from '../../types/ttl-item-event';
 
 describe('$TtlItemEvent', () => {
   const valid = {

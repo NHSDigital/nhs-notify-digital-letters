@@ -1,6 +1,6 @@
 import { createHandler } from 'apis/sqs-trigger-lambda';
 import type { SQSEvent } from 'aws-lambda';
-import { $TtlItemEvent, TtlItemEvent } from 'types/ttl-item-event';
+import { $TtlItemEvent, TtlItemEvent } from 'utils';
 
 describe('createHandler', () => {
   let createTtl: any;

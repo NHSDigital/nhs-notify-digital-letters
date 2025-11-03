@@ -4,8 +4,7 @@ import type {
   SQSEvent,
 } from 'aws-lambda';
 import type { CreateTtl, CreateTtlOutcome } from 'app/create-ttl';
-import { $TtlItemEvent, TtlItemEvent } from 'types/ttl-item-event';
-import { EventPublisher, Logger } from 'utils';
+import { $TtlItemEvent, EventPublisher, Logger, TtlItemEvent } from 'utils';
 
 interface ProcessingResult {
   result: CreateTtlOutcome;

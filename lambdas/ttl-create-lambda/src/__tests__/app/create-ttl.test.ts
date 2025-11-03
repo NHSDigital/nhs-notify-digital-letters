@@ -1,6 +1,6 @@
 import { CreateTtl } from 'app/create-ttl';
 import { TtlRepository } from 'infra/ttl-repository';
-import { TtlItemEvent } from 'types/ttl-item-event';
+import { TtlItemEvent } from 'utils';
 
 describe('CreateTtl', () => {
   let repo: jest.Mocked<TtlRepository>;

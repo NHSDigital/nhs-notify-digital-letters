@@ -1,6 +1,6 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { TtlRepository } from 'infra/ttl-repository';
-import { TtlItemEvent } from 'types/ttl-item-event';
+import { TtlItemEvent } from 'utils';
 
 jest.useFakeTimers();
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { $CloudEvent, $CloudEventData } from 'utils';
+import { $CloudEvent, $CloudEventData } from './cloud-event';
 
 // Extend the existing CloudEvent data schema to add the URI field
 export const $TtlItemData = $CloudEventData.extend({
