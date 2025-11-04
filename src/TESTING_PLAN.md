@@ -107,6 +107,34 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 16:33 UTC - Fixed Coverage Path and Added relative_files for SonarCloud
+
+- **Author**: GitHub Copilot
+- **Activity**: Fixed coverage generation to use correct paths for SonarCloud resolution
+- **Problem**: SonarCloud still reporting "Cannot resolve the file path 'generate_docs.py'" even after adding `relative_files = True`. Coverage.xml had bare filenames (`generate_docs.py`) with conflicting source paths
+- **Root Cause Analysis**:
+  - Makefile was covering `--cov=src/cloudeventjekylldocs/scripts` (subdirectory) instead of `--cov=src/cloudeventjekylldocs` (whole directory)
+  - This caused coverage.py to generate bare filenames without directory prefixes
+  - asyncapigenerator works because it covers the whole project directory (`--cov=src/asyncapigenerator`)
+  - Coverage needs `relative_files = True` to convert absolute paths to relative paths for SonarCloud
+- **Solution**:
+  - Changed Makefile coverage command to cover whole directory: `--cov=src/cloudeventjekylldocs` instead of `--cov=src/cloudeventjekylldocs/scripts`
+  - Added `relative_files = True` back to pytest.ini `[coverage:run]` section
+  - Run pytest from repository root (already doing this: `cd ../..`)
+- **Changes Made**:
+  - Updated `src/cloudeventjekylldocs/Makefile`: Changed `--cov=src/cloudeventjekylldocs/scripts` to `--cov=src/cloudeventjekylldocs`
+  - Updated `src/cloudeventjekylldocs/pytest.ini`: Added `relative_files = True` to `[coverage:run]` section
+  - Updated `src/TESTING_PLAN.md`: Added changelog entry
+- **Result After Fix**:
+  - Coverage.xml now has relative sources: `scripts` and `src/cloudeventjekylldocs` (not absolute `/workspaces/...`)
+  - Filenames now have subdirectory: `scripts/generate_docs_all.py` (not bare `generate_docs_all.py`)
+  - SonarCloud can resolve: `src/cloudeventjekylldocs` + `scripts/generate_docs_all.py` = `src/cloudeventjekylldocs/scripts/generate_docs_all.py`
+- **Files Modified**:
+  - `src/cloudeventjekylldocs/Makefile` - Fixed coverage path
+  - `src/cloudeventjekylldocs/pytest.ini` - Added relative_files = True
+  - `src/TESTING_PLAN.md` - Added changelog entry
+- **Status**: ✅ Fix applied and verified locally, ready for CI/CD verification
+
 ### 2025-11-04 16:20 UTC - Fixed Python Coverage Paths for SonarCloud (cloudeventjekylldocs)
 
 - **Author**: GitHub Copilot

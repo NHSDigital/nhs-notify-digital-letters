@@ -144,5 +144,5 @@ test:
 # Run tests with coverage report
 coverage:
 	@echo "Running tests with coverage..."
-	@pytest --cov=scripts --cov-report=term-missing --cov-report=html --cov-report=xml --cov-branch
+	@cd ../.. && pytest src/cloudeventjekylldocs/tests/ --cov=src/cloudeventjekylldocs --cov-config=src/cloudeventjekylldocs/pytest.ini --cov-report=html:src/cloudeventjekylldocs/htmlcov --cov-report=term-missing --cov-report=xml:src/cloudeventjekylldocs/coverage.xml --cov-branch
 	@echo "Coverage report generated in htmlcov/ and coverage.xml"
