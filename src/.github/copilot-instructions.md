@@ -28,6 +28,14 @@
 
 13. **Python environment setup** - For Python projects, always use `configure_python_environment` tool to set up the Python environment before running tests or installing dependencies. When VS Code prompts to select which requirements file to install, **always select `requirements-dev.txt`** (not `requirements.txt`) as it includes all testing dependencies plus production dependencies.
 
+14. **Update unit.sh for CI/CD integration** - When adding tests for a new project, you **MUST** update `scripts/tests/unit.sh` to include:
+    - Installation of prerequisites (e.g., `make -C ./src/project-name install-dev` for Python projects)
+    - Execution of the test suite (e.g., `make -C ./src/project-name test`)
+    - The CI/CD pipeline runs `make test-unit` which calls `scripts/tests/unit.sh`
+    - This file is used by `.github/workflows/stage-2-test.yaml` in the "Run unit test suite" step
+    - Always test that the prerequisites install correctly before running tests
+    - Add a comment in unit.sh explaining what each section does
+
 ## Quick Reference
 
 - **TESTING_PLAN.md**: Main testing plan document with progress tracker and changelog

@@ -70,6 +70,30 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-01-04 16:45 GMT - Added CI/CD Integration Documentation
+
+- **Author**: GitHub Copilot
+- **Activity**: Documented CI/CD test integration requirements and updated unit.sh
+- **Changes**:
+  - Added Copilot Instruction #14: Requirement to update `scripts/tests/unit.sh` when adding new test suites
+  - Updated `scripts/tests/unit.sh`: Added `install-dev` prerequisite step before running asyncapigenerator tests
+  - Expanded CI/CD Integration section in TESTING_PLAN.md with:
+    - Current implementation details (GitHub Actions workflow)
+    - Step-by-step guide for adding new projects to unit.sh
+    - Examples for Python and TypeScript projects
+    - Full example of unit.sh structure
+    - CI/CD workflow details and requirements
+    - Local testing instructions
+  - Clarified that Python projects must have `install-dev` target and `requirements-dev.txt`
+  - Documented 5-minute timeout requirement for unit tests
+  - Added note about coverage report format compatibility
+- **Files Modified**:
+  - `src/.github/copilot-instructions.md` - Added instruction #14
+  - `scripts/tests/unit.sh` - Added install-dev step and comments
+  - `src/TESTING_PLAN.md` - Replaced "GitHub Actions Workflow (Future)" with comprehensive current implementation documentation
+- **Rationale**: CI was failing because prerequisites weren't installed before running tests. This ensures future implementers understand the complete integration requirements.
+- **Status**: CI/CD integration requirements now fully documented
+
 ### 2025-01-04 16:15 GMT - Refactored Copilot Instructions
 
 - **Author**: GitHub Copilot
@@ -684,35 +708,109 @@ export default config;
 
 ## CI/CD Integration
 
-### GitHub Actions Workflow (Future)
+### Current Implementation
 
-```yaml
-name: Tests
+The project uses **GitHub Actions** for CI/CD testing. All tests are executed via:
 
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Run all tests
-        run: make test
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
+```bash
+make test-unit
 ```
+
+Which calls the test orchestration script:
+
+```bash
+scripts/tests/unit.sh
+```
+
+This script is used by `.github/workflows/stage-2-test.yaml` in the **"Run unit test suite"** step.
+
+### Adding Tests for New Projects
+
+**CRITICAL**: When you add tests for a new project, you **MUST** update `scripts/tests/unit.sh` to include:
+
+1. **Prerequisites installation** (for Python projects)
+2. **Test execution**
+
+#### Example for Python Projects
+
+```bash
+# Python projects - your-project-name
+echo "Setting up and running your-project-name tests..."
+make -C ./src/your-project-name install-dev  # Install test dependencies
+make -C ./src/your-project-name test          # Run tests
+```
+
+#### Example for TypeScript Projects
+
+TypeScript projects in the npm workspace are automatically tested via:
+
+```bash
+npm ci
+npm run test:unit --workspaces
+```
+
+No additional changes needed if your project has `test:unit` script in `package.json`.
+
+#### Full Example: scripts/tests/unit.sh
+
+```bash
+#!/bin/bash
+
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+# Python projects
+echo "Setting up and running asyncapigenerator tests..."
+make -C ./src/asyncapigenerator install-dev
+make -C ./src/asyncapigenerator test
+
+echo "Setting up and running cloudeventjekylldocs tests..."
+make -C ./src/cloudeventjekylldocs install-dev
+make -C ./src/cloudeventjekylldocs test
+
+# TypeScript/JavaScript projects (npm workspace)
+npm ci
+npm run test:unit --workspaces
+
+# Merge coverage reports
+mkdir -p .reports
+TMPDIR="./.reports" ./node_modules/.bin/lcov-result-merger \
+  "**/.reports/unit/coverage/lcov.info" \
+  ".reports/lcov.info" \
+  --ignore "node_modules" \
+  --prepend-source-files \
+  --prepend-path-fix "../../.."
+```
+
+### CI/CD Workflow Details
+
+The GitHub Actions workflow (`.github/workflows/stage-2-test.yaml`):
+
+1. **Checks out code**
+2. **Runs `npm ci`** - Installs npm dependencies
+3. **Generates dependencies** - Runs `npm run generate-dependencies --workspaces --if-present`
+4. **Runs `make test-unit`** - Executes `scripts/tests/unit.sh`
+5. **Uploads artifacts** - Saves test results and coverage reports
+
+**Important Notes**:
+
+- Python projects must have `install-dev` target in their Makefile
+- Python projects must have `requirements-dev.txt` with test dependencies
+- Tests must run quickly (timeout is 5 minutes for unit tests)
+- Coverage reports should be in `.reports/` directory
+- Python coverage should use pytest-cov format compatible with lcov-result-merger
+
+### Testing CI/CD Changes Locally
+
+Before committing changes to `scripts/tests/unit.sh`, test locally:
+
+```bash
+# From repository root
+bash scripts/tests/unit.sh
+```
+
+This will run all tests exactly as CI/CD does.
 
 ## Success Criteria
 

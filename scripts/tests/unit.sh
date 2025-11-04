@@ -19,8 +19,12 @@ cd "$(git rev-parse --show-toplevel)"
 
 # run tests
 
-
+# Python projects - asyncapigenerator
+echo "Setting up and running asyncapigenerator tests..."
+make -C ./src/asyncapigenerator install-dev
 make -C ./src/asyncapigenerator test
+
+# TypeScript/JavaScript projects (npm workspace)
 npm ci
 npm run test:unit --workspaces
 
