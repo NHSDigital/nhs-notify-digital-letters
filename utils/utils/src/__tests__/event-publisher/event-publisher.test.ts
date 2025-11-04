@@ -254,7 +254,7 @@ describe('Event Publishing', () => {
     const publisher = new EventPublisher(testConfig);
     const result = await publisher.sendEvents(invalidEvents);
 
-    expect(result).toHaveLength(1);
+    expect(result).toEqual(invalidEvents);
     expect(eventBridgeMock.calls()).toHaveLength(0);
     expect(sqsMock.calls()).toHaveLength(1);
   });
