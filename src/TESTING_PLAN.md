@@ -107,6 +107,23 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 16:20 UTC - Fixed Python Coverage Paths for SonarCloud (cloudeventjekylldocs)
+
+- **Author**: GitHub Copilot
+- **Activity**: Added `relative_files = True` to pytest.ini for cloudeventjekylldocs to fix SonarCloud coverage reporting
+- **Problem**: SonarCloud was reporting errors: "Cannot resolve the file path 'generate_docs.py' of the coverage report" and "Invalid directory path in 'source' element". Coverage.xml had absolute paths (`/home/runner/work/.../src/cloudeventjekylldocs/scripts`) that didn't match SonarCloud's working directory (`/usr/src`)
+- **Root Cause**: Same issue as with asyncapigenerator - coverage.xml contained absolute paths instead of relative paths, causing SonarCloud to fail resolving file locations
+- **Solution**: Added `relative_files = True` to `[coverage:run]` section in pytest.ini
+- **Changes Made**:
+  - Updated `src/cloudeventjekylldocs/pytest.ini`: Added `relative_files = True` to `[coverage:run]` section
+  - Updated `src/TESTING_PLAN.md`: Added changelog entry
+- **Files Modified**:
+  - `src/cloudeventjekylldocs/pytest.ini` - Added relative_files = True
+  - `src/TESTING_PLAN.md` - Added changelog entry
+- **Rationale**: SonarCloud runs in a Docker container at `/usr/src` (repository root). Coverage paths must be relative to ensure portability across CI/CD runners (which use `/home/runner/work/...`) and SonarCloud environment
+- **Expected Result**: SonarCloud will now correctly resolve all 5 Python scripts in cloudeventjekylldocs coverage report on next CI run
+- **Status**: ✅ Fix applied, same solution that worked for asyncapigenerator
+
 ### 2025-11-04 16:09 UTC - Fixed hardcoded Python Paths in Test Files
 
 - **Author**: GitHub Copilot
