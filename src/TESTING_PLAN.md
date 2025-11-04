@@ -82,7 +82,7 @@ This document outlines the comprehensive plan for implementing unit tests across
 **Next Up**:
 
 - 🎯 **Start testing implementation for cloudeventjekylldocs** (Python project)
-  - Phase 1, project 2 of 3
+  - Phase 1, project 2 of 3 - `/workspaces/nhs-notify-digital-letters/src/cloudeventjekylldocs`
   - Python tool that generates Jekyll documentation from YAML schema files
   - 5 Python scripts in `scripts/` directory to test:
     - `generate_docs.py` - Main documentation generator (396 lines)
@@ -90,7 +90,14 @@ This document outlines the comprehensive plan for implementing unit tests across
     - `generate_docs_yaml.py`
     - `generate_docs_markdown.py`
     - `yaml_to_json.py` - Schema converter
-  - Need to create: test structure, pytest.ini, requirements files, Makefile updates
+  - **Action items**:
+    1. Create `tests/` directory structure
+    2. Create `requirements.txt` and `requirements-dev.txt`
+    3. Create `pytest.ini` configuration
+    4. Update `Makefile` with test targets (install, install-dev, test, coverage)
+    5. Write unit tests for all 5 Python scripts
+    6. Update `scripts/tests/unit.sh` to run cloudeventjekylldocs tests
+    7. Update SonarCloud configuration if needed
   - Target: 80%+ coverage
 
 **Blockers/Questions**:
