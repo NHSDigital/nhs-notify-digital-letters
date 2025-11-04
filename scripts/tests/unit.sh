@@ -24,6 +24,11 @@ echo "Setting up and running asyncapigenerator tests..."
 make -C ./src/asyncapigenerator install-dev
 make -C ./src/asyncapigenerator coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
+# Python projects - cloudeventjekylldocs
+echo "Setting up and running cloudeventjekylldocs tests..."
+make -C ./src/cloudeventjekylldocs install-dev
+make -C ./src/cloudeventjekylldocs coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
 # TypeScript/JavaScript projects (npm workspace)
 npm ci
 npm run test:unit --workspaces

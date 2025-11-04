@@ -70,26 +70,25 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Use this section to track current work in progress and next steps. Update this section whenever starting or completing work.**
 
-### Current Status (2025-11-04 15:20 UTC)
+### Current Status (2025-11-04 15:30 UTC)
 
 **Just Completed**:
 
-- ✅ Created test infrastructure for cloudeventjekylldocs
-  - Created requirements.txt, requirements-dev.txt, pytest.ini
-  - Updated Makefile with test targets (install, install-dev, test, coverage)
-  - Created tests/ directory structure
-- ✅ Wrote and verified 12 tests for yaml_to_json.py (all passing, 52% coverage)
-- ✅ Wrote and verified 14 tests for generate_docs_all.py (all passing, 70% coverage)
-- 📊 **Current stats**: 26 tests passing, 9% overall coverage (2 of 5 scripts tested)
+- ✅ Integrated cloudeventjekylldocs tests into CI/CD pipeline
+  - Updated pytest.ini with proper coverage configuration matching asyncapigenerator pattern
+  - Added cloudeventjekylldocs to scripts/tests/unit.sh for CI execution
+  - Updated SonarCloud configuration (sonar-scanner.properties) with coverage paths
+  - Verified tests run correctly in CI simulation (26 tests passing)
+  - GitHub Actions workflow already configured with wildcard pattern to pick up coverage.xml automatically
+- 📊 **Current stats**: 26 tests passing, 66% coverage of tested scripts (2 of 5 scripts tested), 9% overall
 
 **Next Up**:
 
-- 🎯 **Continue testing implementation for cloudeventjekylldocs** - need to write tests for remaining 3 scripts:
+- 🎯 **Write tests for remaining 3 scripts in cloudeventjekylldocs**:
   - `generate_docs_yaml.py` (347 lines) - YAML documentation generator
   - `generate_docs_markdown.py` (513 lines) - Markdown documentation generator
   - `generate_docs.py` (396 lines) - Legacy single-stage documentation generator
-  - After tests are written, update `scripts/tests/unit.sh` and configure SonarCloud
-  - Target: 80%+ coverage
+  - Target: 80%+ coverage for all scripts
 
 **Blockers/Questions**:
 
@@ -98,6 +97,7 @@ This document outlines the comprehensive plan for implementing unit tests across
 **Notes**:
 
 - asyncapigenerator is complete with 94% coverage, 51 tests
+- CI/CD integration complete - no workflow changes needed thanks to wildcard patterns
 - SonarCloud Python coverage reporting is working (62.6% currently shown)
 - Two more Python projects after cloudeventjekylldocs: eventcatalogasyncapiimporter
 - Then one TypeScript project: cloudevents
@@ -106,6 +106,32 @@ This document outlines the comprehensive plan for implementing unit tests across
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-04 15:30 UTC - Integrated cloudeventjekylldocs Tests into CI/CD Pipeline
+
+- **Author**: GitHub Copilot
+- **Activity**: Configured CI/CD integration for cloudeventjekylldocs tests with proper coverage reporting
+- **Problem Addressed**: Ensuring tests run in CI/CD and coverage is properly reported to SonarCloud
+- **Changes Made**:
+  - Updated `pytest.ini` with proper coverage configuration matching asyncapigenerator pattern:
+    - Added `[coverage:run]` section with omit patterns for test files
+    - Added `[coverage:xml]` section specifying coverage.xml output path
+    - Added `--tb=short` and `--cov-config=pytest.ini` flags for better error reporting
+    - Kept `--cov=scripts` to cover only the scripts directory
+  - Added cloudeventjekylldocs to `scripts/tests/unit.sh`:
+    - Added installation of dev dependencies: `make -C ./src/cloudeventjekylldocs install-dev`
+    - Added test execution with coverage: `make -C ./src/cloudeventjekylldocs coverage`
+  - Updated `scripts/config/sonar-scanner.properties`:
+    - Added `src/cloudeventjekylldocs/coverage.xml` to `sonar.python.coverage.reportPaths`
+    - Added `src/cloudeventjekylldocs/tests` to `sonar.tests` paths
+- **Verification**: Ran full CI simulation with `./scripts/tests/unit.sh` - all 26 tests passing, coverage.xml generated correctly
+- **Files Modified**:
+  - `src/cloudeventjekylldocs/pytest.ini` - Updated coverage configuration
+  - `scripts/tests/unit.sh` - Added cloudeventjekylldocs test execution
+  - `scripts/config/sonar-scanner.properties` - Added coverage paths and test directories
+  - `src/TESTING_PLAN.md` - Updated current status and changelog
+- **GitHub Actions**: No workflow changes needed - `.github/workflows/stage-2-test.yaml` already uses wildcard pattern `src/**/coverage.xml` that automatically picks up new Python projects
+- **Status**: ✅ CI/CD integration complete and verified
 
 ### 2025-11-04 15:20 UTC - Implemented Test Infrastructure and Initial Tests for cloudeventjekylldocs
 
