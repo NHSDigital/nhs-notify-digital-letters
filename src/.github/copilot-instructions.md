@@ -4,7 +4,7 @@
 
 1. **Always update the Implementation Progress Tracker section in `../TESTING_PLAN.md`** when completing any implementation tasks
 
-2. **Always add an entry to the Implementation Changelog section in `../TESTING_PLAN.md`** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time in UK timezone (YYYY-MM-DD HH:MM GMT/BST format)**, author, activity summary, changes made, files modified, and current status. **Include changelog entries for updates to the TESTING_PLAN.md document itself.**
+2. **Always add an entry to the Implementation Changelog section in `../TESTING_PLAN.md`** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time in UK timezone (YYYY-MM-DD HH:MM GMT/BST format)**, author, activity summary, changes made, files modified, and current status. **CRITICAL: Use the ACTUAL CURRENT time in GMT/BST - run `date -u` to get the correct timestamp. Do not make up or guess timestamps.** **Include changelog entries for updates to the TESTING_PLAN.md document itself.**
 
 3. **Use proper markdown code fence language specifiers** - never use just ` ``` `, always specify the language (e.g., ` ```bash `, ` ```python `, ` ```typescript `, ` ```makefile `, ` ```plain `)
 
