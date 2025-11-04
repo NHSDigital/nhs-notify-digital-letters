@@ -27,6 +27,7 @@ gitignored
 Gitleaks
 group_by
 Grype
+hardcoded
 idempotence
 (?i)YAML
 jekyll

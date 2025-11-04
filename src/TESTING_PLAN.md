@@ -107,6 +107,52 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 16:09 UTC - Fixed hardcoded Python Paths in Test Files
+
+- **Author**: GitHub Copilot
+- **Activity**: Updated test files to use `sys.executable` instead of hardcoded Python interpreter paths
+- **Problem**: Test files contained hardcoded paths like `/workspaces/nhs-notify-digital-letters/.venv/bin/python` which would fail in different environments
+- **Solution**: Replaced all hardcoded Python paths with `sys.executable` to use the current Python interpreter
+- **Changes Made**:
+  - Updated `tests/test_yaml_to_json.py`:
+    - 3 instances in CLI tests changed from hardcoded path to `sys.executable`
+  - Updated `tests/test_generate_docs_all.py`:
+    - 5 instances in CLI tests changed from hardcoded path to `sys.executable`
+  - Updated `src/TESTING_PLAN.md` changelog with this entry
+- **Files Modified**:
+  - `src/cloudeventjekylldocs/tests/test_yaml_to_json.py` - Fixed 3 hardcoded paths
+  - `src/cloudeventjekylldocs/tests/test_generate_docs_all.py` - Fixed 5 hardcoded paths
+  - `scripts/config/vale/styles/config/vocabularies/words/accept.txt` - Added "hardcoded"
+  - `src/TESTING_PLAN.md` - Added changelog entry
+- **Rationale**: Tests must be portable across different environments (local dev, CI/CD, different Python installations). Using `sys.executable` ensures tests run with the correct Python interpreter in any environment. Added "hardcoded" to vocabulary as it's a legitimate technical term commonly used in software development.
+- **Status**: ✅ Tests now portable across all environments
+
+### 2025-11-04 16:07 UTC - Added .gitignore and Updated Progress Tracker
+
+- **Author**: Ross Buggins
+- **Activity**: Added .gitignore file to cloudeventjekylldocs and updated TESTING_PLAN.md progress tracker
+- **Changes Made**:
+  - Created `src/cloudeventjekylldocs/.gitignore` with comprehensive ignore patterns:
+    - Python cache files (`__pycache__`, `*.pyc`, `*.pyo`, `*.so`)
+    - Virtual environments (env/, venv/, ENV/)
+    - Build artifacts (build/, dist/, *.egg-info/)
+    - Testing artifacts (.pytest_cache/, htmlcov/, .coverage, coverage.xml)
+    - IDE files (.vscode/, .idea/, *.swp)
+    - OS files (.DS_Store, Thumbs.db)
+    - Output directory (output/)
+  - Updated `src/TESTING_PLAN.md` progress tracker:
+    - Changed cloudeventjekylldocs status from "❌ Not Started" to "🚧 In Progress"
+    - Marked Test Directory, Configuration Files, and Makefile as completed (✅)
+    - Added coverage metric: 66% (2/5 scripts tested)
+    - Added notes: "26 tests, CI/CD integrated, 3 scripts remaining"
+    - Updated overall progress from 1/3 (33%) to 1.4/3 (47%)
+  - Removed `__pycache__` directories from repository
+- **Files Modified**:
+  - `src/cloudeventjekylldocs/.gitignore` (new file)
+  - `src/TESTING_PLAN.md` (progress tracker updates)
+- **Status**: ✅ Repository cleanup and progress documentation updated
+- **Commit**: 30aaf838e07546e37c0f8f44d4b9c08ba14a55c0
+
 ### 2025-11-04 15:30 UTC - Integrated cloudeventjekylldocs Tests into CI/CD Pipeline
 
 - **Author**: GitHub Copilot

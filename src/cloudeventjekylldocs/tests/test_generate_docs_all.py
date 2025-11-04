@@ -273,7 +273,7 @@ class TestGenerateDocsAllCLI:
             mock_run.return_value = MagicMock(returncode=0, stdout='', stderr='')
 
             result = subprocess.run([
-                '/workspaces/nhs-notify-digital-letters/.venv/bin/python',
+                sys.executable,
                 script_path,
                 str(src_dir),
                 str(output_dir)
@@ -287,7 +287,7 @@ class TestGenerateDocsAllCLI:
         script_path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'generate_docs_all.py')
 
         result = subprocess.run([
-            '/workspaces/nhs-notify-digital-letters/.venv/bin/python',
+            sys.executable,
             script_path
         ], capture_output=True, text=True)
 
@@ -299,7 +299,7 @@ class TestGenerateDocsAllCLI:
         script_path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'generate_docs_all.py')
 
         result = subprocess.run([
-            '/workspaces/nhs-notify-digital-letters/.venv/bin/python',
+            sys.executable,
             script_path,
             'arg1',
             'arg2',
@@ -317,7 +317,7 @@ class TestGenerateDocsAllCLI:
         script_path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'generate_docs_all.py')
 
         result = subprocess.run([
-            '/workspaces/nhs-notify-digital-letters/.venv/bin/python',
+            sys.executable,
             script_path,
             str(nonexistent_dir)
         ], capture_output=True, text=True)
@@ -345,7 +345,7 @@ class TestGenerateDocsAllCLI:
                 mock_run.return_value = MagicMock(returncode=0, stdout='', stderr='')
 
                 result = subprocess.run([
-                    '/workspaces/nhs-notify-digital-letters/.venv/bin/python',
+                    sys.executable,
                     script_path,
                     str(src_dir)
                 ], capture_output=True, text=True)

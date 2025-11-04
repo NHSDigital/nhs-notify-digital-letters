@@ -218,7 +218,7 @@ class TestYamlToJsonCLI:
         script_path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'yaml_to_json.py')
 
         result = subprocess.run([
-            '/workspaces/nhs-notify-digital-letters/.venv/bin/python',
+            sys.executable,
             script_path,
             str(yaml_file),
             str(json_file)
@@ -235,7 +235,7 @@ class TestYamlToJsonCLI:
         script_path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'yaml_to_json.py')
 
         result = subprocess.run([
-            '/workspaces/nhs-notify-digital-letters/.venv/bin/python',
+            sys.executable,
             script_path
         ], capture_output=True, text=True)
 
@@ -252,7 +252,7 @@ class TestYamlToJsonCLI:
         script_path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'yaml_to_json.py')
 
         result = subprocess.run([
-            '/workspaces/nhs-notify-digital-letters/.venv/bin/python',
+            sys.executable,
             script_path,
             str(yaml_file),
             str(json_file)
