@@ -49,3 +49,4 @@ jobs:
     with:
       target_environment: "main"
       target_account_group: nhs-notify-digital-letters-nonprod
+      target_release_version: ${{ github.event.release.tag_name }}

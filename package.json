@@ -53,6 +53,7 @@
     "lambdas/mesh-poll",
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-poll-lambda",
-    "utils/utils"
+    "utils/utils",
+    "tests/playwright"
   ]
 }
