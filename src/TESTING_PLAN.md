@@ -70,34 +70,25 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Use this section to track current work in progress and next steps. Update this section whenever starting or completing work.**
 
-### Current Status (2025-11-04 15:00 UTC)
+### Current Status (2025-11-04 15:20 UTC)
 
 **Just Completed**:
 
-- ✅ Fixed SonarCloud coverage configuration for asyncapigenerator
-  - Changed to use `sonar.coverage.exclusions` instead of `sonar.exclusions`
-  - This keeps example_usage.py and test_generator.py in quality analysis but excludes from coverage metrics
-  - Waiting for CI run to verify the configuration works correctly
+- ✅ Created test infrastructure for cloudeventjekylldocs
+  - Created requirements.txt, requirements-dev.txt, pytest.ini
+  - Updated Makefile with test targets (install, install-dev, test, coverage)
+  - Created tests/ directory structure
+- ✅ Wrote and verified 12 tests for yaml_to_json.py (all passing, 52% coverage)
+- ✅ Wrote and verified 14 tests for generate_docs_all.py (all passing, 70% coverage)
+- 📊 **Current stats**: 26 tests passing, 9% overall coverage (2 of 5 scripts tested)
 
 **Next Up**:
 
-- 🎯 **Start testing implementation for cloudeventjekylldocs** (Python project)
-  - Phase 1, project 2 of 3 - `/workspaces/nhs-notify-digital-letters/src/cloudeventjekylldocs`
-  - Python tool that generates Jekyll documentation from YAML schema files
-  - 5 Python scripts in `scripts/` directory to test:
-    - `generate_docs.py` - Main documentation generator (396 lines)
-    - `generate_docs_all.py`
-    - `generate_docs_yaml.py`
-    - `generate_docs_markdown.py`
-    - `yaml_to_json.py` - Schema converter
-  - **Action items**:
-    1. Create `tests/` directory structure
-    2. Create `requirements.txt` and `requirements-dev.txt`
-    3. Create `pytest.ini` configuration
-    4. Update `Makefile` with test targets (install, install-dev, test, coverage)
-    5. Write unit tests for all 5 Python scripts
-    6. Update `scripts/tests/unit.sh` to run cloudeventjekylldocs tests
-    7. Update SonarCloud configuration if needed
+- 🎯 **Continue testing implementation for cloudeventjekylldocs** - need to write tests for remaining 3 scripts:
+  - `generate_docs_yaml.py` (347 lines) - YAML documentation generator
+  - `generate_docs_markdown.py` (513 lines) - Markdown documentation generator
+  - `generate_docs.py` (396 lines) - Legacy single-stage documentation generator
+  - After tests are written, update `scripts/tests/unit.sh` and configure SonarCloud
   - Target: 80%+ coverage
 
 **Blockers/Questions**:
@@ -115,6 +106,34 @@ This document outlines the comprehensive plan for implementing unit tests across
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-04 15:20 UTC - Implemented Test Infrastructure and Initial Tests for cloudeventjekylldocs
+
+- **Author**: GitHub Copilot
+- **Activity**: Created complete test infrastructure and implemented tests for 2 of 5 Python scripts in cloudeventjekylldocs
+- **Changes Made**:
+  - Created `requirements.txt` (PyYAML>=6.0)
+  - Created `requirements-dev.txt` (includes pytest, pytest-cov, pytest-mock)
+  - Created `pytest.ini` with test configuration and coverage settings
+  - Created `tests/` directory with `__init__.py`
+  - Updated `Makefile` with test targets: `install`, `install-dev`, `test`, `coverage`
+  - Wrote `tests/test_yaml_to_json.py` with 12 tests (all passing, 52% coverage of yaml_to_json.py)
+  - Wrote `tests/test_generate_docs_all.py` with 14 tests (all passing, 70% coverage of generate_docs_all.py)
+- **Test Coverage**:
+  - yaml_to_json.py: 12 tests, 52% coverage
+  - generate_docs_all.py: 14 tests, 70% coverage
+  - Total: 26 tests passing, 9% overall coverage
+- **Files Modified**:
+  - `src/cloudeventjekylldocs/requirements.txt` - NEW
+  - `src/cloudeventjekylldocs/requirements-dev.txt` - NEW
+  - `src/cloudeventjekylldocs/pytest.ini` - NEW
+  - `src/cloudeventjekylldocs/tests/__init__.py` - NEW
+  - `src/cloudeventjekylldocs/tests/test_yaml_to_json.py` - NEW (12 tests)
+  - `src/cloudeventjekylldocs/tests/test_generate_docs_all.py` - NEW (14 tests)
+  - `src/cloudeventjekylldocs/Makefile` - Added test targets
+  - `src/TESTING_PLAN.md` - Updated progress tracker and current status
+- **Remaining Work**: Need to write tests for 3 more scripts (generate_docs_yaml.py, generate_docs_markdown.py, generate_docs.py), then update scripts/tests/unit.sh and configure SonarCloud
+- **Status**: 🚧 In Progress - 40% of cloudeventjekylldocs scripts tested (2/5)
 
 ### 2025-11-04 14:58 UTC - Added "Current Actions and Todos" Section to TESTING_PLAN.md
 

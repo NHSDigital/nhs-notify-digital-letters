@@ -13,7 +13,7 @@ YAML_SCHEMAS := $(shell find $(SCHEMA_SRC_DIR) -name "*.schema.yaml" -type f)
 JSON_OUTPUTS := $(patsubst $(SCHEMA_SRC_DIR)/%.schema.yaml,$(OUTPUT_DIR)/%.schema.json,$(YAML_SCHEMAS))
 
 # Default target
-.PHONY: all clean build build-schemas convert-schemas config check-deps build-docs build-docs-yaml build-docs-md build-docs-legacy
+.PHONY: all clean build build-schemas convert-schemas config check-deps build-docs build-docs-yaml build-docs-md build-docs-legacy install install-dev test coverage
 
 all: build
 
@@ -123,3 +123,26 @@ list:
 	@echo "YAML schema files found:"
 	@for schema in $(YAML_SCHEMAS); do echo "  - $$schema"; done
 	@echo "Total: $(words $(YAML_SCHEMAS)) file(s)"
+
+# Install production dependencies
+install:
+	@echo "Installing production dependencies..."
+	@pip install -r requirements.txt
+	@echo "Production dependencies installed!"
+
+# Install development dependencies (includes test dependencies)
+install-dev:
+	@echo "Installing development dependencies..."
+	@pip install -r requirements-dev.txt
+	@echo "Development dependencies installed!"
+
+# Run unit tests
+test:
+	@echo "Running unit tests..."
+	@pytest
+
+# Run tests with coverage report
+coverage:
+	@echo "Running tests with coverage..."
+	@pytest --cov=scripts --cov-report=term-missing --cov-report=html --cov-report=xml --cov-branch
+	@echo "Coverage report generated in htmlcov/ and coverage.xml"
