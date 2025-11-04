@@ -70,6 +70,23 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 14:25 UTC - Fixed GH_PAGER Issue and Verified Coverage Success
+
+- **Author**: GitHub Copilot
+- **Activity**: Updated GitHub CLI instructions to use `GH_PAGER=cat` prefix and verified SonarCloud coverage is working
+- **Verification Results**:
+  - SonarCloud now showing **62.6% coverage** for `src/asyncapigenerator` (was 0.0%)
+  - Coverage.xml paths are correctly resolved by SonarCloud
+  - Static analysis job still fails due to quality gate thresholds, but coverage IS being detected
+- **Changes**:
+  - Updated `.github/copilot-instructions.md` instruction #15: Changed from piping through `python3 -m json.tool` to prefixing with `GH_PAGER=cat`
+  - Reason: `--json` output still triggered pager even with piping; `GH_PAGER=cat` is the correct solution
+  - Set `gh config set pager ''` in the environment (one-time setup)
+- **Files Modified**:
+  - `.github/copilot-instructions.md` - Updated gh CLI pager instructions
+- **Rationale**: The `gh` CLI has its own pager configuration that overrides output piping. Setting `GH_PAGER=cat` environment variable is the correct way to disable it.
+- **Status**: ✅ Python coverage successfully reporting to SonarCloud! Coverage path fix from previous commit is working.
+
 ### 2025-11-04 14:09 UTC - Fixed Python Coverage Paths to Repository Root
 
 - **Author**: GitHub Copilot
