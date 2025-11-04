@@ -1,4 +1,4 @@
-.PHONY: help install generate generate-service clean test
+.PHONY: help install install-dev generate generate-service clean test test-verbose coverage lint format clean-test
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -6,8 +6,11 @@ help: ## Show this help message
 	@echo 'Available targets:'
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-install: ## Install dependencies
+install: ## Install production dependencies
 	pip install -r requirements.txt
+
+install-dev: install ## Install development dependencies
+	pip install -r requirements-dev.txt
 
 generate: clean## Generate AsyncAPI specs for all services
 	python generate_asyncapi.py --config config.yaml
@@ -22,9 +25,27 @@ generate-service: ## Generate AsyncAPI for a specific service (use SERVICE=name)
 clean: ## Remove generated output files
 	rm -rf output/
 
-test: ## Run the generator with default config (for testing)
-	@echo "Running AsyncAPI generator..."
-	python generate_asyncapi.py --config config.yaml
+test: ## Run unit tests
+	pytest tests/ -v
+
+test-verbose: ## Run tests with verbose output
+	pytest tests/ -vv -s
+
+coverage: ## Run tests with coverage report
+	pytest tests/ --cov=. --cov-report=html --cov-report=term-missing
+
+lint: ## Run linting
+	flake8 .
+	mypy .
+
+format: ## Format code with black
+	black .
+
+clean-test: ## Clean test artifacts
+	rm -rf .pytest_cache
+	rm -rf htmlcov
+	rm -rf .coverage
+	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 
 validate: ## Validate generated AsyncAPI specs (requires asyncapi CLI)
 	@echo "Validating AsyncAPI specifications..."

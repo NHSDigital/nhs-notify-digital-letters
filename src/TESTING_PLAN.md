@@ -4,20 +4,15 @@
 
 ## Copilot Instructions
 
-**When working with this document:**
+**For detailed Copilot instructions when working on this testing implementation, see [src/.github/copilot-instructions.md](./.github/copilot-instructions.md)**
 
-1. **Always update the [Implementation Progress Tracker](#implementation-progress-tracker) section** when completing any implementation tasks
-2. **Always add an entry to the [Implementation Changelog](#implementation-changelog)** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time in UK timezone (YYYY-MM-DD HH:MM GMT/BST format)**, author, activity summary, changes made, files modified, and current status. **Include changelog entries for updates to this testing plan document itself.**
-3. **Use proper markdown code fence language specifiers** - never use just ` ``` `, always specify the language (e.g., ` ```bash `, ` ```python `, ` ```typescript `, ` ```makefile `, ` ```plain `)
-4. **Ensure all internal links are valid** - test that section references work correctly
-5. **Keep the document synchronized** with actual implementation state
-6. **Update timestamps** in the document status section when making changes
-7. **Follow the phased approach** - complete phases in order and track progress
-8. **Mark checkboxes** (✅/❌) in the progress tracker as work is completed
-9. **Add notes** to the progress tracker for any deviations or important decisions
-10. **Run pre-commit hooks before committing** - Always stage modified files with `git add <files>` and then run `.git/hooks/pre-commit` to ensure all pre-commit hooks pass before committing changes. All hooks must pass successfully.
-11. **Vale vocabulary exceptions** - If vale reports false positives for legitimate technical terms, you may add them to `scripts/config/vale/styles/config/vocabularies/words/accept.txt` (one word per line, alphabetically sorted). **IMPORTANT**: Always document any additions to accept.txt in the changelog with justification for why the word is legitimate.
-12. **npm workspace test convention** - For projects with `package.json` that are part of the npm workspace (listed in root package.json workspaces), tests must be executable via `npm run test:unit`. The project's Makefile `test` target should call `npm run test:unit` to align with the workspace-wide test execution pattern (`npm run test:unit --workspaces`).
+Key points:
+
+- Update progress tracker and changelog for all changes
+- Use proper markdown code fences with language specifiers
+- Run pre-commit hooks from repository root: `cd /workspaces/nhs-notify-digital-letters && bash scripts/githooks/pre-commit.sh`
+- Target 80%+ test coverage for all projects
+- Use UK timezone (GMT/BST) for all timestamps
 
 ## Table of Contents
 
@@ -46,7 +41,7 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 | Project | Status | Test Directory | Configuration Files | Makefile | Coverage | Completed Date | Notes |
 |---------|--------|----------------|---------------------|----------|----------|----------------|-------|
-| asyncapigenerator | ❌ Not Started | ❌ | ❌ | ❌ | - | - | - |
+| asyncapigenerator | ✅ Complete | ✅ | ✅ | ✅ | 94% | 2025-01-04 | 51 tests passing, 5 test files |
 | cloudeventjekylldocs | ❌ Not Started | ❌ | ❌ | ❌ | - | - | - |
 | eventcatalogasyncapiimporter | ❌ Not Started | ❌ | ❌ | ❌ | - | - | - |
 
@@ -66,14 +61,90 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 ### Overall Progress
 
-- **Python Projects**: 0/3 completed (0%)
+- **Python Projects**: 1/3 completed (33%)
 - **TypeScript Projects**: 0/1 completed (0%)
 - **Integration Tasks**: 0/3 completed (0%)
-- **Overall**: 0/7 total tasks completed (0%)
+- **Overall**: 1/7 total tasks completed (14%)
 
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-01-04 16:15 GMT - Refactored Copilot Instructions
+
+- **Author**: GitHub Copilot
+- **Activity**: Moved copilot instructions to dedicated file and clarified pre-commit hook usage
+- **Changes**:
+  - Created `src/.github/copilot-instructions.md` with all 13 copilot instructions
+  - Updated `src/TESTING_PLAN.md` to reference the new copilot instructions file
+  - Clarified instruction #10: Pre-commit hooks must be run from repository root using `cd /workspaces/nhs-notify-digital-letters && bash scripts/githooks/pre-commit.sh`
+  - Simplified TESTING_PLAN.md header to just reference the copilot instructions file
+- **Files Modified**:
+  - `src/.github/copilot-instructions.md` - Created
+  - `src/TESTING_PLAN.md` - Updated Copilot Instructions section
+- **Status**: Instructions now maintained separately for better organization
+
+### 2025-01-04 15:45 GMT - Completed asyncapigenerator Testing Implementation
+
+- **Author**: GitHub Copilot
+- **Activity**: Implemented comprehensive test suite for asyncapigenerator (pilot project)
+- **Coverage**: 94% (246 statements, 15 missed) - **Exceeds 80% target** ✅
+- **Test Files Created**:
+  - `tests/__init__.py` - Test package marker
+  - `tests/conftest.py` - Shared pytest fixtures (temp_dir, sample_config, sample_event_markdown, sample_service_markdown)
+  - `tests/test_generator.py` - Core generator tests (9 tests): frontmatter parsing, Event/Service dataclasses, AsyncAPIGenerator initialization
+  - `tests/test_event_parsing.py` - Event loading tests (7 tests): directory loading, multiple events, missing directory, frontmatter handling, description extraction
+  - `tests/test_service_parsing.py` - Service loading tests (7 tests): directory loading, comma/space-separated events, missing title, parent handling
+  - `tests/test_asyncapi_generation.py` - AsyncAPI spec generation tests (8 tests): channel generation, send/receive operations, missing events, metadata, underscore IDs
+  - `tests/test_combined_generation.py` - Combined generation & file I/O tests (11 tests): combined specs, event deduplication, file writing, configuration handling
+  - `tests/test_cli.py` - CLI and main function tests (9 tests): config loading, argument parsing, main function, service filter, directory overrides
+- **Configuration Files Created**:
+  - `pytest.ini` - Pytest configuration with coverage settings, excludes test_generator.py and example_usage.py from coverage
+  - `requirements-dev.txt` - Development dependencies: pytest>=8.0.0, pytest-cov>=4.1.0, pytest-mock>=3.12.0, black>=24.0.0, flake8>=7.0.0, mypy>=1.8.0, PyYAML>=6.0, types-PyYAML>=6.0
+- **Makefile Updates**:
+  - Added `test` target: Run pytest with verbose output
+  - Added `test-verbose` target: Run pytest with very verbose output
+  - Added `coverage` target: Generate HTML and terminal coverage reports
+  - Added `lint` target: Run flake8 and mypy
+  - Added `format` target: Run black code formatter
+  - Added `clean-test` target: Remove test artifacts (`__pycache__`, `.pytest_cache`, `.coverage`, `htmlcov`)
+  - Added `install-dev` target: Install requirements-dev.txt
+- **Test Results**:
+  - Total tests: 51 (all passing) ✅
+  - Execution time: ~0.35 seconds
+  - Coverage: 94% (only 15 lines uncovered - mostly error handling paths)
+  - Uncovered lines: 73, 119-120, 127-128, 141, 175-176, 270-271, 315, 317, 391-392, 517
+- **Test Categories**:
+  - frontmatter parsing (valid, invalid, malformed YAML)
+  - Event/Service dataclass creation and validation
+  - Event loading from markdown files
+  - Service loading from index.md files
+  - AsyncAPI channel generation
+  - Send/receive operations generation
+  - Combined AsyncAPI spec generation with multiple services
+  - Event deduplication across services
+  - File I/O operations (YAML/JSON serialization)
+  - Configuration loading and merging
+  - CLI argument parsing and main function
+  - Service filtering functionality
+- **Files Modified**:
+  - `src/asyncapigenerator/Makefile` - Added test targets
+  - `src/asyncapigenerator/pytest.ini` - Created
+  - `src/asyncapigenerator/requirements-dev.txt` - Created
+  - `src/asyncapigenerator/tests/*` - Created 8 test files
+  - `scripts/config/vale/styles/config/vocabularies/words/accept.txt` - Added "src"
+  - `src/TESTING_PLAN.md` - Updated progress tracker
+- **Dependencies Installed**:
+  - pytest-8.4.2
+  - pytest-cov-7.0.0
+  - pytest-mock-3.15.1
+  - black-25.9.0
+  - flake8-7.3.0
+  - mypy-1.18.2
+  - PyYAML-6.0.2
+  - types-PyYAML-6.0.12.20240917
+- **Status**: ✅ **COMPLETE** - asyncapigenerator is now fully tested with 94% coverage, all tests passing
+- **Next Steps**: Proceed to Phase 1.2 (cloudeventjekylldocs) or Phase 1.3 (eventcatalogasyncapiimporter)
 
 ### 2025-11-04 12:10 GMT - Updated Changelog Timezone to UK Time
 
