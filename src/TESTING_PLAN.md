@@ -70,6 +70,26 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 13:40 GMT - Updated GitHub CLI Instructions to Avoid Pager
+
+- **Author**: GitHub Copilot
+- **Activity**: Updated documentation to always use `--json` format with gh CLI to avoid pager
+- **Changes**:
+  - Updated Copilot Instruction #15: Added CRITICAL note to always use `--json` format
+    - Added examples with `--json databaseId,status,conclusion,name,createdAt,url`
+    - Added jq formatting example
+    - Clarified that `gh run watch` is interactive and OK without --json
+  - Updated TESTING_PLAN.md "Monitoring and Verification" section:
+    - Added IMPORTANT note about using `--json` format
+    - Updated all examples to use `--json` with specific fields
+    - Added jq formatting example
+    - Explained that `gh run watch` is intentionally interactive
+- **Files Modified**:
+  - `src/.github/copilot-instructions.md` - Updated instruction #15
+  - `src/TESTING_PLAN.md` - Updated monitoring examples
+- **Rationale**: Default `gh run list` and `gh run view` use a pager that requires pressing 'q' to exit, blocking automation. Using `--json` format provides direct console output.
+- **Status**: All GitHub CLI commands now avoid pager issues
+
 ### 2025-11-04 13:37 GMT - Fixed Python Coverage Artifact Upload for SonarCloud
 
 - **Author**: GitHub Copilot
@@ -918,24 +938,30 @@ Without these configurations, SonarCloud will show 0% coverage for Python projec
 
 ### GitHub Actions Monitoring
 
-Use the **GitHub CLI** (`gh`) to monitor workflow runs:
+Use the **GitHub CLI** (`gh`) to monitor workflow runs. **IMPORTANT**: Always use `--json` format to avoid the pager.
 
 #### List Recent Workflow Runs
 
 ```bash
-gh run list --branch <branch-name> --limit 5
+gh run list --branch <branch-name> --limit <n> --json databaseId,status,conclusion,name,createdAt,url
 ```
 
 Example:
 
 ```bash
-gh run list --branch rossbugginsnhs/2025-11-04/eventcatalog-001 --limit 5
+gh run list --branch rossbugginsnhs/2025-11-04/eventcatalog-001 --limit 5 --json databaseId,status,conclusion,name,url
 ```
 
 #### View Workflow Run Details
 
 ```bash
-gh run view <run-id>
+gh run view <run-id> --json conclusion,status,jobs
+```
+
+#### Format Output with jq
+
+```bash
+gh run list --branch <branch-name> --limit 5 --json status,conclusion,name | jq -r '.[] | "\(.status) - \(.conclusion) - \(.name)"'
 ```
 
 #### Watch a Running Workflow
@@ -943,6 +969,8 @@ gh run view <run-id>
 ```bash
 gh run watch <run-id>
 ```
+
+(This command is interactive and designed for watching, so it's OK to use without --json)
 
 #### Setup (if needed)
 

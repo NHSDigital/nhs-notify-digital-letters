@@ -37,11 +37,16 @@
     - Add a comment in unit.sh explaining what each section does
 
 15. **Use GitHub CLI for monitoring CI/CD** - When monitoring GitHub Actions workflow runs:
-    - Use `gh run list --branch <branch-name> --limit <n>` to list recent workflow runs
-    - Use `gh run view <run-id>` to view details of a specific run
-    - Use `gh run watch <run-id>` to watch a run in progress
+    - **CRITICAL**: Always use `--json` format to avoid pager that requires pressing 'q' to exit
+    - Use `gh run list --branch <branch-name> --limit <n> --json databaseId,status,conclusion,name,createdAt,url` to list recent workflow runs
+    - Use `gh run view <run-id> --json` to view details of a specific run
+    - Use `gh run watch <run-id>` to watch a run in progress (this one is interactive, so it's OK)
     - If `gh` commands fail with "No default remote repository", run `gh repo set-default NHSDigital/nhs-notify-digital-letters`
     - If authentication is required, the user will handle `gh auth login`
+    - **Examples**:
+      - List runs: `gh run list --branch rossbugginsnhs/2025-11-04/eventcatalog-001 --limit 5 --json databaseId,status,conclusion,name,url`
+      - View run: `gh run view <run-id> --json conclusion,status,jobs`
+      - Format with jq: `gh run list --json status,conclusion --jq '.[] | "\(.status) - \(.conclusion)"'`
 
 16. **Use SonarCloud API for coverage monitoring** - To check coverage metrics on branches:
     - **Public API (no auth required)**: `https://sonarcloud.io/api/measures/component`

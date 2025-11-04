@@ -21,7 +21,7 @@ endraw
 Enum
 eventproduced
 frontmatter
-frontmatter
+gh
 Git[Hh]ub
 gitignored
 Gitleaks
@@ -32,9 +32,9 @@ idempotence
 jekyll
 Jekyll
 Jira
+jq
 Loopback
 Makefile
-middleware
 middleware
 mypy
 nice_name
