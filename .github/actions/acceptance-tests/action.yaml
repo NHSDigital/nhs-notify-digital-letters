@@ -33,7 +33,16 @@ runs:
     - name: Run test - ${{ inputs.testType }}
       shell: bash
       run: |
-        make test-${{ inputs.testType }}
+        set -euo pipefail
+        case "$TEST_TYPE" in
+          main|integration|unit)
+            make "test-$TEST_TYPE"
+            ;;
+          *)
+            echo "Invalid testType: $TEST_TYPE" >&2
+            exit 1
+            ;;
+        esac
       env:
         ENVIRONMENT: ${{ inputs.targetEnvironment }}
 
