@@ -36,6 +36,23 @@
     - Always test that the prerequisites install correctly before running tests
     - Add a comment in unit.sh explaining what each section does
 
+15. **Use GitHub CLI for monitoring CI/CD** - When monitoring GitHub Actions workflow runs:
+    - Use `gh run list --branch <branch-name> --limit <n>` to list recent workflow runs
+    - Use `gh run view <run-id>` to view details of a specific run
+    - Use `gh run watch <run-id>` to watch a run in progress
+    - If `gh` commands fail with "No default remote repository", run `gh repo set-default NHSDigital/nhs-notify-digital-letters`
+    - If authentication is required, the user will handle `gh auth login`
+
+16. **Use SonarCloud API for coverage monitoring** - To check coverage metrics on branches:
+    - **Public API (no auth required)**: `https://sonarcloud.io/api/measures/component`
+    - **Parameters**:
+      - `component`: `NHSDigital_nhs-notify-digital-letters` (project) or `NHSDigital_nhs-notify-digital-letters:src/project-name` (specific component)
+      - `branch`: URL-encoded branch name (e.g., `rossbugginsnhs/2025-11-04/eventcatalog-001`)
+      - `metricKeys`: `coverage,new_coverage,lines_to_cover,new_lines_to_cover`
+    - **Example**: `curl -s "https://sonarcloud.io/api/measures/component?component=NHSDigital_nhs-notify-digital-letters:src/asyncapigenerator&branch=rossbugginsnhs/2025-11-04/eventcatalog-001&metricKeys=coverage,new_coverage,lines_to_cover,new_lines_to_cover" | python3 -m json.tool`
+    - Use this to verify coverage is being detected after SonarCloud configuration changes
+    - Look for `new_coverage` in the response - should not be 0.0% if tests are working
+
 ## Quick Reference
 
 - **TESTING_PLAN.md**: Main testing plan document with progress tracker and changelog

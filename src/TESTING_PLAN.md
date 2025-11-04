@@ -70,6 +70,30 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 13:26 GMT - Added Monitoring and Verification Documentation
+
+- **Author**: GitHub Copilot
+- **Activity**: Documented GitHub CLI and SonarCloud API usage for monitoring CI/CD and coverage
+- **Changes**:
+  - Added Copilot Instruction #15: GitHub CLI usage for monitoring workflow runs
+    - Commands: `gh run list`, `gh run view`, `gh run watch`
+    - Setup instructions for `gh repo set-default` and `gh auth login`
+  - Added Copilot Instruction #16: SonarCloud public API for coverage monitoring
+    - API endpoint and parameters documented
+    - Example curl commands for project-wide and component-specific queries
+    - Response format and interpretation guide
+    - Troubleshooting tips for 0.0% coverage issues
+  - Added new "Monitoring and Verification" section to TESTING_PLAN.md:
+    - GitHub Actions monitoring with `gh` CLI commands
+    - SonarCloud coverage monitoring with API examples
+    - Response format documentation
+    - Troubleshooting guidance
+- **Files Modified**:
+  - `src/.github/copilot-instructions.md` - Added instructions #15 and #16
+  - `src/TESTING_PLAN.md` - Added "Monitoring and Verification" section
+- **Rationale**: Enables automated monitoring of CI/CD runs and SonarCloud coverage without manual browser interaction. Provides tools for verifying that coverage reports are being detected correctly.
+- **Status**: Complete monitoring capabilities documented
+
 ### 2025-11-04 13:12 GMT - Added SonarCloud Integration for Python Coverage
 
 - **Author**: GitHub Copilot
@@ -873,6 +897,129 @@ The GitHub Actions workflow (`.github/workflows/stage-2-test.yaml`):
    ```
 
 Without these configurations, SonarCloud will show 0% coverage for Python projects.
+
+## Monitoring and Verification
+
+### GitHub Actions Monitoring
+
+Use the **GitHub CLI** (`gh`) to monitor workflow runs:
+
+#### List Recent Workflow Runs
+
+```bash
+gh run list --branch <branch-name> --limit 5
+```
+
+Example:
+
+```bash
+gh run list --branch rossbugginsnhs/2025-11-04/eventcatalog-001 --limit 5
+```
+
+#### View Workflow Run Details
+
+```bash
+gh run view <run-id>
+```
+
+#### Watch a Running Workflow
+
+```bash
+gh run watch <run-id>
+```
+
+#### Setup (if needed)
+
+If you encounter "No default remote repository" error:
+
+```bash
+gh repo set-default NHSDigital/nhs-notify-digital-letters
+```
+
+If authentication is required, run:
+
+```bash
+gh auth login
+```
+
+### SonarCloud Coverage Monitoring
+
+Use the **SonarCloud public API** to check coverage metrics (no authentication required for public repos):
+
+#### API Endpoint
+
+```bash
+https://sonarcloud.io/api/measures/component
+```
+
+#### Parameters
+
+- `component`: Project or component key
+  - Project: `NHSDigital_nhs-notify-digital-letters`
+  - Component: `NHSDigital_nhs-notify-digital-letters:src/project-name`
+- `branch`: URL-encoded branch name (e.g., `rossbugginsnhs/2025-11-04/eventcatalog-001`)
+- `metricKeys`: Comma-separated metrics (e.g., `coverage,new_coverage,lines_to_cover,new_lines_to_cover`)
+
+#### Example: Check Project-Wide Coverage
+
+```bash
+curl -s "https://sonarcloud.io/api/measures/component?component=NHSDigital_nhs-notify-digital-letters&branch=rossbugginsnhs/2025-11-04/eventcatalog-001&metricKeys=coverage,new_coverage,lines_to_cover,new_lines_to_cover" | python3 -m json.tool
+```
+
+#### Example: Check Specific Component Coverage
+
+```bash
+curl -s "https://sonarcloud.io/api/measures/component?component=NHSDigital_nhs-notify-digital-letters:src/asyncapigenerator&branch=rossbugginsnhs/2025-11-04/eventcatalog-001&metricKeys=coverage,new_coverage,lines_to_cover,new_lines_to_cover" | python3 -m json.tool
+```
+
+#### Response Format
+
+```json
+{
+    "component": {
+        "key": "NHSDigital_nhs-notify-digital-letters:src/asyncapigenerator",
+        "measures": [
+            {
+                "metric": "coverage",
+                "value": "94.0"
+            },
+            {
+                "metric": "new_coverage",
+                "periods": [
+                    {
+                        "index": 1,
+                        "value": "94.0"
+                    }
+                ]
+            },
+            {
+                "metric": "lines_to_cover",
+                "value": "246"
+            },
+            {
+                "metric": "new_lines_to_cover",
+                "periods": [
+                    {
+                        "index": 1,
+                        "value": "246"
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+
+#### Interpreting Results
+
+- `coverage`: Overall coverage percentage
+- `new_coverage`: Coverage for new/changed code on the branch
+- `lines_to_cover`: Total lines that should be covered
+- `new_lines_to_cover`: New lines that should be covered
+- **If `new_coverage` is 0.0%**: SonarCloud is not detecting your Python coverage reports
+  - Check that `coverage.xml` is being generated
+  - Verify `sonar-scanner.properties` has correct paths
+  - Confirm `scripts/tests/unit.sh` runs `make coverage` (not `make test`)
 
 ### Testing CI/CD Changes Locally
 
