@@ -4,46 +4,7 @@
       "name": "Digital Letters",
       "path": "."
     }
-    // ,{
-    //   "name": "Application Source Code",
-    //   "path": "./lambdas"
-    // }
-    // ,{
-    //   "name": "Utilities",
-    //   "path": "./utils"
-    // },
-    // {
-    //   "name": "Schemas",
-    //   "path": "./schemas"
-    // },
-    // {
-    //   "name": "Docs",
-    //   "path": "./docs"
-    // },
-    // {
-    //   "name": "Tests",
-    //   "path": "./tests"
-    // },
-    // {
-    //   "name": "Infrastructure",
-    //   "path": "./infrastructure"
-    // },
-    // {
-    //   "name": "Scripts",
-    //   "path": "./scripts"
-    // },
-    // {
-    //   "name": "GitHub",
-    //   "path": ".github"
-    // },
-    // {
-    //   "name": "Git Hooks",
-    //   "path": "./.git/hooks"
-    // },
-    // {
-    //   "name": "Dev Container",
-    //   "path": ".devcontainer"
-    // }
+
   ],
   "settings": {
     "rubyLsp.formatter": "auto",
@@ -114,6 +75,7 @@
     "chat.instructionsFilesLocations": {
       ".github": true,
       ".github/instructions": true,
+      "src/.github/": true,
       "src/.github/copilot-instructions.md": true
     },
     "terminal.integrated.scrollback": 10000

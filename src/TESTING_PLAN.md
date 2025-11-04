@@ -4,7 +4,7 @@
 
 ## Copilot Instructions
 
-**For detailed Copilot instructions when working on this testing implementation, see [src/.github/copilot-instructions.md](./.github/copilot-instructions.md)**
+**For detailed Copilot instructions when working on this testing implementation, see the "Copilot Instructions for src/ Testing" section in [../.github/copilot-instructions.md](../.github/copilot-instructions.md)**
 
 Key points:
 
@@ -70,6 +70,44 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 14:09 UTC - Fixed Python Coverage Paths to Repository Root
+
+- **Author**: GitHub Copilot
+- **Activity**: Fixed coverage.xml paths to be relative to repository root for SonarCloud compatibility
+- **Root Cause**: Coverage.xml had filenames like `generate_asyncapi.py` with source path `.`, but SonarCloud runs from `/usr/src` (repository root) and couldn't resolve the relative paths. SonarCloud error: "Cannot resolve the file path 'generate_asyncapi.py' of the coverage report"
+- **Changes**:
+  - Modified `src/asyncapigenerator/Makefile` coverage target to run pytest from repository root:
+    - Command: `cd ../.. && pytest src/asyncapigenerator/tests/ --cov=src/asyncapigenerator ...`
+    - This makes coverage.xml contain paths like `src/asyncapigenerator/generate_asyncapi.py` (relative to repo root)
+    - Output files go to `src/asyncapigenerator/coverage.xml` and `src/asyncapigenerator/htmlcov/`
+  - Cleaned up `src/asyncapigenerator/pytest.ini`:
+    - Removed `relative_files = True` from `[coverage:run]`
+    - Removed `source = .` from `[coverage:run]`
+    - Removed `[coverage:paths]` section
+    - Fixed duplicate `output` entries in `[coverage:xml]`
+  - Fixed `.github/copilot-instructions.md`: Capitalized "Jekyll"
+  - Added "repo" to `scripts/config/vale/styles/config/vocabularies/words/accept.txt` (legitimate abbreviation for repository)
+- **Files Modified**:
+  - `src/asyncapigenerator/Makefile` - Updated coverage target to run from repository root
+  - `src/asyncapigenerator/pytest.ini` - Simplified coverage configuration
+  - `.github/copilot-instructions.md` - Fixed Jekyll capitalization
+  - `scripts/config/vale/styles/config/vocabularies/words/accept.txt` - Added "repo"
+- **Rationale**: SonarCloud scans from repository root (`/usr/src`). Coverage paths must be relative to that directory (`src/asyncapigenerator/*.py`) for SonarCloud to match coverage data to source files.
+- **Status**: Coverage.xml now has correct paths. Next CI run should show Python coverage in SonarCloud.
+
+### 2025-11-04 14:01 GMT - Consolidated Copilot Instructions to Root
+
+- **Author**: GitHub Copilot
+- **Activity**: Updated references from `src/.github/copilot-instructions.md` to root `.github/copilot-instructions.md`
+- **Changes**:
+  - Updated `src/TESTING_PLAN.md` Copilot Instructions section to reference "Copilot Instructions for src/ Testing" heading in root `../.github/copilot-instructions.md`
+  - Updated all historical changelog entries that referenced `src/.github/copilot-instructions.md` to reference `.github/copilot-instructions.md` instead
+  - Note: The actual copilot instructions content has been moved to the root `.github/copilot-instructions.md` file under the "Copilot Instructions for src/ Testing" heading
+- **Files Modified**:
+  - `src/TESTING_PLAN.md` - Updated all references to copilot instructions file
+- **Rationale**: Consolidate all copilot instructions in one location at repository root for better maintainability
+- **Status**: All references updated to point to root .github/copilot-instructions.md
+
 ### 2025-11-04 13:49 GMT - Fixed Python Coverage XML Paths for SonarCloud
 
 - **Author**: GitHub Copilot
@@ -99,7 +137,7 @@ This document outlines the comprehensive plan for implementing unit tests across
     - Added jq formatting example
     - Explained that `gh run watch` is intentionally interactive
 - **Files Modified**:
-  - `src/.github/copilot-instructions.md` - Updated instruction #15
+  - `.github/copilot-instructions.md` - Updated instruction #15
   - `src/TESTING_PLAN.md` - Updated monitoring examples
 - **Rationale**: Default `gh run list` and `gh run view` use a pager that requires pressing 'q' to exit, blocking automation. Using `--json` format provides direct console output.
 - **Status**: All GitHub CLI commands now avoid pager issues
@@ -139,7 +177,7 @@ This document outlines the comprehensive plan for implementing unit tests across
     - Response format documentation
     - Troubleshooting guidance
 - **Files Modified**:
-  - `src/.github/copilot-instructions.md` - Added instructions #15 and #16
+  - `.github/copilot-instructions.md` - Added instructions #15 and #16
   - `src/TESTING_PLAN.md` - Added "Monitoring and Verification" section
 - **Rationale**: Enables automated monitoring of CI/CD runs and SonarCloud coverage without manual browser interaction. Provides tools for verifying that coverage reports are being detected correctly.
 - **Status**: Complete monitoring capabilities documented
@@ -175,7 +213,7 @@ This document outlines the comprehensive plan for implementing unit tests across
   - Fixed all today's changelog entries to use correct GMT times (13:00, 12:30, 12:00) instead of incorrect times
   - Corrected date from 2025-01-04 to 2025-11-04 (November, not January)
 - **Files Modified**:
-  - `src/.github/copilot-instructions.md` - Emphasized using actual current time
+  - `.github/copilot-instructions.md` - Emphasized using actual current time
   - `src/TESTING_PLAN.md` - Fixed timestamps in changelog
 - **Rationale**: Timestamps must accurately reflect when work was done for proper audit trail
 - **Status**: All timestamps now correct and instructions updated to prevent future errors
@@ -198,7 +236,7 @@ This document outlines the comprehensive plan for implementing unit tests across
   - Documented 5-minute timeout requirement for unit tests
   - Added note about coverage report format compatibility
 - **Files Modified**:
-  - `src/.github/copilot-instructions.md` - Added instruction #14
+  - `.github/copilot-instructions.md` - Added instruction #14
   - `scripts/tests/unit.sh` - Added install-dev step and comments
   - `src/TESTING_PLAN.md` - Replaced "GitHub Actions Workflow (Future)" with comprehensive current implementation documentation
 - **Rationale**: CI was failing because prerequisites weren't installed before running tests. This ensures future implementers understand the complete integration requirements.
@@ -209,12 +247,12 @@ This document outlines the comprehensive plan for implementing unit tests across
 - **Author**: GitHub Copilot
 - **Activity**: Moved copilot instructions to dedicated file and clarified pre-commit hook usage
 - **Changes**:
-  - Created `src/.github/copilot-instructions.md` with all 13 copilot instructions
+  - Created `.github/copilot-instructions.md` with all 13 copilot instructions
   - Updated `src/TESTING_PLAN.md` to reference the new copilot instructions file
   - Clarified instruction #10: Pre-commit hooks must be run from repository root using `cd /workspaces/nhs-notify-digital-letters && bash scripts/githooks/pre-commit.sh`
   - Simplified TESTING_PLAN.md header to just reference the copilot instructions file
 - **Files Modified**:
-  - `src/.github/copilot-instructions.md` - Created
+  - `.github/copilot-instructions.md` - Created
   - `src/TESTING_PLAN.md` - Updated Copilot Instructions section
 - **Status**: Instructions now maintained separately for better organization
 
