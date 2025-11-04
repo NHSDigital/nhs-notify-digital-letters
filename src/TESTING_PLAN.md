@@ -70,6 +70,21 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 14:54 UTC - Corrected Coverage Exclusions (Use sonar.coverage.exclusions, Not sonar.exclusions)
+
+- **Author**: GitHub Copilot
+- **Activity**: Changed from `sonar.exclusions` to `sonar.coverage.exclusions` for example_usage.py and test_generator.py
+- **Rationale**:
+  - `sonar.exclusions` completely removes files from SonarCloud analysis (no code quality checks)
+  - `sonar.coverage.exclusions` keeps files in analysis but excludes from coverage metrics
+  - We want SonarCloud to still check these files for bugs, code smells, and security issues
+  - We just don't want their 0% coverage to affect the overall coverage percentage
+- **Files Modified**:
+  - `scripts/config/sonar-scanner.properties` - Changed from sonar.exclusions to sonar.coverage.exclusions
+  - `src/TESTING_PLAN.md` - Updated changelog
+- **Expected Result**: SonarCloud will analyze the files for quality but won't include them in coverage calculations
+- **Status**: ✅ Configuration corrected, waiting for next CI run to verify
+
 ### 2025-11-04 14:46 UTC - Excluded example_usage.py and test_generator.py from SonarCloud Analysis
 
 - **Author**: GitHub Copilot
@@ -81,7 +96,7 @@ This document outlines the comprehensive plan for implementing unit tests across
   - `scripts/config/sonar-scanner.properties` - Added `sonar.exclusions` property
   - `src/TESTING_PLAN.md` - Added changelog entry
 - **Expected Result**: SonarCloud will not analyze these files at all, improving coverage metrics to show only relevant production code
-- **Status**: ✅ Configuration updated, waiting for next CI run to verify
+- **Status**: ❌ REVERTED - This approach removed all analysis, not just coverage. See 2025-11-04 14:54 UTC entry.
 
 ### 2025-11-04 14:28 UTC - 🎉 Python Coverage Working in SonarCloud! Summary of Journey
 
