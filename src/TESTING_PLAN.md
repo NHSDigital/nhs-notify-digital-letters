@@ -70,6 +70,19 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 14:46 UTC - Excluded example_usage.py and test_generator.py from SonarCloud Analysis
+
+- **Author**: GitHub Copilot
+- **Activity**: Added `sonar.exclusions` property to completely exclude example and test files from SonarCloud analysis
+- **Problem**: `example_usage.py` and `test_generator.py` were showing 0% coverage in SonarCloud, affecting the overall coverage metrics
+- **Root Cause**: `sonar.coverage.exclusions` only excludes files from coverage reporting, but files are still analyzed by SonarCloud
+- **Solution**: Added `sonar.exclusions=src/asyncapigenerator/example_usage.py, src/asyncapigenerator/test_generator.py` to completely exclude these files
+- **Files Modified**:
+  - `scripts/config/sonar-scanner.properties` - Added `sonar.exclusions` property
+  - `src/TESTING_PLAN.md` - Added changelog entry
+- **Expected Result**: SonarCloud will not analyze these files at all, improving coverage metrics to show only relevant production code
+- **Status**: ✅ Configuration updated, waiting for next CI run to verify
+
 ### 2025-11-04 14:28 UTC - 🎉 Python Coverage Working in SonarCloud! Summary of Journey
 
 - **Author**: GitHub Copilot
