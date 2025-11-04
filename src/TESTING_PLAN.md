@@ -70,6 +70,22 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 13:37 GMT - Fixed Python Coverage Artifact Upload for SonarCloud
+
+- **Author**: GitHub Copilot
+- **Activity**: Fixed CI/CD workflow to upload and download Python coverage files for SonarCloud analysis
+- **Root Cause**: Python coverage.xml files were being generated but not uploaded as artifacts. SonarCloud only had access to JavaScript coverage (.reports/lcov.info)
+- **Changes**:
+  - Updated `.github/workflows/stage-2-test.yaml` in `test-unit` job:
+    - Added new step "Save Python coverage reports" to upload `src/**/coverage.xml` as `python-coverage-reports` artifact
+  - Updated `.github/workflows/stage-2-test.yaml` in `perform-static-analysis` job:
+    - Added new step "Download Python coverage reports" to download `python-coverage-reports` artifact to `src/` directory
+  - This ensures Python coverage.xml files are available when `./scripts/reports/perform-static-analysis.sh` runs sonar-scanner
+- **Files Modified**:
+  - `.github/workflows/stage-2-test.yaml` - Added artifact upload/download steps for Python coverage
+- **Rationale**: SonarCloud runs in the `perform-static-analysis` job, which only had access to the JavaScript coverage artifact. Python coverage files were generated in `test-unit` but never uploaded, so they weren't available when sonar-scanner executed.
+- **Status**: Python coverage should now be detected by SonarCloud on next CI run
+
 ### 2025-11-04 13:26 GMT - Added Monitoring and Verification Documentation
 
 - **Author**: GitHub Copilot

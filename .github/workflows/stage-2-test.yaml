@@ -83,6 +83,11 @@ jobs:
         with:
           name: code-coverage-report
           path: ".reports/lcov.info"
+      - name: "Save Python coverage reports"
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-coverage-reports
+          path: "src/**/coverage.xml"
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
@@ -146,6 +151,11 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: code-coverage-report
+      - name: "Download Python coverage reports"
+        uses: actions/download-artifact@v5
+        with:
+          name: python-coverage-reports
+          path: src/
       - name: "Perform static analysis"
         uses: ./.github/actions/perform-static-analysis
         with:
