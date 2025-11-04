@@ -42,7 +42,7 @@ This document outlines the comprehensive plan for implementing unit tests across
 | Project | Status | Test Directory | Configuration Files | Makefile | Coverage | Completed Date | Notes |
 |---------|--------|----------------|---------------------|----------|----------|----------------|-------|
 | asyncapigenerator | ✅ Complete | ✅ | ✅ | ✅ | 94% | 2025-01-04 | 51 tests passing, 5 test files |
-| cloudeventjekylldocs | ❌ Not Started | ❌ | ❌ | ❌ | - | - | - |
+| cloudeventjekylldocs | 🚧 In Progress | ✅ | ✅ | ✅ | 66% (2/5 scripts) | - | 26 tests, CI/CD integrated, 3 scripts remaining |
 | eventcatalogasyncapiimporter | ❌ Not Started | ❌ | ❌ | ❌ | - | - | - |
 
 ### Phase 2: TypeScript Projects
@@ -61,7 +61,7 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 ### Overall Progress
 
-- **Python Projects**: 1/3 completed (33%)
+- **Python Projects**: 1.4/3 in progress (47% - asyncapigenerator complete, cloudeventjekylldocs 40% done)
 - **TypeScript Projects**: 0/1 completed (0%)
 - **Integration Tasks**: 0/3 completed (0%)
 - **Overall**: 1/7 total tasks completed (14%)
