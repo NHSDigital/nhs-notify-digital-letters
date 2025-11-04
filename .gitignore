@@ -25,3 +25,9 @@ dist
 output
 /schemas
 .env
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.coverage

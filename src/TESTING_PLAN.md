@@ -70,6 +70,55 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 14:28 UTC - 🎉 Python Coverage Working in SonarCloud! Summary of Journey
+
+- **Author**: GitHub Copilot
+- **Activity**: Comprehensive summary of the multi-step journey to get Python coverage working in SonarCloud
+- **Final Result**: ✅ **SUCCESS!** SonarCloud now reports **62.6% coverage** for `src/asyncapigenerator` (was 0.0%)
+- **The Journey - What We Did**:
+
+  **Problem Discovery** (2025-11-04 13:12 UTC):
+  - SonarCloud showed 0% Python coverage despite tests running successfully
+  - Root cause: coverage.xml wasn't being generated during CI runs
+
+  **First Attempt** (2025-11-04 13:12 - 13:49 UTC):
+  - ❌ Added XML coverage generation to pytest.ini
+  - ❌ Configured sonar-scanner.properties with Python coverage paths
+  - ❌ Tried `relative_files = True` in pytest.ini
+  - ❌ Added Python coverage artifact upload/download to GitHub Actions
+  - **Result**: Still 0% coverage - SonarCloud error: "Cannot resolve the file path 'generate_asyncapi.py'"
+
+  **Root Cause Analysis** (2025-11-04 13:50 UTC):
+  - Examined SonarCloud logs: coverage.xml had relative paths like `generate_asyncapi.py` with source `.`
+  - SonarCloud Docker container runs from `/usr/src` (repo root)
+  - Paths in coverage.xml must be relative to repo root (e.g., `src/asyncapigenerator/generate_asyncapi.py`)
+
+  **The Fix** (2025-11-04 14:09 UTC):
+  - ✅ Modified `Makefile` to run pytest from repository root: `cd ../.. && pytest src/asyncapigenerator/tests/ --cov=src/asyncapigenerator`
+  - ✅ This generates coverage.xml with correct relative paths from repo root
+  - ✅ Cleaned up pytest.ini (removed `relative_files`, `source`, `[coverage:paths]`)
+
+  **Verification Tooling** (2025-11-04 14:25 UTC):
+  - Updated instructions for GitHub CLI: Use `GH_PAGER=cat` prefix to avoid pager blocking automation
+  - Used SonarCloud API to verify coverage: `curl -s "https://sonarcloud.io/api/measures/component?component=NHSDigital_nhs-notify-digital-letters:src/asyncapigenerator&branch=..."`
+
+- **Key Learnings**:
+  - 📍 Coverage paths must be relative to where sonar-scanner executes (repository root)
+  - 📍 Running pytest from repo root with `--cov=src/asyncapigenerator` generates correct paths
+  - 📍 SonarCloud Docker container has different paths than CI runner - relative paths are crucial
+  - 📍 `GH_PAGER=cat` is required for non-interactive `gh` CLI usage
+  - 📍 SonarCloud API is invaluable for verifying coverage without manual browser checks
+
+- **Files Modified Throughout Journey**:
+  - `src/asyncapigenerator/Makefile` - Coverage target runs from repo root
+  - `src/asyncapigenerator/pytest.ini` - Simplified coverage config
+  - `.github/workflows/stage-2-test.yaml` - Added Python coverage artifact handling
+  - `scripts/config/sonar-scanner.properties` - Added Python test paths and coverage config
+  - `.github/copilot-instructions.md` - Updated gh CLI and monitoring instructions
+  - `scripts/config/vale/styles/config/vocabularies/words/accept.txt` - Added "repo"
+
+- **Status**: 🚀 Python coverage reporting to SonarCloud is now fully operational! Ready to add more tests to improve coverage percentage.
+
 ### 2025-11-04 14:25 UTC - Fixed GH_PAGER Issue and Verified Coverage Success
 
 - **Author**: GitHub Copilot

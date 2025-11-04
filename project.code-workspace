@@ -74,9 +74,8 @@
     "window.titleSeparator": " : ",
     "chat.instructionsFilesLocations": {
       ".github": true,
-      ".github/instructions": true,
-      "src/.github/": true,
-      "src/.github/copilot-instructions.md": true
+      ".github/copilot-instructions.md": true,
+      ".github/instructions": true
     },
     "terminal.integrated.scrollback": 10000
   },
