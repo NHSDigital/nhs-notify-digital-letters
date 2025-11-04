@@ -20,33 +20,37 @@ For each event, there will be a schema for the envelope (this is cloud events, a
 
 **When working on testing implementation in the `src/` directory:**
 
-1. **Always update the Implementation Progress Tracker section in `../TESTING_PLAN.md`** when completing any implementation tasks
+1. **Check the "Current Actions and Todos" section in `../TESTING_PLAN.md` first** - This shows what's currently being worked on and what's next. When starting a new chat or continuing work, review this section to understand the current state and pick up where we left off.
 
-2. **Always add an entry to the Implementation Changelog section in `../TESTING_PLAN.md`** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time in UK timezone (YYYY-MM-DD HH:MM GMT/BST format)**, author, activity summary, changes made, files modified, and current status. **CRITICAL: Use the ACTUAL CURRENT time in GMT/BST - run `date -u` to get the correct timestamp. Do not make up or guess timestamps.** **Include changelog entries for updates to the TESTING_PLAN.md document itself.**
+2. **Always update the "Current Actions and Todos" section in `../TESTING_PLAN.md`** when starting new work, completing tasks, or encountering blockers. This section should always reflect the current state of work.
 
-3. **Use proper markdown code fence language specifiers** - never use just ` ``` `, always specify the language (e.g., ` ```bash `, ` ```python `, ` ```typescript `, ` ```makefile `, ` ```plain `)
+3. **Always update the Implementation Progress Tracker section in `../TESTING_PLAN.md`** when completing any implementation tasks
 
-4. **Ensure all internal links are valid** - test that section references work correctly in TESTING_PLAN.md
+4. **Always add an entry to the Implementation Changelog section in `../TESTING_PLAN.md`** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time in UK timezone (YYYY-MM-DD HH:MM GMT/BST format)**, author, activity summary, changes made, files modified, and current status. **CRITICAL: Use the ACTUAL CURRENT time in GMT/BST - run `date -u` to get the correct timestamp. Do not make up or guess timestamps.** **Include changelog entries for updates to the TESTING_PLAN.md document itself.**
 
-5. **Keep the TESTING_PLAN.md synchronized** with actual implementation state
+5. **Use proper markdown code fence language specifiers** - never use just ` ``` `, always specify the language (e.g., ` ```bash `, ` ```python `, ` ```typescript `, ` ```makefile `, ` ```plain `)
 
-6. **Update timestamps** in the document status section when making changes
+6. **Ensure all internal links are valid** - test that section references work correctly in TESTING_PLAN.md
 
-7. **Follow the phased approach** - complete phases in order and track progress
+7. **Keep the TESTING_PLAN.md synchronized** with actual implementation state
 
-8. **Mark checkboxes** (✅/❌) in the progress tracker as work is completed
+8. **Update timestamps** in the document status section when making changes
 
-9. **Add notes** to the progress tracker for any deviations or important decisions
+9. **Follow the phased approach** - complete phases in order and track progress
 
-10. **Run pre-commit hooks before committing** - Always stage modified files with `git add <files>`, then change to the repository root directory (`cd /workspaces/nhs-notify-digital-letters`), and run `.git/hooks/pre-commit` to ensure all pre-commit hooks pass before committing changes. All hooks must pass successfully.
+10. **Mark checkboxes** (✅/❌) in the progress tracker as work is completed
 
-11. **Vale vocabulary exceptions** - If vale reports false positives for legitimate technical terms, you may add them to `scripts/config/vale/styles/config/vocabularies/words/accept.txt` (one word per line, alphabetically sorted). **IMPORTANT**: Always document any additions to accept.txt in the changelog with justification for why the word is legitimate.
+11. **Add notes** to the progress tracker for any deviations or important decisions
 
-12. **npm workspace test convention** - For projects with `package.json` that are part of the npm workspace (listed in root package.json workspaces), tests must be executable via `npm run test:unit`. The project's Makefile `test` target should call `npm run test:unit` to align with the workspace-wide test execution pattern (`npm run test:unit --workspaces`).
+12. **Run pre-commit hooks before committing** - Always stage modified files with `git add <files>`, then change to the repository root directory (`cd /workspaces/nhs-notify-digital-letters`), and run `.git/hooks/pre-commit` to ensure all pre-commit hooks pass before committing changes. All hooks must pass successfully.
 
-13. **Python environment setup** - For Python projects, always use `configure_python_environment` tool to set up the Python environment before running tests or installing dependencies. When VS Code prompts to select which requirements file to install, **always select `requirements-dev.txt`** (not `requirements.txt`) as it includes all testing dependencies plus production dependencies.
+13. **Vale vocabulary exceptions** - If vale reports false positives for legitimate technical terms, you may add them to `scripts/config/vale/styles/config/vocabularies/words/accept.txt` (one word per line, alphabetically sorted). **IMPORTANT**: Always document any additions to accept.txt in the changelog with justification for why the word is legitimate.
 
-14. **Update unit.sh for CI/CD integration** - When adding tests for a new project, you **MUST** update `scripts/tests/unit.sh` to include:
+14. **npm workspace test convention** - For projects with `package.json` that are part of the npm workspace (listed in root package.json workspaces), tests must be executable via `npm run test:unit`. The project's Makefile `test` target should call `npm run test:unit` to align with the workspace-wide test execution pattern (`npm run test:unit --workspaces`).
+
+15. **Python environment setup** - For Python projects, always use `configure_python_environment` tool to set up the Python environment before running tests or installing dependencies. When VS Code prompts to select which requirements file to install, **always select `requirements-dev.txt`** (not `requirements.txt`) as it includes all testing dependencies plus production dependencies.
+
+16. **Update unit.sh for CI/CD integration** - When adding tests for a new project, you **MUST** update `scripts/tests/unit.sh` to include:
     - Installation of prerequisites (e.g., `make -C ./src/project-name install-dev` for Python projects)
     - Execution of the test suite (e.g., `make -C ./src/project-name test`)
     - The CI/CD pipeline runs `make test-unit` which calls `scripts/tests/unit.sh`
@@ -54,7 +58,7 @@ For each event, there will be a schema for the envelope (this is cloud events, a
     - Always test that the prerequisites install correctly before running tests
     - Add a comment in unit.sh explaining what each section does
 
-15. **Use GitHub CLI for monitoring CI/CD** - When monitoring GitHub Actions workflow runs:
+17. **Use GitHub CLI for monitoring CI/CD** - When monitoring GitHub Actions workflow runs:
     - **CRITICAL**: Always prefix `gh` commands with `GH_PAGER=cat` to disable the pager that requires pressing 'q' to exit
     - Use `GH_PAGER=cat gh run list --branch <branch-name> --limit <n> --json databaseId,status,conclusion,name,createdAt,url` to list recent workflow runs
     - Use `GH_PAGER=cat gh run view <run-id> --json conclusion,status,jobs` to view details of a specific run
@@ -66,7 +70,7 @@ For each event, there will be a schema for the envelope (this is cloud events, a
       - View run: `GH_PAGER=cat gh run view <run-id> --json conclusion,status,jobs`
       - With jq: `GH_PAGER=cat gh run view <run-id> --json jobs --jq '.jobs[] | select(.conclusion == "failure") | {name: .name, conclusion: .conclusion}'`
 
-16. **Use SonarCloud API for coverage monitoring** - To check coverage metrics on branches:
+18. **Use SonarCloud API for coverage monitoring** - To check coverage metrics on branches:
     - **Public API (no auth required)**: `https://sonarcloud.io/api/measures/component`
     - **Parameters**:
       - `component`: `NHSDigital_nhs-notify-digital-letters` (project) or `NHSDigital_nhs-notify-digital-letters:src/project-name` (specific component)

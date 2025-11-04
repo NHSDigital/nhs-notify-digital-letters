@@ -66,9 +66,68 @@ This document outlines the comprehensive plan for implementing unit tests across
 - **Integration Tasks**: 0/3 completed (0%)
 - **Overall**: 1/7 total tasks completed (14%)
 
+## Current Actions and Todos
+
+**Use this section to track current work in progress and next steps. Update this section whenever starting or completing work.**
+
+### Current Status (2025-11-04 15:00 UTC)
+
+**Just Completed**:
+
+- ✅ Fixed SonarCloud coverage configuration for asyncapigenerator
+  - Changed to use `sonar.coverage.exclusions` instead of `sonar.exclusions`
+  - This keeps example_usage.py and test_generator.py in quality analysis but excludes from coverage metrics
+  - Waiting for CI run to verify the configuration works correctly
+
+**Next Up**:
+
+- 🎯 **Start testing implementation for cloudeventjekylldocs** (Python project)
+  - Phase 1, project 2 of 3
+  - Python tool that generates Jekyll documentation from YAML schema files
+  - 5 Python scripts in `scripts/` directory to test:
+    - `generate_docs.py` - Main documentation generator (396 lines)
+    - `generate_docs_all.py`
+    - `generate_docs_yaml.py`
+    - `generate_docs_markdown.py`
+    - `yaml_to_json.py` - Schema converter
+  - Need to create: test structure, pytest.ini, requirements files, Makefile updates
+  - Target: 80%+ coverage
+
+**Blockers/Questions**:
+
+- None currently
+
+**Notes**:
+
+- asyncapigenerator is complete with 94% coverage, 51 tests
+- SonarCloud Python coverage reporting is working (62.6% currently shown)
+- Two more Python projects after cloudeventjekylldocs: eventcatalogasyncapiimporter
+- Then one TypeScript project: cloudevents
+- Finally integration tasks: src/Makefile, root Makefile updates, documentation
+
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-04 14:58 UTC - Added "Current Actions and Todos" Section to TESTING_PLAN.md
+
+- **Author**: GitHub Copilot
+- **Activity**: Added new "Current Actions and Todos" section to track current work in progress
+- **Rationale**:
+  - Makes it easier to resume work in new chat sessions
+  - Provides clear visibility of what's being worked on now vs historical changes
+  - Separates "current state" from "historical log"
+  - Helps coordinate work across multiple chat sessions
+- **Structure**:
+  - Current Status with timestamp
+  - Just Completed items
+  - Next Up items with specific details
+  - Blockers/Questions
+  - Notes
+- **Files Modified**:
+  - `src/TESTING_PLAN.md` - Added "Current Actions and Todos" section before changelog
+  - `.github/copilot-instructions.md` - Updated instructions to check and update this section first
+- **Status**: ✅ Complete, ready for new chat sessions to pick up where we left off
 
 ### 2025-11-04 14:54 UTC - Corrected Coverage Exclusions (Use sonar.coverage.exclusions, Not sonar.exclusions)
 
