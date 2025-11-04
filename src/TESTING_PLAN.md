@@ -7,7 +7,7 @@
 **When working with this document:**
 
 1. **Always update the [Implementation Progress Tracker](#implementation-progress-tracker) section** when completing any implementation tasks
-2. **Always add an entry to the [Implementation Changelog](#implementation-changelog)** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time (YYYY-MM-DD HH:MM format)**, author, activity summary, changes made, files modified, and current status. **Include changelog entries for updates to this testing plan document itself.**
+2. **Always add an entry to the [Implementation Changelog](#implementation-changelog)** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time in UK timezone (YYYY-MM-DD HH:MM GMT/BST format)**, author, activity summary, changes made, files modified, and current status. **Include changelog entries for updates to this testing plan document itself.**
 3. **Use proper markdown code fence language specifiers** - never use just ` ``` `, always specify the language (e.g., ` ```bash `, ` ```python `, ` ```typescript `, ` ```makefile `, ` ```plain `)
 4. **Ensure all internal links are valid** - test that section references work correctly
 5. **Keep the document synchronized** with actual implementation state
@@ -75,20 +75,31 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
-### 2025-11-04 15:30 - Updated Testing Plan with npm Workspace Conventions
+### 2025-11-04 12:10 GMT - Updated Changelog Timezone to UK Time
+
+- **Author**: GitHub Copilot
+- **Activity**: Corrected all timestamps to UK timezone (GMT/BST)
+- **Changes**:
+  - Updated Copilot Instruction #2: Clarified that timestamps must use UK timezone (GMT/BST)
+  - Corrected all existing changelog entries to use GMT times
+  - Added this changelog entry to document the timezone correction
+- **Files Modified**: `TESTING_PLAN.md`
+- **Status**: All timestamps now reflect UK timezone
+
+### 2025-11-04 12:05 GMT - Updated Testing Plan with npm Workspace Conventions
 
 - **Author**: GitHub Copilot
 - **Activity**: Added npm workspace test conventions and improved changelog guidelines
 - **Changes**:
   - Added Copilot Instruction #12: npm workspace test convention requiring `npm run test:unit` for workspace projects
-  - Updated Copilot Instruction #2: Changelog entries must include timestamp (YYYY-MM-DD HH:MM format) and must include updates to the testing plan document itself
+  - Updated Copilot Instruction #2: Changelog entries must include timestamp and must include updates to the testing plan document itself
   - Updated TypeScript Makefile template: Changed `npm test` to `npm run test:unit` in test target
   - Updated package.json devDependencies section: Added scripts example showing `test:unit`, `test:watch`, and `test:coverage`
   - Added note explaining workspace alignment for test execution
 - **Files Modified**: `TESTING_PLAN.md`
 - **Status**: Plan updated with workspace conventions
 
-### 2025-11-04 15:15 - Added Vale Vocabulary Exception
+### 2025-11-04 11:50 GMT - Added Vale Vocabulary Exception
 
 - **Author**: GitHub Copilot
 - **Activity**: Added "src" to vale vocabulary accept list
@@ -98,7 +109,7 @@ This document outlines the comprehensive plan for implementing unit tests across
 - **Files Modified**: `scripts/config/vale/styles/config/vocabularies/words/accept.txt`
 - **Status**: Vocabulary updated to pass pre-commit hooks
 
-### 2025-11-04 14:00 - Initial Plan Created
+### 2025-11-04 10:30 GMT - Initial Plan Created
 
 - **Author**: GitHub Copilot
 - **Activity**: Created comprehensive testing plan
