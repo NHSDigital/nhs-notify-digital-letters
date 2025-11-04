@@ -51,6 +51,7 @@ sanitization
 sed
 service_sorted
 Someobject
+src
 Syft
 Terraform
 toolchain

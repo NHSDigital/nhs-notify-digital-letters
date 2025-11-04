@@ -1,0 +1,704 @@
+# Unit Testing Plan for src/ Directory
+
+<!-- markdownlint-disable MD013 MD033 -->
+
+## Copilot Instructions
+
+**When working with this document:**
+
+1. **Always update the [Implementation Progress Tracker](#implementation-progress-tracker) section** when completing any implementation tasks
+2. **Always add an entry to the [Implementation Changelog](#implementation-changelog)** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time (YYYY-MM-DD HH:MM format)**, author, activity summary, changes made, files modified, and current status. **Include changelog entries for updates to this testing plan document itself.**
+3. **Use proper markdown code fence language specifiers** - never use just ` ``` `, always specify the language (e.g., ` ```bash `, ` ```python `, ` ```typescript `, ` ```makefile `, ` ```plain `)
+4. **Ensure all internal links are valid** - test that section references work correctly
+5. **Keep the document synchronized** with actual implementation state
+6. **Update timestamps** in the document status section when making changes
+7. **Follow the phased approach** - complete phases in order and track progress
+8. **Mark checkboxes** (✅/❌) in the progress tracker as work is completed
+9. **Add notes** to the progress tracker for any deviations or important decisions
+10. **Run pre-commit hooks before committing** - Always stage modified files with `git add <files>` and then run `.git/hooks/pre-commit` to ensure all pre-commit hooks pass before committing changes. All hooks must pass successfully.
+11. **Vale vocabulary exceptions** - If vale reports false positives for legitimate technical terms, you may add them to `scripts/config/vale/styles/config/vocabularies/words/accept.txt` (one word per line, alphabetically sorted). **IMPORTANT**: Always document any additions to accept.txt in the changelog with justification for why the word is legitimate.
+12. **npm workspace test convention** - For projects with `package.json` that are part of the npm workspace (listed in root package.json workspaces), tests must be executable via `npm run test:unit`. The project's Makefile `test` target should call `npm run test:unit` to align with the workspace-wide test execution pattern (`npm run test:unit --workspaces`).
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Implementation Progress Tracker](#implementation-progress-tracker)
+- [Implementation Changelog](#implementation-changelog)
+- [Current State Analysis](#current-state-analysis)
+- [Testing Strategy](#testing-strategy)
+- [Implementation Plan by Project](#implementation-plan-by-project)
+- [Standard Makefile Targets](#standard-makefile-targets-per-project)
+- [Configuration Files](#configuration-files)
+- [Testing Best Practices](#testing-best-practices)
+- [CI/CD Integration](#cicd-integration)
+- [Success Criteria](#success-criteria)
+- [Timeline Estimate](#timeline-estimate)
+- [Next Steps](#next-steps)
+- [Questions to Resolve](#questions-to-resolve)
+
+## Overview
+
+This document outlines the comprehensive plan for implementing unit tests across all projects in the `src/` directory of the NHS Notify Digital Letters repository.
+
+## Implementation Progress Tracker
+
+### Phase 1: Python Projects
+
+| Project | Status | Test Directory | Configuration Files | Makefile | Coverage | Completed Date | Notes |
+|---------|--------|----------------|---------------------|----------|----------|----------------|-------|
+| asyncapigenerator | ❌ Not Started | ❌ | ❌ | ❌ | - | - | - |
+| cloudeventjekylldocs | ❌ Not Started | ❌ | ❌ | ❌ | - | - | - |
+| eventcatalogasyncapiimporter | ❌ Not Started | ❌ | ❌ | ❌ | - | - | - |
+
+### Phase 2: TypeScript Projects
+
+| Project | Status | Test Directory | Configuration Files | Makefile | Coverage | Completed Date | Notes |
+|---------|--------|----------------|---------------------|----------|----------|----------------|-------|
+| cloudevents | ❌ Not Started | ❌ | ❌ | ❌ | - | - | - |
+
+### Phase 3: Integration
+
+| Task | Status | Completed Date | Notes |
+|------|--------|----------------|-------|
+| Create src/Makefile | ❌ Not Started | - | - |
+| Update root Makefile | ❌ Not Started | - | - |
+| Documentation updates | ❌ Not Started | - | - |
+
+### Overall Progress
+
+- **Python Projects**: 0/3 completed (0%)
+- **TypeScript Projects**: 0/1 completed (0%)
+- **Integration Tasks**: 0/3 completed (0%)
+- **Overall**: 0/7 total tasks completed (0%)
+
+## Implementation Changelog
+
+**Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-04 15:30 - Updated Testing Plan with npm Workspace Conventions
+
+- **Author**: GitHub Copilot
+- **Activity**: Added npm workspace test conventions and improved changelog guidelines
+- **Changes**:
+  - Added Copilot Instruction #12: npm workspace test convention requiring `npm run test:unit` for workspace projects
+  - Updated Copilot Instruction #2: Changelog entries must include timestamp (YYYY-MM-DD HH:MM format) and must include updates to the testing plan document itself
+  - Updated TypeScript Makefile template: Changed `npm test` to `npm run test:unit` in test target
+  - Updated package.json devDependencies section: Added scripts example showing `test:unit`, `test:watch`, and `test:coverage`
+  - Added note explaining workspace alignment for test execution
+- **Files Modified**: `TESTING_PLAN.md`
+- **Status**: Plan updated with workspace conventions
+
+### 2025-11-04 15:15 - Added Vale Vocabulary Exception
+
+- **Author**: GitHub Copilot
+- **Activity**: Added "src" to vale vocabulary accept list
+- **Changes**:
+  - Added "src" to `scripts/config/vale/styles/config/vocabularies/words/accept.txt`
+  - Justification: "src" is a standard directory name used throughout the codebase and documentation (e.g., "src/" directory, "`make test` in `src/`"). This is a legitimate technical term commonly used in software projects.
+- **Files Modified**: `scripts/config/vale/styles/config/vocabularies/words/accept.txt`
+- **Status**: Vocabulary updated to pass pre-commit hooks
+
+### 2025-11-04 14:00 - Initial Plan Created
+
+- **Author**: GitHub Copilot
+- **Activity**: Created comprehensive testing plan
+- **Changes**:
+  - Defined testing strategy for Python (pytest) and TypeScript (Jest) projects
+  - Created implementation progress tracker
+  - Documented standard structure for each project type
+  - Created configuration file templates
+  - Established success criteria and timeline estimates
+- **Files Modified**: `TESTING_PLAN.md`, `TESTING_QUICK_REFERENCE.md` (created)
+- **Status**: Plan ready for review
+
+---
+
+<!-- Add new changelog entries above this line -->
+
+## Current State Analysis
+
+### Directory Structure
+
+```text
+src/
+├── asyncapigenerator/          (Python - has basic tests)
+├── cloudeventjekylldocs/       (Python - no tests)
+├── cloudevents/                (TypeScript - no tests)
+├── eventcatalog/               (EventCatalog - not applicable)
+├── eventcatalogasyncapiimporter/ (Python - has basic tests)
+└── typescript-schema-generator/ (Empty/Planning only)
+```
+
+### Existing Test Infrastructure
+
+#### Python Projects
+
+- **asyncapigenerator**: Has `test_generator.py` with basic manual tests (not using pytest)
+- **eventcatalogasyncapiimporter**: Has `test_import_asyncapi.py` using unittest
+- Testing approach is inconsistent - one uses manual assertions, other uses unittest
+
+#### TypeScript Projects
+
+- **cloudevents**: No tests, but has TypeScript tooling in `tools/` subdirectory
+- Lambdas folder (reference) uses Jest with comprehensive configuration
+- No jest configuration in src/cloudevents currently
+
+#### EventCatalog
+
+- **EventCatalog**: Build tool, not applicable for unit testing (configuration-based)
+
+## Testing Strategy
+
+### 1. Python Projects Testing Approach
+
+#### Framework: pytest
+
+- **Why pytest**: Industry standard, more Pythonic than unittest, better fixtures, parameterisation
+- **Migration**: Convert existing unittest/manual tests to pytest
+- **Coverage**: Use pytest-cov for coverage reporting
+
+#### Standard Structure per Python Project
+
+```plain
+project-name/
+├── src/                    # Or root level for modules
+│   ├── module1.py
+│   └── module2.py
+├── tests/
+│   ├── __init__.py
+│   ├── conftest.py        # Shared fixtures
+│   ├── test_module1.py
+│   └── test_module2.py
+├── requirements.txt        # Production dependencies
+├── requirements-dev.txt    # Development/testing dependencies
+├── pytest.ini             # Pytest configuration
+├── Makefile               # With test target
+└── README.md
+```
+
+#### Testing Dependencies (requirements-dev.txt)
+
+```plain
+pytest>=8.0.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+black>=24.0.0
+flake8>=7.0.0
+mypy>=1.8.0
+```
+
+### 2. TypeScript Projects Testing Approach
+
+#### Framework: Jest
+
+- **Why Jest**: Already used in lambdas/, TypeScript native, comprehensive mocking
+- **Configuration**: Follow pattern from lambdas/ttl-create-lambda/jest.config.ts
+- **Coverage**: Jest built-in coverage with thresholds
+
+#### Standard Structure per TypeScript Project
+
+```plain
+project-name/
+├── src/
+│   ├── module1.ts
+│   └── module2.ts
+├── __tests__/
+│   ├── module1.test.ts
+│   └── module2.test.ts
+├── jest.config.ts
+├── tsconfig.json
+├── package.json           # With test scripts
+├── Makefile              # With test target
+└── README.md
+```
+
+#### Testing Dependencies (package.json devDependencies)
+
+```json
+{
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0",
+    "jest-html-reporter": "^3.10.0"
+  },
+  "scripts": {
+    "test:unit": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  }
+}
+```
+
+**Important**: Projects in the npm workspace must use `test:unit` as the script name to align with the workspace-wide test execution pattern.
+
+## Implementation Plan by Project
+
+### Phase 1: Python Projects
+
+#### 1.1 asyncapigenerator
+
+**Current State**:
+
+- Has `test_generator.py` with manual test functions
+- Uses basic assertions without proper test framework
+- No structured test organization
+
+**Actions**:
+
+1. Create `tests/` directory
+2. Add `pytest.ini` configuration
+3. Add `requirements-dev.txt` with pytest dependencies
+4. Convert `test_generator.py` to pytest format:
+   - `tests/test_generator.py` - Convert existing tests
+   - `tests/test_event_parsing.py` - Test event markdown parsing
+   - `tests/test_service_parsing.py` - Test service markdown parsing
+   - `tests/test_asyncapi_generation.py` - Test AsyncAPI spec generation
+   - `tests/conftest.py` - Shared fixtures (temp dirs, sample data)
+5. Update Makefile with test targets
+6. Target coverage: 80%+
+
+**Modules to Test**:
+
+- `generate_asyncapi.py` - Main generator logic
+- Event parsing functions
+- Service parsing functions
+- AsyncAPI spec generation
+- YAML output generation
+
+#### 1.2 cloudeventjekylldocs
+
+**Current State**:
+
+- No tests
+- Has scripts in `scripts/` directory
+- Python scripts for documentation generation
+
+**Actions**:
+
+1. Create `tests/` directory structure
+2. Add `pytest.ini` configuration
+3. Add `requirements-dev.txt` with pytest dependencies
+4. Create test files:
+   - `tests/test_generate_docs.py` - Test doc generation from schemas
+   - `tests/test_generate_docs_yaml.py` - Test YAML doc generation
+   - `tests/test_generate_docs_markdown.py` - Test Markdown generation
+   - `tests/test_yaml_to_json.py` - Test YAML to JSON conversion
+   - `tests/conftest.py` - Shared fixtures
+5. Update Makefile with test targets
+6. Target coverage: 80%+
+
+**Modules to Test**:
+
+- `scripts/generate_docs.py`
+- `scripts/generate_docs_yaml.py`
+- `scripts/generate_docs_markdown.py`
+- `scripts/generate_docs_all.py`
+- `scripts/yaml_to_json.py`
+
+#### 1.3 eventcatalogasyncapiimporter
+
+**Current State**:
+
+- Has `test_import_asyncapi.py` using unittest
+- Basic test structure exists
+
+**Actions**:
+
+1. Create proper `tests/` directory
+2. Add `pytest.ini` configuration
+3. Add `requirements-dev.txt` with pytest dependencies
+4. Convert unittest tests to pytest:
+   - `tests/test_import_asyncapi.py` - Convert existing tests to pytest
+   - `tests/test_event_extraction.py` - Test event extraction logic
+   - `tests/test_markdown_generation.py` - Test markdown generation
+   - `tests/test_schema_resolution.py` - Test schema path resolution
+   - `tests/conftest.py` - Shared fixtures
+5. Move `test_import_asyncapi.py` to `tests/`
+6. Update Makefile with test targets
+7. Target coverage: 80%+
+
+**Modules to Test**:
+
+- `import_asyncapi.py` - Main importer class
+- AsyncAPI parsing
+- Event extraction
+- Markdown generation
+- File operations
+
+### Phase 2: TypeScript Projects
+
+#### 2.1 cloudevents
+
+**Current State**:
+
+- No tests
+- Has tools in `tools/` subdirectory with multiple TypeScript files
+- Uses ts-node for execution
+
+**Actions**:
+
+1. Create `__tests__/` directory structure
+2. Add `jest.config.ts` (based on lambdas pattern)
+3. Update `package.json` with test dependencies and scripts
+4. Create test files:
+   - `__tests__/cache/schema-cache.test.ts` - Test schema caching
+   - `__tests__/builder/build-schema.test.ts` - Test schema building
+   - `__tests__/generator/generate-example.test.ts` - Test example generation
+   - `__tests__/generator/manual-bundle-schema.test.ts` - Test bundling
+5. Update Makefile with test targets
+6. Target coverage: 80%+
+
+**Modules to Test**:
+
+- `tools/cache/schema-cache.ts` - Schema caching logic
+- `tools/builder/build-schema.ts` - Schema building
+- `tools/generator/generate-example.ts` - Example generation
+- `tools/generator/manual-bundle-schema.ts` - Schema bundling
+- `tools/validator/` - Schema validation (if present)
+
+#### 2.2 typescript-schema-generator
+
+**Current State**:
+
+- Only contains `PLAN.md`
+- Not yet implemented
+
+**Actions**:
+
+- Create test structure as part of implementation
+- Follow the same pattern as cloudevents when implemented
+
+### Phase 3: Root-Level Integration
+
+#### 3.1 Create src/Makefile
+
+**Purpose**: Orchestrate testing across all src/ subdirectories
+
+**Content**:
+
+```makefile
+.PHONY: help test test-python test-typescript test-asyncapigenerator test-cloudeventjekylldocs test-eventcatalogasyncapiimporter test-cloudevents coverage clean
+
+help: ## Show this help
+ @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+test: test-python test-typescript ## Run all tests
+
+test-python: test-asyncapigenerator test-cloudeventjekylldocs test-eventcatalogasyncapiimporter ## Run all Python tests
+
+test-typescript: test-cloudevents ## Run all TypeScript tests
+
+test-asyncapigenerator: ## Run asyncapigenerator tests
+ @echo "=== Testing asyncapigenerator ==="
+ $(MAKE) -C asyncapigenerator test
+
+test-cloudeventjekylldocs: ## Run cloudeventjekylldocs tests
+ @echo "=== Testing cloudeventjekylldocs ==="
+ $(MAKE) -C cloudeventjekylldocs test
+
+test-eventcatalogasyncapiimporter: ## Run eventcatalogasyncapiimporter tests
+ @echo "=== Testing eventcatalogasyncapiimporter ==="
+ $(MAKE) -C eventcatalogasyncapiimporter test
+
+test-cloudevents: ## Run cloudevents tests
+ @echo "=== Testing cloudevents ==="
+ $(MAKE) -C cloudevents test
+
+coverage: ## Generate combined coverage report
+ @echo "=== Generating coverage reports ==="
+ # Python projects
+ $(MAKE) -C asyncapigenerator coverage
+ $(MAKE) -C cloudeventjekylldocs coverage
+ $(MAKE) -C eventcatalogasyncapiimporter coverage
+ # TypeScript projects
+ $(MAKE) -C cloudevents coverage
+
+clean: ## Clean test artifacts
+ find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+ find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
+ find . -type d -name ".coverage" -exec rm -rf {} + 2>/dev/null || true
+ find . -type d -name "htmlcov" -exec rm -rf {} + 2>/dev/null || true
+ find . -type d -name "node_modules" -exec rm -rf {} + 2>/dev/null || true
+ find . -type d -name ".reports" -exec rm -rf {} + 2>/dev/null || true
+```
+
+#### 3.2 Update Root Makefile
+
+Add to `/workspaces/nhs-notify-digital-letters/Makefile`:
+
+```makefile
+test: ## Run all tests
+ $(MAKE) -C src test
+
+test-unit: ## Run unit tests only
+ $(MAKE) -C src test
+
+test-coverage: ## Run tests with coverage
+ $(MAKE) -C src coverage
+```
+
+## Standard Makefile Targets per Project
+
+### Python Projects (pytest)
+
+```makefile
+.PHONY: help install install-dev test test-verbose coverage lint format clean
+
+help: ## Show this help
+ @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+install: ## Install production dependencies
+ pip install -r requirements.txt
+
+install-dev: install ## Install development dependencies
+ pip install -r requirements-dev.txt
+
+test: ## Run tests
+ pytest tests/ -v
+
+test-verbose: ## Run tests with verbose output
+ pytest tests/ -vv -s
+
+coverage: ## Run tests with coverage report
+ pytest tests/ --cov=. --cov-report=html --cov-report=term
+
+lint: ## Run linting
+ flake8 .
+ mypy .
+
+format: ## Format code
+ black .
+
+clean: ## Clean test artifacts
+ rm -rf .pytest_cache
+ rm -rf htmlcov
+ rm -rf .coverage
+ find . -type d -name "__pycache__" -exec rm -rf {} +
+```
+
+### TypeScript Projects (Jest)
+
+**Note**: For projects in the npm workspace (listed in root `package.json` workspaces), tests must be executable via `npm run test:unit` to align with the workspace pattern.
+
+```makefile
+.PHONY: help install test test-watch coverage lint format clean
+
+help: ## Show this help
+ @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+install: ## Install dependencies
+ npm install
+
+test: ## Run tests
+ npm run test:unit
+
+test-watch: ## Run tests in watch mode
+ npm run test:watch
+
+coverage: ## Run tests with coverage
+ npm run test:coverage
+
+lint: ## Run linting
+ npm run lint
+
+format: ## Format code
+ npm run format
+
+clean: ## Clean test artifacts
+ rm -rf node_modules
+ rm -rf .reports
+ rm -rf coverage
+```
+
+## Configuration Files
+
+### Python: pytest.ini
+
+```ini
+[pytest]
+testpaths = tests
+python_files = test_*.py
+python_classes = Test*
+python_functions = test_*
+addopts =
+    -v
+    --strict-markers
+    --tb=short
+    --cov-report=html
+    --cov-report=term-missing
+markers =
+    unit: Unit tests
+    integration: Integration tests
+    slow: Slow running tests
+```
+
+### TypeScript: jest.config.ts
+
+```typescript
+import type { Config } from 'jest';
+
+const config: Config = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  clearMocks: true,
+  collectCoverage: true,
+  coverageDirectory: './.reports/coverage',
+  coverageProvider: 'babel',
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+  testMatch: ['**/__tests__/**/*.test.ts'],
+  transform: {
+    '^.+\\.ts$': 'ts-jest',
+  },
+  reporters: [
+    'default',
+    [
+      'jest-html-reporter',
+      {
+        pageTitle: 'Test Report',
+        outputPath: './.reports/test-report.html',
+        includeFailureMsg: true,
+      },
+    ],
+  ],
+};
+
+export default config;
+```
+
+## Testing Best Practices
+
+### General Principles
+
+1. **Test Coverage**: Aim for 80%+ code coverage
+2. **Test Isolation**: Each test should be independent
+3. **Mock External Dependencies**: Mock file I/O, network calls, external APIs
+4. **Clear Test Names**: Use descriptive test function names
+5. **AAA Pattern**: Arrange, Act, Assert
+6. **Test Data**: Use fixtures for reusable test data
+
+### Python-Specific
+
+1. Use pytest fixtures for setup/teardown
+2. Use `parametrize` for testing multiple inputs
+3. Use `tmp_path` fixture for file operations
+4. Mock with `pytest-mock` (mocker fixture)
+5. Use `conftest.py` for shared fixtures
+
+### TypeScript-Specific
+
+1. Use Jest mocks for modules and functions
+2. Use `beforeEach`/`afterEach` for setup/teardown
+3. Use `describe` blocks to group related tests
+4. Mock file system with `mock-fs` if needed
+5. Use `jest.fn()` for function mocking
+
+## CI/CD Integration
+
+### GitHub Actions Workflow (Future)
+
+```yaml
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Run all tests
+        run: make test
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+```
+
+## Success Criteria
+
+### Per Project
+
+- ✅ All projects have dedicated `tests/` or `__tests__/` directory
+- ✅ All projects have standardized Makefile with test targets
+- ✅ All projects have configuration files (pytest.ini or jest.config.ts)
+- ✅ All projects have development dependencies documented
+- ✅ 80%+ code coverage achieved
+- ✅ Tests run successfully with `make test`
+
+### Overall
+
+- ✅ `make test` at root level runs all tests
+- ✅ `make test` in `src/` runs all src tests
+- ✅ `make test` in each project directory runs project tests
+- ✅ Consistent testing patterns across projects
+- ✅ Clear documentation in each project's README
+
+## Timeline Estimate
+
+- **Phase 1 (Python Projects)**: 3-4 days
+  - asyncapigenerator: 1 day
+  - cloudeventjekylldocs: 1 day
+  - eventcatalogasyncapiimporter: 1 day
+  - Integration & refinement: 0.5 day
+
+- **Phase 2 (TypeScript Projects)**: 2-3 days
+  - cloudevents: 2 days
+  - Integration: 0.5 day
+
+- **Phase 3 (Integration)**: 0.5 day
+  - src/Makefile creation
+  - Root Makefile updates
+  - Documentation
+
+**Total Estimate**: 6-8 days
+
+## Next Steps
+
+1. Review and approve this plan
+2. Start with Phase 1.1 (asyncapigenerator) as pilot
+3. Iterate and refine based on learnings
+4. Apply pattern to remaining projects
+5. Complete integration
+6. Document in repository README
+
+## Questions to Resolve
+
+1. **Coverage Thresholds**: Should we enforce 80% or adjust per project?
+2. **Test Data**: Where should shared test fixtures/data live?
+3. **CI/CD**: When should we integrate with GitHub Actions?
+4. **Mocking Strategy**: How strictly should we mock external dependencies?
+5. **Performance Tests**: Should we add performance/benchmark tests?
+
+---
+
+## Document Status
+
+| Field | Value |
+|-------|-------|
+| **Status** | Draft for Review |
+| **Last Updated** | 2025-11-04 |
+| **Author** | GitHub Copilot |
+| **Reviewers** | [To be assigned] |
+| **Version** | 1.0 |
+
+---
+
+**Note**: This is a living document. Update the [Implementation Progress Tracker](#implementation-progress-tracker) section as work progresses.
