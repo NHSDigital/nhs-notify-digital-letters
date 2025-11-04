@@ -12,9 +12,9 @@ import {
   displayCacheInfo,
 } from "../cache/schema-cache.ts";
 
-// Utility random helpers (non-cryptographic; deterministic constraints only)
+// Utility random helpers using cryptographically secure random
 function randomInt(max: number) {
-  return Math.floor(Math.random() * max);
+  return crypto.randomInt(0, max);
 }
 function randomChoice<T>(arr: T[]): T {
   return arr[randomInt(arr.length)];
@@ -28,11 +28,7 @@ function randomHex(len: number) {
 
 // Register a custom UUID format for jsf
 function uuid() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0,
-      v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+  return crypto.randomUUID();
 }
 jsf.format("uuid", uuid);
 
@@ -314,7 +310,7 @@ async function main() {
     )}`.toLowerCase();
 
     // 10. Sequence: zero padded 20-digit
-    const seq = Math.floor(Math.random() * 1e9); // smaller number but still valid when padded
+    const seq = crypto.randomInt(0, 1e9); // cryptographically secure random
     example.sequence = seq.toString().padStart(20, "0");
 
     // 11. Sample rate default 1 (avoid absurd large numbers failing intent)
