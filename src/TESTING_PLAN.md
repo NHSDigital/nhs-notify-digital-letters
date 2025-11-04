@@ -70,6 +70,20 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 13:49 GMT - Fixed Python Coverage XML Paths for SonarCloud
+
+- **Author**: GitHub Copilot
+- **Activity**: Fixed coverage.xml to use relative paths instead of absolute paths
+- **Root Cause**: coverage.xml contained absolute paths like `/home/runner/work/.../src/asyncapigenerator` which didn't match the paths in the SonarCloud Docker container (`/usr/src/src/asyncapigenerator`), causing "Cannot resolve the file path" errors
+- **Changes**:
+  - Added `relative_files = True` to `[coverage:run]` section in pytest.ini
+  - This makes coverage.py generate relative paths in coverage.xml (`<source>.</source>` instead of absolute paths)
+  - SonarCloud can now correctly match the coverage data to the source files
+- **Files Modified**:
+  - `src/asyncapigenerator/pytest.ini` - Added relative_files = True
+- **Rationale**: SonarCloud runs in a Docker container with different paths than the CI runner. Relative paths ensure coverage data is portable across environments.
+- **Status**: Coverage paths now relative, should work in SonarCloud on next CI run
+
 ### 2025-11-04 13:40 GMT - Updated GitHub CLI Instructions to Avoid Pager
 
 - **Author**: GitHub Copilot
