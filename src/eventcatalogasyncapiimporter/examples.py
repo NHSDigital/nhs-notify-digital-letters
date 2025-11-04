@@ -92,7 +92,8 @@ def example_check_created_resources():
 
     # You can also iterate over created resources
     print("Sample of created services:")
-    for service in list(importer.created_services)[:5]:
+    created_services_list = list(importer.created_services)
+    for service in created_services_list[:min(5, len(created_services_list))]:
         print(f"  - {service}")
     print()
 
