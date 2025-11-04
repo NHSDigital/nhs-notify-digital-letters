@@ -32,7 +32,7 @@ test-verbose: ## Run tests with verbose output
 	pytest tests/ -vv -s
 
 coverage: ## Run tests with coverage report
-	pytest tests/ --cov=. --cov-report=html --cov-report=term-missing
+	pytest tests/ --cov=. --cov-report=html --cov-report=term-missing --cov-report=xml:coverage.xml
 
 lint: ## Run linting
 	flake8 .
@@ -45,6 +45,7 @@ clean-test: ## Clean test artifacts
 	rm -rf .pytest_cache
 	rm -rf htmlcov
 	rm -rf .coverage
+	rm -rf coverage.xml
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 
 validate: ## Validate generated AsyncAPI specs (requires asyncapi CLI)

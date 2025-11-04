@@ -70,6 +70,28 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-04 13:12 GMT - Added SonarCloud Integration for Python Coverage
+
+- **Author**: GitHub Copilot
+- **Activity**: Configured Python test coverage reporting for SonarCloud
+- **Changes**:
+  - Updated `src/asyncapigenerator/pytest.ini`: Added `--cov-report=xml:coverage.xml` to generate XML coverage reports
+  - Updated `src/asyncapigenerator/Makefile`: Modified `coverage` target to include `--cov-report=xml:coverage.xml`
+  - Updated `src/asyncapigenerator/Makefile`: Added `coverage.xml` to `clean-test` target
+  - Updated `scripts/tests/unit.sh`: Changed from `make test` to `make coverage` for asyncapigenerator to generate coverage.xml
+  - Updated `scripts/config/sonar-scanner.properties`:
+    - Added `src/asyncapigenerator/tests` to `sonar.tests`
+    - Added `src/**/tests/` pattern to `sonar.test.inclusions`
+    - Added `src/**/tests/` to `sonar.coverage.exclusions`
+    - Enabled `sonar.python.coverage.reportPaths=src/asyncapigenerator/coverage.xml` (was commented out)
+- **Files Modified**:
+  - `src/asyncapigenerator/pytest.ini` - Added XML coverage report
+  - `src/asyncapigenerator/Makefile` - Updated coverage target and clean-test
+  - `scripts/tests/unit.sh` - Run coverage instead of test
+  - `scripts/config/sonar-scanner.properties` - Added Python test paths and coverage configuration
+- **Rationale**: SonarCloud was showing 0% coverage because pytest wasn't generating XML coverage reports and sonar-scanner wasn't configured to find Python tests/coverage
+- **Status**: Python coverage should now be reported to SonarCloud on next CI run
+
 ### 2025-11-04 13:02 GMT - Fixed Timestamps and Updated Instructions
 
 - **Author**: GitHub Copilot
@@ -777,11 +799,11 @@ cd "$(git rev-parse --show-toplevel)"
 # Python projects
 echo "Setting up and running asyncapigenerator tests..."
 make -C ./src/asyncapigenerator install-dev
-make -C ./src/asyncapigenerator test
+make -C ./src/asyncapigenerator coverage  # Use coverage to generate coverage.xml for SonarCloud
 
 echo "Setting up and running cloudeventjekylldocs tests..."
 make -C ./src/cloudeventjekylldocs install-dev
-make -C ./src/cloudeventjekylldocs test
+make -C ./src/cloudeventjekylldocs coverage  # Use coverage to generate coverage.xml for SonarCloud
 
 # TypeScript/JavaScript projects (npm workspace)
 npm ci
@@ -811,9 +833,46 @@ The GitHub Actions workflow (`.github/workflows/stage-2-test.yaml`):
 
 - Python projects must have `install-dev` target in their Makefile
 - Python projects must have `requirements-dev.txt` with test dependencies
+- **Python projects must have `coverage` target that generates `coverage.xml`** for SonarCloud
 - Tests must run quickly (timeout is 5 minutes for unit tests)
-- Coverage reports should be in `.reports/` directory
-- Python coverage should use pytest-cov format compatible with lcov-result-merger
+- Coverage reports should be in `.reports/` directory for TypeScript, in project root for Python
+- Python coverage must generate XML format: `pytest --cov=. --cov-report=xml:coverage.xml`
+
+### SonarCloud Integration
+
+**For Python Projects**: SonarCloud requires XML coverage reports. Ensure:
+
+1. **pytest.ini includes XML coverage**:
+
+   ```ini
+   addopts =
+       --cov=.
+       --cov-report=xml:coverage.xml
+   ```
+
+2. **Makefile coverage target generates XML**:
+
+   ```makefile
+   coverage: ## Run tests with coverage report
+       pytest tests/ --cov=. --cov-report=html --cov-report=term-missing --cov-report=xml:coverage.xml
+   ```
+
+3. **scripts/tests/unit.sh runs coverage (not just test)**:
+
+   ```bash
+   make -C ./src/your-project coverage  # Generates coverage.xml
+   ```
+
+4. **scripts/config/sonar-scanner.properties configured**:
+
+   ```properties
+   sonar.tests=tests/, src/your-project/tests, ...
+   sonar.test.inclusions=tests/**, src/**/tests/**, ...
+   sonar.coverage.exclusions=tests/, src/**/tests/, ...
+   sonar.python.coverage.reportPaths=src/your-project/coverage.xml
+   ```
+
+Without these configurations, SonarCloud will show 0% coverage for Python projects.
 
 ### Testing CI/CD Changes Locally
 

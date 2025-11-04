@@ -22,7 +22,7 @@ cd "$(git rev-parse --show-toplevel)"
 # Python projects - asyncapigenerator
 echo "Setting up and running asyncapigenerator tests..."
 make -C ./src/asyncapigenerator install-dev
-make -C ./src/asyncapigenerator test
+make -C ./src/asyncapigenerator coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
 # TypeScript/JavaScript projects (npm workspace)
 npm ci
