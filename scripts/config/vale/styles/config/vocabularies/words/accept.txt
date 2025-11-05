@@ -19,10 +19,10 @@ dev
 draw.io
 drawio
 D'Roza
+[Ee]num
 endcapture
 endfor
 endraw
-Enum
 eventproduced
 frontmatter
 getCachedSchema
@@ -74,5 +74,4 @@ Terraform
 toolchain
 Trufflehog
 Uploader
-validator
-Validator
+[Vv]alidator
