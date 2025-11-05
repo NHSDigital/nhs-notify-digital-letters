@@ -4,7 +4,7 @@ import {
   PutEventsCommand,
   PutEventsResultEntry,
 } from '@aws-sdk/client-eventbridge';
-import { randomInt } from 'node:crypto';
+import { randomInt, randomUUID } from 'node:crypto';
 import { mockClient } from 'aws-sdk-client-mock';
 import { CloudEvent } from 'types';
 import { Logger } from 'logger';
@@ -224,6 +224,61 @@ describe('Event Publishing', () => {
     expect(result).toEqual(invalidEvents);
     expect(eventBridgeMock.calls()).toHaveLength(0);
     expect(sqsMock.calls()).toHaveLength(1);
+  });
+
+  test('should send to event bridge in batches', async () => {
+    const largeEventArray = Array.from({ length: 25 })
+      .fill(null)
+      .map(() => ({
+        ...validCloudEvent,
+        id: randomUUID(),
+      }));
+
+    eventBridgeMock.on(PutEventsCommand).resolves({
+      FailedEntryCount: 0,
+      Entries: [{ EventId: 'success' }],
+    });
+
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(largeEventArray);
+
+    expect(result).toEqual([]);
+    expect(eventBridgeMock.calls()).toHaveLength(3);
+
+    // Verify batch sizes: 10, 10, 5
+    const calls = eventBridgeMock.calls();
+    const firstBatchInput = calls[0].args[0].input as any;
+    const secondBatchInput = calls[1].args[0].input as any;
+    const thirdBatchInput = calls[2].args[0].input as any;
+
+    expect(firstBatchInput.Entries).toHaveLength(10);
+    expect(secondBatchInput.Entries).toHaveLength(10);
+    expect(thirdBatchInput.Entries).toHaveLength(5);
+  });
+
+  test('should send to the DLQ in batches', async () => {
+    const largeEventArray = Array.from({ length: 25 })
+      .fill(null)
+      .map(() => ({
+        ...invalidCloudEvent as unknown as CloudEvent,
+        id: randomUUID(),
+      }));
+
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(largeEventArray);
+
+    expect(result).toEqual(largeEventArray);
+    expect(sqsMock.calls()).toHaveLength(3);
+
+    // Verify batch sizes: 10, 10, 5
+    const calls = sqsMock.calls();
+    const firstBatchInput = calls[0].args[0].input as any;
+    const secondBatchInput = calls[1].args[0].input as any;
+    const thirdBatchInput = calls[2].args[0].input as any;
+
+    expect(firstBatchInput.Entries).toHaveLength(10);
+    expect(secondBatchInput.Entries).toHaveLength(10);
+    expect(thirdBatchInput.Entries).toHaveLength(5);
   });
 
   test('should handle multiple event outcomes in one batch', async () => {
