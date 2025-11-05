@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
 import { getCachedSchema, setCachedSchema } from '../cache/schema-cache.ts';
+import { diagnoseNhsNumber, validateNhsNumber } from './validator-lib.ts';
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -270,66 +271,8 @@ for (const [absolutePath, s] of schemasByAbsolutePath.entries()) {
 
 ajv.addFormat("nhs-number", {
   type: "string",
-  validate: (value) => {
-    const digits = value.replace(/\s+/g, "");
-    if (!/^\d{10}$/.test(digits)) return false;
-    const nums = digits.split("").map((d) => parseInt(d, 10));
-    const check = nums[9];
-    const sum = nums.slice(0, 9).reduce((acc, d, i) => acc + d * (10 - i), 0);
-    const remainder = sum % 11;
-    const expected = 11 - remainder === 11 ? 0 : 11 - remainder;
-    if (expected === 10) return false;
-    return check === expected;
-  },
+  validate: validateNhsNumber,
 });
-
-// Detailed NHS Number diagnosis helper (used only for enriched error output)
-function diagnoseNhsNumber(raw) {
-  const original = raw;
-  if (typeof raw !== "string") {
-    return { valid: false, reason: "Value is not a string", original };
-  }
-  const digits = raw.replace(/\s+/g, "");
-  if (!/^\d{10}$/.test(digits)) {
-    return {
-      valid: false,
-      reason:
-        "Must contain exactly 10 digits (spaces optional for readability)",
-      original,
-    };
-  }
-  const nums = digits.split("").map((d) => parseInt(d, 10));
-  const providedCheck = nums[9];
-  const sum = nums.slice(0, 9).reduce((acc, d, i) => acc + d * (10 - i), 0);
-  const remainder = sum % 11;
-  let expected = 11 - remainder;
-  if (expected === 11) expected = 0; // 11 -> 0 per algorithm
-  if (expected === 10) {
-    return {
-      valid: false,
-      reason: "Computed check digit is 10 (reserved = invalid number)",
-      expectedCheck: expected,
-      providedCheck,
-      original,
-    };
-  }
-  if (providedCheck !== expected) {
-    return {
-      valid: false,
-      reason: "Checksum mismatch",
-      expectedCheck: expected,
-      providedCheck,
-      original,
-    };
-  }
-  return {
-    valid: true,
-    reason: "OK",
-    expectedCheck: expected,
-    providedCheck,
-    original,
-  };
-}
 
 // Determine the main schema and its ID
 let mainSchemaFile = allSchemaFiles.find(
