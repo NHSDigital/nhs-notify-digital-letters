@@ -21,6 +21,7 @@ module.exports = {
   collectCoverageFrom: [
     'tools/cache/**/*.ts',
     'tools/generator/**/*.{ts,cjs}',
+    'tools/validator/**/*.js',
     '!tools/**/*.d.ts',
     '!tools/**/__tests__/**',
     '!tools/**/*.test.ts',

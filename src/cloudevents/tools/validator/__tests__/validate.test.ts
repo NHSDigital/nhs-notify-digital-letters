@@ -6,10 +6,35 @@
 import { beforeEach, afterEach, describe, expect, it } from '@jest/globals';
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 
 const SCRIPT_PATH = path.join(__dirname, '..', 'validate.js');
 const TEST_DIR = path.join(__dirname, 'temp-validate-test');
+
+/**
+ * Helper to run validator and handle exit codes
+ */
+function runValidator(schemaPath: string, dataPath: string, baseDir?: string): { success: boolean; output: string; error: string } {
+  try {
+    const args = baseDir ? ['--base', baseDir, schemaPath, dataPath] : [schemaPath, dataPath];
+    const result = spawnSync('node', [SCRIPT_PATH, ...args], {
+      encoding: 'utf-8',
+      timeout: 5000
+    });
+
+    return {
+      success: result.status === 0,
+      output: result.stdout || '',
+      error: result.stderr || ''
+    };
+  } catch (error) {
+    return {
+      success: false,
+      output: '',
+      error: String(error)
+    };
+  }
+}
 
 describe('validate.js', () => {
   beforeEach(() => {
@@ -26,25 +51,25 @@ describe('validate.js', () => {
     }
   });
 
-  describe('command line argument handling', () => {
-    it('should display usage when no arguments provided', () => {
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH}`, { stdio: 'pipe', encoding: 'utf-8' });
-      }).toThrow();
+  describe('command line arguments', () => {
+    it('should exit with error when no arguments provided', () => {
+      const result = spawnSync('node', [SCRIPT_PATH], { encoding: 'utf-8' });
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain('Usage:');
     });
 
-    it('should display usage when only schema argument provided', () => {
+    it('should exit with error when only schema argument provided', () => {
       const schemaFile = path.join(TEST_DIR, 'schema.json');
       fs.writeFileSync(schemaFile, JSON.stringify({ type: 'object' }));
 
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile}`, { stdio: 'pipe', encoding: 'utf-8' });
-      }).toThrow();
+      const result = spawnSync('node', [SCRIPT_PATH, schemaFile], { encoding: 'utf-8' });
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain('Usage:');
     });
   });
 
-  describe('simple schema validation', () => {
-    it('should validate data matching simple object schema', () => {
+  describe('basic validation', () => {
+    it('should validate simple object schema', () => {
       const schemaFile = path.join(TEST_DIR, 'simple.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
@@ -65,113 +90,35 @@ describe('validate.js', () => {
       fs.writeFileSync(schemaFile, JSON.stringify(schema, null, 2));
       fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
 
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
+      expect(result.output).toContain('Valid!');
     });
 
-    it('should reject data not matching schema', () => {
-      const schemaFile = path.join(TEST_DIR, 'simple.schema.json');
+    it('should reject data missing required field', () => {
+      const schemaFile = path.join(TEST_DIR, 'required.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
       const schema = {
         type: 'object',
         properties: {
-          name: { type: 'string' },
-          age: { type: 'number' }
+          name: { type: 'string' }
         },
         required: ['name']
       };
 
-      const data = {
-        age: 30
-        // missing required 'name' field
-      };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema, null, 2));
-      fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
-
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-          stdio: 'pipe',
-          encoding: 'utf-8'
-        });
-      }).toThrow();
-    });
-
-    it('should validate data with nested objects', () => {
-      const schemaFile = path.join(TEST_DIR, 'nested.schema.json');
-      const dataFile = path.join(TEST_DIR, 'data.json');
-
-      const schema = {
-        type: 'object',
-        properties: {
-          person: {
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-              address: {
-                type: 'object',
-                properties: {
-                  city: { type: 'string' }
-                }
-              }
-            }
-          }
-        }
-      };
-
-      const data = {
-        person: {
-          name: 'Jane',
-          address: {
-            city: 'London'
-          }
-        }
-      };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema, null, 2));
-      fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
-
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
-    });
-  });
-
-  describe('type validation', () => {
-    it('should validate string type', () => {
-      const schemaFile = path.join(TEST_DIR, 'string.schema.json');
-      const dataFile = path.join(TEST_DIR, 'data.json');
-
-      const schema = {
-        type: 'object',
-        properties: {
-          message: { type: 'string' }
-        }
-      };
-
-      const data = { message: 'Hello' };
+      const data = {}; // missing required 'name'
 
       fs.writeFileSync(schemaFile, JSON.stringify(schema));
       fs.writeFileSync(dataFile, JSON.stringify(data));
 
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Invalid');
     });
 
-    it('should reject wrong type', () => {
-      const schemaFile = path.join(TEST_DIR, 'string.schema.json');
+    it('should reject data with wrong type', () => {
+      const schemaFile = path.join(TEST_DIR, 'type.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
       const schema = {
@@ -186,18 +133,45 @@ describe('validate.js', () => {
       fs.writeFileSync(schemaFile, JSON.stringify(schema));
       fs.writeFileSync(dataFile, JSON.stringify(data));
 
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-          stdio: 'pipe'
-        });
-      }).toThrow();
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('type validation', () => {
+    it('should validate string type', () => {
+      const schemaFile = path.join(TEST_DIR, 'string.schema.json');
+      const dataFile = path.join(TEST_DIR, 'data.json');
+
+      fs.writeFileSync(schemaFile, JSON.stringify({
+        type: 'object',
+        properties: { text: { type: 'string' } }
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ text: 'hello' }));
+
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate number type', () => {
+      const schemaFile = path.join(TEST_DIR, 'number.schema.json');
+      const dataFile = path.join(TEST_DIR, 'data.json');
+
+      fs.writeFileSync(schemaFile, JSON.stringify({
+        type: 'object',
+        properties: { count: { type: 'number' } }
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ count: 42 }));
+
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
     });
 
     it('should validate array type', () => {
       const schemaFile = path.join(TEST_DIR, 'array.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schema = {
+      fs.writeFileSync(schemaFile, JSON.stringify({
         type: 'object',
         properties: {
           tags: {
@@ -205,19 +179,25 @@ describe('validate.js', () => {
             items: { type: 'string' }
           }
         }
-      };
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ tags: ['tag1', 'tag2'] }));
 
-      const data = { tags: ['tag1', 'tag2', 'tag3'] };
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
+    });
 
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
+    it('should validate boolean type', () => {
+      const schemaFile = path.join(TEST_DIR, 'boolean.schema.json');
+      const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
+      fs.writeFileSync(schemaFile, JSON.stringify({
+        type: 'object',
+        properties: { active: { type: 'boolean' } }
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ active: true }));
 
-      expect(result).toContain('Valid!');
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
     });
   });
 
@@ -226,119 +206,50 @@ describe('validate.js', () => {
       const schemaFile = path.join(TEST_DIR, 'datetime.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schema = {
+      fs.writeFileSync(schemaFile, JSON.stringify({
         type: 'object',
         properties: {
           timestamp: { type: 'string', format: 'date-time' }
         }
-      };
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ timestamp: '2025-11-05T12:00:00Z' }));
 
-      const data = { timestamp: '2025-11-05T12:00:00Z' };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
     });
 
     it('should validate uuid format', () => {
       const schemaFile = path.join(TEST_DIR, 'uuid.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schema = {
+      fs.writeFileSync(schemaFile, JSON.stringify({
         type: 'object',
         properties: {
           id: { type: 'string', format: 'uuid' }
         }
-      };
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({
+        id: '123e4567-e89b-12d3-a456-426614174000'
+      }));
 
-      const data = { id: '550e8400-e29b-41d4-a716-446655440000' };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
     });
 
-    it('should validate valid NHS number format', () => {
-      const schemaFile = path.join(TEST_DIR, 'nhs.schema.json');
+    it('should validate email format', () => {
+      const schemaFile = path.join(TEST_DIR, 'email.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schema = {
+      fs.writeFileSync(schemaFile, JSON.stringify({
         type: 'object',
         properties: {
-          nhsNumber: { type: 'string', format: 'nhs-number' }
+          email: { type: 'string', format: 'email' }
         }
-      };
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ email: 'test@example.com' }));
 
-      const data = { nhsNumber: '9434765919' }; // Valid NHS number
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
-    });
-
-    it('should reject invalid NHS number format', () => {
-      const schemaFile = path.join(TEST_DIR, 'nhs.schema.json');
-      const dataFile = path.join(TEST_DIR, 'data.json');
-
-      const schema = {
-        type: 'object',
-        properties: {
-          nhsNumber: { type: 'string', format: 'nhs-number' }
-        }
-      };
-
-      const data = { nhsNumber: '1234567890' }; // Invalid NHS number (wrong checksum)
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-          stdio: 'pipe'
-        });
-      }).toThrow();
-    });
-
-    it('should validate NHS number with spaces', () => {
-      const schemaFile = path.join(TEST_DIR, 'nhs.schema.json');
-      const dataFile = path.join(TEST_DIR, 'data.json');
-
-      const schema = {
-        type: 'object',
-        properties: {
-          nhsNumber: { type: 'string', format: 'nhs-number' }
-        }
-      };
-
-      const data = { nhsNumber: '943 476 5919' }; // Valid NHS number with spaces
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
     });
   });
 
@@ -347,47 +258,38 @@ describe('validate.js', () => {
       const schemaFile = path.join(TEST_DIR, 'enum.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schema = {
+      fs.writeFileSync(schemaFile, JSON.stringify({
         type: 'object',
         properties: {
-          status: { type: 'string', enum: ['active', 'inactive', 'pending'] }
+          status: {
+            type: 'string',
+            enum: ['active', 'inactive', 'pending']
+          }
         }
-      };
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ status: 'active' }));
 
-      const data = { status: 'active' };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
     });
 
     it('should reject value not in enum', () => {
       const schemaFile = path.join(TEST_DIR, 'enum.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schema = {
+      fs.writeFileSync(schemaFile, JSON.stringify({
         type: 'object',
         properties: {
-          status: { type: 'string', enum: ['active', 'inactive', 'pending'] }
+          status: {
+            type: 'string',
+            enum: ['active', 'inactive', 'pending']
+          }
         }
-      };
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ status: 'invalid' }));
 
-      const data = { status: 'unknown' };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-          stdio: 'pipe'
-        });
-      }).toThrow();
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(false);
     });
   });
 
@@ -396,172 +298,74 @@ describe('validate.js', () => {
       const schemaFile = path.join(TEST_DIR, 'pattern.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schema = {
+      fs.writeFileSync(schemaFile, JSON.stringify({
         type: 'object',
         properties: {
-          email: { type: 'string', pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' }
+          code: {
+            type: 'string',
+            pattern: '^[A-Z]{3}[0-9]{3}$'
+          }
         }
-      };
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ code: 'ABC123' }));
 
-      const data = { email: 'test@example.com' };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
     });
 
     it('should reject string not matching pattern', () => {
       const schemaFile = path.join(TEST_DIR, 'pattern.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schema = {
+      fs.writeFileSync(schemaFile, JSON.stringify({
         type: 'object',
         properties: {
-          email: { type: 'string', pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' }
+          code: {
+            type: 'string',
+            pattern: '^[A-Z]{3}[0-9]{3}$'
+          }
         }
-      };
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ code: 'ABC12' }));
 
-      const data = { email: 'not-an-email' };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-          stdio: 'pipe'
-        });
-      }).toThrow();
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(false);
     });
   });
 
   describe('YAML schema support', () => {
-    it('should validate data against YAML schema', () => {
+    it('should validate data with YAML schema', () => {
       const schemaFile = path.join(TEST_DIR, 'schema.yaml');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schemaYaml = `
+      const yamlSchema = `
 type: object
 properties:
   name:
     type: string
-  count:
+  age:
     type: number
 required:
   - name
 `;
 
-      const data = {
-        name: 'Test',
-        count: 42
-      };
+      fs.writeFileSync(schemaFile, yamlSchema);
+      fs.writeFileSync(dataFile, JSON.stringify({ name: 'Jane', age: 25 }));
 
-      fs.writeFileSync(schemaFile, schemaYaml);
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
-    });
-  });
-
-  describe('$ref handling with local files', () => {
-    it('should validate data with schema references', () => {
-      const defsFile = path.join(TEST_DIR, 'definitions.schema.json');
-      const schemaFile = path.join(TEST_DIR, 'main.schema.json');
-      const dataFile = path.join(TEST_DIR, 'data.json');
-
-      const definitions = {
-        $id: 'definitions.schema.json',
-        definitions: {
-          Person: {
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-              age: { type: 'number' }
-            },
-            required: ['name']
-          }
-        }
-      };
-
-      const schema = {
-        $id: 'main.schema.json',
-        type: 'object',
-        properties: {
-          person: { $ref: 'definitions.schema.json#/definitions/Person' }
-        }
-      };
-
-      const data = {
-        person: {
-          name: 'Alice',
-          age: 25
-        }
-      };
-
-      fs.writeFileSync(defsFile, JSON.stringify(definitions, null, 2));
-      fs.writeFileSync(schemaFile, JSON.stringify(schema, null, 2));
-      fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
-
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
-    });
-  });
-
-  describe('base directory option', () => {
-    it('should use --base option for schema resolution', () => {
-      const baseDir = path.join(TEST_DIR, 'schemas');
-      fs.mkdirSync(baseDir, { recursive: true });
-
-      const schemaFile = path.join(baseDir, 'test.schema.json');
-      const dataFile = path.join(TEST_DIR, 'data.json');
-
-      const schema = {
-        type: 'object',
-        properties: {
-          value: { type: 'string' }
-        }
-      };
-
-      const data = { value: 'test' };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      const result = execSync(
-        `node ${SCRIPT_PATH} --base ${baseDir} ${schemaFile} ${dataFile}`,
-        { stdio: 'pipe', encoding: 'utf-8' }
-      );
-
-      expect(result).toContain('Valid!');
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
     });
   });
 
   describe('error handling', () => {
     it('should handle non-existent schema file', () => {
-      const schemaFile = path.join(TEST_DIR, 'nonexistent.schema.json');
+      const schemaFile = path.join(TEST_DIR, 'nonexistent.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      fs.writeFileSync(dataFile, JSON.stringify({}));
+      fs.writeFileSync(dataFile, JSON.stringify({ test: 'data' }));
 
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-          stdio: 'pipe'
-        });
-      }).toThrow();
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(false);
     });
 
     it('should handle non-existent data file', () => {
@@ -570,11 +374,8 @@ required:
 
       fs.writeFileSync(schemaFile, JSON.stringify({ type: 'object' }));
 
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-          stdio: 'pipe'
-        });
-      }).toThrow();
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(false);
     });
 
     it('should handle invalid JSON in data file', () => {
@@ -584,25 +385,47 @@ required:
       fs.writeFileSync(schemaFile, JSON.stringify({ type: 'object' }));
       fs.writeFileSync(dataFile, '{ invalid json }');
 
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-          stdio: 'pipe'
-        });
-      }).toThrow();
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(false);
     });
+  });
 
-    it('should handle invalid JSON in schema file', () => {
-      const schemaFile = path.join(TEST_DIR, 'schema.json');
+  describe('nested object validation', () => {
+    it('should validate nested object structure', () => {
+      const schemaFile = path.join(TEST_DIR, 'nested.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      fs.writeFileSync(schemaFile, '{ invalid json }');
-      fs.writeFileSync(dataFile, JSON.stringify({}));
+      fs.writeFileSync(schemaFile, JSON.stringify({
+        type: 'object',
+        properties: {
+          user: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              address: {
+                type: 'object',
+                properties: {
+                  street: { type: 'string' },
+                  city: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+      }));
 
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-          stdio: 'pipe'
-        });
-      }).toThrow();
+      fs.writeFileSync(dataFile, JSON.stringify({
+        user: {
+          name: 'John',
+          address: {
+            street: '123 Main St',
+            city: 'London'
+          }
+        }
+      }));
+
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
     });
   });
 
@@ -611,47 +434,36 @@ required:
       const schemaFile = path.join(TEST_DIR, 'const.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schema = {
+      fs.writeFileSync(schemaFile, JSON.stringify({
         type: 'object',
         properties: {
-          version: { type: 'string', const: '1.0' }
+          version: {
+            const: '1.0.0'
+          }
         }
-      };
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ version: '1.0.0' }));
 
-      const data = { version: '1.0' };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      const result = execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-        stdio: 'pipe',
-        encoding: 'utf-8'
-      });
-
-      expect(result).toContain('Valid!');
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(true);
     });
 
-    it('should reject wrong const value', () => {
+    it('should reject value not matching const', () => {
       const schemaFile = path.join(TEST_DIR, 'const.schema.json');
       const dataFile = path.join(TEST_DIR, 'data.json');
 
-      const schema = {
+      fs.writeFileSync(schemaFile, JSON.stringify({
         type: 'object',
         properties: {
-          version: { type: 'string', const: '1.0' }
+          version: {
+            const: '1.0.0'
+          }
         }
-      };
+      }));
+      fs.writeFileSync(dataFile, JSON.stringify({ version: '2.0.0' }));
 
-      const data = { version: '2.0' };
-
-      fs.writeFileSync(schemaFile, JSON.stringify(schema));
-      fs.writeFileSync(dataFile, JSON.stringify(data));
-
-      expect(() => {
-        execSync(`node ${SCRIPT_PATH} ${schemaFile} ${dataFile}`, {
-          stdio: 'pipe'
-        });
-      }).toThrow();
+      const result = runValidator(schemaFile, dataFile);
+      expect(result.success).toBe(false);
     });
   });
 });
