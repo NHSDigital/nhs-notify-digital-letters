@@ -35,14 +35,9 @@ make -C ./src/eventcatalogasyncapiimporter install-dev
 make -C ./src/eventcatalogasyncapiimporter coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
 # TypeScript/JavaScript projects (npm workspace)
+# Note: src/cloudevents is included in workspaces, so it will be tested here
 npm ci
 npm run test:unit --workspaces
-
-echo "Running cloudevents unit tests"
-
-# COMMENTED OUT UNTIL WAF IS FIXED
-#make -C src/cloudevents test-ci
-#echo "Cloudevents unit tests complete"
 
 # merge coverage reports
 mkdir -p .reports

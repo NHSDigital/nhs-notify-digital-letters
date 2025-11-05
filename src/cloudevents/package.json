@@ -8,9 +8,13 @@
     "json-schema-ref-parser": "^9.0.9"
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
     "ajv-cli": "^5.0.0",
+    "jest": "^30.2.0",
     "json-schema-static-docs": "^0.28.1",
+    "ts-jest": "^29.4.5",
     "ts-node": "^10.0.0",
     "typescript": "^5.0.0"
   },
@@ -27,7 +31,10 @@
     "generate": "ts-node tools/generator/generate-example.ts $@",
     "lint": "echo 'no linting configured'",
     "lint:fix": "echo 'no linting configured'",
-    "test:unit": "echo 'no unit test'",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest",
+    "test:watch": "jest --watch",
     "typecheck": "echo 'no typechecking configured'",
     "update-readme": "node tools/generator/update-readme.cjs $@",
     "validate": "node tools/validator/validate.js $@"

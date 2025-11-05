@@ -17,13 +17,22 @@ SCHEMAS_BASE_PATH = $(shell mkdir -p $(MAKEFILE_DIR)../../schemas && cd $(MAKEFI
 DOCS_BASE_PATH = $(shell mkdir -p $(MAKEFILE_DIR)$(DOCS_RELATIVE_PATH) && cd $(MAKEFILE_DIR)$(DOCS_RELATIVE_PATH) && pwd)
 TOOLS_BASE_PATH = $(shell mkdir -p $(MAKEFILE_DIR)tools && cd $(MAKEFILE_DIR)tools && pwd)
 
-.PHONY: build publish publish-json publish-yaml generate test-domains deploy clean build-docs update-readme
+.PHONY: build publish publish-json publish-yaml generate test-domains deploy clean build-docs update-readme test test-unit coverage
 
 config:: _install-dependencies version # Configure development environment (main) @Configuration
 	npm install
 
 install:
 		npm install
+
+test:: test-unit # Run all tests @Testing
+
+test-unit: # Run unit tests @Testing
+	npm run test:unit
+
+coverage: # Run tests with coverage @Testing
+	npm run test:coverage
+
 build:
 	@echo "=== Building all schemas (version: $(PUBLISH_VERSION)) ==="
 	$(MAKE) -C $(CLOUDEVENTS_BASE_PATH) build PUBLISH_VERSION=$(PUBLISH_VERSION)

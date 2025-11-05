@@ -4,6 +4,7 @@ AJV
 [A-Z]+s
 Bitwarden
 bot
+clearCache
 cloudevent
 codegen
 Cognito
@@ -22,6 +23,8 @@ endraw
 Enum
 eventproduced
 frontmatter
+getCachedSchema
+getCacheInfo
 gh
 Git[Hh]ub
 gitignored
@@ -59,6 +62,7 @@ sample_service_markdown
 sanitization
 sed
 service_sorted
+setCachedSchema
 Someobject
 src
 Syft
