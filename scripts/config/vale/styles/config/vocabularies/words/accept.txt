@@ -39,6 +39,7 @@ Loopback
 Makefile
 middleware
 mypy
+new_coverage
 nice_name
 npm
 OAuth
