@@ -1,8 +1,8 @@
 ---
-title: pdm-resource-unavailable
-type: uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1
-nice_name: PDMResourceUnavailable
-service: PDM Services
+title: item-ready
+type: uk.nhs.notify.digital.letters.item.ready.v1
+nice_name: ItemReady
+service: Event Bus
 schema_envelope: https://nhsdigital.github.io/nhs-notify-standards/cloudevents/nhs-notify-example-event.schema.json
 schema_data: https://nhsdigital.github.io/nhs-notify-standards/cloudevents/nhs-notify-example-event-data.schema.json
 ---

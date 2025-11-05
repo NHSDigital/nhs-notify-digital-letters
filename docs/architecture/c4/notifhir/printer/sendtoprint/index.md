@@ -5,11 +5,11 @@ parent:  Print Supplier Services
 nav_order: 9
 has_children: true
 is_not_draft: false
-last_modified_date: 2024-05-28
+last_modified_date: 2025-10-29
 owner: Ross Buggins
-author: Ross Buggins
-diagrams: []
-events-raised: []
-events-consumed: []
+author: Tom D'Roza
+diagrams: [c4code-printer-sendtoprint]
+events-raised: [print-ready]
+events-consumed: [item-ready]
 c4type: code
 ---

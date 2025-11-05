@@ -8,7 +8,7 @@ is_not_draft: false
 last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
-diagrams: [c4code-mesh-retriever]
+diagrams: [c4code-mesh-retriever, sequence-mesh-downloader]
 events-raised: [mesh-inbox-message-downloaded]
 events-consumed: [mesh-inbox-message-received]
 c4type: code

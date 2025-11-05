@@ -1,14 +1,7 @@
 ---
-layout: page
-title: PDM Upload
-nav_order: 4
-parent: Diagrams
-has_children: false
-child_nav_order: reversed
-is_not_draft: false
-last_modified_date: 2025-10-13
-owner: Tom D'Roza
-author: Tom D'Roza
+
+title: sequence-pdm-upload
+
 ---
 
 ```mermaid
