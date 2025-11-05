@@ -14,11 +14,14 @@
   "name": "nhs-notify-digital-letters-mesh-poll",
   "private": true,
   "scripts": {
-    "lambda-build": "rm -rf dist && npx esbuild --bundle --minify --sourcemap --target=es2020 --platform=node --loader:.node=file --entry-names=[name] --outdir=dist src/index.ts",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "test:unit": "jest",
-    "typecheck": "tsc --noEmit"
+    "audit": "make audit",
+    "lambda-build": "make package",
+    "lint": "make lint",
+    "lint:fmt": "make format",
+    "python-install": "make install",
+    "test:unit": "make test",
+    "test:unit:coverage": "make test-coverage",
+    "typecheck": "echo this package contains no typescript"
   },
   "version": "0.0.1"
 }
