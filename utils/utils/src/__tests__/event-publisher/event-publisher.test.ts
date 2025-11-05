@@ -237,20 +237,26 @@ describe('Event Publishing', () => {
       id: `22222222-2222-2222-2222-${i.toString().padStart(12, '0')}`,
     }));
 
-    const eventBridgeError = Array.from({ length: 12 }, (_, i) => ({
-      ...validCloudEvent,
+    const invalidAndDlqError = Array.from({ length: 13 }, (_, i) => ({
+      ...(invalidCloudEvent as unknown as CloudEvent),
       id: `33333333-3333-3333-3333-${i.toString().padStart(12, '0')}`,
     }));
 
-    const eventBridgeAndDlqError = Array.from({ length: 14 }, (_, i) => ({
+    const eventBridgeError = Array.from({ length: 14 }, (_, i) => ({
       ...validCloudEvent,
       id: `44444444-4444-4444-4444-${i.toString().padStart(12, '0')}`,
+    }));
+
+    const eventBridgeAndDlqError = Array.from({ length: 15 }, (_, i) => ({
+      ...validCloudEvent,
+      id: `55555555-5555-5555-5555-${i.toString().padStart(12, '0')}`,
     }));
 
     // Combine all events and shuffle them
     const allEvents = [
       ...valid,
       ...invalid,
+      ...invalidAndDlqError,
       ...eventBridgeError,
       ...eventBridgeAndDlqError,
     ].toSorted(() => randomInt(0, 3) - 1);
@@ -266,7 +272,10 @@ describe('Event Publishing', () => {
       const failed: any[] = [];
 
       for (const entry of input.Entries) {
-        if (entry.MessageBody?.includes('44444444-4444-4444-4444')) {
+        if (
+          entry.MessageBody?.includes('33333333-3333-3333-3333') ||
+          entry.MessageBody?.includes('55555555-5555-5555-5555')
+        ) {
           failed.push({
             Id: entry.Id,
             Code: 'SenderFault',
@@ -295,8 +304,8 @@ describe('Event Publishing', () => {
       for (const [index, entry] of input.Entries.entries()) {
         const eventData = JSON.parse(entry.Detail || '{}');
         if (
-          eventData.id?.includes('33333333-3333-3333-3333') ||
-          eventData.id?.includes('44444444-4444-4444-4444')
+          eventData.id?.includes('44444444-4444-4444-4444') ||
+          eventData.id?.includes('55555555-5555-5555-5555')
         ) {
           failedEntryCount += 1;
           entries.push({
@@ -319,8 +328,15 @@ describe('Event Publishing', () => {
     const publisher = new EventPublisher(testConfig);
     const result = await publisher.sendEvents(allEvents);
 
-    expect(result).toHaveLength(eventBridgeAndDlqError.length);
-    expect(result).toEqual(expect.arrayContaining(eventBridgeAndDlqError));
+    expect(result).toHaveLength(
+      invalidAndDlqError.length + eventBridgeAndDlqError.length,
+    );
+    expect(result).toEqual(
+      expect.arrayContaining([
+        ...invalidAndDlqError,
+        ...eventBridgeAndDlqError,
+      ]),
+    );
 
     const sqsMockEntries = [];
 
@@ -330,13 +346,16 @@ describe('Event Publishing', () => {
     }
 
     expect(sqsMockEntries).toHaveLength(
-      invalid.length + eventBridgeError.length + eventBridgeAndDlqError.length,
+      invalidAndDlqError.length +
+        invalid.length +
+        eventBridgeError.length +
+        eventBridgeAndDlqError.length,
     );
 
     // Verify invalid events are are sent to the DLQ with correct reason
     expect(sqsMockEntries).toEqual(
       expect.arrayContaining(
-        invalid.map((event) =>
+        [...invalid, ...invalidAndDlqError].map((event) =>
           expect.objectContaining({
             MessageBody: JSON.stringify(event),
             MessageAttributes: {
