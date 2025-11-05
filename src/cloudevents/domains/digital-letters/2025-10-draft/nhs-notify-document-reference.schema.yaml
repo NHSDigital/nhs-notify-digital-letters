@@ -1,0 +1,152 @@
+$schema: https://notify.nhs.uk/fhir/schemas/common/2025-11-draft/nhs-notify-document-reference.schema.json
+title: NHS Notify DocumentReference Schema
+description: A reference to a document for submission to NHS Notify. Provides metadata about the document so that it can be discovered and managed.
+type: object
+required:
+  - resourceType
+  - id
+  - status
+  - docStatus
+  - subject
+  - content
+  - custodian
+  - author
+  - date
+properties:
+  resourceType:
+    type: string
+    description: The type of the resource (always 'DocumentReference')"
+    const: "DocumentReference"
+  id:
+    type: string
+    description: Logical id of this artifact"
+  status:
+    type: string
+    description: "The status of the document reference (current | superseded | entered-in-error)"
+    const: "current"
+  docStatus:
+    type: string
+    description: "The workflow/clinical status of the composition (registered | partial | preliminary | final | amended | corrected | appended | cancelled | entered-in-error | deprecated | unknown)"
+  type:
+    type: object
+    description: "Kind of document (LOINC if possible)"
+    properties:
+      coding:
+        type: array
+        description: "Code defined by a terminology system"
+        items:
+          type: object
+          properties:
+            system:
+              type: string
+              description: "Identity of the terminology system"
+            code:
+              type: string
+              description: "Symbol in syntax defined by the system"
+            display:
+              type: string
+              description: "Representation defined by the system"
+  subject:
+    type: object
+    description: "Who/what is the subject of the document"
+    required:
+      - identifier
+    properties:
+      identifier:
+        type: object
+        description: "An identifier for the target resource"
+        required:
+          - system
+          - value
+        properties:
+          system:
+            type: string
+            description: "The namespace for the identifier value"
+            const: "https://fhir.nhs.uk/Id/nhs-number"
+          value:
+            type: string
+            description: "NHS number - a 10 digit identifier for patients in the NHS"
+            pattern: "^[0-9]{10}$"
+  author:
+    type: array
+    description: "Who and/or what authored the document"
+    items:
+      type: object
+      required:
+        - identifier
+      properties:
+        identifier:
+          type: object
+          description: "Logical reference, when literal reference is not known"
+          required:
+            - system
+            - value
+          properties:
+            system:
+              type: string
+              description: "The namespace for the identifier value"
+              const: "https://fhir.nhs.uk/Id/ods-organization-code"
+            value:
+              type: string
+              description: "The value that is unique within the system"
+        display:
+          type: string
+          description: "Text alternative for the resource"
+  custodian:
+    type: object
+    description: "Organization which maintains the document"
+    required:
+      - identifier
+    properties:
+      identifier:
+        type: object
+        description: "Logical reference, when literal reference is not known"
+        required:
+          - system
+          - value
+        properties:
+          system:
+            type: string
+            description: "The namespace for the identifier value"
+            const: "https://fhir.nhs.uk/Id/ods-organization-code"
+          value:
+            type: string
+            description: "The value that is unique within the system"
+            const: "C4L8E"
+            $comment: "C4L8E is NHS ENGLAND: NHS NOTIFY"
+  date:
+    type: string
+    description: "When this document reference was created"
+    format: date-time
+  description:
+    type: string
+    description: "Human-readable description of the document"
+  content:
+    type: array
+    description: "Document referenced"
+    minItems: 1
+    maxItems: 1
+    items:
+      type: object
+      required:
+        - attachment
+      properties:
+        attachment:
+          type: object
+          description: "Where to access the document"
+          required:
+            - contentType
+            - title
+            - data
+          properties:
+            contentType:
+              type: string
+              description: "Mime type of the content, with charset etc."
+              const: "application/pdf"
+            title:
+              type: string
+              description: "Label to display in place of the data"
+            data:
+              type: string
+              description: "Data inline, base64ed - a stream of bytes, base64 encoded (RFC 4648)"
+              pattern: "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
