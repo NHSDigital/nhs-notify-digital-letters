@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "py-mock-mesh"
+version = "1.0.0"
+description = "Our python mock-mesh interface, substituting s3 for real mesh"
+authors = ["Ada Smaldon <ada.smaldon@bjss.com>"]
+
+[package.dependencies]
+urllib3 = "^1.26.19"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+boto3 = "^1.28.62"
+urllib3 = "^1.26.19"
+idna = "^3.7"
+requests = "^2.32.0"
+setuptools = ">=78.1.1"
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^2.17.5"
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+autopep8 = "^2.0.2"
+jake = "^3.0.1"
+
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

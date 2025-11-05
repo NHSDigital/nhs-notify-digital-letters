@@ -54,4 +54,18 @@ data "aws_iam_policy_document" "mesh_poll_lambda" {
       module.kms.key_arn,
     ]
   }
+
+  statement {
+    sid    = "LettersBucketPermissions"
+    effect = "Allow"
+
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "${module.s3bucket_letters.arn}/mock-mesh/*",
+    ]
+  }
 }

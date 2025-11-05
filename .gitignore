@@ -22,3 +22,10 @@ node_modules
 dist
 .DS_Store
 .reports
+
+# Don't track ephemeral local build files
+.turbo
+target/
+
+# Ignore coverage files
+.coverage
