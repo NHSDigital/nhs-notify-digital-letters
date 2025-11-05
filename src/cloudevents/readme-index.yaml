@@ -3,7 +3,7 @@
 # To regenerate, run: make update-readme
 # To customize labels and purposes, edit: readme-metadata.yaml
 
-generated: '2025-11-04T11:40:11.436Z'
+generated: '2025-11-05T15:27:22.171Z'
 common: null
 domains:
   - name: digital-letters
@@ -207,6 +207,11 @@ domains:
             source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.supplierapi.letter.printed.v1.schema.yaml
             published: schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.supplierapi.letter.printed.v1.schema.json
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/events/uk.nhs.notify.supplierapi.letter.printed.v1.schema.md
+          - type: Nhs Notify Document Reference
+            category: other
+            source: src/digital-letters/2025-10-draft/nhs-notify-document-reference.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/nhs-notify-document-reference.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/nhs-notify-document-reference.schema.md
           - type: Profile
             category: profile
             source: src/digital-letters/2025-10-draft/supplierapi-profile.schema.yaml

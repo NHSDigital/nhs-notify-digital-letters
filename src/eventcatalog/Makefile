@@ -1,6 +1,8 @@
 BASE_URL ?= /
 BASE_URL_REMOVE_TRAILING_SLASH := $(patsubst %/,%,$(BASE_URL))
-EVENT_CAT_URL := $(BASE_URL_REMOVE_TRAILING_SLASH)
+# Remove all leading slashes using shell command, then ensure exactly one leading slash
+BASE_URL_NO_LEADING := $(shell echo "$(BASE_URL_REMOVE_TRAILING_SLASH)" | sed 's:^/*::')
+EVENT_CAT_URL := /$(BASE_URL_NO_LEADING)
 baseurlparam := -- --base=$(EVENT_CAT_URL)
 
 show-info:
