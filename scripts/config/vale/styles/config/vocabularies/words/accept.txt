@@ -5,6 +5,7 @@ AJV
 backoff
 beforeAll
 Bitwarden
+boolean
 bot
 clearCache
 cloudevent
@@ -74,4 +75,5 @@ Terraform
 toolchain
 Trufflehog
 Uploader
+uuid
 [Vv]alidator
