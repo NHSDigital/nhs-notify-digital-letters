@@ -42,7 +42,7 @@ For each event, there will be a schema for the envelope (this is cloud events, a
 
 11. **Add notes** to the progress tracker for any deviations or important decisions
 
-12. **Run pre-commit hooks before committing** - Always stage modified files with `git add <files>`, then change to the repository root directory (`cd /workspaces/nhs-notify-digital-letters`), and run `.git/hooks/pre-commit` to ensure all pre-commit hooks pass before committing changes. All hooks must pass successfully.
+12. **Run pre-commit hooks before committing** - Always stage modified files with `git add <files>`, then ensure you're in the repository root directory (`cd /workspaces/nhs-notify-digital-letters`), and run `git commit -m "message"` which will automatically trigger the pre-commit hooks. All hooks must pass successfully before the commit completes.
 
 13. **Vale vocabulary exceptions** - If vale reports false positives for legitimate technical terms, you may add them to `scripts/config/vale/styles/config/vocabularies/words/accept.txt` (one word per line, alphabetically sorted). **IMPORTANT**: Always document any additions to accept.txt in the changelog with justification for why the word is legitimate.
 
@@ -62,12 +62,14 @@ For each event, there will be a schema for the envelope (this is cloud events, a
     - **CRITICAL**: Always prefix `gh` commands with `GH_PAGER=cat` to disable the pager that requires pressing 'q' to exit
     - Use `GH_PAGER=cat gh run list --branch <branch-name> --limit <n> --json databaseId,status,conclusion,name,createdAt,url` to list recent workflow runs
     - Use `GH_PAGER=cat gh run view <run-id> --json conclusion,status,jobs` to view details of a specific run
-    - Use `gh run watch <run-id>` to watch a run in progress (this one is interactive, so it's OK without GH_PAGER)
+    - **DO NOT use `gh run watch <run-id>`** - it's interactive and will block waiting for user input. Poll with `gh run view` instead
+    - To monitor a run in progress, repeatedly call `GH_PAGER=cat gh run view <run-id> --json status,conclusion` every 30-60 seconds
     - If `gh` commands fail with "No default remote repository", run `gh repo set-default NHSDigital/nhs-notify-digital-letters`
     - If authentication is required, the user will handle `gh auth login`
     - **Examples**:
       - List runs: `GH_PAGER=cat gh run list --branch rossbugginsnhs/2025-11-04/eventcatalog-001 --limit 5 --json databaseId,status,conclusion,name,url`
       - View run: `GH_PAGER=cat gh run view <run-id> --json conclusion,status,jobs`
+      - Check status: `GH_PAGER=cat gh run view <run-id> --json status,conclusion`
       - With jq: `GH_PAGER=cat gh run view <run-id> --json jobs --jq '.jobs[] | select(.conclusion == "failure") | {name: .name, conclusion: .conclusion}'`
 
 18. **Use SonarCloud API for coverage monitoring** - To check coverage metrics on branches:
