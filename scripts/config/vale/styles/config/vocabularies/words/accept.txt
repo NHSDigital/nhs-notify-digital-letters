@@ -2,6 +2,7 @@
 ajv
 AJV
 [A-Z]+s
+backoff
 beforeAll
 Bitwarden
 bot
