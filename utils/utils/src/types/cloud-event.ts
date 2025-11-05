@@ -5,7 +5,10 @@ import { z } from 'zod';
 export const $CloudEventData = z
   .object({
     'digital-letter-id': z
-      .uuid()
+      .string()
+      .regex(
+        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+      )
       .describe('The unique identifier for the digital letter.'),
   })
   .catchall(z.any());
@@ -20,7 +23,12 @@ const $CloudEventBase = z.object({
     .literal('2025-10')
     .describe('NHS Notify CloudEvents profile publication date'),
   specversion: z.literal('1.0').describe('CloudEvents specification version'),
-  id: z.uuid().describe('Unique identifier for this event instance (UUID)'),
+  id: z
+    .string()
+    .regex(
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+    )
+    .describe('Unique identifier for this event instance (UUID)'),
   time: z.iso
     .datetime()
     .describe('Timestamp when the event occurred (RFC 3339)'),

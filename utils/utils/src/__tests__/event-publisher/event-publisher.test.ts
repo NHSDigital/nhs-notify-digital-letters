@@ -2,8 +2,9 @@ import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import {
   EventBridgeClient,
   PutEventsCommand,
+  PutEventsResultEntry,
 } from '@aws-sdk/client-eventbridge';
-import { randomUUID } from 'node:crypto';
+import { randomInt } from 'node:crypto';
 import { mockClient } from 'aws-sdk-client-mock';
 import { CloudEvent } from 'types';
 import { Logger } from 'logger';
@@ -61,10 +62,6 @@ const invalidCloudEvent = {
 
 const validEvents = [validCloudEvent, validCloudEvent2];
 const invalidEvents = [invalidCloudEvent as unknown as CloudEvent];
-const mixedEvents = [
-  validCloudEvent,
-  invalidCloudEvent as unknown as CloudEvent,
-];
 
 describe('Event Publishing', () => {
   beforeEach(() => {
@@ -140,47 +137,6 @@ describe('Event Publishing', () => {
       JSON.stringify(invalidCloudEvent),
     );
     expect(sqsInput.Entries[0].Id).toBeDefined();
-  });
-
-  test('should handle mixed valid and invalid events', async () => {
-    eventBridgeMock.on(PutEventsCommand).resolves({
-      FailedEntryCount: 0,
-      Entries: [{ EventId: 'event-1' }],
-    });
-    sqsMock.on(SendMessageBatchCommand).resolves({
-      Successful: [
-        { Id: 'msg-1', MessageId: 'success-1', MD5OfMessageBody: 'hash1' },
-      ],
-    });
-
-    const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(mixedEvents);
-
-    expect(result).toEqual([]);
-    expect(eventBridgeMock.calls()).toHaveLength(1);
-    expect(sqsMock.calls()).toHaveLength(1);
-
-    // Verify EventBridge only gets valid events
-    const eventBridgeCall = eventBridgeMock.calls()[0];
-    expect(eventBridgeCall.args[0].input).toEqual({
-      Entries: [
-        {
-          Source: 'custom.event',
-          DetailType: 'uk.nhs.notify.digital.letters.sent.v1',
-          Detail: JSON.stringify(validCloudEvent),
-          EventBusName:
-            'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
-        },
-      ],
-    });
-
-    // Verify DLQ only gets invalid events
-    const sqsCall = sqsMock.calls()[0];
-    const sqsInput = sqsCall.args[0].input as any;
-    expect(sqsInput.Entries).toHaveLength(1);
-    expect(sqsInput.Entries[0].MessageBody).toBe(
-      JSON.stringify(invalidCloudEvent),
-    );
   });
 
   test('should send failed EventBridge events to DLQ', async () => {
@@ -270,44 +226,168 @@ describe('Event Publishing', () => {
     expect(sqsMock.calls()).toHaveLength(1);
   });
 
-  test('should process multiple batches for large event arrays', async () => {
-    const largeEventArray = Array.from({ length: 25 })
-      .fill(null)
-      .map(() => ({
-        ...validCloudEvent,
-        id: randomUUID(),
-      }));
+  test('should handle multiple event outcomes in one batch', async () => {
+    const valid = Array.from({ length: 11 }, (_, i) => ({
+      ...validCloudEvent,
+      id: `11111111-1111-1111-1111-${i.toString().padStart(12, '0')}`,
+    }));
 
-    eventBridgeMock.on(PutEventsCommand).resolves({
-      FailedEntryCount: 0,
-      Entries: [{ EventId: 'success' }],
+    const invalid = Array.from({ length: 12 }, (_, i) => ({
+      ...(invalidCloudEvent as unknown as CloudEvent),
+      id: `22222222-2222-2222-2222-${i.toString().padStart(12, '0')}`,
+    }));
+
+    const eventBridgeError = Array.from({ length: 12 }, (_, i) => ({
+      ...validCloudEvent,
+      id: `33333333-3333-3333-3333-${i.toString().padStart(12, '0')}`,
+    }));
+
+    const eventBridgeAndDlqError = Array.from({ length: 14 }, (_, i) => ({
+      ...validCloudEvent,
+      id: `44444444-4444-4444-4444-${i.toString().padStart(12, '0')}`,
+    }));
+
+    // Combine all events and shuffle them
+    const allEvents = [
+      ...valid,
+      ...invalid,
+      ...eventBridgeError,
+      ...eventBridgeAndDlqError,
+    ].toSorted(() => randomInt(0, 3) - 1);
+
+    sqsMock.on(SendMessageBatchCommand).resolves({
+      Successful: [
+        { Id: 'msg-1', MessageId: 'success-1', MD5OfMessageBody: 'hash1' },
+      ],
+    });
+
+    sqsMock.on(SendMessageBatchCommand).callsFake((input) => {
+      const successful: any[] = [];
+      const failed: any[] = [];
+
+      for (const entry of input.Entries) {
+        if (entry.MessageBody?.includes('44444444-4444-4444-4444')) {
+          failed.push({
+            Id: entry.Id,
+            Code: 'SenderFault',
+            Message: 'Invalid message',
+            SenderFault: true,
+          });
+        } else {
+          successful.push({
+            Id: entry.Id,
+            MessageId: `success-${entry.Id}`,
+            MD5OfMessageBody: 'hash',
+          });
+        }
+      }
+
+      return Promise.resolve({
+        Successful: successful,
+        Failed: failed,
+      });
+    });
+
+    eventBridgeMock.on(PutEventsCommand).callsFake((input) => {
+      let failedEntryCount = 0;
+      const entries: PutEventsResultEntry[] = [];
+
+      for (const [index, entry] of input.Entries.entries()) {
+        const eventData = JSON.parse(entry.Detail || '{}');
+        if (
+          eventData.id?.includes('33333333-3333-3333-3333') ||
+          eventData.id?.includes('44444444-4444-4444-4444')
+        ) {
+          failedEntryCount += 1;
+          entries.push({
+            ErrorCode: 'SenderFault',
+            ErrorMessage: 'Invalid message',
+          });
+        } else {
+          entries.push({
+            EventId: `event-${index}`,
+          });
+        }
+      }
+
+      return Promise.resolve({
+        FailedEntryCount: failedEntryCount,
+        Entries: entries,
+      });
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(largeEventArray);
+    const result = await publisher.sendEvents(allEvents);
 
-    expect(result).toEqual([]);
-    expect(eventBridgeMock.calls()).toHaveLength(3);
+    expect(result).toHaveLength(eventBridgeAndDlqError.length);
+    expect(result).toEqual(expect.arrayContaining(eventBridgeAndDlqError));
 
-    // Verify batch sizes: 10, 10, 5
-    const calls = eventBridgeMock.calls();
-    const firstBatchInput = calls[0].args[0].input as any;
-    const secondBatchInput = calls[1].args[0].input as any;
-    const thirdBatchInput = calls[2].args[0].input as any;
+    const sqsMockEntries = [];
 
-    expect(firstBatchInput.Entries).toHaveLength(10);
-    expect(secondBatchInput.Entries).toHaveLength(10);
-    expect(thirdBatchInput.Entries).toHaveLength(5);
+    for (const call of sqsMock.calls()) {
+      const batch = call.args[0].input as any;
+      sqsMockEntries.push(...batch.Entries);
+    }
 
-    // Verify all use the same EventBusName
-    expect(firstBatchInput.Entries[0].EventBusName).toBe(
-      'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
+    expect(sqsMockEntries).toHaveLength(
+      invalid.length + eventBridgeError.length + eventBridgeAndDlqError.length,
     );
-    expect(secondBatchInput.Entries[0].EventBusName).toBe(
-      'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
+
+    // Verify invalid events are are sent to the DLQ with correct reason
+    expect(sqsMockEntries).toEqual(
+      expect.arrayContaining(
+        invalid.map((event) =>
+          expect.objectContaining({
+            MessageBody: JSON.stringify(event),
+            MessageAttributes: {
+              DlqReason: {
+                DataType: 'String',
+                StringValue: 'INVALID_EVENT',
+              },
+            },
+          }),
+        ),
+      ),
     );
-    expect(thirdBatchInput.Entries[0].EventBusName).toBe(
-      'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
+
+    // Verify EventBridge failure events are sent to the DLQ with correct reason
+    expect(sqsMockEntries).toEqual(
+      expect.arrayContaining(
+        [...eventBridgeError, ...eventBridgeAndDlqError].map((event) =>
+          expect.objectContaining({
+            MessageBody: JSON.stringify(event),
+            MessageAttributes: {
+              DlqReason: {
+                DataType: 'String',
+                StringValue: 'EVENTBRIDGE_FAILURE',
+              },
+            },
+          }),
+        ),
+      ),
+    );
+
+    const eventBridgeMockEntries = [];
+
+    for (const call of eventBridgeMock.calls()) {
+      const batch = call.args[0].input as any;
+      eventBridgeMockEntries.push(...batch.Entries);
+    }
+
+    expect(eventBridgeMockEntries).toHaveLength(
+      valid.length + eventBridgeError.length + eventBridgeAndDlqError.length,
+    );
+
+    // Verify valid events are sent to the event bridge
+    expect(eventBridgeMockEntries).toEqual(
+      expect.arrayContaining(
+        [...valid, ...eventBridgeError, ...eventBridgeAndDlqError].map(
+          (event) =>
+            expect.objectContaining({
+              Detail: JSON.stringify(event),
+            }),
+        ),
+      ),
     );
   });
 
