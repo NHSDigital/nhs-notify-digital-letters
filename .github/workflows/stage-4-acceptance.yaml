@@ -118,8 +118,7 @@ jobs:
             --targetWorkflow "dispatch-contextual-tests-dynamic-env.yaml" \
             --targetEnvironment "$TARGET_ENVIRONMENT" \
             --targetAccountGroup "$TARGET_ACCOUNT_GROUP" \
-            --targetComponent "dl" \
-            --internalRef "feature/CCM-12732_digital_letters_acceptance_tests"
+            --targetComponent "dl"
   test-accessibility:
     name: "Accessibility test"
     runs-on: ubuntu-latest
