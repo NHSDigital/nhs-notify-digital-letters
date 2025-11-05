@@ -20,6 +20,7 @@ module.exports = {
   },
   collectCoverageFrom: [
     'tools/cache/**/*.ts',
+    'tools/generator/**/*.{ts,cjs}',
     '!tools/**/*.d.ts',
     '!tools/**/__tests__/**',
     '!tools/**/*.test.ts',

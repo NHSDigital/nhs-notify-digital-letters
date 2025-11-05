@@ -74,4 +74,5 @@ Terraform
 toolchain
 Trufflehog
 Uploader
+validator
 Validator
