@@ -77,35 +77,29 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Use this section to track current work in progress and next steps. Update this section whenever starting or completing work.**
 
-### Current Status (2025-11-05 12:48 GMT)
+### Current Status (2025-11-05 15:32 GMT)
 
 **Just Completed**:
 
-- ✅ **Generator component tests created** - 16/16 json-to-yaml tests passing
-  - Identified TypeScript compilation errors blocking generate-example.ts and manual-bundle-schema.ts testing
-  - Created 20 tests for generate-example.ts (4 passing, 16 blocked by TS errors in source)
-  - Updated jest.config.cjs to include generator files in coverage
-- ✅ **Validator component tests created** - 27 comprehensive tests ready
-  - Full test suite for validate.js covering CLI, validation types, formats, NHS numbers, error handling
-  - Tests ready to run in next session
-- ✅ **Git housekeeping completed**
-  - Added `coverage-*/` to .gitignore to exclude test coverage output directories
-  - Unstaged coverage-generator/ directory
-  - Added 'validator' to Vale accept.txt
+- ✅ **SonarCloud coverage verification** - json-to-yaml.cjs showing 50% coverage in SonarCloud!
+  - SonarCloud API confirms file-level coverage: 50% coverage, 16/28 lines covered, 57.1% line coverage
+  - Overall cloudevents component: 10.4% coverage (1780 lines to cover)
+  - Major milestone: Coverage successfully integrated into SonarCloud analysis
 
 **Current Progress Summary**:
 
 - **Tests Created**:
   - tools/builder: 11 tests ✅
   - tools/cache: 30 tests ✅ (80%+ coverage)
-  - tools/generator: 16 tests ✅ (json-to-yaml complete, generate-example blocked by TS errors)
+  - tools/generator: 16 tests ✅ (json-to-yaml complete with 50% coverage in SonarCloud, generate-example blocked by TS errors)
   - tools/validator: 27 tests 📝 (created, not yet run)
   - **Total**: 84 tests (73 passing, 11 not yet run)
 
-**Next Up** (for new session):
+**Next Up**:
 
 - 🎯 **Run validator tests** - Execute the 27 validator tests and verify coverage
 - 🎯 **Update jest.config.cjs** - Include validator files in coverage collection
+- 🎯 **Verify validator coverage in SonarCloud** - Check that coverage is detected after CI run
 - 🎯 **Create tests for discover-schema-dependencies.js** - Final cloudevents component
 - 🎯 **Update TESTING_PLAN progress tracker** - Mark validator as complete when tests pass
 - 🎯 **Consider integration tasks** - src/Makefile and CI/CD verification
@@ -117,6 +111,31 @@ This document outlines the comprehensive plan for implementing unit tests across
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-05 15:32 GMT - SonarCloud Coverage Verification Success for json-to-yaml.cjs
+
+- **Author**: GitHub Copilot
+- **Activity**: Verified SonarCloud is successfully detecting and reporting coverage for json-to-yaml.cjs tests
+- **Verification Results**:
+  - **File-level coverage** for `src/cloudevents/tools/generator/json-to-yaml.cjs`:
+    - Coverage: 50.0%
+    - Lines to cover: 28
+    - Uncovered lines: 12
+    - Line coverage: 57.1%
+  - **Component-level coverage** for `src/cloudevents`:
+    - Coverage: 10.4%
+    - Lines to cover: 1780
+    - New coverage: 10.361575822989746%
+    - New lines to cover: 1780
+- **Significance**: This is a major milestone confirming that our coverage configuration changes are working correctly:
+  - Jest generates coverage data with proper paths
+  - Coverage is copied to `.reports/unit/coverage/lcov.info`
+  - lcov-result-merger finds and processes the file
+  - SonarCloud successfully imports and analyzes the coverage data
+- **Status**: ✅ Coverage pipeline fully functional! Ready to run validator tests and continue increasing coverage across cloudevents components.
+- **Files Modified**:
+  - `src/TESTING_PLAN.md` - Updated current status and added changelog entry
+- **Next Steps**: Run validator tests and verify their coverage also appears in SonarCloud
 
 ### 2025-11-05 12:48 GMT - Created Validator Tests and Fixed Git Ignore for Coverage Directories
 
