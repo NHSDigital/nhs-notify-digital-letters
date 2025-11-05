@@ -70,7 +70,11 @@ async function fetchSchemaWithRetry(uri: string, maxRetries = 10): Promise<strin
       // Don't retry on certain errors
       if (lastError.message.includes('404') ||
           lastError.message.includes('401') ||
-          lastError.message.includes('403')) {
+          lastError.message.includes('403') ||
+          lastError.message.includes('415') ||  // Unsupported Media Type
+          lastError.message.includes('422') ||  // Unprocessable Entity
+          lastError.message.includes('502') ||  // Bad Gateway
+          lastError.message.includes('Failed to parse JSON')) {  // JSON parse errors
         console.error(`[FETCH] ✗ Non-retryable error (${lastError.message}), aborting retries`);
         break;
       }

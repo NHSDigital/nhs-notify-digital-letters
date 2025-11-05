@@ -27,6 +27,12 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html', 'cobertura'],
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/__tests__/'
+  ],
+  // Make coverage paths relative to repository root for SonarCloud
+  coverageReporters: ['text', ['lcov', { projectRoot: '../..' }], 'html', 'cobertura'],
   coverageThreshold: {
     global: {
       branches: 60,
