@@ -26,7 +26,7 @@ For each event, there will be a schema for the envelope (this is cloud events, a
 
 3. **Always update the Implementation Progress Tracker section in `../TESTING_PLAN.md`** when completing any implementation tasks
 
-4. **Always add an entry to the Implementation Changelog section in `../TESTING_PLAN.md`** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time in UK timezone (YYYY-MM-DD HH:MM GMT/BST format)**, author, activity summary, changes made, files modified, and current status. **CRITICAL: Use the ACTUAL CURRENT time in GMT/BST - run `date -u` to get the correct timestamp. Do not make up or guess timestamps.** **Include changelog entries for updates to the TESTING_PLAN.md document itself.**
+4. **Always add an entry to the Implementation Changelog section in `../TESTING_PLAN.md`** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time in UK timezone (YYYY-MM-DD HH:MM GMT/BST format)**, author, activity summary, changes made, files modified, and current status. **CRITICAL: Use the ACTUAL CURRENT time in GMT/BST - run `TZ='Europe/London' date` to get the correct UK timestamp in format like "Wed Nov 5 08:35:42 AM GMT 2025". Extract the time (HH:MM) and format as YYYY-MM-DD HH:MM GMT. Do not make up or guess timestamps.** **Include changelog entries for updates to the TESTING_PLAN.md document itself.**
 
 5. **Use proper markdown code fence language specifiers** - never use just ` ``` `, always specify the language (e.g., ` ```bash `, ` ```python `, ` ```typescript `, ` ```makefile `, ` ```plain `)
 
@@ -79,6 +79,50 @@ For each event, there will be a schema for the envelope (this is cloud events, a
     - **Example**: `curl -s "https://sonarcloud.io/api/measures/component?component=NHSDigital_nhs-notify-digital-letters:src/asyncapigenerator&branch=rossbugginsnhs/2025-11-04/eventcatalog-001&metricKeys=coverage,new_coverage,lines_to_cover,new_lines_to_cover" | python3 -m json.tool`
     - Use this to verify coverage is being detected after SonarCloud configuration changes
     - Look for `new_coverage` in the response - should not be 0.0% if tests are working
+
+19. **CRITICAL: Python Coverage Configuration for SonarCloud** - **THIS HAS BEEN GOTTEN WRONG MULTIPLE TIMES - FOLLOW EXACTLY:**
+    - **DO NOT create a separate `.coveragerc` file** - it causes path resolution issues
+    - **Configuration must be in `pytest.ini`** in a `[coverage:run]` section
+    - **MUST include `relative_files = True`** to convert absolute paths to relative paths
+    - **Makefile `coverage` target MUST:**
+      - Run from repo root: `cd ../.. && pytest ...`
+      - Cover whole project directory: `--cov=src/projectname` (NOT subdirectory like `--cov=scripts`)
+      - Reference pytest.ini: `--cov-config=src/projectname/pytest.ini`
+      - Output to project directory: `--cov-report=xml:src/projectname/coverage.xml`
+    - **Example working pattern** (from cloudeventjekylldocs):
+
+      ```makefile
+      coverage:
+          @cd ../.. && pytest src/cloudeventjekylldocs/tests/ \
+              --cov=src/cloudeventjekylldocs \
+              --cov-config=src/cloudeventjekylldocs/pytest.ini \
+              --cov-report=html:src/cloudeventjekylldocs/htmlcov \
+              --cov-report=term-missing \
+              --cov-report=xml:src/cloudeventjekylldocs/coverage.xml \
+              --cov-branch
+      ```
+
+    - **pytest.ini must include**:
+
+      ```ini
+      [coverage:run]
+      relative_files = True
+      omit =
+          */tests/*
+          */test_*.py
+          */__pycache__/*
+          */venv/*
+          */env/*
+      ```
+
+    - **Verification**: Check `coverage.xml` - filenames should be `src/projectname/file.py` or `subdir/file.py` NOT bare `file.py`
+    - **If paths are wrong**: Check that you're covering the whole directory, not a subdirectory, and that `relative_files = True` is set
+    - **Common mistakes to avoid**:
+      - Creating `.coveragerc` file (conflicts with pytest.ini)
+      - Not setting `relative_files = True`
+      - Covering subdirectory instead of whole project
+      - Running pytest from project directory instead of repo root
+      - Not using `--cov-config` to point to pytest.ini
 
 ## Quick Reference
 

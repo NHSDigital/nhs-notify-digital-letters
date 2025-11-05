@@ -40,7 +40,7 @@ install: ## Install Python dependencies
 .PHONY: install-dev
 install-dev: install ## Install development dependencies
 	@echo "$(COLOR_GREEN)Installing development dependencies...$(COLOR_RESET)"
-	$(PIP) install pyyaml pytest pytest-cov pylint black
+	$(PIP) install -r requirements-dev.txt
 	@echo "$(COLOR_GREEN)✓ Development dependencies installed$(COLOR_RESET)"
 
 ##@ Import Operations
@@ -91,12 +91,17 @@ dry-run: ## Show what would be imported (lists AsyncAPI files)
 .PHONY: test
 test: ## Run unit tests
 	@echo "$(COLOR_GREEN)Running tests...$(COLOR_RESET)"
-	$(PYTHON) -m unittest test_import_asyncapi.py -v
+	cd ../.. && $(PYTHON) -m pytest src/eventcatalogasyncapiimporter/tests -v
 
-.PHONY: test-coverage
-test-coverage: ## Run tests with coverage report
+.PHONY: coverage
+coverage: ## Run tests with coverage report
 	@echo "$(COLOR_GREEN)Running tests with coverage...$(COLOR_RESET)"
-	$(PYTHON) -m pytest test_import_asyncapi.py --cov=import_asyncapi --cov-report=term-missing --cov-report=html
+	cd ../.. && $(PYTHON) -m pytest src/eventcatalogasyncapiimporter/tests --cov=src/eventcatalogasyncapiimporter --cov-config=src/eventcatalogasyncapiimporter/pytest.ini --cov-report=html:src/eventcatalogasyncapiimporter/htmlcov --cov-report=term-missing --cov-report=xml:src/eventcatalogasyncapiimporter/coverage.xml
+
+.PHONY: test-watch
+test-watch: ## Run tests in watch mode
+	@echo "$(COLOR_GREEN)Running tests in watch mode...$(COLOR_RESET)"
+	cd ../.. && $(PYTHON) -m pytest src/eventcatalogasyncapiimporter/tests --watch
 
 .PHONY: test-quick
 test-quick: ## Run tests without verbose output

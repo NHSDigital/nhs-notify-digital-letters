@@ -29,6 +29,11 @@ echo "Setting up and running cloudeventjekylldocs tests..."
 make -C ./src/cloudeventjekylldocs install-dev
 make -C ./src/cloudeventjekylldocs coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
+# Python projects - eventcatalogasyncapiimporter
+echo "Setting up and running eventcatalogasyncapiimporter tests..."
+make -C ./src/eventcatalogasyncapiimporter install-dev
+make -C ./src/eventcatalogasyncapiimporter coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
 # TypeScript/JavaScript projects (npm workspace)
 npm ci
 npm run test:unit --workspaces

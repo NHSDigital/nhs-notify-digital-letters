@@ -49,6 +49,7 @@ Podman
 [pP]re
 producedby
 Protobuf
+pylint
 Python
 rawContent
 repo
