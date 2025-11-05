@@ -260,7 +260,7 @@ describe('Event Publishing', () => {
     const largeEventArray = Array.from({ length: 25 })
       .fill(null)
       .map(() => ({
-        ...invalidCloudEvent as unknown as CloudEvent,
+        ...(invalidCloudEvent as unknown as CloudEvent),
         id: randomUUID(),
       }));
 
