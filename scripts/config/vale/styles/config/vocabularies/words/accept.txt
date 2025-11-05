@@ -2,6 +2,7 @@
 ajv
 AJV
 [A-Z]+s
+beforeAll
 Bitwarden
 bot
 clearCache
@@ -52,6 +53,7 @@ Podman
 [pP][dD][mM]
 [pP]re
 producedby
+projectRoot
 Protobuf
 pylint
 Python
