@@ -33,7 +33,7 @@
     "lint:fix": "echo 'no linting configured'",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "test:unit": "jest",
+    "test:unit": "jest --coverage",
     "test:watch": "jest --watch",
     "typecheck": "echo 'no typechecking configured'",
     "update-readme": "node tools/generator/update-readme.cjs $@",

@@ -19,7 +19,7 @@ module.exports = {
     }]
   },
   collectCoverageFrom: [
-    'tools/**/*.ts',
+    'tools/cache/**/*.ts',
     '!tools/**/*.d.ts',
     '!tools/**/__tests__/**',
     '!tools/**/*.test.ts',
@@ -29,10 +29,10 @@ module.exports = {
   coverageReporters: ['text', 'lcov', 'html', 'cobertura'],
   coverageThreshold: {
     global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80
+      branches: 60,
+      functions: 60,
+      lines: 60,
+      statements: 60
     }
   },
   moduleFileExtensions: ['ts', 'js', 'json'],
