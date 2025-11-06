@@ -53,6 +53,8 @@ const validCloudEvent2: CloudEvent = {
   ...validCloudEvent,
   id: '550e8400-e29b-41d4-a716-446655440002',
   data: { 'digital-letter-id': '123e4567-e89b-12d3-a456-426614174001' },
+  source: '/nhs/england/notify/development/primary/data-plane/digital-letters',
+  type: 'uk.nhs.notify.digital.letters.sent.v2',
 };
 
 const invalidCloudEvent = {
@@ -96,15 +98,15 @@ describe('Event Publishing', () => {
     expect(eventBridgeCall.args[0].input).toEqual({
       Entries: [
         {
-          Source: 'custom.event',
-          DetailType: 'uk.nhs.notify.digital.letters.sent.v1',
+          Source: validCloudEvent.source,
+          DetailType: validCloudEvent.type,
           Detail: JSON.stringify(validCloudEvent),
           EventBusName:
             'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
         },
         {
-          Source: 'custom.event',
-          DetailType: 'uk.nhs.notify.digital.letters.sent.v1',
+          Source: validCloudEvent2.source,
+          DetailType: validCloudEvent2.type,
           Detail: JSON.stringify(validCloudEvent2),
           EventBusName:
             'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
@@ -463,47 +465,6 @@ describe('Event Publishing', () => {
         ),
       ),
     );
-  });
-
-  test('should preserve CloudEvent structure in EventBridge Detail field', async () => {
-    eventBridgeMock.on(PutEventsCommand).resolves({
-      FailedEntryCount: 0,
-      Entries: [{ EventId: 'event-1' }],
-    });
-
-    const customEvent: CloudEvent = {
-      ...validCloudEvent,
-      id: 'bf5a17a0-ec57-4cee-9a86-14580cf5af7d',
-      type: 'uk.nhs.notify.digital.letters.created.v1',
-    };
-
-    const publisher = new EventPublisher(testConfig);
-    await publisher.sendEvents([customEvent]);
-
-    const eventBridgeCall = eventBridgeMock.calls()[0];
-    const entry = (eventBridgeCall.args[0].input as any).Entries[0];
-
-    // Verify the CloudEvent is preserved as-is in the Detail field
-    expect(entry.Detail).toBe(JSON.stringify(customEvent));
-
-    // Verify EventBridge-specific fields are correctly mapped
-    expect(entry.Source).toBe('custom.event');
-    expect(entry.DetailType).toBe('uk.nhs.notify.digital.letters.created.v1');
-    expect(entry.EventBusName).toBe(
-      'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
-    );
-
-    // Verify the original CloudEvent structure is intact in Detail
-    const detailObject = JSON.parse(entry.Detail);
-    expect(detailObject.id).toBe('bf5a17a0-ec57-4cee-9a86-14580cf5af7d');
-    expect(detailObject.source).toBe(
-      '/nhs/england/notify/production/primary/data-plane/digital-letters',
-    );
-    expect(detailObject.type).toBe('uk.nhs.notify.digital.letters.created.v1');
-    expect(detailObject.subject).toBe(
-      'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-    );
-    expect(detailObject.specversion).toBe('1.0');
   });
 });
 

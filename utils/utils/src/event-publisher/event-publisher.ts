@@ -69,7 +69,7 @@ export class EventPublisher {
 
       try {
         const entries = batch.map((event) => ({
-          Source: 'custom.event',
+          Source: event.source,
           DetailType: event.type,
           Detail: JSON.stringify(event),
           EventBusName: this.config.eventBusArn,
