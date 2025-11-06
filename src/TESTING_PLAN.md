@@ -75,9 +75,32 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Use this section to track current work in progress and next steps. Update this section whenever starting or completing work.**
 
-### Current Status (2025-11-05 15:59 GMT)
+### Current Status (2025-11-06 06:38 GMT)
 
-**Just Completed**:
+**Current Focus**: validate.js Refactoring (Phase A → B → C)
+
+**Plan Created**: Three-phase refactoring approach documented in [Next Steps](#next-steps):
+
+- **Phase A**: Extract more functions to validator-lib.ts (NEXT - starting now)
+  - Extract 15+ additional functions covering schema loading, AJV setup, error formatting
+  - Write unit tests for each function (target 95%+ coverage)
+  - Keep validate.js functional (all 23 CLI tests must pass)
+  - Goal: 100+ total validator tests (23 CLI + 80+ unit)
+
+- **Phase B**: Convert validate.js → validate.ts (AFTER Phase A)
+  - Define TypeScript interfaces and types
+  - Add type annotations throughout
+  - Update package.json validate script to use ts-node
+  - Verify no breaking changes
+
+- **Phase C**: Refactor for better architecture (AFTER Phase B)
+  - Simplify main function to < 200 lines
+  - Improve separation of concerns
+  - Enhance documentation
+
+**Estimated Total Time**: 8-12 hours across all three phases
+
+**Previous Completion**:
 
 - ✅ **Validator unit tests with 98.85% coverage!** - 46 comprehensive unit tests for extracted validator functions
   - Created validator-lib.ts with 7 testable functions extracted from validate.js
@@ -117,6 +140,41 @@ This document outlines the comprehensive plan for implementing unit tests across
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-06 06:38 GMT - Validate.js Refactoring Plan Created (Phase A → B → C)
+
+- **Author**: GitHub Copilot
+- **Activity**: Created comprehensive three-phase refactoring plan for validate.js in TESTING_PLAN.md Next Steps section
+- **Rationale**: validate.js is a 450-line JavaScript file with complex logic that would benefit from:
+  - Better testability through function extraction
+  - Type safety through TypeScript conversion
+  - Improved maintainability through architectural refactoring
+- **Decision**: Phased approach (A → B → C) to minimize risk and ensure validate.js remains functional throughout
+- **Phase A - Extract Functions** (4-6 hours estimated):
+  - Extract 15+ additional functions to validator-lib.ts
+  - Categories: Schema registry building, schema loading/resolution, AJV configuration, main schema detection, error formatting
+  - Write unit tests for each function (target 95%+ coverage)
+  - Keep validate.js functional (all 23 CLI tests must pass)
+  - Goal: 100+ total validator tests (23 CLI + 80+ unit)
+- **Phase B - Convert to TypeScript** (2-3 hours estimated):
+  - Rename validate.js → validate.ts
+  - Define TypeScript interfaces (CommandLineConfig, SchemaRegistry, ValidationResult, ValidationError, MainSchemaInfo)
+  - Add type annotations to all variables and functions
+  - Update package.json validate script to use ts-node
+  - Verify no breaking changes (all 23 CLI tests must still pass)
+- **Phase C - Refactor Architecture** (2-3 hours estimated):
+  - Simplify main function using extracted function calls
+  - Improve error handling and exit code management
+  - Adopt configuration object pattern to reduce globals
+  - Add integration tests that import validate.ts as module
+  - Enhance documentation with JSDoc comments
+  - Goal: Reduce validate.ts to < 200 lines (from 450)
+- **Total Estimated Time**: 8-12 hours across all three phases
+- **Files Modified**:
+  - `src/TESTING_PLAN.md` - Added detailed Next Steps section with three-phase plan
+  - `src/TESTING_PLAN.md` - Updated Current Actions and Todos section
+- **Current Status**: ✅ Plan documented and ready to begin Phase A
+- **Next Steps**: Begin Phase A - Start extracting functions from validate.js to validator-lib.ts
 
 ### 2025-11-05 15:59 GMT - Validator Unit Tests Added - 98.85% Coverage Achieved
 
@@ -1946,12 +2004,163 @@ This will run all tests exactly as CI/CD does.
 
 ## Next Steps
 
-1. Review and approve this plan
-2. Start with Phase 1.1 (asyncapigenerator) as pilot
-3. Iterate and refine based on learnings
-4. Apply pattern to remaining projects
-5. Complete integration
-6. Document in repository README
+### Immediate Priority: Validate.js Refactoring (Phase A → B → C)
+
+#### Phase A: Extract Functions to validator-lib.ts (CURRENT)
+
+**Goal**: Extract more testable functions from validate.js while keeping it as JavaScript and fully functional.
+
+**Functions to Extract** (in order of complexity):
+
+1. **Command Line Parsing**:
+   - ✅ `parseCliArgs(args)` - Already extracted (parse command line arguments)
+
+2. **Schema Directory Resolution**:
+   - ✅ `determineSchemaDir(startPath)` - Already extracted (walk up to find src/output)
+
+3. **Schema File Handling**:
+   - ✅ `findAllSchemaFiles(dir)` - Already extracted (recursive file discovery)
+   - ✅ `loadSchemaFile(filePath)` - Already extracted (JSON/YAML parsing)
+   - ✅ `isSchemaFile(filename)` - Already extracted (file type checking)
+   - 🔄 **NEW**: `buildSchemaRegistry(allSchemaFiles, schemaDir)` - Create schemas and schemasById objects
+   - 🔄 **NEW**: `registerSchemaVariants(absolutePath, relPath, content, schemas, schemasById)` - Register schema with multiple paths
+
+4. **Schema Loading & Resolution**:
+   - 🔄 **NEW**: `shouldBlockMetaschema(uri)` - Detect and block metaschema self-references
+   - 🔄 **NEW**: `handleHttpSchemaLoad(uri, getCachedSchema)` - Load HTTP/HTTPS schemas with caching
+   - 🔄 **NEW**: `handleBaseRelativeSchemaLoad(uri, schemas, schemaDir)` - Load base-relative path schemas
+   - 🔄 **NEW**: `determineSchemaId(schema, absolutePath)` - Determine appropriate schema ID (URL vs file path)
+
+5. **AJV Configuration**:
+   - 🔄 **NEW**: `createAjvInstance(loadSchemaFn)` - Create and configure AJV instance with formats
+   - 🔄 **NEW**: `addSchemasToAjv(ajv, schemas)` - Add all schemas to AJV with proper IDs
+
+6. **Main Schema Detection**:
+   - 🔄 **NEW**: `findMainSchema(schemaPath, allSchemaFiles, schemas)` - Locate and identify main schema
+   - 🔄 **NEW**: `buildRemoteSchemaUrl(schemaPath)` - Construct HTTP URL for remote schemas
+
+7. **Validation & Error Formatting**:
+   - 🔄 **NEW**: `formatValidationError(err, data)` - Format single validation error with context
+   - 🔄 **NEW**: `formatAllValidationErrors(errors, data)` - Format all validation errors
+
+**Success Criteria for Phase A**:
+
+- [ ] Extract 15+ additional functions to validator-lib.ts
+- [ ] Write unit tests for each new function (target 95%+ coverage)
+- [ ] validate.js still runs successfully (all 23 CLI integration tests pass)
+- [ ] Total validator test count: 100+ tests (23 CLI + 80+ unit)
+- [ ] validator-lib.ts has 95%+ unit test coverage
+
+**Estimated Time**: 4-6 hours
+
+#### Phase B: Convert validate.js to TypeScript
+
+**Goal**: Convert validate.js → validate.ts with proper TypeScript types and interfaces.
+
+**Tasks**:
+
+1. **Define TypeScript Interfaces**:
+
+   ```typescript
+   interface CommandLineConfig {
+     schemaPath: string;
+     dataPath: string;
+     baseDir?: string;
+   }
+
+   interface SchemaRegistry {
+     schemas: Record<string, any>;
+     schemasById: Record<string, any>;
+   }
+
+   interface ValidationResult {
+     valid: boolean;
+     errors?: ValidationError[];
+   }
+
+   interface ValidationError {
+     instancePath: string;
+     schemaPath: string;
+     keyword: string;
+     params?: Record<string, any>;
+     message?: string;
+     parentSchema?: any;
+     schema?: any;
+   }
+
+   interface MainSchemaInfo {
+     schema: any | null;
+     schemaId: string;
+   }
+   ```
+
+2. **Rename and Convert**:
+   - Rename: `tools/validator/validate.js` → `tools/validator/validate.ts`
+   - Add type annotations to all variables and functions
+   - Import types from validator-lib.ts
+
+3. **Update Configuration**:
+   - Update `package.json` validate script: `"validate": "ts-node tools/validator/validate.ts $@"`
+   - Verify ts-node is installed (already in devDependencies)
+
+4. **Test Everything**:
+   - [ ] All 23 CLI integration tests still pass
+   - [ ] Manual testing with real schemas
+   - [ ] Verify error messages unchanged
+
+**Success Criteria for Phase B**:
+
+- [ ] validate.ts compiles without TypeScript errors
+- [ ] All CLI tests pass (23/23)
+- [ ] CLI execution works: `npm run validate -- schema.json data.json`
+- [ ] No breaking changes to CLI interface
+
+**Estimated Time**: 2-3 hours
+
+#### Phase C: Refactor for Better Architecture
+
+**Goal**: Clean up validate.ts now that functions are extracted and types are in place.
+
+**Refactoring Opportunities**:
+
+1. **Simplify Main Function**:
+   - Replace inline logic with extracted function calls
+   - Main function should read like: parse → load → validate → report
+
+2. **Improve Error Handling**:
+   - Centralize error handling and exit code management
+   - Add proper error types/classes
+
+3. **Configuration Object Pattern**:
+   - Pass config object through functions instead of globals
+   - Reduce side effects
+
+4. **Testing Improvements**:
+   - Add integration tests that import validate.ts as a module
+   - Test main orchestration logic with mocked dependencies
+
+5. **Documentation**:
+   - Add JSDoc comments to all exported functions
+   - Document the overall validation flow
+
+**Success Criteria for Phase C**:
+
+- [ ] validate.ts is < 200 lines (down from 450)
+- [ ] Clear separation of concerns
+- [ ] Easy to understand and maintain
+- [ ] All tests still pass
+
+**Estimated Time**: 2-3 hours
+
+**Total Estimated Time for A→B→C**: 8-12 hours
+
+### Other Next Steps
+
+1. Test discover-schema-dependencies.js component
+2. Push changes to branch and verify CI/CD
+3. Monitor SonarCloud for coverage reports
+4. Complete Phase 3 integration tasks
+5. Document refactoring patterns for future projects
 
 ## Questions to Resolve
 
