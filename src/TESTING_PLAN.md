@@ -51,10 +51,10 @@ This document outlines the comprehensive plan for implementing unit tests across
 |-----------|--------|----------------|-------|----------|----------------|-------|
 | tools/builder | ✅ Complete | ✅ | 11 | N/A (CLI) | 2025-11-05 | build-schema.ts - integration tests for CLI functionality |
 | tools/cache | ✅ Complete | ✅ | 30 | 80% | 2025-11-05 | schema-cache.ts - 21 integration + 8 network + 1 lifecycle tests, no external URLs |
-| tools/generator | 🔄 Partial | ✅ | 16 | Partial | 2025-11-05 | json-to-yaml.cjs - 16 tests passing, 50% coverage in SonarCloud. **Blocker**: generate-example.ts and manual-bundle-schema.ts have pre-existing TypeScript compilation errors preventing coverage collection |
+| tools/generator | 🔄 Partial | ✅ | 227 | **15%** | 2025-11-06 | **SonarCloud: 15% overall (180/1199 lines)**. example-generator: 81%, generate-example-cli: 100%, json-to-yaml: 50%, manual-bundle-schema: **0% (520 lines)**, generate-docs: 0% (698 lines). **Next: Refactor manual-bundle-schema.ts** |
 | tools/validator | ✅ Complete | ✅ | 115 | 93% | 2025-11-06 | **Phase C Complete!** Class-based architecture. validate.ts (58 lines), validator.ts (201 lines). 23 CLI + 81 lib + 11 class tests. |
 | Other | ❌ Not Started | ❌ | 0 | - | - | discover-schema-dependencies.js and other root-level scripts |
-| **Total** | **Partial** | **4/5** | **172** | **~85%** | **2025-11-06** | **Jest configured, CI/CD integrated. 172 passing tests. TS errors block full generator testing** |
+| **Total** | **Partial** | **4/5** | **383** | **~50%** | **2025-11-06** | **Jest configured, CI/CD integrated. 383 passing tests. Generator needs refactoring for coverage** |
 
 ### Phase 3: Integration
 
@@ -75,11 +75,59 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Use this section to track current work in progress and next steps. Update this section whenever starting or completing work.**
 
-### Current Status (2025-11-06 10:16 GMT)
+### Current Status (2025-11-06 11:30 GMT)
+
+**NEXT: Generator Tools Refactoring** 📦
+
+#### SonarCloud Analysis Complete - Priority Plan Created
+
+**Overall Generator Coverage**: **15%** (180/1199 lines covered) 🚨
+
+**Coverage Breakdown**:
+
+- ✅ example-generator.ts: **81.3%** (261 lines) - DONE
+- ✅ generate-example-cli.ts: **100%** (32 lines) - DONE
+- 🔄 json-to-yaml.cjs: **50%** (45 lines) - Partial
+- ❌ manual-bundle-schema.ts: **0%** (520 lines) - HIGHEST PRIORITY
+- ❌ generate-docs.cjs: **0%** (698 lines)
+- ❌ generate-readme-index.cjs: **0%** (331 lines)
+- ❌ render-readme.cjs: **0%** (182 lines)
+- ❌ update-readme.cjs: **0%** (22 lines)
+
+**Refactoring Priority Order**:
+
+1. **manual-bundle-schema.ts** (520 lines, 0% → 80%) - HIGHEST PRIORITY
+   - Core schema bundling functionality (bundle & flatten modes)
+   - Extract SchemaBundler class (~400 lines)
+   - Create manual-bundle-schema-cli.ts handler (~60 lines)
+   - Convert main file to entry point (~10 lines)
+   - Write 30-35 tests
+   - **Impact**: 15% → 35% overall coverage (+520 covered lines)
+
+2. **json-to-yaml.cjs** (45 lines, 50% → 90%) - QUICK WIN
+   - Already partially tested, complete the refactoring
+   - Convert to TypeScript class pattern
+   - Write 10-15 tests
+   - **Impact**: +20 covered lines
+
+3. **generate-docs.cjs** (698 lines, 0% → 60%) - MEDIUM PRIORITY
+   - Documentation generation (less critical)
+   - Extract DocsGenerator class
+   - Write 25+ tests
+   - **Impact**: +420 covered lines (38% → 73% overall)
+
+4. **README utilities** (535 lines, 0% → 50%) - LOW PRIORITY
+   - Maintenance scripts (generate-readme-index, render-readme, update-readme)
+   - Target 50% coverage
+   - **Impact**: +265 covered lines (73% → 95% overall)
+
+**Next Action**: Start refactoring **manual-bundle-schema.ts** using proven generate-example pattern
+
+**Previous Status (2025-11-06 10:16 GMT)**:
 
 **Phase C COMPLETED!** ✅ 🎉
 
-#### All three phases complete: A → B → C
+#### Validator: All three phases complete: A → B → C
 
 **Phase C Accomplishments**:
 
@@ -247,6 +295,70 @@ This document outlines the comprehensive plan for implementing unit tests across
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-06 11:30 GMT - Generator Tools SonarCloud Analysis & Refactoring Plan
+
+**Author**: GitHub Copilot (rossbugginsnhs session)
+
+**Activity**: Analyzed SonarCloud coverage data for all generator tools; created prioritized refactoring plan
+
+**Analysis Results**:
+
+- **Overall generator coverage: 15%** (180/1199 lines covered) 🚨
+- Successfully completed generate-example refactoring is showing good coverage (81.3%)
+- Identified 520-line manual-bundle-schema.ts with 0% coverage as highest priority
+- Total uncovered lines: 1019 across 5 files
+
+**Coverage by File**:
+
+| File | Lines | Coverage | Status |
+|------|-------|----------|--------|
+| example-generator.ts | 261 | 81.3% | ✅ DONE |
+| generate-example-cli.ts | 32 | 100% | ✅ DONE |
+| json-to-yaml.cjs | 45 | 50% | 🔄 Partial |
+| manual-bundle-schema.ts | 520 | 0% | ❌ Highest Priority |
+| generate-docs.cjs | 698 | 0% | ❌ Medium Priority |
+| generate-readme-index.cjs | 331 | 0% | ❌ Low Priority |
+| render-readme.cjs | 182 | 0% | ❌ Low Priority |
+| update-readme.cjs | 22 | 0% | ❌ Low Priority |
+
+**Refactoring Plan Created**:
+
+1. **Priority 1**: manual-bundle-schema.ts (520 lines, 0% → 80%)
+   - Extract SchemaBundler class (~400 lines)
+   - Create manual-bundle-schema-cli.ts handler (~60 lines)
+   - Write 30-35 tests
+   - **Impact**: +520 covered lines, 15% → 35% overall coverage
+
+2. **Priority 2**: json-to-yaml.cjs (45 lines, 50% → 90%)
+   - Convert to TypeScript class pattern
+   - Complete test coverage
+   - **Impact**: +20 covered lines, quick win
+
+3. **Priority 3**: generate-docs.cjs (698 lines, 0% → 60%)
+   - Extract DocsGenerator class
+   - Write 25+ tests
+   - **Impact**: +420 covered lines, 38% → 73% overall
+
+4. **Priority 4**: README utilities (535 lines, 0% → 50%)
+   - Lower priority maintenance scripts
+   - **Impact**: +265 covered lines, 73% → 95% overall
+
+**Architecture Pattern** (proven from generate-example success):
+
+- Business Logic Class: Core functionality in testable TypeScript class
+- CLI Handler Module: Testable `handleCli(args)` function
+- Entry Point: Minimal wrapper (6-15 lines) calling handleCli()
+
+**Decision**: Start with manual-bundle-schema.ts refactoring for maximum impact
+
+**Files Modified**:
+
+- `src/TESTING_PLAN.md` - Updated progress tracker, current status, and this changelog
+
+**Status**: ✅ Analysis complete, plan documented, ready to start manual-bundle-schema.ts refactoring
+
+**Next Steps**: Refactor manual-bundle-schema.ts using proven class-based pattern
 
 ### 2025-11-06 10:53 GMT - Refactored generate-example.ts to Class-Based Architecture
 
