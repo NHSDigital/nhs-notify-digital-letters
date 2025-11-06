@@ -64,6 +64,7 @@ repo
 sample_event_markdown
 sample_service_markdown
 sanitization
+schemaDir
 sed
 service_sorted
 setCachedSchema

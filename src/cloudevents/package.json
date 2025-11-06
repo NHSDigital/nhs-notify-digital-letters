@@ -37,7 +37,7 @@
     "test:watch": "jest --watch",
     "typecheck": "echo 'no typechecking configured'",
     "update-readme": "node tools/generator/update-readme.cjs $@",
-    "validate": "node tools/validator/validate.js $@"
+    "validate": "ts-node tools/validator/validate.ts $@"
   },
   "type": "module",
   "version": "1.0.0"

@@ -52,7 +52,7 @@ This document outlines the comprehensive plan for implementing unit tests across
 | tools/builder | ✅ Complete | ✅ | 11 | N/A (CLI) | 2025-11-05 | build-schema.ts - integration tests for CLI functionality |
 | tools/cache | ✅ Complete | ✅ | 30 | 80% | 2025-11-05 | schema-cache.ts - 21 integration + 8 network + 1 lifecycle tests, no external URLs |
 | tools/generator | 🔄 Partial | ✅ | 16 | Partial | 2025-11-05 | json-to-yaml.cjs - 16 tests passing, 50% coverage in SonarCloud. **Blocker**: generate-example.ts and manual-bundle-schema.ts have pre-existing TypeScript compilation errors preventing coverage collection |
-| tools/validator | ✅ Complete | ✅ | 104 | 93% | 2025-11-06 | **Phase A Complete!** validate.js reduced from 450→149 lines. 23 CLI + 81 unit tests. validator-lib.ts: 93% coverage. |
+| tools/validator | ✅ Complete | ✅ | 104 | 93% | 2025-11-06 | **Phase B Complete!** validate.js → validate.ts (TypeScript conversion). 23 CLI + 81 unit tests. validator-lib.ts: 93% coverage. Types defined in types.ts. |
 | Other | ❌ Not Started | ❌ | 0 | - | - | discover-schema-dependencies.js and other root-level scripts |
 | **Total** | **Partial** | **4/5** | **161** | **~80%** | **2025-11-06** | **Jest configured, CI/CD integrated. 161 passing tests. TS errors block full generator testing** |
 
@@ -75,11 +75,50 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Use this section to track current work in progress and next steps. Update this section whenever starting or completing work.**
 
-### Current Status (2025-11-06 09:14 GMT)
+### Current Status (2025-11-06 09:34 GMT)
 
-**Phase A COMPLETED!** ✅
+**Phase B COMPLETED!** ✅
+
+**Phase B COMPLETED!** ✅
 
 **Accomplishments**:
+
+- ✅ **Created TypeScript type definitions** (`types.ts`):
+  - `CommandLineConfig` - CLI argument structure
+  - `SchemaRegistry` - Schema storage structure
+  - `ValidationResult` - Validation output structure
+  - `MainSchemaInfo` - Main schema identification
+  - `ValidationError` - AJV error types
+  - `NhsDiagnosis` - NHS number diagnostic results
+  - `CliArgs` - Parsed CLI arguments
+
+- ✅ **Converted validate.js → validate.ts**:
+  - Added type annotations to all variables and functions
+  - Imported types from validator-lib.ts and types.ts
+  - Used TypeScript's ValidateFunction type from AJV
+  - Added proper type safety throughout
+
+- ✅ **Updated package.json**:
+  - Changed validate script from `node tools/validator/validate.js` to `ts-node tools/validator/validate.ts`
+  - ts-node already in devDependencies
+
+- ✅ **All tests passing**:
+  - 23 CLI integration tests passing (validate.test.ts)
+  - 81 unit tests passing (validator-lib.test.ts)
+  - 104 total validator tests ✅
+  - No TypeScript compilation errors
+  - No breaking changes to CLI interface
+
+**Next Steps**:
+
+- **Phase C**: Refactor for better architecture (OPTIONAL)
+  - Simplify main function (already at 149 lines, target < 200)
+  - Improve separation of concerns
+  - Enhance documentation
+
+- **Alternative**: Move to next task - test discover-schema-dependencies.js
+
+**Previous Completions**:
 
 - ✅ **Extracted 15+ functions from validate.js to validator-lib.ts**:
   - `registerSchemaVariants` - Register schema with multiple path variants
@@ -158,6 +197,50 @@ This document outlines the comprehensive plan for implementing unit tests across
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-06 09:34 GMT - Phase B Complete: Converted validate.js to TypeScript
+
+- **Author**: GitHub Copilot
+- **Activity**: Successfully completed Phase B - TypeScript conversion of validate.js
+- **Changes Made**:
+  1. **Created types.ts** with comprehensive type definitions:
+     - `CommandLineConfig` - CLI argument structure
+     - `SchemaRegistry` - Schema storage structure
+     - `ValidationResult` - Validation output structure
+     - `MainSchemaInfo` - Main schema identification
+     - `ValidationError` - Type alias for AJV ErrorObject
+     - `NhsDiagnosis` - NHS number diagnostic results
+     - `CliArgs` - Parsed CLI arguments
+  2. **Created validate.ts** - Full TypeScript conversion:
+     - Added type annotations to all variables (args, schemaDir, allSchemaFiles, etc.)
+     - Added type annotations to all functions (loadExternalSchema: Promise<any>)
+     - Imported types from AJV (`ValidateFunction`)
+     - Imported custom types from types.ts
+     - Used TypeScript's strict type checking throughout
+  3. **Updated package.json**:
+     - Changed validate script from `node tools/validator/validate.js` to `ts-node tools/validator/validate.ts`
+     - ts-node already in devDependencies, no new dependencies needed
+  4. **Verified backward compatibility**:
+     - All 23 CLI integration tests still pass
+     - All 81 unit tests still pass
+     - No breaking changes to CLI interface
+     - CLI execution works: `npm run validate -- schema.json data.json`
+- **Files Modified**:
+  - Created: `src/cloudevents/tools/validator/types.ts`
+  - Created: `src/cloudevents/tools/validator/validate.ts`
+  - Modified: `src/cloudevents/package.json` (validate script)
+  - Note: validate.js still exists but no longer used
+- **Test Results**:
+  - ✅ All 104 validator tests passing (23 CLI + 81 unit)
+  - ✅ No TypeScript compilation errors
+  - ✅ No breaking changes detected
+  - ✅ CLI interface unchanged and functional
+- **Benefits**:
+  - 🎯 Type safety: Catch errors at compile time
+  - 🎯 Better IDE support: Autocomplete and intellisense
+  - 🎯 Improved maintainability: Clear type contracts
+  - 🎯 Documentation: Types serve as inline documentation
+- **Status**: Phase B complete ✅ | Phase C (refactoring) is optional - already at 149 lines (target < 200)
 
 ### 2025-11-06 09:14 GMT - Phase A Complete: Extracted 15+ Functions from validate.js
 

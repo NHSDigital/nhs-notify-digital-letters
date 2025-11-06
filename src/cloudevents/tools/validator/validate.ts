@@ -1,4 +1,5 @@
 import Ajv2020 from "ajv/dist/2020.js";
+import type { ValidateFunction } from 'ajv';
 import addFormats from "ajv-formats";
 import fs from "fs";
 import path from "path";
@@ -19,9 +20,10 @@ import {
   findMainSchema,
   formatAllValidationErrors,
 } from './validator-lib.ts';
+import type { SchemaRegistry, MainSchemaInfo } from './types.ts';
 
 // Parse command line arguments
-const args = process.argv.slice(2);
+const args: string[] = process.argv.slice(2);
 const { schemaPath, dataPath, baseDir } = parseCliArgs(args);
 
 if (!schemaPath || !dataPath) {
@@ -35,7 +37,7 @@ if (!schemaPath || !dataPath) {
 }
 
 // Determine schema directory for loading all schemas
-let schemaDir;
+let schemaDir: string;
 if (baseDir) {
   // Use provided base directory
   schemaDir = path.resolve(baseDir);
@@ -44,14 +46,14 @@ if (baseDir) {
 }
 
 // Load all schema files and build registry
-const allSchemaFiles = findAllSchemaFiles(schemaDir);
-const { schemas, schemasById } = buildSchemaRegistry(allSchemaFiles, schemaDir);
+const allSchemaFiles: string[] = findAllSchemaFiles(schemaDir);
+const { schemas, schemasById }: SchemaRegistry = buildSchemaRegistry(allSchemaFiles, schemaDir);
 
 // Function to load external HTTP/HTTPS schemas or base-relative paths
-const requestCounts = new Map(); // Track request counts per URI to prevent infinite loops
-const MAX_REQUESTS_PER_URI = 5; // Prevent infinite loops
+const requestCounts = new Map<string, number>(); // Track request counts per URI to prevent infinite loops
+const MAX_REQUESTS_PER_URI: number = 5; // Prevent infinite loops
 
-async function loadExternalSchema(uri) {
+async function loadExternalSchema(uri: string): Promise<any> {
   // Detect metaschema self-references and block them
   if (shouldBlockMetaschema(uri)) {
     console.log(`[FETCH] BLOCKED: Metaschema self-reference detected for ${uri} - skipping to prevent infinite loop`);
@@ -59,7 +61,7 @@ async function loadExternalSchema(uri) {
   }
 
   // Track request count to prevent infinite loops
-  const currentCount = requestCounts.get(uri) || 0;
+  const currentCount: number = requestCounts.get(uri) || 0;
   if (currentCount >= MAX_REQUESTS_PER_URI) {
     console.log(`[FETCH] BLOCKED: Too many requests (${currentCount}) for ${uri} - checking cache`);
     const cached = await getCachedSchema(uri);
@@ -103,7 +105,7 @@ addCustomFormats(ajv, validateNhsNumber);
 addSchemasToAjv(ajv, schemas);
 
 // Determine the main schema and its ID
-const { schema: mainSchema, schemaId: mainSchemaId } = findMainSchema(
+const { schema: mainSchema, schemaId: mainSchemaId }: MainSchemaInfo = findMainSchema(
   schemaPath,
   allSchemaFiles,
   schemas
@@ -115,11 +117,11 @@ if (mainSchema === null) {
   console.log(`   Will attempt to load from: ${mainSchemaId}`);
 }
 
-const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+const data: any = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
 
 // Use async validation to support external schema loading
 (async () => {
-  let validate;
+  let validate: ValidateFunction;
 
   // Remove the schema from AJV if it was already added, so we can compile it async
   try {
@@ -136,7 +138,7 @@ const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
   } else {
     validate = await ajv.compileAsync(mainSchema);
   }
-  const valid = validate(data);
+  const valid: boolean = validate(data);
 
   if (valid) {
     console.log("Valid!");
@@ -144,11 +146,11 @@ const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
   } else {
     console.error("Invalid:", validate.errors);
     // Print formatted error messages
-    const formattedErrors = formatAllValidationErrors(validate.errors || [], data, diagnoseNhsNumber);
+    const formattedErrors: string = formatAllValidationErrors(validate.errors || [], data, diagnoseNhsNumber);
     console.error(formattedErrors);
     process.exit(1);
   }
-})().catch((err) => {
+})().catch((err: Error) => {
   console.error("Validation error:", err.message);
   if (err.stack) console.error(err.stack);
   process.exit(1);
