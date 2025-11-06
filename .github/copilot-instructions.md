@@ -16,6 +16,17 @@ All of our events will have their schemas stored in [./schemas/events](./schemas
 
 For each event, there will be a schema for the envelope (this is cloud events, and will reference the default NHS Notify cloudevent profile schema). And there will also be a schema for the data payload. The data payload schema will be referenced in the envelope schema.
 
+## Continuing from a Previous Chat Session
+
+**If told to "carry on" or "continue"**, check **`src/HANDOVER.md`** first. This file contains:
+
+- Current status and what was just completed
+- Immediate next tasks and priorities
+- Context about ongoing work
+- Key commands and files to check
+
+The detailed testing plan is in **`src/TESTING_PLAN.md`** with progress tracker and changelog.
+
 ## Copilot Instructions for src/ Testing
 
 **When working on testing implementation in the `src/` directory:**
