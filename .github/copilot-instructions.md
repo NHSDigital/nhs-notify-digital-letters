@@ -20,37 +20,41 @@ For each event, there will be a schema for the envelope (this is cloud events, a
 
 **When working on testing implementation in the `src/` directory:**
 
+1. **ALWAYS check current directory before path-specific commands** - Run `pwd` before executing any commands that depend on file paths or directory locations. Never assume you're in the repository root or any specific directory. Always know where you are.
+
+1. **ALWAYS use absolute paths with cd command** - Never use relative paths like `cd src/project` or `cd ../..`. Always use absolute paths like `cd /workspaces/nhs-notify-digital-letters/src/project`. This prevents navigation errors when the current directory is uncertain.
+
 1. **Check the "Current Actions and Todos" section in `../TESTING_PLAN.md` first** - This shows what's currently being worked on and what's next. When starting a new chat or continuing work, review this section to understand the current state and pick up where we left off.
 
-2. **Always update the "Current Actions and Todos" section in `../TESTING_PLAN.md`** when starting new work, completing tasks, or encountering blockers. This section should always reflect the current state of work.
+1. **Always update the "Current Actions and Todos" section in `../TESTING_PLAN.md`** when starting new work, completing tasks, or encountering blockers. This section should always reflect the current state of work.
 
-3. **Always update the Implementation Progress Tracker section in `../TESTING_PLAN.md`** when completing any implementation tasks
+1. **Always update the Implementation Progress Tracker section in `../TESTING_PLAN.md`** when completing any implementation tasks
 
-4. **Always add an entry to the Implementation Changelog section in `../TESTING_PLAN.md`** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time in UK timezone (YYYY-MM-DD HH:MM GMT/BST format)**, author, activity summary, changes made, files modified, and current status. **CRITICAL: Use the ACTUAL CURRENT time in GMT/BST - run `TZ='Europe/London' date` to get the correct UK timestamp in format like "Wed Nov 5 08:35:42 AM GMT 2025". Extract the time (HH:MM) and format as YYYY-MM-DD HH:MM GMT. Do not make up or guess timestamps.** **Include changelog entries for updates to the TESTING_PLAN.md document itself.**
+1. **Always add an entry to the Implementation Changelog section in `../TESTING_PLAN.md`** for each implementation activity - add new entries at the TOP in reverse chronological order with **date and time in UK timezone (YYYY-MM-DD HH:MM GMT/BST format)**, author, activity summary, changes made, files modified, and current status. **CRITICAL: Use the ACTUAL CURRENT time in GMT/BST - run `TZ='Europe/London' date` to get the correct UK timestamp in format like "Wed Nov 5 08:35:42 AM GMT 2025". Extract the time (HH:MM) and format as YYYY-MM-DD HH:MM GMT. Do not make up or guess timestamps.** **Include changelog entries for updates to the TESTING_PLAN.md document itself.**
 
-5. **Use proper markdown code fence language specifiers** - never use just ` ``` `, always specify the language (e.g., ` ```bash `, ` ```python `, ` ```typescript `, ` ```makefile `, ` ```plain `)
+1. **Use proper markdown code fence language specifiers** - never use just ` ``` `, always specify the language (e.g., ` ```bash `, ` ```python `, ` ```typescript `, ` ```makefile `, ` ```plain `)
 
-6. **Ensure all internal links are valid** - test that section references work correctly in TESTING_PLAN.md
+1. **Ensure all internal links are valid** - test that section references work correctly in TESTING_PLAN.md
 
-7. **Keep the TESTING_PLAN.md synchronized** with actual implementation state
+1. **Keep the TESTING_PLAN.md synchronized** with actual implementation state
 
-8. **Update timestamps** in the document status section when making changes
+1. **Update timestamps** in the document status section when making changes
 
-9. **Follow the phased approach** - complete phases in order and track progress
+1. **Follow the phased approach** - complete phases in order and track progress
 
-10. **Mark checkboxes** (✅/❌) in the progress tracker as work is completed
+1. **Mark checkboxes** (✅/❌) in the progress tracker as work is completed
 
-11. **Add notes** to the progress tracker for any deviations or important decisions
+1. **Add notes** to the progress tracker for any deviations or important decisions
 
-12. **Run pre-commit hooks before committing** - Always stage modified files with `git add <files>`, then ensure you're in the repository root directory (`cd /workspaces/nhs-notify-digital-letters`), and run `git commit -m "message"` which will automatically trigger the pre-commit hooks. All hooks must pass successfully before the commit completes.
+1. **Run pre-commit hooks before committing** - Always stage modified files with `git add <files>`, then ensure you're in the repository root directory (`cd /workspaces/nhs-notify-digital-letters`), and run `git commit -m "message"` which will automatically trigger the pre-commit hooks. All hooks must pass successfully before the commit completes.
 
-13. **Vale vocabulary exceptions** - If vale reports false positives for legitimate technical terms, you may add them to `scripts/config/vale/styles/config/vocabularies/words/accept.txt` (one word per line, alphabetically sorted). **IMPORTANT**: Always document any additions to accept.txt in the changelog with justification for why the word is legitimate.
+1. **Vale vocabulary exceptions** - If vale reports false positives for legitimate technical terms, you may add them to `scripts/config/vale/styles/config/vocabularies/words/accept.txt` (one word per line, alphabetically sorted). **IMPORTANT**: Always document any additions to accept.txt in the changelog with justification for why the word is legitimate.
 
-14. **npm workspace test convention** - For projects with `package.json` that are part of the npm workspace (listed in root package.json workspaces), tests must be executable via `npm run test:unit`. The project's Makefile `test` target should call `npm run test:unit` to align with the workspace-wide test execution pattern (`npm run test:unit --workspaces`).
+1. **npm workspace test convention** - For projects with `package.json` that are part of the npm workspace (listed in root package.json workspaces), tests must be executable via `npm run test:unit`. The project's Makefile `test` target should call `npm run test:unit` to align with the workspace-wide test execution pattern (`npm run test:unit --workspaces`).
 
-15. **Python environment setup** - For Python projects, always use `configure_python_environment` tool to set up the Python environment before running tests or installing dependencies. When VS Code prompts to select which requirements file to install, **always select `requirements-dev.txt`** (not `requirements.txt`) as it includes all testing dependencies plus production dependencies.
+1. **Python environment setup** - For Python projects, always use `configure_python_environment` tool to set up the Python environment before running tests or installing dependencies. When VS Code prompts to select which requirements file to install, **always select `requirements-dev.txt`** (not `requirements.txt`) as it includes all testing dependencies plus production dependencies.
 
-16. **Update unit.sh for CI/CD integration** - When adding tests for a new project, you **MUST** update `scripts/tests/unit.sh` to include:
+1. **Update unit.sh for CI/CD integration** - When adding tests for a new project, you **MUST** update `scripts/tests/unit.sh` to include:
     - Installation of prerequisites (e.g., `make -C ./src/project-name install-dev` for Python projects)
     - Execution of the test suite (e.g., `make -C ./src/project-name test`)
     - The CI/CD pipeline runs `make test-unit` which calls `scripts/tests/unit.sh`
@@ -58,7 +62,7 @@ For each event, there will be a schema for the envelope (this is cloud events, a
     - Always test that the prerequisites install correctly before running tests
     - Add a comment in unit.sh explaining what each section does
 
-17. **Use GitHub CLI for monitoring CI/CD** - When monitoring GitHub Actions workflow runs:
+1. **Use GitHub CLI for monitoring CI/CD** - When monitoring GitHub Actions workflow runs:
     - **CRITICAL**: Always prefix `gh` commands with `GH_PAGER=cat` to disable the pager that requires pressing 'q' to exit
     - Use `GH_PAGER=cat gh run list --branch <branch-name> --limit <n> --json databaseId,status,conclusion,name,createdAt,url` to list recent workflow runs
     - Use `GH_PAGER=cat gh run view <run-id> --json conclusion,status,jobs` to view details of a specific run
@@ -72,7 +76,7 @@ For each event, there will be a schema for the envelope (this is cloud events, a
       - Check status: `GH_PAGER=cat gh run view <run-id> --json status,conclusion`
       - With jq: `GH_PAGER=cat gh run view <run-id> --json jobs --jq '.jobs[] | select(.conclusion == "failure") | {name: .name, conclusion: .conclusion}'`
 
-18. **Use SonarCloud API for coverage monitoring** - To check coverage metrics on branches:
+1. **Use SonarCloud API for coverage monitoring** - To check coverage metrics on branches:
     - **Public API (no auth required)**: `https://sonarcloud.io/api/measures/component`
     - **Parameters**:
       - `component`: `NHSDigital_nhs-notify-digital-letters` (project) or `NHSDigital_nhs-notify-digital-letters:src/project-name` (specific component)
@@ -82,7 +86,7 @@ For each event, there will be a schema for the envelope (this is cloud events, a
     - Use this to verify coverage is being detected after SonarCloud configuration changes
     - Look for `new_coverage` in the response - should not be 0.0% if tests are working
 
-19. **CRITICAL: Python Coverage Configuration for SonarCloud** - **THIS HAS BEEN GOTTEN WRONG MULTIPLE TIMES - FOLLOW EXACTLY:**
+1. **CRITICAL: Python Coverage Configuration for SonarCloud** - **THIS HAS BEEN GOTTEN WRONG MULTIPLE TIMES - FOLLOW EXACTLY:**
     - **DO NOT create a separate `.coveragerc` file** - it causes path resolution issues
     - **Configuration must be in `pytest.ini`** in a `[coverage:run]` section
     - **MUST include `relative_files = True`** to convert absolute paths to relative paths
