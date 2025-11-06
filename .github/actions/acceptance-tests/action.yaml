@@ -14,12 +14,12 @@ inputs:
 
   targetAccountGroup:
     description: Name of the account group under test
-    default: nhs-notify-smsnudge-dev
+    default: nhs-notify-digital-letters-dev
     required: true
 
   targetComponent:
     description: Name of the component under test
-    default: nudge
+    default: dl
 
 runs:
   using: "composite"
