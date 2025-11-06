@@ -13,7 +13,19 @@ import {
   diagnoseNhsNumber,
   determineSchemaDir,
   parseCliArgs,
-  isSchemaFile
+  isSchemaFile,
+  registerSchemaVariants,
+  buildSchemaRegistry,
+  shouldBlockMetaschema,
+  handleHttpSchemaLoad,
+  handleBaseRelativeSchemaLoad,
+  determineSchemaId,
+  addCustomFormats,
+  addSchemasToAjv,
+  buildRemoteSchemaUrl,
+  findMainSchema,
+  formatValidationError,
+  formatAllValidationErrors,
 } from '../validator-lib';
 
 const TEST_DIR = path.join(__dirname, 'temp-validator-lib-test');
@@ -349,6 +361,381 @@ properties:
     it('should work with full paths', () => {
       expect(isSchemaFile('/path/to/schema.json')).toBe(true);
       expect(isSchemaFile('/path/to/file.txt')).toBe(false);
+    });
+  });
+
+  describe('registerSchemaVariants', () => {
+    it('should register schema with multiple path variants', () => {
+      const schemas: Record<string, any> = {};
+      const schemasById: Record<string, any> = {};
+      const absolutePath = '/path/to/schema.json';
+      const relPath = './schema.json';
+      const content = { $id: 'http://example.com/schema', type: 'object' };
+
+      registerSchemaVariants(absolutePath, relPath, content, schemas, schemasById);
+
+      expect(schemas[absolutePath]).toBe(content);
+      expect(schemas[relPath]).toBe(content);
+      expect(schemas['schema.json']).toBe(content);
+      expect(schemas['./schema.json']).toBe(content);
+      expect(schemas['/schema.json']).toBe(content);
+      expect(schemasById['http://example.com/schema']).toBe(content);
+    });
+
+    it('should not add to schemasById if no $id', () => {
+      const schemas: Record<string, any> = {};
+      const schemasById: Record<string, any> = {};
+      const content = { type: 'object' };
+
+      registerSchemaVariants('/path/test.json', './test.json', content, schemas, schemasById);
+
+      expect(Object.keys(schemasById).length).toBe(0);
+    });
+  });
+
+  describe('buildSchemaRegistry', () => {
+    it('should build registry from schema files', () => {
+      const schema1 = path.join(TEST_DIR, 'schema1.json');
+      const schema2 = path.join(TEST_DIR, 'schema2.json');
+      fs.writeFileSync(schema1, JSON.stringify({ type: 'object', $id: 'schema1' }));
+      fs.writeFileSync(schema2, JSON.stringify({ type: 'string', $id: 'schema2' }));
+
+      const { schemas, schemasById } = buildSchemaRegistry([schema1, schema2], TEST_DIR);
+
+      expect(schemas[path.resolve(schema1)]).toBeDefined();
+      expect(schemas[path.resolve(schema2)]).toBeDefined();
+      expect(schemasById['schema1']).toBeDefined();
+      expect(schemasById['schema2']).toBeDefined();
+    });
+
+    it('should skip invalid schema files', () => {
+      const validSchema = path.join(TEST_DIR, 'valid.json');
+      const invalidSchema = path.join(TEST_DIR, 'invalid.json');
+      fs.writeFileSync(validSchema, JSON.stringify({ type: 'object' }));
+      fs.writeFileSync(invalidSchema, 'invalid json{');
+
+      const { schemas } = buildSchemaRegistry([validSchema, invalidSchema], TEST_DIR);
+
+      expect(schemas[path.resolve(validSchema)]).toBeDefined();
+      expect(schemas[path.resolve(invalidSchema)]).toBeUndefined();
+    });
+
+    it('should skip array schemas', () => {
+      const arraySchema = path.join(TEST_DIR, 'array.json');
+      fs.writeFileSync(arraySchema, JSON.stringify([1, 2, 3]));
+
+      const { schemas } = buildSchemaRegistry([arraySchema], TEST_DIR);
+
+      expect(schemas[path.resolve(arraySchema)]).toBeUndefined();
+    });
+  });
+
+  describe('shouldBlockMetaschema', () => {
+    it('should block draft-07 metaschema HTTP', () => {
+      expect(shouldBlockMetaschema('http://json-schema.org/draft-07/schema')).toBe(true);
+      expect(shouldBlockMetaschema('http://json-schema.org/draft-07/schema#')).toBe(true);
+    });
+
+    it('should block draft-07 metaschema HTTPS', () => {
+      expect(shouldBlockMetaschema('https://json-schema.org/draft-07/schema')).toBe(true);
+      expect(shouldBlockMetaschema('https://json-schema.org/draft-07/schema#')).toBe(true);
+    });
+
+    it('should not block other URIs', () => {
+      expect(shouldBlockMetaschema('http://example.com/schema')).toBe(false);
+      expect(shouldBlockMetaschema('https://example.com/schema')).toBe(false);
+    });
+  });
+
+  describe('handleHttpSchemaLoad', () => {
+    it('should load schema from cache', async () => {
+      const mockGetCache = async (uri: string) => JSON.stringify({ type: 'object' });
+
+      const result = await handleHttpSchemaLoad('http://example.com/schema', mockGetCache);
+
+      expect(result).toEqual({ type: 'object' });
+    });
+
+    it('should throw error if cache returns null', async () => {
+      const mockGetCache = async (uri: string) => null;
+
+      await expect(handleHttpSchemaLoad('http://example.com/schema', mockGetCache))
+        .rejects.toThrow('Failed to fetch schema');
+    });
+
+    it('should throw error if cached schema is invalid JSON', async () => {
+      const mockGetCache = async (uri: string) => 'invalid json{';
+
+      await expect(handleHttpSchemaLoad('http://example.com/schema', mockGetCache))
+        .rejects.toThrow('Failed to parse schema');
+    });
+  });
+
+  describe('handleBaseRelativeSchemaLoad', () => {
+    it('should return already loaded schema', () => {
+      const schemas = { '/common/schema.json': { type: 'object', $id: 'test' } };
+
+      const result = handleBaseRelativeSchemaLoad('/common/schema.json', schemas, TEST_DIR);
+
+      expect(result).toEqual({ type: 'object' });
+      expect(result.$id).toBeUndefined(); // $id should be removed
+    });
+
+    it('should load schema from filesystem', () => {
+      const schemaFile = path.join(TEST_DIR, 'test.json');
+      fs.writeFileSync(schemaFile, JSON.stringify({ type: 'string', $id: 'fs-test' }));
+
+      const result = handleBaseRelativeSchemaLoad('/test.json', {}, TEST_DIR);
+
+      expect(result).toEqual({ type: 'string' });
+      expect(result.$id).toBeUndefined();
+    });
+
+    it('should return null if schema not found', () => {
+      const result = handleBaseRelativeSchemaLoad('/nonexistent.json', {}, TEST_DIR);
+
+      expect(result).toBeNull();
+    });
+
+    it('should strip directory basename from URI', () => {
+      const subDir = path.join(TEST_DIR, 'schemas');
+      fs.mkdirSync(subDir, { recursive: true });
+      const schemaFile = path.join(subDir, 'test.json');
+      fs.writeFileSync(schemaFile, JSON.stringify({ type: 'number' }));
+
+      const result = handleBaseRelativeSchemaLoad('/schemas/test.json', {}, TEST_DIR);
+
+      expect(result).toEqual({ type: 'number' });
+    });
+  });
+
+  describe('determineSchemaId', () => {
+    it('should use HTTP URL from $id', () => {
+      const schema = { $id: 'http://example.com/schema', type: 'object' };
+
+      const id = determineSchemaId(schema, '/path/to/schema.json');
+
+      expect(id).toBe('http://example.com/schema');
+    });
+
+    it('should use HTTPS URL from $id', () => {
+      const schema = { $id: 'https://example.com/schema', type: 'object' };
+
+      const id = determineSchemaId(schema, '/path/to/schema.json');
+
+      expect(id).toBe('https://example.com/schema');
+    });
+
+    it('should use schema-relative path from $id', () => {
+      const schema = { $id: '/common/schema.json', type: 'object' };
+
+      const id = determineSchemaId(schema, '/absolute/path/schema.json');
+
+      expect(id).toBe('/common/schema.json');
+    });
+
+    it('should use absolute path if $id looks like filesystem path', () => {
+      const schema = { $id: '/home/user/schema.json', type: 'object' };
+
+      const id = determineSchemaId(schema, '/other/path/schema.json');
+
+      expect(id).toBe('/other/path/schema.json');
+    });
+
+    it('should use absolute path if no $id', () => {
+      const schema = { type: 'object' };
+
+      const id = determineSchemaId(schema, '/path/to/schema.json');
+
+      expect(id).toBe('/path/to/schema.json');
+    });
+  });
+
+  describe('addCustomFormats', () => {
+    it('should add NHS number format to AJV', () => {
+      const mockAjv = {
+        addFormat: jest.fn()
+      };
+      const mockValidator = jest.fn();
+
+      addCustomFormats(mockAjv, mockValidator);
+
+      expect(mockAjv.addFormat).toHaveBeenCalledWith('nhs-number', {
+        type: 'string',
+        validate: mockValidator
+      });
+    });
+  });
+
+  describe('addSchemasToAjv', () => {
+    it('should add schemas with absolute paths to AJV', () => {
+      const mockAjv = {
+        addSchema: jest.fn()
+      };
+      const schemas = {
+        '/absolute/path/schema1.json': { type: 'object', $id: 'schema1' },
+        '/absolute/path/schema2.json': { type: 'string' },
+        'relative/path.json': { type: 'number' }
+      };
+
+      const added = addSchemasToAjv(mockAjv, schemas);
+
+      expect(mockAjv.addSchema).toHaveBeenCalledTimes(2);
+      expect(added.size).toBe(2); // 2 absolute paths (schema1 also adds its $id but size tracks unique additions)
+    });
+  });
+
+  describe('buildRemoteSchemaUrl', () => {
+    it('should build URL for common schemas', () => {
+      const url = buildRemoteSchemaUrl('/path/common/2025-11-draft/schema.schema.json');
+
+      expect(url).toBe('https://notify.nhs.uk/cloudevents/schemas/common/2025-11-draft/schema.schema.json');
+    });
+
+    it('should build URL for examples schemas', () => {
+      const url = buildRemoteSchemaUrl('/path/examples/v1/test.schema.json');
+
+      expect(url).toBe('https://notify.nhs.uk/cloudevents/schemas/examples/v1/test.schema.json');
+    });
+
+    it('should build URL for supplier-allocation schemas', () => {
+      const url = buildRemoteSchemaUrl('/path/supplier-allocation/v2/schema.schema.json');
+
+      expect(url).toBe('https://notify.nhs.uk/cloudevents/schemas/supplier-allocation/v2/schema.schema.json');
+    });
+
+    it('should return null for non-matching paths', () => {
+      const url = buildRemoteSchemaUrl('/path/other/schema.json');
+
+      expect(url).toBeNull();
+    });
+  });
+
+  describe('findMainSchema', () => {
+    it('should find schema from loaded files', () => {
+      const schemaFile = path.join(TEST_DIR, 'main.json');
+      fs.writeFileSync(schemaFile, JSON.stringify({ type: 'object', $id: '/common/main-schema.json' }));
+      const schemas: Record<string, any> = {};
+      schemas[path.resolve(schemaFile)] = { type: 'object', $id: '/common/main-schema.json' };
+
+      const result = findMainSchema(schemaFile, [schemaFile], schemas);
+
+      expect(result.schema).toEqual({ type: 'object', $id: '/common/main-schema.json' });
+      expect(result.schemaId).toBe('/common/main-schema.json'); // Schema-relative path preferred
+    });
+
+    it('should load schema from filesystem if not in loaded files', () => {
+      const schemaFile = path.join(TEST_DIR, 'external.json');
+      fs.writeFileSync(schemaFile, JSON.stringify({ type: 'string' }));
+
+      const result = findMainSchema(schemaFile, [], {});
+
+      expect(result.schema).toEqual({ type: 'string' });
+      expect(result.schemaId).toBe(path.resolve(schemaFile));
+    });
+
+    it('should return remote URL if file not found', () => {
+      const schemaPath = '/path/common/2025-11-draft/test.schema.json';
+
+      const result = findMainSchema(schemaPath, [], {});
+
+      expect(result.schema).toBeNull();
+      expect(result.schemaId).toBe('https://notify.nhs.uk/cloudevents/schemas/common/2025-11-draft/test.schema.json');
+    });
+
+    it('should throw error if schema cannot be determined', () => {
+      expect(() => findMainSchema('/nonexistent/schema.json', [], {}))
+        .toThrow('Schema file not found');
+    });
+  });
+
+  describe('formatValidationError', () => {
+    it('should format basic validation error', () => {
+      const err = {
+        instancePath: '/name',
+        schemaPath: '#/properties/name/type',
+        keyword: 'type',
+        params: { type: 'string' },
+        message: 'must be string'
+      };
+      const data = { name: 123 };
+
+      const formatted = formatValidationError(err, data);
+
+      expect(formatted).toContain('Error at path: /name');
+      expect(formatted).toContain('Value: 123');
+      expect(formatted).toContain('Keyword: type');
+      expect(formatted).toContain('Message: must be string');
+    });
+
+    it('should include parent schema details if available', () => {
+      const err = {
+        instancePath: '/email',
+        schemaPath: '#/properties/email/pattern',
+        keyword: 'pattern',
+        params: {},
+        message: 'must match pattern',
+        parentSchema: {
+          pattern: '^[a-z]+@[a-z]+\\.[a-z]+$',
+          description: 'Email address'
+        }
+      };
+      const data = { email: 'invalid' };
+
+      const formatted = formatValidationError(err, data);
+
+      expect(formatted).toContain('Pattern: ^[a-z]+@[a-z]+\\.[a-z]+$');
+      expect(formatted).toContain('Description: Email address');
+    });
+
+    it('should diagnose NHS number errors', () => {
+      const err = {
+        instancePath: '/nhsNumber',
+        schemaPath: '#/properties/nhsNumber/format',
+        keyword: 'format',
+        params: { format: 'nhs-number' },
+        message: 'must match format "nhs-number"'
+      };
+      // Use NHS number with wrong checksum
+      const data = { nhsNumber: '9434765910' }; // Expected check digit is 9, not 0
+
+      const formatted = formatValidationError(err, data, diagnoseNhsNumber);
+
+      expect(formatted).toContain('NHS Number invalid');
+      expect(formatted).toContain('Checksum mismatch');
+    });
+  });
+
+  describe('formatAllValidationErrors', () => {
+    it('should format multiple errors', () => {
+      const errors = [
+        {
+          instancePath: '/name',
+          schemaPath: '#/properties/name/type',
+          keyword: 'type',
+          params: {},
+          message: 'must be string'
+        },
+        {
+          instancePath: '/age',
+          schemaPath: '#/properties/age/type',
+          keyword: 'type',
+          params: {},
+          message: 'must be number'
+        }
+      ];
+      const data = { name: 123, age: 'old' };
+
+      const formatted = formatAllValidationErrors(errors, data);
+
+      expect(formatted).toContain('Error at path: /name');
+      expect(formatted).toContain('Error at path: /age');
+    });
+
+    it('should handle empty error array', () => {
+      const formatted = formatAllValidationErrors([], {});
+
+      expect(formatted).toBe('');
     });
   });
 });
