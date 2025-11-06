@@ -12,9 +12,11 @@ module.exports = {
       tsconfig: {
         esModuleInterop: true,
         allowSyntheticDefaultImports: true,
+        allowImportingTsExtensions: true,
         module: 'commonjs',
         target: 'ES2020',
-        moduleResolution: 'node'
+        moduleResolution: 'node',
+        noEmit: true
       }
     }]
   },
@@ -42,6 +44,9 @@ module.exports = {
     }
   },
   moduleFileExtensions: ['ts', 'js', 'json'],
+  moduleNameMapper: {
+    '^(.*)\\.ts$': '$1',
+  },
   verbose: true,
   testTimeout: 10000
 };

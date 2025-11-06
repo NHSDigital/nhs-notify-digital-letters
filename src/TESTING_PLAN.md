@@ -52,9 +52,9 @@ This document outlines the comprehensive plan for implementing unit tests across
 | tools/builder | ✅ Complete | ✅ | 11 | N/A (CLI) | 2025-11-05 | build-schema.ts - integration tests for CLI functionality |
 | tools/cache | ✅ Complete | ✅ | 30 | 80% | 2025-11-05 | schema-cache.ts - 21 integration + 8 network + 1 lifecycle tests, no external URLs |
 | tools/generator | 🔄 Partial | ✅ | 16 | Partial | 2025-11-05 | json-to-yaml.cjs - 16 tests passing, 50% coverage in SonarCloud. **Blocker**: generate-example.ts and manual-bundle-schema.ts have pre-existing TypeScript compilation errors preventing coverage collection |
-| tools/validator | ✅ Complete | ✅ | 104 | 93% | 2025-11-06 | **Phase B Complete!** validate.js → validate.ts (TypeScript conversion). 23 CLI + 81 unit tests. validator-lib.ts: 93% coverage. Types defined in types.ts. |
+| tools/validator | ✅ Complete | ✅ | 115 | 93% | 2025-11-06 | **Phase C Complete!** Class-based architecture. validate.ts (58 lines), validator.ts (201 lines). 23 CLI + 81 lib + 11 class tests. |
 | Other | ❌ Not Started | ❌ | 0 | - | - | discover-schema-dependencies.js and other root-level scripts |
-| **Total** | **Partial** | **4/5** | **161** | **~80%** | **2025-11-06** | **Jest configured, CI/CD integrated. 161 passing tests. TS errors block full generator testing** |
+| **Total** | **Partial** | **4/5** | **172** | **~85%** | **2025-11-06** | **Jest configured, CI/CD integrated. 172 passing tests. TS errors block full generator testing** |
 
 ### Phase 3: Integration
 
@@ -75,13 +75,63 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Use this section to track current work in progress and next steps. Update this section whenever starting or completing work.**
 
-### Current Status (2025-11-06 09:34 GMT)
+### Current Status (2025-11-06 10:16 GMT)
 
-**Phase B COMPLETED!** ✅
+**Phase C COMPLETED!** ✅ 🎉
 
-**Phase B COMPLETED!** ✅
+#### All three phases complete: A → B → C
 
-**Accomplishments**:
+**Phase C Accomplishments**:
+
+- ✅ **Created Validator class** (validator.ts - 201 lines):
+  - Encapsulates all validation logic in a reusable class
+  - Manages AJV instance, schemas, and request tracking
+  - Returns `ValidationResult` objects instead of calling `process.exit()`
+  - Fully testable and can be used programmatically
+  - Private `loadExternalSchema` method (40 lines of logic extracted)
+
+- ✅ **Refactored validate.ts to slim CLI wrapper**:
+  - **Reduced from 158 → 58 lines** (63% reduction!)
+  - **Total reduction from Phase A start: 450 → 58 lines** (87% reduction!)
+  - Just parses args, instantiates Validator, calls validate(), handles exit codes
+  - Clean separation: CLI concerns vs business logic
+  - Can be used as reference for how to use Validator class programmatically
+
+- ✅ **Enhanced types.ts**:
+  - Added `ValidatorConfig` interface for Validator constructor
+  - Enhanced `ValidationResult` with data, schema, and formattedErrors fields
+  - Type-safe configuration and results
+
+- ✅ **Created 11 new Validator class unit tests**:
+  - Test constructor with different configurations
+  - Test validate() method with valid/invalid data
+  - Test nested object validation
+  - Test error handling and formatted errors
+  - Test getter methods (getSchemaDir, getLoadedSchemasCount)
+  - **Total validator tests: 115** (23 CLI + 81 lib + 11 class)
+
+- ✅ **Fixed Jest configuration for .ts extensions**:
+  - Added `allowImportingTsExtensions: true` to ts-jest config
+  - Added `moduleNameMapper` to strip .ts extensions
+  - Now works seamlessly with ESM + TypeScript + .ts extensions
+  - Supports both ts-node (CLI) and Jest (tests)
+
+**Architecture Benefits Achieved**:
+
+- 🎯 **Clean separation**: CLI, business logic, and utilities all separated
+- 🎯 **Fully testable**: Validator class can be imported and tested without spawning processes
+- 🎯 **Reusable**: Validator class can be used programmatically in other code
+- 🎯 **Type-safe**: Full TypeScript type coverage with compile-time checking
+- 🎯 **Maintainable**: 58-line CLI, 201-line class, 631-line lib - all focused and clear
+- 🎯 **Well-tested**: 115 tests with excellent coverage (93%+)
+
+**Next Steps**:
+
+- 🎯 **Test discover-schema-dependencies.js** - Final cloudevents component to test
+- 🎯 **Push changes and verify CI/CD** - Check that all tests pass in GitHub Actions
+- 🎯 **Complete Phase 3 integration tasks** - src/Makefile and root Makefile updates
+
+**Previous Completions**:
 
 - ✅ **Created TypeScript type definitions** (`types.ts`):
   - `CommandLineConfig` - CLI argument structure
@@ -197,6 +247,69 @@ This document outlines the comprehensive plan for implementing unit tests across
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-06 10:16 GMT - Phase C Complete: Class-Based Refactoring
+
+**Author**: GitHub Copilot (rossbugginsnhs session)
+
+**Activity**: Completed validator Phase C refactoring - introduced Validator class for reusable, testable architecture
+
+**Changes Made**:
+
+- ✅ Created `validator.ts` (201 lines):
+  - Implemented Validator class with constructor, validate(), and private helper methods
+  - Encapsulates all validation logic: schema loading, validation, error formatting
+  - Fully type-safe with ValidatorConfig and ValidationResult interfaces
+  - Added getSchemaDir() and getLoadedSchemasCount() public methods
+- ✅ Refactored `validate.ts` to slim CLI wrapper (158 → 58 lines):
+  - Now a lightweight 58-line CLI entry point
+  - Instantiates Validator class and calls validate()
+  - Handles exit codes and error reporting
+  - **87% line reduction** from original 450-line validate.js!
+- ✅ Enhanced `types.ts`:
+  - Added ValidatorConfig interface for constructor options
+  - Enhanced ValidationResult with data, schema, and formattedErrors fields
+  - Type-safe configuration and results throughout
+- ✅ Created `validator-class.test.ts` (11 new tests):
+  - Tests constructor initialization with different configurations
+  - Tests validate() method with valid/invalid data
+  - Tests nested object validation scenarios
+  - Tests error handling and formatted error output
+  - Tests getter methods (getSchemaDir, getLoadedSchemasCount)
+  - **Total validator tests: 115** (23 CLI + 81 lib + 11 class)
+- ✅ Fixed Jest configuration in `jest.config.cjs`:
+  - Added `allowImportingTsExtensions: true` to ts-jest config
+  - Added `moduleNameMapper: { '^(.*)\\.ts$': '$1' }` to strip extensions
+  - Added `noEmit: true` for test-only transpilation
+  - Now supports ESM + TypeScript + .ts extensions seamlessly
+  - Works with both ts-node (CLI execution) and Jest (testing)
+
+**Files Modified**:
+
+- `src/cloudevents/tools/validator/validator.ts` (NEW - 201 lines)
+- `src/cloudevents/tools/validator/validate.ts` (158 → 58 lines)
+- `src/cloudevents/tools/validator/types.ts` (enhanced)
+- `src/cloudevents/tools/validator/jest.config.cjs` (fixed .ts handling)
+- `src/cloudevents/tools/validator/__tests__/validator-class.test.ts` (NEW - 11 tests)
+- `src/TESTING_PLAN.md` (updated progress tracker and changelog)
+
+**Architecture Achievements**:
+
+- 🎯 Clean separation: CLI (58 lines), business logic class (201 lines), utilities (631 lines)
+- 🎯 Fully testable: Validator class can be imported and tested without spawning processes
+- 🎯 Reusable: Validator class can be used programmatically in other code
+- 🎯 Type-safe: Full TypeScript coverage with compile-time checking
+- 🎯 Maintainable: Clear, focused modules with single responsibilities
+- 🎯 Well-tested: 115 tests with 93%+ coverage
+
+**Current Status**: Phase C COMPLETE ✅
+
+- All 115 validator tests passing (23 CLI + 81 lib + 11 class)
+- Jest configured for .ts extensions in ESM modules
+- Coverage verified: 93%+ on validator-lib.ts
+- Ready to commit and proceed to next component (discover-schema-dependencies.js)
+
+---
 
 ### 2025-11-06 09:34 GMT - Phase B Complete: Converted validate.js to TypeScript
 

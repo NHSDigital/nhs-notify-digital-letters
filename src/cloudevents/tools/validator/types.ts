@@ -27,6 +27,9 @@ export interface SchemaRegistry {
 export interface ValidationResult {
   valid: boolean;
   errors?: ErrorObject[];
+  formattedErrors?: string;
+  data?: any;
+  schema?: any;
 }
 
 /**
@@ -65,4 +68,12 @@ export interface CliArgs {
   schemaPath: string;
   dataPath: string;
   baseDir?: string;
+}
+
+/**
+ * Configuration for Validator class
+ */
+export interface ValidatorConfig {
+  schemaDir: string;
+  maxRequestsPerUri?: number;
 }
