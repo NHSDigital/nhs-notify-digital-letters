@@ -1,13 +1,14 @@
-
 ajv
 AJV
 allOf
+arg
 [A-Z]+s
 backoff
 beforeAll
 Bitwarden
 boolean
 bot
+[Cc][Ll][Ii]
 clearCache
 cloudevent
 codegen
@@ -45,6 +46,7 @@ jekyll
 Jekyll
 Jira
 jq
+lineWidth
 Loopback
 Makefile
 middleware
@@ -63,6 +65,7 @@ projectRoot
 Protobuf
 pylint
 Python
+quotingType
 rawContent
 repo
 sample_event_markdown

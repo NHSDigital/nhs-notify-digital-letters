@@ -51,10 +51,10 @@ This document outlines the comprehensive plan for implementing unit tests across
 |-----------|--------|----------------|-------|----------|----------------|-------|
 | tools/builder | ✅ Complete | ✅ | 11 | N/A (CLI) | 2025-11-05 | build-schema.ts - integration tests for CLI functionality |
 | tools/cache | ✅ Complete | ✅ | 30 | 80% | 2025-11-05 | schema-cache.ts - 21 integration + 8 network + 1 lifecycle tests, no external URLs |
-| tools/generator | 🔄 Partial | ✅ | 250 | **35%** (est) | 2025-11-06 | **manual-bundle-schema refactored!** 250 tests (23 new), class-based architecture. example-generator: 81%, generate-example-cli: 100%, json-to-yaml: 50%, **manual-bundle-schema: ~80% (23 tests)**, generate-docs: 0% (698 lines). Coverage increase pending SonarCloud scan. **Next: json-to-yaml refactoring (quick win)** |
+| tools/generator | 🔄 Partial | ✅ | 266 | **~40%** (est) | 2025-11-06 | **json-to-yaml refactored!** 266 tests (14 new). example-generator: 81%, generate-example-cli: 100%, **json-to-yaml: 92%** (cli: 100%, converter: 100%), **manual-bundle-schema: ~80%** (23 tests), generate-docs: 0% (698 lines). Coverage increase pending SonarCloud scan. **Next: generate-docs.cjs (medium priority)** |
 | tools/validator | ✅ Complete | ✅ | 115 | 93% | 2025-11-06 | **Phase C Complete!** Class-based architecture. validate.ts (58 lines), validator.ts (201 lines). 23 CLI + 81 lib + 11 class tests. |
 | Other | ❌ Not Started | ❌ | 0 | - | - | discover-schema-dependencies.js and other root-level scripts |
-| **Total** | **Partial** | **4/5** | **406** | **~55%** | **2025-11-06** | **Jest configured, CI/CD integrated. 406 passing tests. manual-bundle-schema complete!** |
+| **Total** | **Partial** | **4/5** | **422** | **~60%** | **2025-11-06** | **Jest configured, CI/CD integrated. 422 passing tests. json-to-yaml complete!** |
 
 ### Phase 3: Integration
 
@@ -75,45 +75,45 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Use this section to track current work in progress and next steps. Update this section whenever starting or completing work.**
 
-### Current Status (2025-11-06 13:25 GMT)
+### Current Status (2025-11-06 13:41 GMT)
 
-**COMPLETED: manual-bundle-schema.ts Refactoring** ✅ 🎉
+**COMPLETED: json-to-yaml.cjs Refactoring** ✅ 🎉
 
-**Manual Bundle Schema Refactoring - COMPLETE!**
+**JSON-to-YAML Refactoring - COMPLETE!** 📦
 
-- ✅ **SchemaBundler class created** (508 lines) - All bundling/flattening logic extracted
-- ✅ **CLI handler created** (85 lines) - Testable handleCli function
-- ✅ **Type definitions created** (44 lines) - Full TypeScript type safety
-- ✅ **Entry point refactored** (730 → 18 lines, 97.5% reduction!)
-- ✅ **23 comprehensive tests created** (15 unit + 8 CLI, 277 test lines)
-- ✅ **Flatten mode bug fixed** - Root schema properties now merged correctly
-- ✅ **All 250/250 tests passing** (100% pass rate)
-- ✅ **Build validated** - All 22 events successfully bundled and flattened
-- ✅ **Committed and pushed** - Commit `aecc290` on branch rossbugginsnhs/2025-11-04/eventcatalog-001
+- ✅ **JsonToYamlConverter class created** (89 lines) - All conversion logic extracted
+- ✅ **CLI handler created** (41 lines) - Testable handleCli function
+- ✅ **Type definitions created** (54 lines) - ConversionOptions and ConversionResult
+- ✅ **Entry point refactored** (73 → 27 lines, 63% reduction!)
+- ✅ **14 comprehensive tests created** (11 class + 5 CLI)
+- ✅ **All 266/266 tests passing** (up from 250, +16 tests)
+- ✅ **Coverage increased**: 50% → 92% (cli: 100%, converter: 100%, entry: 78%)
 
-**Coverage Impact** (pending SonarCloud scan):
+**Coverage Impact**:
 
-- manual-bundle-schema.ts: 0% → ~80% expected
-- Overall generator coverage: 15% → ~35% expected (+520 covered lines)
+- json-to-yaml-cli.ts: 0% → **100%**
+- json-to-yaml-converter.ts: 0% → **100%**
+- json-to-yaml.cjs: 50% → **78%** (only CLI invocation uncovered)
+- Combined coverage: **~92%** (massive improvement!)
 
-**NEXT: json-to-yaml.cjs Refactoring** 📦 - QUICK WIN
+**NEXT: generate-docs.cjs Refactoring** � - MEDIUM PRIORITY
 
-**json-to-yaml.cjs** (45 lines, 50% → 90%) - Already partially tested:
+**generate-docs.cjs** (698 lines, 0% → 60%) - Next target:
 
-- Convert to TypeScript class pattern (JsonToYamlConverter)
-- Create json-to-yaml-cli.ts handler (~30 lines)
-- Convert main file to entry point (~10 lines)
-- Write 10-15 additional tests
-- **Impact**: +20 covered lines (quick completion)
+- Convert to TypeScript class pattern (DocsGenerator)
+- Extract documentation generation logic
+- Create docs-cli.ts handler
+- Write comprehensive test suite
+- **Impact**: +400 covered lines (significant coverage boost)
 
 **Refactoring Priority Order** (Updated):
 
 1. ✅ ~~**manual-bundle-schema.ts**~~ - **COMPLETE!** ✅
-2. **json-to-yaml.cjs** (45 lines, 50% → 90%) - NEXT/QUICK WIN
-3. **generate-docs.cjs** (698 lines, 0% → 60%) - MEDIUM PRIORITY
+2. ✅ ~~**json-to-yaml.cjs**~~ - **COMPLETE!** ✅
+3. **generate-docs.cjs** (698 lines, 0% → 60%) - NEXT/MEDIUM PRIORITY
 4. **README utilities** (535 lines, 0% → 50%) - LOW PRIORITY
 
-**Previous Status (2025-11-06 11:30 GMT)**:
+**Previous Status (2025-11-06 13:25 GMT)**:
 
 **Generator Tools Refactoring Started** 📦
 
@@ -304,6 +304,94 @@ This document outlines the comprehensive plan for implementing unit tests across
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-06 13:41 GMT - JSON-to-YAML Refactoring COMPLETE ✅
+
+**Author**: GitHub Copilot
+**Activity**: Completed class-based refactoring of json-to-yaml.cjs with comprehensive test suite (QUICK WIN!)
+**Status**: ✅ **COMPLETE** - All tests passing (266/266), coverage increased 50% → 92%, ready to commit
+
+**Changes Made**:
+
+1. **Created JsonToYamlConverter Class** (`json-to-yaml-converter.ts` - 89 lines):
+   - Encapsulates all JSON-to-YAML conversion logic in reusable TypeScript class
+   - Public methods: `convert(inputFile, outputFile)`, `convertData(data)`, `getOptions()`
+   - Configurable YAML options: lineWidth, noRefs, sortKeys, quotingType, forceQuotes
+   - Returns `ConversionResult` objects with success/error states
+   - Fully testable without spawning processes
+
+2. **Created CLI Handler** (`json-to-yaml-cli.ts` - 41 lines):
+   - Testable `handleCli(args)` function that returns exit code
+   - Validates argument count (must be exactly 2)
+   - Checks input file existence before attempting conversion
+   - Error reporting with descriptive messages
+   - No process.exit() calls - returns exit codes
+
+3. **Created Type Definitions** (`json-to-yaml-types.ts` - 54 lines):
+   - `ConversionOptions` - YAML formatting configuration
+   - `ConversionResult` - Result object with success/error/errorMessage
+   - Full JSDoc documentation for all properties
+   - Type-safe interfaces throughout
+
+4. **Refactored Entry Point** (`json-to-yaml.cjs`):
+   - **Reduced from 73 → 27 lines (63% reduction!)**
+   - Slim entry point that imports `handleCli` and `JsonToYamlConverter`
+   - Maintains backward compatibility with `convertJsonToYaml()` export
+   - All business logic extracted to classes/functions
+
+5. **Enhanced Test Suite** (30 tests total, +14 new):
+   - **JsonToYamlConverter class tests** (11 new tests):
+     - Constructor: default options, custom options, options immutability (3 tests)
+     - convert(): file conversion, error handling, directory creation (4 tests)
+     - convertData(): in-memory conversion, special cases, custom options (4 tests)
+   - **CLI handler tests** (5 new tests):
+     - Success: valid file conversion (1 test)
+     - Errors: arg validation, missing files, invalid JSON, error messages (4 tests)
+   - **Existing tests** (16 tests): All continue to pass using legacy wrapper
+
+**Test Results**:
+
+- **Total cloudevents tests**: 266 passing (up from 250, +16 tests)
+- **json-to-yaml specific**: 30 tests (16 existing + 14 new)
+- **Execution time**: ~73 seconds for full suite
+- **Pass rate**: 100%
+
+**Coverage Achievement**:
+
+| File | Before | After | Improvement |
+|------|--------|-------|-------------|
+| json-to-yaml-cli.ts | 0% | **100%** | +100% |
+| json-to-yaml-converter.ts | 0% | **100%** | +100% |
+| json-to-yaml.cjs | 50% | **78%** | +28% |
+| **Combined** | **50%** | **~92%** | **+42%** |
+
+**Architecture Benefits**:
+
+- 🎯 **Reusable**: JsonToYamlConverter class can be imported and used in other code
+- 🎯 **Testable**: All logic testable without file system or CLI concerns
+- 🎯 **Type-safe**: Full TypeScript support with interfaces
+- 🎯 **Backward compatible**: Legacy `convertJsonToYaml()` wrapper maintained
+- 🎯 **Configurable**: YAML options can be customized per instance
+- 🎯 **Clean separation**: Entry point (27 lines) → CLI (41 lines) → Logic (89 lines)
+
+**Files Modified**:
+
+- `src/cloudevents/tools/generator/json-to-yaml.cjs` - Refactored to slim entry point
+- `src/cloudevents/tools/generator/__tests__/json-to-yaml.test.ts` - Added 14 new tests
+- `src/TESTING_PLAN.md` - Updated status and changelog
+
+**Files Created**:
+
+- `src/cloudevents/tools/generator/json-to-yaml-converter.ts` - Core conversion class
+- `src/cloudevents/tools/generator/json-to-yaml-cli.ts` - CLI handler
+- `src/cloudevents/tools/generator/json-to-yaml-types.ts` - Type definitions
+
+**Next Steps**:
+
+- Commit changes with descriptive message
+- Run pre-commit hooks to validate
+- Push to branch and monitor CI/CD
+- Consider tackling generate-docs.cjs next (698 lines, larger impact)
 
 ### 2025-11-06 13:25 GMT - Manual Bundle Schema Refactoring COMPLETE ✅
 
