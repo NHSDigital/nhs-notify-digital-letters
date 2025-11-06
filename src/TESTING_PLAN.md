@@ -88,6 +88,7 @@ This document outlines the comprehensive plan for implementing unit tests across
 - ✅ **14 comprehensive tests created** (11 class + 5 CLI)
 - ✅ **All 266/266 tests passing** (up from 250, +16 tests)
 - ✅ **Coverage increased**: 50% → 92% (cli: 100%, converter: 100%, entry: 78%)
+- ✅ **Committed**: `387a4b2` - All pre-commit hooks passed
 
 **Coverage Impact**:
 
@@ -309,7 +310,8 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Author**: GitHub Copilot
 **Activity**: Completed class-based refactoring of json-to-yaml.cjs with comprehensive test suite (QUICK WIN!)
-**Status**: ✅ **COMPLETE** - All tests passing (266/266), coverage increased 50% → 92%, ready to commit
+**Status**: ✅ **COMPLETE** - All tests passing (266/266), coverage increased 50% → 92%, committed to branch
+**Commit**: `387a4b2` on branch `rossbugginsnhs/2025-11-04/eventcatalog-001`
 
 **Changes Made**:
 
@@ -385,12 +387,20 @@ This document outlines the comprehensive plan for implementing unit tests across
 - `src/cloudevents/tools/generator/json-to-yaml-converter.ts` - Core conversion class
 - `src/cloudevents/tools/generator/json-to-yaml-cli.ts` - CLI handler
 - `src/cloudevents/tools/generator/json-to-yaml-types.ts` - Type definitions
+- `scripts/config/vale/styles/config/vocabularies/words/accept.txt` - Added `[Cc][Ll][Ii]`, `arg`, `lineWidth`, `quotingType`
+
+**Commit Details**:
+
+- **Commit**: `387a4b2`
+- **Branch**: `rossbugginsnhs/2025-11-04/eventcatalog-001`
+- **Pre-commit hooks**: All passed ✅
+- **Vale vocabulary updated**: Case-insensitive CLI pattern, arg, lineWidth, quotingType (legitimate technical terms)
 
 **Next Steps**:
 
-- Commit changes with descriptive message
-- Run pre-commit hooks to validate
-- Push to branch and monitor CI/CD
+- ✅ Committed and documented
+- Push to remote and monitor CI/CD
+- SonarCloud will scan and update coverage metrics
 - Consider tackling generate-docs.cjs next (698 lines, larger impact)
 
 ### 2025-11-06 13:25 GMT - Manual Bundle Schema Refactoring COMPLETE ✅
