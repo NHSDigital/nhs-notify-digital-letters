@@ -281,21 +281,20 @@ properties:
 
   describe('module structure', () => {
     it('should export expected functions (if any)', () => {
-      // build-schema.ts is primarily a CLI script
-      // It doesn't export functions, but we can verify it compiles
-      const buildSchemaPath = path.join(process.cwd(), 'tools/builder/build-schema.ts');
-      expect(fs.existsSync(buildSchemaPath)).toBe(true);
+      // build-schema-cli.ts contains the testable logic
+      const buildSchemaCliPath = path.join(process.cwd(), 'tools/builder/build-schema-cli.ts');
+      expect(fs.existsSync(buildSchemaCliPath)).toBe(true);
 
       // Verify file has expected structure
-      const content = fs.readFileSync(buildSchemaPath, 'utf-8');
+      const content = fs.readFileSync(buildSchemaCliPath, 'utf-8');
       expect(content).toContain('buildSchema');
       expect(content).toContain('processRefs');
       expect(content).toContain('$id');
     });
 
     it('should have proper imports', () => {
-      const buildSchemaPath = path.join(process.cwd(), 'tools/builder/build-schema.ts');
-      const content = fs.readFileSync(buildSchemaPath, 'utf-8');
+      const buildSchemaCliPath = path.join(process.cwd(), 'tools/builder/build-schema-cli.ts');
+      const content = fs.readFileSync(buildSchemaCliPath, 'utf-8');
 
       expect(content).toContain('import fs from');
       expect(content).toContain('import path from');

@@ -21,13 +21,18 @@ module.exports = {
     }]
   },
   collectCoverageFrom: [
+    'tools/builder/**/*.ts',
     'tools/cache/**/*.ts',
     'tools/generator/**/*.{ts,cjs}',
     'tools/validator/**/*.{js,ts}',
     '!tools/**/*.d.ts',
     '!tools/**/__tests__/**',
     '!tools/**/*.test.ts',
-    '!tools/**/*.spec.ts'
+    '!tools/**/*.spec.ts',
+    '!tools/builder/build-schema.ts',
+    '!tools/generator/generate-example.ts',
+    '!tools/generator/manual-bundle-schema.ts',
+    '!tools/validator/validate.ts'
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html', 'cobertura'],
