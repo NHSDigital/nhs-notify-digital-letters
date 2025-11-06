@@ -532,8 +532,8 @@ describe('generate-example.ts', () => {
       const schemaFile = path.join(TEST_DIR, 'invalid-schema.json');
       const outputFile = path.join(TEST_DIR, 'invalid-output.json');
 
-      // Write invalid JSON
-      fs.writeFileSync(schemaFile, '{ invalid json }');
+      // Write actually invalid JSON (unclosed brace)
+      fs.writeFileSync(schemaFile, '{ "type": "object"');
 
       expect(() => {
         execSync(`${TS_NODE_CMD} ${SCRIPT_PATH} ${schemaFile} ${outputFile}`, {

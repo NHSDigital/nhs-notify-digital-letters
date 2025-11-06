@@ -248,6 +248,68 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-06 10:53 GMT - Refactored generate-example.ts to Class-Based Architecture
+
+**Author**: GitHub Copilot (rossbugginsnhs session)
+
+**Activity**: Refactored generate-example.ts into testable class-based architecture; created comprehensive unit tests achieving 75% coverage
+
+**Problem**: generate-example.ts (390 lines) had all logic inline, preventing Jest from instrumenting code for coverage. Tests used execSync to run CLI, which doesn't allow coverage collection.
+
+**Solution**: Applied same successful pattern used for validator.ts - extract business logic into testable class
+
+**Changes Made**:
+
+1. **Created ExampleGenerator class** (`example-generator.ts` - 365 lines):
+   - Extracted all generation logic into reusable class
+   - Methods: `generate()`, `generateToFile()`, `setupJsf()`, `applyCloudEventsOverrides()`, etc.
+   - Returns `GenerationResult` objects with success/error status
+   - Fully testable without CLI execution
+   - Achieved **75.16% coverage** 🎉
+
+2. **Refactored generate-example.ts to slim CLI wrapper** (59 lines):
+   - Just parses args, handles --clear-cache/--cache-info, instantiates ExampleGenerator
+   - Clean separation: CLI concerns vs business logic
+   - **85% line reduction** (390 → 59)
+
+3. **Created comprehensive unit tests** (`example-generator.test.ts` - 579 lines):
+   - 18 new unit tests importing ExampleGenerator class directly
+   - Tests cover: basic schemas, CloudEvents compliance, NHS numbers, patterns, enums, $refs, error handling
+   - **All 18 tests passing** ✅
+   - Fast execution (~5 seconds)
+
+4. **Preserved integration tests** (`generate-example.test.ts`):
+   - Kept 20 existing tests as smoke tests for CLI interface
+   - All still passing ✅
+
+**Test Results**:
+
+- Test Suites: 9 passed, 9 total
+- Tests: 212 passed, 212 total (added 18 new tests)
+- example-generator.ts: 75.16% coverage
+- generate-example.ts: 0% (tiny CLI wrapper, not critical)
+
+**Benefits**:
+
+- ✅ Testable without spawning processes
+- ✅ Clear separation between business logic and CLI
+- ✅ Reusable ExampleGenerator class for other tools
+- ✅ Fast tests (direct imports vs execSync)
+- ✅ Better coverage (Jest can instrument class code)
+- ✅ Type safe with proper TypeScript types
+
+**Files Modified**:
+
+- `src/cloudevents/tools/generator/example-generator.ts` - Created (365 lines, 75.16% coverage)
+- `src/cloudevents/tools/generator/generate-example.ts` - Refactored to CLI wrapper (59 lines)
+- `src/cloudevents/tools/generator/__tests__/example-generator.test.ts` - Created (18 tests)
+- `src/cloudevents/tools/generator/__tests__/generate-example.test.ts` - Updated error handling tests
+- `src/TESTING_PLAN.md` - This changelog entry
+
+**Status**: ✅ **COMPLETE** - generate-example.ts refactored, 75% coverage achieved, all 212 tests passing
+
+**Next Steps**: Increase ExampleGenerator coverage to 80%+, move CLI wrapper logic to separate testable file for SonarCloud
+
 ### 2025-11-06 10:16 GMT - Phase C Complete: Class-Based Refactoring
 
 **Author**: GitHub Copilot (rossbugginsnhs session)
