@@ -9,7 +9,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import { getCachedSchema } from '../cache/schema-cache.ts';
+import { getCachedSchema } from '../../cache/schema-cache.ts';
 import type { SchemaObject, BundlerOptions, BundleResult } from './schema-bundler-types.ts';
 
 export class SchemaBundler {

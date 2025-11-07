@@ -3,10 +3,14 @@
  * Tests the core example generation logic by importing the class directly
  */
 
-import { beforeEach, afterEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, afterEach, describe, expect, it, jest } from '@jest/globals';
+import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { ExampleGenerator } from '../example-generator.ts';
+
+const GENERATE_EXAMPLE_SCRIPT = path.join(__dirname, '../example-generator/generate-example.ts');
+const CACHE_DIR = path.join(__dirname, '../../cache/.cache');
+import { ExampleGenerator } from '../example-generator/example-generator.ts';
 
 const TEST_DIR = path.join(__dirname, 'temp-example-generator-test');
 

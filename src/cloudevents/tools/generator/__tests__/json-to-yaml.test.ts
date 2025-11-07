@@ -13,11 +13,11 @@ import { beforeEach, afterEach, describe, expect, it, jest } from '@jest/globals
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import { JsonToYamlConverter } from '../json-to-yaml-converter.ts';
-import { handleCli } from '../json-to-yaml-cli.ts';
+import { JsonToYamlConverter } from '../json-to-yaml/json-to-yaml-converter.ts';
+import { handleCli } from '../json-to-yaml/json-to-yaml-cli.ts';
 
 // Import the legacy function for backward compatibility tests
-const { convertJsonToYaml } = require('../json-to-yaml.cjs');
+const { convertJsonToYaml } = require('../json-to-yaml/json-to-yaml.cjs');
 
 const TEST_DIR = path.join(__dirname, 'temp-json-to-yaml-test');
 

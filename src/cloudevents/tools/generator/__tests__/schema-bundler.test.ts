@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { SchemaBundler } from '../schema-bundler.ts';
+import { SchemaBundler } from '../manual-bundler/schema-bundler.ts';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';

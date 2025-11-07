@@ -8,7 +8,7 @@ import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-const GENERATE_DOCS_SCRIPT = path.join(__dirname, '../generate-docs.cjs');
+const GENERATE_DOCS_SCRIPT = path.join(__dirname, '../docs-generator/generate-docs.cjs');
 const TEST_DIR = path.join(__dirname, 'temp-generate-docs-test');
 const INPUT_DIR = path.join(TEST_DIR, 'input');
 const OUTPUT_DIR = path.join(TEST_DIR, 'output');

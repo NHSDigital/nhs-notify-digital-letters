@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { handleCli } from '../manual-bundle-schema-cli.ts';
+import { handleCli } from '../manual-bundler/manual-bundle-schema-cli.ts';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';

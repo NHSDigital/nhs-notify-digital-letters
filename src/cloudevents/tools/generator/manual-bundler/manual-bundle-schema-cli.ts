@@ -5,8 +5,10 @@
  * It can be imported and tested separately from the entry point.
  */
 
+import path from 'path';
+import type { BundleResult } from './schema-bundler-types.ts';
 import { SchemaBundler } from './schema-bundler.ts';
-import { clearCache, displayCacheInfo } from '../cache/schema-cache.ts';
+import { clearCache, displayCacheInfo } from '../../cache/schema-cache.ts';
 
 /**
  * Result of CLI execution

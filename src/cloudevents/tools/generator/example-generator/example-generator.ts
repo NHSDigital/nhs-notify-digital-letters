@@ -11,8 +11,10 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import {
+  getSchemaCacheDir,
   getCachedSchema,
-} from "../cache/schema-cache.ts";
+  clearCache as clearSchemaCache,
+} from "../../cache/schema-cache.ts";
 
 /**
  * Options for example generation

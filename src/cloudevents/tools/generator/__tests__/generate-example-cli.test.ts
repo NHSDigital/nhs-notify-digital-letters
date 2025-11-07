@@ -6,7 +6,7 @@
 import { beforeEach, afterEach, describe, expect, it, jest } from '@jest/globals';
 import fs from 'fs';
 import path from 'path';
-import { handleCli } from '../generate-example-cli.ts';
+import { handleCli } from '../example-generator/generate-example-cli.ts';
 
 const TEST_DIR = path.join(__dirname, 'temp-cli-test');
 

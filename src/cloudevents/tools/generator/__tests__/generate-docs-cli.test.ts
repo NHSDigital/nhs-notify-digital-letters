@@ -12,7 +12,7 @@ import {
   ensureOutputDir,
   handleCli,
   printUsage,
-} from '../generate-docs-cli.ts';
+} from '../docs-generator/generate-docs-cli.ts';
 
 const TEST_DIR = path.join(__dirname, 'temp-docs-cli-test');
 
