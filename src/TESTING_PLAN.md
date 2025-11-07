@@ -463,6 +463,34 @@ Now that we have integration tests in place, we can safely refactor generate-doc
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
 
+### 2025-11-07 12:45 GMT - Deprecated generate-docs.cjs ✅
+
+**Author**: GitHub Copilot
+**Activity**: Renamed generate-docs.cjs to generate-docs.cjs.bak to mark as deprecated
+**Status**: ✅ **COMPLETE** - Old CJS file no longer needed
+
+**Files Renamed**:
+
+- `tools/generator/docs-generator/generate-docs.cjs` → `tools/generator/docs-generator/generate-docs.cjs.bak`
+
+**Rationale**:
+
+The TypeScript version (DocsGenerator class + generate-docs-cli.ts) is now fully implemented and tested with excellent coverage:
+
+- DocsGenerator class: 94% coverage (349 lines)
+- generate-docs-cli.ts: 83% coverage (126 lines)
+- 29 unit tests + 9 integration tests = 38 total tests
+
+The old generate-docs.cjs file (843 lines at 0% coverage) is no longer needed. Renamed to .bak for reference but could be deleted in future cleanup.
+
+**Impact**:
+
+- Removes 843 lines of untested code from active codebase
+- Eliminates confusion about which version to use
+- Improves overall code quality metrics
+
+---
+
 ### 2025-11-07 12:38 GMT - DocsGenerator Class Testing & CLI Integration Complete ✅
 
 **Author**: GitHub Copilot
