@@ -137,30 +137,30 @@ publish-yaml:
 		echo "Converting profile schemas to YAML..."; \
 		for schema in $(PROFILE_NAMES); do \
 			echo "  - $$schema"; \
-			node $(ROOT_DIR)/src/cloudevents/tools/generator/json-to-yaml.cjs $(SCHEMAS_DIR)/$$schema.schema.json $(SCHEMAS_DIR)/$$schema.schema.yaml || exit 1; \
+			cd $(ROOT_DIR)/src/cloudevents && npm run json-to-yaml $(SCHEMAS_DIR)/$$schema.schema.json $(SCHEMAS_DIR)/$$schema.schema.yaml || exit 1; \
 		done; \
 	fi
 	@if [ -n "$(DEFS_NAMES)" ]; then \
 		echo "Converting defs schemas to YAML..."; \
 		for schema in $(DEFS_NAMES); do \
 			echo "  - $$schema"; \
-			node $(ROOT_DIR)/src/cloudevents/tools/generator/json-to-yaml.cjs $(SCHEMAS_DIR)/defs/$$schema.json $(SCHEMAS_DIR)/defs/$$schema.yaml || exit 1; \
+			cd $(ROOT_DIR)/src/cloudevents && npm run json-to-yaml $(SCHEMAS_DIR)/defs/$$schema.json $(SCHEMAS_DIR)/defs/$$schema.yaml || exit 1; \
 		done; \
 	fi
 	@if [ -n "$(DATA_NAMES)" ]; then \
 		echo "Converting data schemas to YAML..."; \
 		for schema in $(DATA_NAMES); do \
 			echo "  - $$schema"; \
-			node $(ROOT_DIR)/src/cloudevents/tools/generator/json-to-yaml.cjs $(SCHEMAS_DIR)/data/$$schema.json $(SCHEMAS_DIR)/data/$$schema.yaml || exit 1; \
+			cd $(ROOT_DIR)/src/cloudevents && npm run json-to-yaml $(SCHEMAS_DIR)/data/$$schema.json $(SCHEMAS_DIR)/data/$$schema.yaml || exit 1; \
 		done; \
 	fi
 	@if [ -n "$(EVENT_NAMES)" ]; then \
 		echo "Converting event schemas to YAML..."; \
 		for schema in $(EVENT_NAMES); do \
 			echo "  - $$schema (including bundle & flatten)"; \
-			node $(ROOT_DIR)/src/cloudevents/tools/generator/json-to-yaml.cjs $(SCHEMAS_DIR)/events/$$schema.schema.json $(SCHEMAS_DIR)/events/$$schema.schema.yaml || exit 1; \
-			node $(ROOT_DIR)/src/cloudevents/tools/generator/json-to-yaml.cjs $(SCHEMAS_DIR)/events/$$schema.bundle.schema.json $(SCHEMAS_DIR)/events/$$schema.bundle.schema.yaml || exit 1; \
-			node $(ROOT_DIR)/src/cloudevents/tools/generator/json-to-yaml.cjs $(SCHEMAS_DIR)/events/$$schema.flattened.schema.json $(SCHEMAS_DIR)/events/$$schema.flattened.schema.yaml || exit 1; \
+			cd $(ROOT_DIR)/src/cloudevents && npm run json-to-yaml $(SCHEMAS_DIR)/events/$$schema.schema.json $(SCHEMAS_DIR)/events/$$schema.schema.yaml || exit 1; \
+			cd $(ROOT_DIR)/src/cloudevents && npm run json-to-yaml $(SCHEMAS_DIR)/events/$$schema.bundle.schema.json $(SCHEMAS_DIR)/events/$$schema.bundle.schema.yaml || exit 1; \
+			cd $(ROOT_DIR)/src/cloudevents && npm run json-to-yaml $(SCHEMAS_DIR)/events/$$schema.flattened.schema.json $(SCHEMAS_DIR)/events/$$schema.flattened.schema.yaml || exit 1; \
 		done; \
 	fi
 

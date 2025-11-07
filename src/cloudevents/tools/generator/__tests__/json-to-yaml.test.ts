@@ -1,12 +1,10 @@
 /**
- * Tests for json-to-yaml.cjs and related modules
+ * Tests for json-to-yaml TypeScript modules
  * Tests JSON to YAML conversion functionality including:
  * - JsonToYamlConverter class (core logic)
  * - handleCli function (CLI interface)
- * - Legacy convertJsonToYaml wrapper
  *
- * NOTE: Tests import convertJsonToYaml directly (not via execSync) to enable jest code coverage instrumentation.
- * CLI functionality is still tested indirectly through the exported function.
+ * NOTE: Tests use the TypeScript modules directly to enable jest code coverage instrumentation.
  */
 
 import { beforeEach, afterEach, describe, expect, it, jest } from '@jest/globals';
@@ -16,12 +14,19 @@ import yaml from 'js-yaml';
 import { JsonToYamlConverter } from '../json-to-yaml/json-to-yaml-converter.ts';
 import { handleCli } from '../json-to-yaml/json-to-yaml-cli.ts';
 
-// Import the legacy function for backward compatibility tests
-const { convertJsonToYaml } = require('../json-to-yaml/json-to-yaml.cjs');
-
 const TEST_DIR = path.join(__dirname, 'temp-json-to-yaml-test');
 
-describe('json-to-yaml.cjs', () => {
+/**
+ * Helper function for backward compatibility with old tests
+ * Wraps the JsonToYamlConverter for simple boolean success return
+ */
+function convertJsonToYaml(inputFile: string, outputFile: string): boolean {
+  const converter = new JsonToYamlConverter();
+  const result = converter.convert(inputFile, outputFile);
+  return result.success;
+}
+
+describe('json-to-yaml integration tests', () => {
   beforeEach(() => {
     // Create test directory
     if (!fs.existsSync(TEST_DIR)) {
@@ -519,7 +524,7 @@ describe('handleCli', () => {
     expect(handleCli(['arg1', 'arg2', 'arg3'])).toBe(1);
 
     expect(consoleSpy).toHaveBeenCalledWith(
-      'Usage: node json-to-yaml.cjs <input.json> <output.yaml>'
+      'Usage: ts-node json-to-yaml-cli.ts <input.json> <output.yaml>'
     );
 
     consoleSpy.mockRestore();

@@ -29,6 +29,7 @@
     "cache-info": "ts-node tools/generator/example-generator/generate-example.ts --cache-info",
     "clear-cache": "ts-node tools/generator/example-generator/generate-example.ts --clear-cache",
     "generate": "ts-node tools/generator/example-generator/generate-example.ts $@",
+    "json-to-yaml": "ts-node tools/generator/json-to-yaml/index.ts",
     "lint": "echo 'no linting configured'",
     "lint:fix": "echo 'no linting configured'",
     "test": "jest",
