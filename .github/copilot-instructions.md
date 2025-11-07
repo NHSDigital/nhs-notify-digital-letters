@@ -27,6 +27,23 @@ For each event, there will be a schema for the envelope (this is cloud events, a
 
 The detailed testing plan is in **`src/TESTING_PLAN.md`** with progress tracker and changelog.
 
+## Handover to New Chat Session
+
+**If told to "write a prompt for a new chat", "prepare for handover", or when ending a session:**
+
+1. **Update `src/HANDOVER.md`** - Completely replace the file contents with current status:
+   - What was just completed
+   - Immediate next tasks and priorities
+   - Current context and state
+   - Key commands and files to check
+   - Any blockers or important decisions made
+
+2. **Keep the prompt simple** - Just tell the user to check `src/HANDOVER.md`:
+   - "Please check `src/HANDOVER.md` for the current status and next tasks."
+   - Do NOT write a long prompt inline - all details go in the HANDOVER.md file
+
+3. **Update TESTING_PLAN.md changelog** - Add an entry documenting what was done in this session (if testing work was performed)
+
 ## Copilot Instructions for src/ Testing
 
 **When working on testing implementation in the `src/` directory:**
