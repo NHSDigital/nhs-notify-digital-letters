@@ -5,7 +5,6 @@
  * It can be imported and tested separately from the entry point.
  */
 
-import type { CliArgs, CliResult } from "./example-generator.ts";
 import { ExampleGenerator } from "./example-generator.ts";
 import { clearCache, displayCacheInfo } from "../../cache/schema-cache.ts";
 
