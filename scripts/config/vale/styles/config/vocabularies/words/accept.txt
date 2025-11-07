@@ -41,6 +41,7 @@ Grype
 handleCli
 hardcoded
 idempotence
+inputDir
 (?i)YAML
 jekyll
 Jekyll
@@ -57,6 +58,7 @@ npm
 OAuth
 Octokit
 onboarding
+outputDir
 Podman
 [pP][dD][mM]
 [pP]re
@@ -77,6 +79,7 @@ service_sorted
 setCachedSchema
 Someobject
 src
+stderr
 Syft
 temp_dir
 Terraform

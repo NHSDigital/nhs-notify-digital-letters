@@ -1,0 +1,122 @@
+/**
+ * CLI handler for generate-docs
+ * Handles argument parsing and invocation of the DocsGenerator class
+ */
+
+import path from 'path';
+import fs from 'fs';
+import type { DocsGeneratorConfig, DocsGenerationResult } from './docs-generator-types.ts';
+
+/**
+ * CLI execution result
+ */
+export interface CliResult {
+  exitCode: number;
+  error?: string;
+  result?: DocsGenerationResult;
+}
+
+/**
+ * Parse and validate CLI arguments
+ */
+export function parseCliArgs(args: string[]): { config: DocsGeneratorConfig; error?: string } {
+  if (args.length < 2) {
+    return {
+      config: { inputDir: '', outputDir: '' },
+      error: 'Missing required arguments',
+    };
+  }
+
+  const inputDir = path.resolve(args[0]);
+  const outputDir = path.resolve(args[1]);
+
+  return {
+    config: {
+      inputDir,
+      outputDir,
+      verbose: args.includes('--verbose') || args.includes('-v'),
+    },
+  };
+}
+
+/**
+ * Validate that the input directory exists
+ */
+export function validateInputDir(inputDir: string): { valid: boolean; error?: string } {
+  if (!fs.existsSync(inputDir)) {
+    return {
+      valid: false,
+      error: `Input directory does not exist: ${inputDir}`,
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * Ensure the output directory exists, creating it if necessary
+ */
+export function ensureOutputDir(outputDir: string): { success: boolean; error?: string } {
+  try {
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+    return { success: true };
+  } catch (err) {
+    return {
+      success: false,
+      error: `Failed to create output directory: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+}
+
+/**
+ * Print CLI usage information
+ */
+export function printUsage(): void {
+  console.error('Usage: node generate-docs.cjs <input-dir> <output-dir>');
+  console.error('Example: node generate-docs.cjs ./output ./docs');
+}
+
+/**
+ * Handle CLI invocation
+ * This function is testable without spawning processes
+ */
+export async function handleCli(args: string[]): Promise<CliResult> {
+  // Parse arguments
+  const { config, error: parseError } = parseCliArgs(args);
+  if (parseError) {
+    printUsage();
+    return { exitCode: 1, error: parseError };
+  }
+
+  console.log('Input directory:', config.inputDir);
+  console.log('Output directory:', config.outputDir);
+
+  // Validate input directory
+  const { valid, error: validateError } = validateInputDir(config.inputDir);
+  if (!valid) {
+    console.error(validateError);
+    return { exitCode: 1, error: validateError };
+  }
+
+  // Ensure output directory exists
+  const { success: dirSuccess, error: dirError } = ensureOutputDir(config.outputDir);
+  if (!dirSuccess) {
+    console.error(dirError);
+    return { exitCode: 1, error: dirError };
+  }
+
+  // Note: The actual DocsGenerator invocation will be added in the next phase
+  // For now, this provides the CLI scaffolding
+  return {
+    exitCode: 0,
+    result: {
+      success: true,
+      inputDir: config.inputDir,
+      outputDir: config.outputDir,
+      schemasProcessed: 0,
+      exampleEventsCopied: 0,
+    },
+  };
+}
