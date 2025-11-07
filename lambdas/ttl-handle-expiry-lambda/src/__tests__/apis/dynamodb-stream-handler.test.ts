@@ -1,4 +1,4 @@
-import type { DynamoDBStreamEvent, DynamoDBRecord } from 'aws-lambda';
+import type { DynamoDBRecord, DynamoDBStreamEvent } from 'aws-lambda';
 import { Logger } from 'utils';
 import { mock } from 'jest-mock-extended';
 import { createHandler } from 'apis/dynamodb-stream-handler';
@@ -24,7 +24,7 @@ describe('createHandler', () => {
           eventSource: 'aws:dynamodb',
           awsRegion: 'us-east-1',
           dynamodb: {
-            ApproximateCreationDateTime: 1234567890,
+            ApproximateCreationDateTime: 1_234_567_890,
             Keys: {
               id: { S: 'test-id-1' },
             },
@@ -45,7 +45,7 @@ describe('createHandler', () => {
           eventSource: 'aws:dynamodb',
           awsRegion: 'us-east-1',
           dynamodb: {
-            ApproximateCreationDateTime: 1234567891,
+            ApproximateCreationDateTime: 1_234_567_891,
             Keys: {
               id: { S: 'test-id-2' },
             },
@@ -117,7 +117,7 @@ describe('createHandler', () => {
           eventSource: 'aws:dynamodb',
           awsRegion: 'us-east-1',
           dynamodb: {
-            ApproximateCreationDateTime: 1234567890,
+            ApproximateCreationDateTime: 1_234_567_890,
             Keys: {
               id: { S: 'test-id-1' },
             },

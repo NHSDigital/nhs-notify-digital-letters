@@ -5,9 +5,7 @@ export type CreateHandlerDependencies = {
   logger: Logger;
 };
 
-export const createHandler = ({
-  logger,
-}: CreateHandlerDependencies) => {
+export const createHandler = ({ logger }: CreateHandlerDependencies) => {
   return async (event: DynamoDBStreamEvent) => {
     logger.info({ description: 'DynamoDB event received', event });
 
