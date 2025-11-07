@@ -31,26 +31,33 @@ The detailed testing plan is in **`src/TESTING_PLAN.md`** with progress tracker 
 
 **If told to "write a prompt for a new chat", "prepare for handover", or when ending a session:**
 
-1. **Update `src/HANDOVER.md`** - Completely replace the file contents with current status:
+1. **Append current HANDOVER.md to HANDOVER_HISTORY.md**:
+   - Copy the entire contents of `src/HANDOVER.md`
+   - Add a separator with timestamp: `---\n\n## Handover - YYYY-MM-DD HH:MM GMT\n\n`
+   - Paste the copied content below the separator
+   - Insert at the TOP of the history (below the header, but above previous entries)
+
+2. **Update `src/HANDOVER.md`** - Completely replace the file contents with current status:
    - What was just completed
    - Immediate next tasks and priorities
    - Current context and state
    - Key commands and files to check
    - Any blockers or important decisions made
 
-2. **Stage and commit the HANDOVER.md file**:
+3. **Stage and commit all outstanding changes**:
 
    ```bash
    cd /workspaces/nhs-notify-digital-letters
-   git add src/HANDOVER.md
+   git add -A
+   git status  # Review what's being committed
    git commit -m "docs: update HANDOVER.md for session continuity"
    ```
 
-3. **Keep the prompt simple** - Just tell the user to check `src/HANDOVER.md`:
+4. **Keep the prompt simple** - Just tell the user to check `src/HANDOVER.md`:
    - "Please check `src/HANDOVER.md` for the current status and next tasks."
    - Do NOT write a long prompt inline - all details go in the HANDOVER.md file
 
-4. **Update TESTING_PLAN.md changelog** - Add an entry documenting what was done in this session (if testing work was performed)
+5. **Update TESTING_PLAN.md changelog** - Add an entry documenting what was done in this session (if testing work was performed)
 
 ## Copilot Instructions for src/ Testing
 
