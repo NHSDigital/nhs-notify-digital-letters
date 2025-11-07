@@ -51,10 +51,10 @@ This document outlines the comprehensive plan for implementing unit tests across
 |-----------|--------|----------------|-------|----------|----------------|-------|
 | tools/builder | ✅ Complete | ✅ | 11 | N/A (CLI) | 2025-11-05 | build-schema.ts - integration tests for CLI functionality |
 | tools/cache | ✅ Complete | ✅ | 30 | 80% | 2025-11-05 | schema-cache.ts - 21 integration + 8 network + 1 lifecycle tests, no external URLs |
-| tools/generator | 🔄 Partial | ✅ | 276 | **~42%** (est) | 2025-11-07 | **json-to-yaml refactored!** 276 tests (24 new). example-generator: 81%, generate-example-cli: 100%, **json-to-yaml: 92%** (cli: 100%, converter: 100%), **manual-bundle-schema: ~80%** (23 tests), generate-docs: 0% (698 lines). **Next: generate-docs.cjs (medium priority)** |
+| tools/generator | 🔄 Partial | ✅ | 276 | **~42%** (est) | 2025-11-07 | **generate-docs integration tests added!** 340 tests (24 new). example-generator: 81%, generate-example-cli: 100%, **json-to-yaml: 92%** (cli: 100%, converter: 100%), **manual-bundle-schema: ~80%** (23 tests), **generate-docs: minimal** (9 integration tests), generate-docs: 0% (843 lines). **Next: TypeScript refactoring for generate-docs** |
 | tools/validator | ✅ Complete | ✅ | 115 | 93% | 2025-11-06 | **Phase C Complete!** Class-based architecture. validate.ts (58 lines), validator.ts (201 lines). 23 CLI + 81 lib + 11 class tests. |
 | tools/discover-schema-dependencies | ✅ Complete | ✅ | 10 | **~60%** (est) | 2025-11-07 | **NEW!** 10 tests for dependency discovery script. Tests CLI validation, path resolution, file formats, circular handling, output formatting. Note: Advanced reference resolution tests skipped due to repository structure coupling. |
-| **Total** | **Partial** | **5/5** | **442** | **~62%** | **2025-11-07** | **Jest configured, CI/CD integrated. 442 passing tests (+50 from start of session). discover-schema-dependencies complete!** |
+| **Total** | **Partial** | **5/5** | **451** | **~62%** | **2025-11-07** | **Jest configured, CI/CD integrated. 451 passing tests (+9 generate-docs integration tests). generate-docs integration tests complete, TypeScript refactoring next!** |
 
 ### Phase 3: Integration
 
