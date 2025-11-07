@@ -16,7 +16,7 @@ let getCachedSchema, setCachedSchema;
 
 (async () => {
   // Import the TypeScript ES module cache at runtime
-  const cacheModule = await import("../cache/schema-cache.ts");
+  const cacheModule = await import("../../cache/schema-cache.ts");
   getCachedSchema = cacheModule.getCachedSchema;
   setCachedSchema = cacheModule.setCachedSchema;
 

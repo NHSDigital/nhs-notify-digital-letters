@@ -15,7 +15,7 @@ const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
 
-const ROOT_DIR = path.resolve(__dirname, "../../");
+const ROOT_DIR = path.resolve(__dirname, "../../../");
 const SRC_DIR = path.join(ROOT_DIR, "domains");
 const SCHEMAS_DIR = path.join(ROOT_DIR, "schemas");
 const OUTPUT_FILE = path.join(ROOT_DIR, "readme-index.yaml");
