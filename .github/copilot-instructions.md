@@ -16,33 +16,46 @@ All of our events will have their schemas stored in [./schemas/events](./schemas
 
 For each event, there will be a schema for the envelope (this is cloud events, and will reference the default NHS Notify cloudevent profile schema). And there will also be a schema for the data payload. The data payload schema will be referenced in the envelope schema.
 
-## Continuing from a Previous Chat Session
+## Starting a New Chat Session
 
-**If told to "carry on" or "continue"**, check **`src/HANDOVER.md`** first. This file contains:
+**When starting a new chat session**, first check and clear **`src/HANDOVER.md`**:
 
-- Current status and what was just completed
-- Immediate next tasks and priorities
-- Context about ongoing work
-- Key commands and files to check
+1. **Check if HANDOVER.md has content from a previous session**:
+   - If it contains handover information, read it to understand the previous session's state
+   - **Archive it by appending to `src/HANDOVER_HISTORY.md`**:
+     - Copy the entire contents of `src/HANDOVER.md`
+     - Add a separator with timestamp: `---\n\n## Handover - YYYY-MM-DD HH:MM GMT\n\n` (use actual current UK time)
+     - Paste the copied content below the separator
+     - Insert at the TOP of the history (below the header, but above previous entries)
+
+2. **Clear HANDOVER.md for the new session**:
+   - Replace contents with a simple header: `# Current Session Handover\n\n*This file is only used when transitioning to a new chat session. During active work, use TESTING_PLAN.md for tracking progress.*`
+
+3. **Use TESTING_PLAN.md for all session tracking**:
+   - Check the "Current Actions and Todos" section for what's in progress
+   - Add changelog entries as work progresses
+   - Update progress tracker when completing tasks
+   - This is the **primary** documentation for ongoing work
 
 The detailed testing plan is in **`src/TESTING_PLAN.md`** with progress tracker and changelog.
 
 ## Handover to New Chat Session
 
-**If told to "write a prompt for a new chat", "prepare for handover", or when ending a session:**
+**ONLY when told to "write a prompt for a new chat", "prepare for handover", or explicitly ending a session:**
 
-1. **Append current HANDOVER.md to HANDOVER_HISTORY.md**:
+1. **Append current HANDOVER.md to HANDOVER_HISTORY.md** (if it has content):
    - Copy the entire contents of `src/HANDOVER.md`
-   - Add a separator with timestamp: `---\n\n## Handover - YYYY-MM-DD HH:MM GMT\n\n`
+   - Add a separator with timestamp: `---\n\n## Handover - YYYY-MM-DD HH:MM GMT\n\n`. Ensure the real actual current time in UK timezone (GMT/BST) is used.
    - Paste the copied content below the separator
    - Insert at the TOP of the history (below the header, but above previous entries)
 
-2. **Update `src/HANDOVER.md`** - Completely replace the file contents with current status:
-   - What was just completed
+2. **Update `src/HANDOVER.md`** - Completely replace the file contents with handover snapshot:
+   - What was just completed in this session
    - Immediate next tasks and priorities
    - Current context and state
    - Key commands and files to check
    - Any blockers or important decisions made
+   - Reference to TESTING_PLAN.md for detailed progress
 
 3. **Stage and commit all outstanding changes**:
 
@@ -56,8 +69,6 @@ The detailed testing plan is in **`src/TESTING_PLAN.md`** with progress tracker 
 4. **Keep the prompt simple** - Just tell the user to check `src/HANDOVER.md`:
    - "Please check `src/HANDOVER.md` for the current status and next tasks."
    - Do NOT write a long prompt inline - all details go in the HANDOVER.md file
-
-5. **Update TESTING_PLAN.md changelog** - Add an entry documenting what was done in this session (if testing work was performed)
 
 ## Copilot Instructions for src/ Testing
 

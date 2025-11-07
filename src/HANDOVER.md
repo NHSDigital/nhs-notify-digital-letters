@@ -1,104 +1,89 @@
-# Testing Implementation Handover
+# Handover - 2025-11-07 05:25 GMT
 
-## Current Status
+## What Was Completed This Session
 
-**Date**: 2025-11-06 14:30 GMT
-**Branch**: `rossbugginsnhs/2025-11-04/eventcatalog-001`
-**Last Activity**: Fixed builder test coverage in src/cloudevents/tools/builder
+**Documentation System Refinement**: Updated the handover process to clarify usage and workflow.
 
-## What Just Happened
+### Changes Made
 
-Successfully restored test coverage for `src/cloudevents/tools/builder` which had dropped to 0% on SonarCloud:
+1. **Clarified HANDOVER.md Usage**:
+   - Updated copilot instructions to make clear that HANDOVER.md is **only** for session transitions
+   - During active work, all tracking should happen in TESTING_PLAN.md
+   - HANDOVER.md should be cleared at the start of each new chat session
 
-- **Root Cause**: The `tools/builder/**/*.ts` pattern wasn't included in jest.config.cjs `collectCoverageFrom` array
-- **Solution**:
-  - Added builder directory to coverage collection
-  - Refactored build-schema.ts into testable build-schema-cli.ts module
-  - Created comprehensive unit tests (17 new tests)
-  - Updated old tests to check the correct files
-- **Results**:
-  - Builder coverage: 0% → 81.95% (statements), 59.39% (branches), 83.33% (functions), 81.81% (lines)
-  - Global branch coverage: 58.59% → 70.93% (now passing 60% threshold!)
-  - All 283 tests passing
-  - Commit: `9783f1f` - "fix(cloudevents): restore builder test coverage from 0% to 81.95%"
+2. **Enhanced Handover Process**:
+   - Added "Starting a New Chat Session" section with explicit archiving steps
+   - When starting a new session, must archive old HANDOVER.md to HANDOVER_HISTORY.md before clearing
+   - Archiving process: copy content → add timestamp separator → paste at top of history → clear HANDOVER.md
 
-## Next Tasks
+3. **Files Modified**:
+   - `.github/copilot-instructions.md` - Added detailed starting/ending session workflows
+   - `src/HANDOVER.md` - Cleared to minimal placeholder (ready for next session)
 
-### Immediate Priority
+### Commits in This Session
 
-1. **Monitor CI/CD Pipeline** - Check that GitHub Actions run passes with the new builder coverage
-2. **Verify SonarCloud** - Once CI completes, confirm builder coverage is now being reported on SonarCloud
+- `50d95a7` - docs: add HANDOVER_HISTORY.md and update handover process
+- `f46e032` - docs: add commit instructions to handover process
+- `a3068b0` - docs: add handover instructions for ending chat sessions
 
-### Testing Continuation (as per TESTING_PLAN.md)
+## Immediate Next Tasks
 
-The main testing plan is documented in `/workspaces/nhs-notify-digital-letters/src/TESTING_PLAN.md`. Current phase:
+1. **Commit Outstanding Changes**: There are unstaged modifications to copilot-instructions.md and HANDOVER.md that need to be committed
 
-**Phase 1: Infrastructure & Configuration** - ✅ Mostly Complete
+2. **Monitor CI/CD Pipeline**: Verify GitHub Actions passes with the builder coverage fixes from commit `9783f1f`
 
-- ✅ Python projects (asyncapigenerator, cloudeventjekylldocs, eventcatalogasyncapiimporter)
-- ✅ TypeScript/JavaScript projects (cloudevents/tools)
-- ⚠️ **Need to verify**: Check other src/ directories for missing test coverage
+3. **Verify SonarCloud**: Check that builder coverage (81.95%) is now being reported on SonarCloud
 
-**Suggested Next Steps**:
+## Current Context
 
-1. Review other projects in `src/` for missing test coverage:
+### Branch & PR
 
-   ```bash
-   ls -la /workspaces/nhs-notify-digital-letters/src/
-   ```
+- **Branch**: `rossbugginsnhs/2025-11-04/eventcatalog-001`
+- **PR**: #96
+- **3 commits ahead** of upstream
 
-2. Check TypeScript schema generator coverage
-3. Review any remaining gaps in cloudevents/tools coverage
-4. Move to Phase 2: Write actual test cases for core business logic
+### Testing Status (from previous session)
 
-### How to Continue
+- Builder coverage restored: 0% → 81.95%
+- Global branch coverage: 70.93% (passing 60% threshold)
+- All 283 tests passing
+- Phase 1 (Infrastructure) mostly complete
 
-1. **Check TESTING_PLAN.md** for the detailed plan and progress tracker
-2. **Review the Implementation Changelog** in TESTING_PLAN.md (entries at TOP in reverse chronological order)
-3. **Update Current Actions and Todos** section when starting new work
-4. **Follow the Copilot Instructions** in `.github/copilot-instructions.md`
+### Pending Work
 
-### Key Commands
+Per TESTING_PLAN.md:
+
+- Review other src/ directories for missing test coverage
+- Check TypeScript schema generator coverage
+- Move to Phase 2: actual business logic test cases
+
+## Key Commands for Next Session
 
 ```bash
-# Check current location
-pwd
-
-# Run cloudevents tests with coverage
-cd /workspaces/nhs-notify-digital-letters/src/cloudevents
-npm run test:coverage
-
-# Check coverage on SonarCloud (once CI completes)
-curl -s "https://sonarcloud.io/api/measures/component?component=NHSDigital_nhs-notify-digital-letters:src/cloudevents&branch=rossbugginsnhs/2025-11-04/eventcatalog-001&metricKeys=coverage,new_coverage"
+# Check current status
+cd /workspaces/nhs-notify-digital-letters
+git status
 
 # Monitor GitHub Actions
-cd /workspaces/nhs-notify-digital-letters
 GH_PAGER=cat gh run list --branch rossbugginsnhs/2025-11-04/eventcatalog-001 --limit 5 --json databaseId,status,conclusion,name,url
+
+# Check SonarCloud coverage
+curl -s "https://sonarcloud.io/api/measures/component?component=NHSDigital_nhs-notify-digital-letters:src/cloudevents&branch=rossbugginsnhs/2025-11-04/eventcatalog-001&metricKeys=coverage,new_coverage" | python3 -m json.tool
+
+# Review src/ directories
+ls -la /workspaces/nhs-notify-digital-letters/src/
 ```
 
-### Important Context
+## Important Files to Check
 
-- **Python coverage configuration**: Must use `relative_files = True` in pytest.ini and run from repo root
-- **npm workspace test pattern**: All projects with package.json use `npm run test:unit`
-- **CI/CD integration**: Must update `scripts/tests/unit.sh` when adding tests for new projects
-- **Coverage target**: 80%+ for all projects
-- **Pre-commit hooks**: Always run from repository root with `git commit` (triggers automatically)
+- **`src/TESTING_PLAN.md`** - Main testing plan with progress tracker and changelog
+- **`.github/copilot-instructions.md`** - Development guidelines (just updated)
+- **`src/TESTING_QUICK_REFERENCE.md`** - Quick reference for testing patterns
 
-### Files to Check Before Starting
+## Handover Note
 
-1. `/workspaces/nhs-notify-digital-letters/src/TESTING_PLAN.md` - Main plan and changelog
-2. `/workspaces/nhs-notify-digital-letters/.github/copilot-instructions.md` - Development guidelines
-3. `/workspaces/nhs-notify-digital-letters/src/TESTING_QUICK_REFERENCE.md` - Quick patterns reference
+This session focused entirely on refining documentation and the handover process itself. No code changes or testing implementation was done. The next session should:
 
-### Known Issues / Watch For
-
-- Vale vocabulary: If adding technical terms, update `scripts/config/vale/styles/config/vocabularies/words/accept.txt`
-- SonarCloud delays: Coverage may take 5-10 minutes to appear after CI completion
-- Path issues: Always use absolute paths with `cd` commands
-- GitHub CLI: Always prefix `gh` commands with `GH_PAGER=cat` to avoid interactive pager
-
-## Questions to Ask User
-
-- Should we verify the CI/CD pipeline passes before continuing?
-- Are there other directories in `src/` that need test coverage review?
-- Should we focus on increasing coverage percentages or move to Phase 2 (actual test cases)?
+1. First commit the outstanding documentation changes
+2. Then continue with testing implementation per TESTING_PLAN.md
+3. Follow the new workflow: track all work in TESTING_PLAN.md, only update HANDOVER.md when ending the session
