@@ -62,3 +62,15 @@ jobs:
             --targetAccountGroup "nhs-notify-digital-letters-dev" \
             --targetComponent "${{ matrix.component }}" \
             --terraformAction "apply"
+
+  acceptance-stage: # Recommended maximum execution time is 10 minutes
+    name: "Acceptance stage"
+    needs: [ deploy-main]
+    uses: ./.github/workflows/stage-4-acceptance.yaml
+    secrets:
+      APP_PEM_FILE: ${{ secrets.APP_PEM_FILE }}
+      APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
+    with:
+      target_release_version: main
+      target_environment: main
+      target_account_group: nhs-notify-digital-letters-dev

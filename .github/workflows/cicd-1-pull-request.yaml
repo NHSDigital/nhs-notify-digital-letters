@@ -151,18 +151,15 @@ jobs:
             --overrides "branch_name=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
   acceptance-stage: # Recommended maximum execution time is 10 minutes
     name: "Acceptance stage"
-    needs: [metadata, build-stage]
+    needs: [metadata, pr-create-dynamic-environment]
     uses: ./.github/workflows/stage-4-acceptance.yaml
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened')) || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     with:
-      build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
-      build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
-      build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
-      nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
-      python_version: "${{ needs.metadata.outputs.python_version }}"
-      terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
-      version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
+      target_environment: "pr${{ needs.metadata.outputs.pr_number }}"
+      target_account_group: nhs-notify-digital-letters-dev
+    secrets:
+      APP_PEM_FILE: ${{ secrets.APP_PEM_FILE }}
+      APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
   publish-stage: # Recommended maximum execution time is 10 minutes
     name: "Publish stage"
     needs: [metadata, acceptance-stage]
