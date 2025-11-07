@@ -6,6 +6,7 @@
 import path from 'path';
 import fs from 'fs';
 import type { DocsGeneratorConfig, DocsGenerationResult } from './docs-generator-types.ts';
+import { DocsGenerator } from './docs-generator.ts';
 
 /**
  * CLI execution result
@@ -107,16 +108,25 @@ export async function handleCli(args: string[]): Promise<CliResult> {
     return { exitCode: 1, error: dirError };
   }
 
-  // Note: The actual DocsGenerator invocation will be added in the next phase
-  // For now, this provides the CLI scaffolding
-  return {
-    exitCode: 0,
-    result: {
-      success: true,
+  // Generate documentation using DocsGenerator
+  try {
+    const generator = new DocsGenerator({
       inputDir: config.inputDir,
       outputDir: config.outputDir,
-      schemasProcessed: 0,
-      exampleEventsCopied: 0,
-    },
-  };
+      verbose: true,
+    });
+
+    const result = await generator.generate();
+
+    if (!result.success) {
+      console.error('Documentation generation failed:', result.error);
+      return { exitCode: 1, error: result.error, result };
+    }
+
+    return { exitCode: 0, result };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error('Failed to generate documentation:', errorMessage);
+    return { exitCode: 1, error: errorMessage };
+  }
 }
