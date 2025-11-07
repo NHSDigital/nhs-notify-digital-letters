@@ -189,7 +189,7 @@ test:
 		for schema in $(EVENT_NAMES); do \
 			echo "Testing $$schema event..."; \
 			echo "Discovering schema dependencies for $$schema..."; \
-			SCHEMA_DEPS=$$(npx ts-node $(ROOT_DIR)/src/cloudevents/tools/discover-schema-dependencies.ts $(SRC_DIR)/events/$$schema.schema.yaml $(ROOT_DIR)/output 2>/dev/null); \
+			SCHEMA_DEPS=$$(npx ts-node $(ROOT_DIR)/src/cloudevents/tools/discovery/discover-schema-dependencies.ts $(SRC_DIR)/events/$$schema.schema.yaml $(ROOT_DIR)/output 2>/dev/null); \
 			if [ $$? -ne 0 ]; then \
 				echo "❌ Failed to discover dependencies for $$schema"; \
 				FAILED=1; \
