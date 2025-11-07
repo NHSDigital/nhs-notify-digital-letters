@@ -38,11 +38,19 @@ The detailed testing plan is in **`src/TESTING_PLAN.md`** with progress tracker 
    - Key commands and files to check
    - Any blockers or important decisions made
 
-2. **Keep the prompt simple** - Just tell the user to check `src/HANDOVER.md`:
+2. **Stage and commit the HANDOVER.md file**:
+
+   ```bash
+   cd /workspaces/nhs-notify-digital-letters
+   git add src/HANDOVER.md
+   git commit -m "docs: update HANDOVER.md for session continuity"
+   ```
+
+3. **Keep the prompt simple** - Just tell the user to check `src/HANDOVER.md`:
    - "Please check `src/HANDOVER.md` for the current status and next tasks."
    - Do NOT write a long prompt inline - all details go in the HANDOVER.md file
 
-3. **Update TESTING_PLAN.md changelog** - Add an entry documenting what was done in this session (if testing work was performed)
+4. **Update TESTING_PLAN.md changelog** - Add an entry documenting what was done in this session (if testing work was performed)
 
 ## Copilot Instructions for src/ Testing
 
