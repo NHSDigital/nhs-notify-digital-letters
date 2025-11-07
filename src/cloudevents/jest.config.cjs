@@ -21,10 +21,7 @@ module.exports = {
     }]
   },
   collectCoverageFrom: [
-    'tools/builder/**/*.ts',
-    'tools/cache/**/*.ts',
-    'tools/generator/**/*.{ts,cjs}',
-    'tools/validator/**/*.{js,ts}',
+    'tools/**/*.{ts,js,cjs}',
     '!tools/**/*.d.ts',
     '!tools/**/__tests__/**',
     '!tools/**/*.test.ts',
