@@ -138,7 +138,7 @@ describe('generate-docs-cli', () => {
       printUsage();
 
       expect(consoleErrorMock).toHaveBeenCalledWith(
-        expect.stringContaining('Usage: node generate-docs.cjs')
+        expect.stringContaining('Usage: ts-node generate-docs-cli.ts')
       );
       expect(consoleErrorMock).toHaveBeenCalledWith(expect.stringContaining('Example:'));
     });
