@@ -111,9 +111,42 @@ This document outlines the comprehensive plan for implementing unit tests across
 - discover-schema-dependencies: 0% → ~60% (estimated)
 - Overall new coverage: 68.86% (needs to reach 80% for quality gate)
 
+**CURRENT STATUS (2025-11-07 07:34 GMT)**:
+
+**✅ generate-docs.cjs Integration Tests - COMPLETE!** 🎉
+
+**Integration Tests Created**:
+
+- ✅ **9 comprehensive integration tests** for generate-docs.cjs
+- ✅ **All 340 tests passing** (up from 331, +9 new tests)
+- ✅ **Test coverage areas**:
+  - CLI argument validation (3 tests)
+  - Basic documentation generation (3 tests)
+  - Example events handling (1 test)
+  - Schema file format support (1 test)
+  - Error handling (1 test)
+
+**Test Implementation Details**:
+
+- Uses child process spawning to test actual CLI behavior
+- Creates temporary test directories with fixtures
+- Tests end-to-end workflow: schema input → markdown output
+- Validates folder structure preservation
+- Tests example event copying and markdown generation
+- 30-second timeout per test for long-running operations
+
+**NEXT: TypeScript Refactoring** 📦
+
+Now that we have integration tests in place, we can safely refactor generate-docs.cjs to TypeScript with testable classes:
+
+1. **Create DocsGenerator class** - Extract documentation generation logic
+2. **Create generate-docs-cli.ts** - Testable CLI handler
+3. **Add unit tests** - Test class methods in isolation
+4. **Expected coverage increase**: 0% → 60% (400+ lines covered)
+
 **NEXT PRIORITIES**:
 
-1. **generate-docs.cjs refactoring** (844 lines, 0% → 60%) - HIGH IMPACT for coverage
+1. **generate-docs.cjs TypeScript refactoring** (843 lines, 0% → 60%) - HIGH IMPACT for coverage
 2. **README utilities** (795 lines, 0% → 50%) - MEDIUM IMPACT
 3. **Monitor CI/CD and SonarCloud** - Track coverage improvements
 
@@ -347,6 +380,77 @@ This document outlines the comprehensive plan for implementing unit tests across
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-07 07:34 GMT - generate-docs.cjs Integration Tests Complete ✅
+
+**Author**: GitHub Copilot
+**Activity**: Created comprehensive integration test suite for generate-docs.cjs (9 tests)
+**Status**: ✅ **COMPLETE** - All 340 tests passing (up from 331), ready for TypeScript refactoring
+
+**Files Modified**:
+
+- `src/cloudevents/tools/generator/__tests__/generate-docs.test.ts` (NEW - 311 lines)
+- `src/TESTING_PLAN.md` (updated progress tracker and changelog)
+
+**Changes Made**:
+
+1. **Created Integration Test Suite** (9 tests, 311 lines):
+   - **CLI Argument Validation** (3 tests):
+     - No arguments → exits with error
+     - One argument → exits with error
+     - Non-existent input directory → exits with error
+   - **Basic Documentation Generation** (3 tests):
+     - Simple schema → generates markdown docs
+     - Output directory creation → creates if missing
+     - Nested folders → preserves structure in output
+   - **Example Events Handling** (1 test):
+     - Example event JSON files → copied and markdown generated
+   - **Schema File Format Support** (1 test):
+     - Both .json and .yml schemas → processed correctly
+   - **Error Handling** (1 test):
+     - Malformed schema files → handled gracefully
+
+2. **Test Implementation Approach**:
+   - Uses child process spawning to test actual CLI behavior
+   - Creates temporary test directories with fixtures
+   - Tests full end-to-end workflow: schema input → markdown output
+   - 30-second timeout per test for long-running operations
+   - Validates output file structure and content
+
+3. **Coverage Impact**:
+   - Test count: 331 → 340 tests (+9 integration tests)
+   - generate-docs.cjs: 0% → minimal coverage (CJS file, integration tests)
+   - Foundation for TypeScript refactoring with unit tests
+   - Next step: Refactor to TypeScript classes for full unit test coverage
+
+**Test Results**:
+
+```text
+PASS tools/generator/__tests__/generate-docs.test.ts (10.747 s)
+  generate-docs.cjs
+    CLI argument validation
+      ✓ should fail when no arguments are provided
+      ✓ should fail when only one argument is provided
+      ✓ should fail when input directory does not exist
+    Basic documentation generation
+      ✓ should generate documentation for a simple schema
+      ✓ should create output directory if it does not exist
+      ✓ should preserve folder structure in output
+    Example events handling
+      ✓ should copy example event JSON files to output
+    Schema file format support
+      ✓ should process both .json and .yml schema files
+    Error handling
+      ✓ should handle malformed schema files gracefully
+```
+
+**Next Steps**:
+
+1. Refactor generate-docs.cjs to TypeScript with testable classes
+2. Create DocsGenerator class for logic extraction
+3. Create generate-docs-cli.ts for CLI handling
+4. Add unit tests for class methods
+5. Expected coverage: 0% → 60% (400+ lines covered)
 
 ### 2025-11-07 05:50 GMT - discover-schema-dependencies.js Testing Complete ✅
 
