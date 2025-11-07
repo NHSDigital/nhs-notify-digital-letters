@@ -30,6 +30,7 @@ endfor
 endraw
 eventproduced
 frontmatter
+generateContent
 getCachedSchema
 getCacheInfo
 gh
@@ -48,6 +49,7 @@ Jekyll
 Jira
 jq
 lineWidth
+loadIndex
 Loopback
 Makefile
 middleware
@@ -70,6 +72,7 @@ Python
 quotingType
 rawContent
 repo
+rootDir
 sample_event_markdown
 sample_service_markdown
 sanitization
@@ -85,6 +88,7 @@ temp_dir
 Terraform
 toolchain
 Trufflehog
+updateReadme
 Uploader
 uuid
 [Vv]alidator

@@ -51,10 +51,10 @@ This document outlines the comprehensive plan for implementing unit tests across
 |-----------|--------|----------------|-------|----------|----------------|-------|
 | tools/builder | ✅ Complete | ✅ | 11 | N/A (CLI) | 2025-11-05 | build-schema.ts - integration tests for CLI functionality |
 | tools/cache | ✅ Complete | ✅ | 30 | 80% | 2025-11-05 | schema-cache.ts - 21 integration + 8 network + 1 lifecycle tests, no external URLs |
-| tools/generator | ✅ Complete | ✅ | 447 | **~92%** | 2025-11-07 | **README generator TypeScript refactoring in progress!** 447 tests (+28 new). example-generator: 81%, generate-example-cli: 100%, json-to-yaml: 92%, manual-bundle-schema: ~80%, docs-generator: 94% (29 unit + 9 CLI tests), **readme-generator: 64 unit tests** (ReadmeIndexGenerator: 36 unit tests, ReadmeRenderer: 28 unit tests). CLI handler tests pending (~30-45 more tests). |
+| tools/generator | ✅ Complete | ✅ | 493 | **~93%** | 2025-11-07 | **README generator TypeScript refactoring COMPLETE!** 493 tests (+46 new). example-generator: 81%, generate-example-cli: 100%, json-to-yaml: 92%, manual-bundle-schema: ~80%, docs-generator: 94% (29 unit + 9 CLI tests), **readme-generator: 110 tests** (ReadmeIndexGenerator: 36 unit, ReadmeRenderer: 28 unit, CLI handlers: 46 tests across 3 modules). **Full TypeScript refactoring with comprehensive test coverage!** |
 | tools/validator | ✅ Complete | ✅ | 115 | 93% | 2025-11-06 | **Phase C Complete!** Class-based architecture. validate.ts (58 lines), validator.ts (201 lines). 23 CLI + 81 lib + 11 class tests. |
 | tools/discover-schema-dependencies | ✅ Complete | ✅ | 10 | **~60%** (est) | 2025-11-07 | **NEW!** 10 tests for dependency discovery script. Tests CLI validation, path resolution, file formats, circular handling, output formatting. Note: Advanced reference resolution tests skipped due to repository structure coupling. |
-| **Total** | **Complete** | **5/5** | **547** | **~83%** | **2025-11-07** | **Jest configured, CI/CD integrated. 547 passing tests (+28 from ReadmeRenderer unit tests). TypeScript refactoring in progress for README generator utilities!** |
+| **Total** | **Complete** | **5/5** | **593** | **~84%** | **2025-11-07** | **Jest configured, CI/CD integrated. 593 passing tests (+46 from CLI handler tests). README generator TypeScript refactoring COMPLETE with 110 comprehensive tests!** |
 
 ### Phase 3: Integration
 
@@ -75,26 +75,35 @@ This document outlines the comprehensive plan for implementing unit tests across
 
 **Use this section to track current work in progress and next steps. Update this section whenever starting or completing work.**
 
-### Current Status (2025-11-07 14:07 GMT)
+### Current Status (2025-11-07 14:54 GMT)
 
-**✅ COMPLETED: ReadmeRenderer Unit Tests** 🎉
+**✅ COMPLETED: README Generator TypeScript Refactoring (All 3 Phases)** 🎉🎉🎉
 
 Just finished:
 
-- Created 28 comprehensive unit tests for ReadmeRenderer class (readme-renderer.test.ts)
-- Tests cover: constructor, loadIndex(), generateContent() for common/domains, table formatting, updateReadme(), render() workflow, verbose logging
-- All 28 tests passing
-- Net test count: 447 tests (439 passing + 8 skipped), +28 from ReadmeRenderer tests
-- TypeScript refactoring Phase 2 complete
+- Created 46 CLI handler tests across all 3 CLI modules
+- **generate-readme-index-cli.test.ts**: 14 tests (successful execution, error handling, argument processing, configuration)
+- **render-readme-cli.test.ts**: 13 tests (successful execution, error handling, configuration)
+- **update-readme-cli.test.ts**: 19 tests (orchestration, generate-index failures, render failures, exceptions, argument passing)
+- All 493 tests passing (485 passing + 8 skipped)
+- Net: +46 tests from CLI handlers
+- **TypeScript refactoring COMPLETE**: 64 unit tests + 46 CLI tests = 110 total tests for README generator
+
+### Summary of README Generator Refactoring
+
+**Phase 1 - ReadmeIndexGenerator**: 36 unit tests ✅
+**Phase 2 - ReadmeRenderer**: 28 unit tests ✅
+**Phase 3 - CLI Handlers**: 46 tests (14 + 13 + 19) ✅
+
+**Total**: 110 tests for README generator utilities
+**Test count progression**: 419 → 447 → 493 (+74 net from refactoring start)
 
 ### Next Actions
 
-1. **Create CLI handler tests** (~30-45 tests total)
-   - generate-readme-index-cli.ts (~10-15 tests)
-   - render-readme-cli.ts (~10-15 tests)
-   - update-readme-cli.ts (~10-15 tests)
-2. **Commit TypeScript refactoring changes**
-3. **Consider deprecating .cjs.bak files** when stable
+1. **Update TESTING_PLAN.md** with full changelog entry (this update)
+2. **Commit TypeScript refactoring Phase 3** - CLI handler tests
+3. **Consider removing .cjs.bak files** - TypeScript version is stable and well-tested
+4. **Move to next testing priority** or declare README generator complete
 
 **All 3 README generator utilities now have comprehensive integration tests!**
 
@@ -541,6 +550,67 @@ Now that we have integration tests in place, we can safely refactor generate-doc
 ## Implementation Changelog
 
 **Track all implementation activities here. Add new entries at the top (reverse chronological order).**
+
+### 2025-11-07 14:54 GMT - README Generator CLI Handler Tests Complete ✅
+
+**Author**: GitHub Copilot (via rossbugginsnhs)
+**Activity**: Created comprehensive tests for all 3 CLI handler modules (TypeScript refactoring Phase 3)
+**Status**: ✅ **COMPLETE** - 46 new CLI handler tests, all passing, TypeScript refactoring COMPLETE!
+
+**Changes Made**:
+
+1. **Created generate-readme-index-cli.test.ts** (209 lines, 14 tests):
+   - Successful execution (4 tests): no args, custom docs path, relative paths, single call validation
+   - Error handling (4 tests): generator errors, non-Error exceptions, constructor errors, file system errors
+   - Argument processing (3 tests): ignore extra args, empty string handling, absolute paths
+   - Configuration (3 tests): verbose mode, rootDir passing, default options
+
+2. **Created render-readme-cli.test.ts** (191 lines, 13 tests):
+   - Successful execution (4 tests): basic execution, single call, rootDir passing, verbose mode
+   - Error handling (7 tests): renderer errors, index file not found hint, non-Error exceptions, constructor errors, README markers, YAML parsing
+   - Configuration (2 tests): default paths, instantiation order
+
+3. **Created update-readme-cli.test.ts** (248 lines, 19 tests):
+   - Successful execution (7 tests): both steps, call order, argument passing, console messages
+   - Generate-index failures (3 tests): stop on failure, no success message, error propagation
+   - Render failures (3 tests): error return, no success message, error propagation
+   - Exceptions (3 tests): generate-index exceptions, render exceptions, non-Error exceptions
+   - Argument passing (3 tests): empty args, multiple args, rootDir usage
+
+**Files Modified**:
+
+- `tools/generator/__tests__/generate-readme-index-cli.test.ts` (new, 209 lines)
+- `tools/generator/__tests__/render-readme-cli.test.ts` (new, 191 lines)
+- `tools/generator/__tests__/update-readme-cli.test.ts` (new, 248 lines)
+
+**Test Results**:
+
+- ✅ All 46 CLI handler tests passing (14 + 13 + 19)
+- ✅ Total cloudevents tests: 493 (up from 447, +46 new tests)
+- ✅ Test suite clean - 485 passing + 8 skipped
+
+**README Generator Refactoring Summary**:
+
+- **Phase 1**: ReadmeIndexGenerator (36 unit tests) - 2025-11-07 14:00 GMT
+- **Phase 2**: ReadmeRenderer (28 unit tests) - 2025-11-07 14:07 GMT
+- **Phase 3**: CLI Handlers (46 tests: 14+13+19) - 2025-11-07 14:54 GMT
+- **Total**: 110 tests for README generator utilities
+- **Net change**: Started at 419 tests, ended at 493 tests (+74 net)
+- **Files refactored**: 3 .cjs files → 5 TypeScript files (2 classes + 3 CLI handlers)
+- **Backup files**: 3 .cjs.bak files preserved for reference
+
+**Current Status**:
+
+- TypeScript refactoring: **100% COMPLETE** ✅
+- Test coverage: Comprehensive unit + CLI integration tests
+- All pre-commit hooks: Passing ✅
+- Ready for deprecation of .cjs.bak files
+
+**Next Steps**:
+
+- Commit Phase 3 changes
+- Consider removing .cjs.bak backup files
+- Move to next testing priority
 
 ### 2025-11-07 14:07 GMT - ReadmeRenderer Unit Tests Complete ✅
 

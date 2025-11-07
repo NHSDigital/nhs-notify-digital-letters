@@ -4,82 +4,96 @@
 
 ## Session Summary
 
-**DocsGenerator Refactoring Complete**: Finished Phase 2 of docs-generator refactoring with comprehensive unit tests, CLI integration, and integration test updates. Coverage jumped from 21% to 91%!
+**README Generator TypeScript Refactoring**: Completed Phases 1 & 2 of README generator refactoring - created TypeScript classes, 64 comprehensive unit tests, and achieved proper test coverage!
 
 ### Completed This Session
 
-1. **DocsGenerator Class Testing** (Phase 2):
-   - Created 29 comprehensive unit tests for DocsGenerator class (670 lines)
-   - Tests cover: constructor, findSchemaFiles, findHttpRefs, preloadExternalSchemas, copyExampleEvents, generate, verbose logging
-   - Achieved 94.3% coverage on docs-generator.ts (349 lines, was 0%)
-   - All tests using proper mocking and validation
+1. **README Generator Integration Tests** (Initial):
+   - Created 62 integration tests for all 3 README generator utilities
+   - Committed to establish baseline test coverage
+   - Later deleted and replaced with proper unit tests during refactoring
 
-2. **CLI Integration**:
-   - Wired generate-docs-cli.ts to use DocsGenerator class
-   - handleCli() now instantiates DocsGenerator with config (inputDir, outputDir, verbose)
-   - Updated usage message from "node generate-docs.cjs" to "ts-node generate-docs-cli.ts"
-   - CLI handler coverage: 82.97% (126 lines)
+2. **TypeScript Refactoring - Phase 1: ReadmeIndexGenerator**:
+   - Created ReadmeIndexGenerator class (648 lines) - extracts index from workspace structure
+   - Created generate-readme-index-cli.ts (53 lines) - CLI handler
+   - Created 36 comprehensive unit tests (693 lines)
+   - Fixed critical metadata loading bug: `purposes: {}` → `purposes: undefined` for fallback
+   - All 36 tests passing, proper coverage of domain/version/schema discovery
 
-3. **Integration Tests Updated**:
-   - Changed from spawning child process to calling handleCli() directly
-   - Cleaner, faster tests without process overhead
-   - Skipped 4 tests requiring full json-schema-static-docs library (marked for future implementation)
-   - All integration tests now testing TypeScript version
+3. **TypeScript Refactoring - Phase 2: ReadmeRenderer**:
+   - Created ReadmeRenderer class (335 lines) - renders markdown from YAML index
+   - Created render-readme-cli.ts (47 lines) - CLI handler
+   - Created update-readme-cli.ts (60 lines) - orchestrator CLI handler
+   - Created 28 comprehensive unit tests (699 lines)
+   - Tests cover: constructor, loadIndex, generateContent (common/domains), updateReadme, render workflow, verbose logging
+   - All 28 tests passing
 
-4. **Deprecation**:
-   - Renamed generate-docs.cjs → generate-docs.cjs.bak (843 lines deprecated)
-   - Marked as backup for reference only
-   - Can be removed in future cleanup
+4. **File Management**:
+   - Renamed .cjs files to .cjs.bak (3 files: generate-readme-index, render-readme, update-readme)
+   - Deleted old integration tests (62 tests replaced with 64 unit tests)
+   - All TypeScript classes and tests committed successfully
+
+### Test Results
+
+- **ReadmeIndexGenerator**: 36 unit tests passing ✅
+- **ReadmeRenderer**: 28 unit tests passing ✅
+- **CLI handlers**: Not yet tested (Phase 3 pending ~30-45 tests)
+- **Total cloudevents tests**: 447 (439 passing + 8 skipped)
+- **Net change**: +2 tests from refactoring (62 integration → 64 unit tests)
 
 ### Coverage Impact
 
-- **docs-generator folder**: 21% → **91.17%** (+70 percentage points!)
-- **docs-generator.ts**: 0% → **94.3%**
-- **generate-docs-cli.ts**: 82.97%
-- **Overall cloudevents**: ~81% (exceeds 80% target)
-- **Tests**: 365 passing (8 skipped), 0 failures
+- **README generator utilities**: Baseline integration tests → proper unit test coverage
+- **Estimated coverage**: ~80%+ for ReadmeIndexGenerator and ReadmeRenderer classes
+- **CLI handlers**: Minimal coverage, Phase 3 will address
+- **Overall pattern**: Following docs-generator refactoring success
 
 ### Current State
 
 - **Branch**: `rossbugginsnhs/2025-11-04/eventcatalog-001`
 - **PR**: #96
-- **Tests**: 373 total (365 passing, 8 skipped)
-- **Coverage**: 81.23% overall, 91.17% in docs-generator folder
-- **Commits**: 13 ahead of upstream (4 new commits for docs-generator work)
-- **All pre-commit hooks passing**: ✅ (16/16 checks)
+- **Tests**: 447 total (439 passing, 8 skipped)
+- **Coverage**: ~83% overall for cloudevents tools
+- **Commits**: 4 ahead of upstream (latest: TypeScript refactoring Phase 2)
+- **All pre-commit hooks passing**: ✅
 
 ### Next Priority
 
-**README Generator Utilities Testing** (per TESTING_PLAN.md):
+**Phase 3: CLI Handler Tests** (immediate next task):
 
-Three README generator files at 0% coverage:
+Create comprehensive tests for 3 CLI handler files (~30-45 tests total):
 
-- `generate-readme-index.cjs` (470 lines, 0% → 50%)
-- `render-readme.cjs` (282 lines, 0% → 50%)
-- `update-readme.cjs` (43 lines, 0% → 50%)
+- `generate-readme-index-cli.ts` (53 lines) - ~10-15 tests
+- `render-readme-cli.ts` (47 lines) - ~10-15 tests
+- `update-readme-cli.ts` (60 lines) - ~10-15 tests
 
-**Expected impact**: +400 covered lines, significant coverage boost
+**Test areas**:
 
-Similar refactoring pattern:
+- Argument parsing and validation
+- Error handling and edge cases
+- Success paths with proper class instantiation
+- Console output and return values
+- Custom path handling
 
-1. Extract classes from CJS files
-2. Create TypeScript handlers
-3. Add comprehensive unit tests
-4. Wire integration tests
+**Expected impact**: +30-45 tests, complete TypeScript refactoring for README generator
 
 ### Key Files to Check
 
 - `src/TESTING_PLAN.md` - Main testing plan with detailed progress tracker and changelog
-- `src/cloudevents/tools/generator/docs-generator/docs-generator.ts` - DocsGenerator class (349 lines, 94% coverage)
-- `src/cloudevents/tools/generator/docs-generator/generate-docs-cli.ts` - CLI handler (126 lines, 83% coverage)
-- `src/cloudevents/tools/generator/__tests__/docs-generator.test.ts` - 29 unit tests (670 lines)
-- `src/cloudevents/tools/generator/__tests__/generate-docs.test.ts` - Integration tests (9 tests, 4 skipped)
+- `src/cloudevents/tools/generator/readme-generator/readme-index-generator.ts` - ReadmeIndexGenerator class (648 lines)
+- `src/cloudevents/tools/generator/readme-generator/readme-renderer.ts` - ReadmeRenderer class (335 lines)
+- `src/cloudevents/tools/generator/readme-generator/generate-readme-index-cli.ts` - CLI handler (53 lines)
+- `src/cloudevents/tools/generator/__tests__/readme-index-generator.test.ts` - 36 unit tests (693 lines)
+- `src/cloudevents/tools/generator/__tests__/readme-renderer.test.ts` - 28 unit tests (699 lines)
 
 ### Quick Start Commands
 
 ```bash
 # Run all tests
 cd /workspaces/nhs-notify-digital-letters/src/cloudevents && npm run test:unit
+
+# Run specific test file
+npm test -- readme-index-generator.test.ts
 
 # Check coverage
 npm run test:unit -- --coverage --coverageReporters=text | grep -A 20 "File.*%"
@@ -96,10 +110,8 @@ cd /workspaces/nhs-notify-digital-letters && GH_PAGER=cat gh run list --branch r
 
 ### Recent Commits (This Session)
 
-1. `947eaa0` - test: update generate-docs integration tests to use TypeScript version
-2. `bd02b88` - refactor: deprecate generate-docs.cjs in favor of TypeScript version
-3. `a99d83b` - refactor: wire generate-docs-cli to use DocsGenerator class
-4. `abc1234` - test: add 29 comprehensive unit tests for DocsGenerator class (placeholder hash)
+1. `4e12924` - test: add ReadmeRenderer unit tests (TypeScript refactoring Phase 2)
+2. `7e75215` - test: add comprehensive integration tests for README generator utilities
 
 ### Important Notes
 
