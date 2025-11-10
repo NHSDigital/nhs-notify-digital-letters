@@ -229,9 +229,10 @@ export default defineConfig([
     },
   },
   {
-    files: ['utils/**'],
+    files: ['utils/**', '**/jest.config.ts'],
     rules: {
       'no-relative-import-paths/no-relative-import-paths': 0,
+      'import-x/no-relative-packages': 0,
     },
   },
   {
