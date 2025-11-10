@@ -98,7 +98,7 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
+  #    secrets: inherit
   test-stage: # Recommended maximum execution time is 5 minutes
     name: "Test stage"
     needs: [metadata, commit-stage]
@@ -111,7 +111,8 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
+    secrets: #inherit
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   build-stage: # Recommended maximum execution time is 3 minutes
     name: "Build stage"
     needs: [metadata, test-stage]
@@ -125,7 +126,7 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
+  #    secrets: inherit
   pr-create-dynamic-environment:
     name: Trigger dynamic environment creation
     needs: [metadata, build-stage]
@@ -163,7 +164,7 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
+  #   secrets: inherit
   publish-stage: # Recommended maximum execution time is 10 minutes
     name: "Publish stage"
     needs: [metadata, acceptance-stage]
@@ -178,4 +179,4 @@ jobs:
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
       is_version_prerelease: "${{ needs.metadata.outputs.is_version_prerelease }}"
-    secrets: inherit
+#    secrets: inherit
