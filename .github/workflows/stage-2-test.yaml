@@ -31,6 +31,10 @@ on:
         description: "Version of the software, set by the CI/CD pipeline workflow"
         required: true
         type: string
+    secrets:
+      SONAR_TOKEN:
+        description: 'Require SONAR_TOKEN'
+        required: true
 
 env:
   AWS_REGION: eu-west-2
