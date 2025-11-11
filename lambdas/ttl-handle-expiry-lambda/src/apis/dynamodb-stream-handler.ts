@@ -76,8 +76,10 @@ export const createHandler = ({
             dataschema:
               'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
             data: {
-              messageUri: item.PK,
               'digital-letter-id': randomUUID(),
+              messageReference: 'UpdateME!',
+              messageUri: item.PK,
+              senderId: 'UpdateME!',
             },
           },
         ]);

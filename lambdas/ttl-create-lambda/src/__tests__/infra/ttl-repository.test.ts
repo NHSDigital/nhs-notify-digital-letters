@@ -34,8 +34,10 @@ describe('TtlRepository', () => {
     dataschemaversion: '1.0',
     severitytext: 'INFO',
     data: {
-      uri: 'https://example.com/ttl/resource',
       'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000',
+      messageReference: 'ref1',
+      senderId: 'sender1',
+      uri: 'https://example.com/ttl/resource',
     },
   };
 
@@ -79,8 +81,10 @@ describe('TtlRepository', () => {
       Item: {
         PK: item.data.uri,
         SK: 'TTL',
-        ttl: expectedTtlSeconds,
         dateOfExpiry: expectedDateOfExpiry,
+        messageReference: 'ref1',
+        ttl: expectedTtlSeconds,
+        senderId: 'sender1',
       },
     });
   });

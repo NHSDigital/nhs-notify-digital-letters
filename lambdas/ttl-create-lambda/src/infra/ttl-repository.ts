@@ -38,7 +38,10 @@ export class TtlRepository {
     }
   }
 
-  private async putTtlRecord({ data: { uri } }: TtlItemEvent, ttlTime: number) {
+  private async putTtlRecord(
+    { data: { messageReference, senderId, uri } }: TtlItemEvent,
+    ttlTime: number,
+  ) {
     // GSI PK utilising write sharding YYYY-MM-DD#<RANDOM_INT_BETWEEN_0_AND_[shardCount]>
     const ttlGsiPk = `${
       new Date(ttlTime * 1000).toISOString().split('T')[0]
@@ -52,6 +55,8 @@ export class TtlRepository {
           SK: 'TTL',
           ttl: ttlTime,
           dateOfExpiry: ttlGsiPk,
+          messageReference,
+          senderId,
         },
       }),
     );
