@@ -1,4 +1,4 @@
-import { Logger } from 'utils';
+import { Logger, TtlDynamodbRecord } from 'utils';
 import { mock, mockReset } from 'jest-mock-extended';
 import {
   BatchWriteCommandOutput,
@@ -6,7 +6,6 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import { TtlExpiryService } from 'infra/ttl-expiry-service';
 import { DynamoRepository } from 'infra/dynamo-repository';
-import { TtlRecord } from 'infra/types';
 
 const mockTableName = 'test';
 const [mockDate] = new Date().toISOString().split('T');
@@ -28,22 +27,28 @@ const queryOutput = {
       SK: 'REQUEST_ITEM_PLAN#hello1',
       dateOfExpiry: mockDate,
       ttl: mockTtl,
+      messageReference: 'ref1',
+      senderId: 'sender1',
     },
     {
       PK: 'REQUEST_ITEM#hello2',
       SK: 'REQUEST_ITEM_PLAN#hello2',
       dateOfExpiry: mockDate,
       ttl: mockTtl,
+      messageReference: 'ref2',
+      senderId: 'sender2',
     },
     {
       PK: 'REQUEST_ITEM#hello3',
       SK: 'REQUEST_ITEM_PLAN#hello3',
       dateOfExpiry: mockDate,
       ttl: mockTtl,
+      messageReference: 'ref3',
+      senderId: 'sender3',
     },
   ],
   $metadata: {},
-} satisfies QueryCommandOutput & { Items: TtlRecord[] };
+} satisfies QueryCommandOutput & { Items: TtlDynamodbRecord[] };
 
 const batchWriteOutputFailedItem = {
   UnprocessedItems: {
@@ -308,6 +313,55 @@ describe('TtlExpiryService', () => {
       mockTtlBeforeSeconds - 100,
       mockStartTimeMs,
     );
+
+    expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(
+      shardCount,
+    );
+    expect(mockDynamoRepository.deleteBatch).toHaveBeenCalledTimes(0);
+    expect(res).toEqual({
+      processed: 0,
+      deleted: 0,
+      failedToDelete: 0,
+    });
+  });
+
+  it('logs error when TTL of record is after target expiry time', async () => {
+    const futureDateTime = mockTtlBeforeSeconds + 100; // TTL is in the future
+    mockDynamoRepository.queryTtlIndex.mockImplementation(
+      async () =>
+        ({
+          Items: [
+            {
+              PK: 'REQUEST_ITEM#hello1',
+              SK: 'REQUEST_ITEM_PLAN#hello1',
+              dateOfExpiry: mockDate,
+              ttl: futureDateTime,
+              messageReference: 'ref1',
+              senderId: 'sender1',
+            },
+          ],
+          $metadata: {},
+        }) satisfies QueryCommandOutput,
+    );
+
+    const res = await ttlExpiryService.processExpiredTtlRecords(
+      mockDate,
+      mockTtlBeforeSeconds,
+      mockStartTimeMs,
+    );
+
+    expect(logger.error).toHaveBeenCalledWith({
+      record: {
+        PK: 'REQUEST_ITEM#hello1',
+        SK: 'REQUEST_ITEM_PLAN#hello1',
+        dateOfExpiry: mockDate,
+        ttl: futureDateTime,
+        messageReference: 'ref1',
+        senderId: 'sender1',
+      },
+      ttlBeforeSeconds: mockTtlBeforeSeconds,
+      err: 'TTL of record is after target expiry time',
+    });
 
     expect(mockDynamoRepository.queryTtlIndex).toHaveBeenCalledTimes(
       shardCount,

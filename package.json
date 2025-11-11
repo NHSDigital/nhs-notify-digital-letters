@@ -52,6 +52,7 @@
   "workspaces": [
     "lambdas/mesh-poll",
     "lambdas/ttl-create-lambda",
+    "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
     "utils/utils",
     "tests/playwright"

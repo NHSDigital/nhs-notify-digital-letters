@@ -2,8 +2,10 @@ import { ScheduledEvent } from 'aws-lambda';
 import { Logger } from 'utils';
 import { mock } from 'jest-mock-extended';
 import { EventDetail, createHandler } from 'apis/scheduled-event-handler';
-import { TtlExpiryService } from 'infra/ttl-expiry-service';
-import { ProcessingStatistics } from 'infra/types';
+import {
+  ProcessingStatistics,
+  TtlExpiryService,
+} from 'infra/ttl-expiry-service';
 
 const malformedEvents = [
   {

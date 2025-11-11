@@ -1,0 +1,232 @@
+import type { DynamoDBRecord, DynamoDBStreamEvent } from 'aws-lambda';
+import { EventPublisher, Logger } from 'utils';
+import { mock } from 'jest-mock-extended';
+import { createHandler } from 'apis/dynamodb-stream-handler';
+
+const logger = mock<Logger>();
+const eventPublisher = mock<EventPublisher>();
+const futureTimestamp = Date.now() + 1_000_000;
+
+const mockEvent: DynamoDBStreamEvent = {
+  Records: [
+    {
+      eventID: 'test-event-1',
+      eventName: 'REMOVE',
+      eventVersion: '1.1',
+      eventSource: 'aws:dynamodb',
+      awsRegion: 'us-east-1',
+      dynamodb: {
+        ApproximateCreationDateTime: 1_234_567_890,
+        Keys: {
+          PK: { S: 'MESSAGE#test-id-1' },
+          SK: { S: 'METADATA' },
+        },
+        OldImage: {
+          PK: { S: 'MESSAGE#test-id-1' },
+          SK: { S: 'METADATA' },
+          dateOfExpiry: { S: 'dateOfExpiry' },
+          messageReference: { S: 'ref1' },
+          ttl: { N: futureTimestamp.toString() },
+          senderId: { S: 'sender1' },
+        },
+        SequenceNumber: '123456789',
+        SizeBytes: 100,
+        StreamViewType: 'OLD_IMAGE',
+      },
+    },
+  ] as DynamoDBRecord[],
+};
+
+describe('createHandler', () => {
+  const handler = createHandler({
+    eventPublisher,
+    logger,
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should process DynamoDB stream event with valid TTL expired records', async () => {
+    const result = await handler(mockEvent);
+
+    expect(logger.info).toHaveBeenCalledWith({
+      description: 'DynamoDB event received',
+      event: mockEvent,
+    });
+
+    expect(logger.info).toHaveBeenCalledWith({
+      description: 'Processing DynamoDB event record',
+      record: mockEvent.Records[0],
+    });
+
+    expect(logger.info).toHaveBeenCalledWith(
+      'Finished processing DynamoDB event',
+      expect.objectContaining({}),
+    );
+
+    expect(eventPublisher.sendEvents).toHaveBeenCalledTimes(1);
+
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+      expect.objectContaining({
+        profileversion: '1.0.0',
+        profilepublished: '2025-10',
+        specversion: '1.0',
+        source: 'uk.nhs.notify.digital-letters.ttl-expiry',
+        subject:
+          'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+        type: 'uk.nhs.notify.digital.letters.letter.expired.v1',
+        datacontenttype: 'application/json',
+        dataschema:
+          'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
+        data: expect.objectContaining({
+          messageUri: 'MESSAGE#test-id-1',
+          'digital-letter-id': expect.stringMatching(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+          ),
+        }),
+      }),
+    ]);
+
+    expect(result).toEqual({});
+  });
+
+  it('should handle non-REMOVE events by skipping them', async () => {
+    const mockInsertEvent: DynamoDBStreamEvent = {
+      Records: [
+        {
+          eventID: 'test-event-1',
+          eventName: 'INSERT',
+          eventVersion: '1.1',
+          eventSource: 'aws:dynamodb',
+          awsRegion: 'us-east-1',
+          dynamodb: {
+            ApproximateCreationDateTime: 1_234_567_890,
+            SequenceNumber: '123456789',
+            SizeBytes: 100,
+            StreamViewType: 'NEW_IMAGE',
+          },
+        },
+      ] as DynamoDBRecord[],
+    };
+
+    const result = await handler(mockInsertEvent);
+
+    expect(logger.error).toHaveBeenCalledWith({
+      description: 'Non-REMOVE event or missing OldImage',
+    });
+
+    expect(eventPublisher.sendEvents).not.toHaveBeenCalled();
+    expect(result).toEqual({});
+  });
+
+  it('should handle records without OldImage by skipping them', async () => {
+    const mockNoOldImageEvent: DynamoDBStreamEvent = {
+      Records: [
+        {
+          eventID: 'test-event-1',
+          eventName: 'REMOVE',
+          eventVersion: '1.1',
+          eventSource: 'aws:dynamodb',
+          awsRegion: 'us-east-1',
+          dynamodb: {
+            ApproximateCreationDateTime: 1_234_567_890,
+            Keys: {
+              PK: { S: 'MESSAGE#test-id-1' },
+            },
+            SequenceNumber: '123456789',
+            SizeBytes: 100,
+            StreamViewType: 'KEYS_ONLY',
+          },
+        },
+      ] as DynamoDBRecord[],
+    };
+
+    const result = await handler(mockNoOldImageEvent);
+
+    expect(logger.error).toHaveBeenCalledWith({
+      description: 'Non-REMOVE event or missing OldImage',
+    });
+
+    expect(eventPublisher.sendEvents).not.toHaveBeenCalled();
+    expect(result).toEqual({});
+  });
+
+  it('should handle parsing errors by adding to batch failures', async () => {
+    const mockInvalidEvent: DynamoDBStreamEvent = {
+      Records: [
+        {
+          eventID: 'test-event-1',
+          eventName: 'REMOVE',
+          eventVersion: '1.1',
+          eventSource: 'aws:dynamodb',
+          awsRegion: 'us-east-1',
+          dynamodb: {
+            ApproximateCreationDateTime: 1_234_567_890,
+            Keys: {
+              id: { S: 'test-id-1' },
+            },
+            OldImage: {
+              invalidField: { S: 'invalid-data' },
+            },
+            SequenceNumber: '123456789',
+            SizeBytes: 100,
+            StreamViewType: 'OLD_IMAGE',
+          },
+        },
+      ] as DynamoDBRecord[],
+    };
+
+    const result = await handler(mockInvalidEvent);
+
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.objectContaining({
+        err: expect.any(Object),
+        description: 'Error parsing ttl dynamodb record',
+      }),
+    );
+
+    expect(eventPublisher.sendEvents).not.toHaveBeenCalled();
+
+    expect(result).toEqual({
+      batchItemFailures: [{ itemIdentifier: '123456789' }],
+    });
+  });
+
+  it('should handle empty records array', async () => {
+    const mockNoRecordsEvent: DynamoDBStreamEvent = {
+      Records: [],
+    };
+
+    const result = await handler(mockNoRecordsEvent);
+
+    expect(logger.info).toHaveBeenCalledWith({
+      description: 'DynamoDB event received',
+      event: mockNoRecordsEvent,
+    });
+
+    expect(logger.info).toHaveBeenCalledWith(
+      'Finished processing DynamoDB event',
+      result,
+    );
+
+    expect(eventPublisher.sendEvents).not.toHaveBeenCalled();
+    expect(result).toEqual({});
+  });
+
+  it('should handle EventPublisher errors by adding to batch failures', async () => {
+    const error = new Error('EventPublisher failed');
+    eventPublisher.sendEvents.mockRejectedValueOnce(error);
+
+    const result = await handler(mockEvent);
+
+    expect(logger.error).toHaveBeenCalledWith({
+      err: error,
+      description: 'Error parsing ttl dynamodb record',
+    });
+
+    expect(result).toEqual({
+      batchItemFailures: [{ itemIdentifier: '123456789' }],
+    });
+  });
+});

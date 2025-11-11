@@ -10,6 +10,10 @@ export const $CloudEventData = z
         /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
       )
       .describe('The unique identifier for the digital letter.'),
+    messageReference: z
+      .string()
+      .describe('The message reference from the sender.'),
+    senderId: z.string().describe('The identifier of the message sender.'),
   })
   .catchall(z.any());
 
