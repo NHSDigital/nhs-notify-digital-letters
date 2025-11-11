@@ -1,4 +1,4 @@
-import { Logger } from 'utils';
+import { Logger, TtlDynamodbRecord } from 'utils';
 import { mock, mockReset } from 'jest-mock-extended';
 import {
   BatchWriteCommandOutput,
@@ -6,7 +6,6 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import { TtlExpiryService } from 'infra/ttl-expiry-service';
 import { DynamoRepository } from 'infra/dynamo-repository';
-import { TtlRecord } from 'infra/types';
 
 const mockTableName = 'test';
 const [mockDate] = new Date().toISOString().split('T');
@@ -43,7 +42,7 @@ const queryOutput = {
     },
   ],
   $metadata: {},
-} satisfies QueryCommandOutput & { Items: TtlRecord[] };
+} satisfies QueryCommandOutput & { Items: TtlDynamodbRecord[] };
 
 const batchWriteOutputFailedItem = {
   UnprocessedItems: {

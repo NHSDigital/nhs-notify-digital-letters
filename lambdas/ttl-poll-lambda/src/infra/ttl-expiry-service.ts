@@ -1,9 +1,14 @@
-import { Logger } from 'utils';
+import { $TtlDynamodbRecord, Logger, TtlDynamodbRecordKey } from 'utils';
 import { chunk } from 'lodash';
 import pLimit from 'p-limit';
 import { QueryCommandOutput } from '@aws-sdk/lib-dynamodb';
 import { DynamoRepository } from 'infra/dynamo-repository';
-import { ProcessingStatistics, TtlRecordKey, isTtlRecord } from 'infra/types';
+
+export type ProcessingStatistics = {
+  processed: number;
+  deleted: number;
+  failedToDelete: number;
+};
 
 export class TtlExpiryService {
   private readonly limit: pLimit.Limit;
@@ -54,7 +59,7 @@ export class TtlExpiryService {
   private async getTtlRecordKeys(
     date: string,
     ttlBeforeSeconds: number,
-  ): Promise<TtlRecordKey[]> {
+  ): Promise<TtlDynamodbRecordKey[]> {
     const shards = [...Array.from({ length: this.shardCount }).keys()];
     this.logger.info(
       `Querying ${shards.length} shards for expired records on ${date} before ${new Date(ttlBeforeSeconds * 1000).toISOString()}`,
@@ -78,7 +83,7 @@ export class TtlExpiryService {
     date: string,
     shard: number,
     ttlBeforeSeconds: number,
-  ): Promise<TtlRecordKey[]> {
+  ): Promise<TtlDynamodbRecordKey[]> {
     const res = await this.dynamoRepository.queryTtlIndex(
       `${date}#${shard}`,
       ttlBeforeSeconds,
@@ -90,17 +95,21 @@ export class TtlExpiryService {
   private getRecordKeysFromQueryOutput(
     queryOutput: QueryCommandOutput,
     ttlBeforeSeconds: number,
-  ): TtlRecordKey[] {
+  ): TtlDynamodbRecordKey[] {
     if (!queryOutput.Items?.length) {
       return [];
     }
 
     return queryOutput.Items.flatMap((record) => {
-      if (!isTtlRecord(record)) {
+      const { error: parseError, success: parseSuccess } =
+        $TtlDynamodbRecord.safeParse(record);
+
+      if (!parseSuccess) {
         this.logger.error({
-          err: 'Record in TTL table does not match schema',
-          record,
+          err: parseError,
+          description: 'Error parsing ttl dynamodb record',
         });
+
         return [];
       }
 
@@ -119,7 +128,7 @@ export class TtlExpiryService {
   }
 
   private async batchDeleteTtlRecords(
-    recordKeys: TtlRecordKey[],
+    recordKeys: TtlDynamodbRecordKey[],
   ): Promise<ProcessingStatistics> {
     const processed = recordKeys.length;
     let deleted = 0;

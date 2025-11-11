@@ -86,7 +86,7 @@ data "aws_iam_policy_document" "ttl_handle_expiry_lambda" {
   }
 
   statement {
-    sid    = "SQSPermissionsEventPublisherDLQ"
+    sid    = "SQSPermissionsTtlHandleExpiryDLQ"
     effect = "Allow"
 
     actions = [
@@ -95,7 +95,7 @@ data "aws_iam_policy_document" "ttl_handle_expiry_lambda" {
     ]
 
     resources = [
-      module.sqs_event_publisher_errors.sqs_queue_arn,
+      module.sqs_ttl_handle_expiry_errors.sqs_queue_arn,
     ]
   }
 }

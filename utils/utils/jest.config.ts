@@ -1,4 +1,3 @@
-// eslint-disable-next-line import-x/no-relative-packages
 import { baseJestConfig } from '../../jest.config.base';
 
 const utilsJestConfig = {
