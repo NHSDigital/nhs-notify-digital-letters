@@ -8,7 +8,7 @@ The documentation generation has been split into a two-stage process for better 
 
 ### 1. `generate_docs_yaml.py`
 
-Generates structured YAML documentation files from JSON Schema YAML files.
+Generates structured yaml documentation files from JSON Schema yaml files.
 
 ```bash
 python generate_docs_yaml.py <src_dir> <docs_yaml_dir>
@@ -19,11 +19,11 @@ python generate_docs_yaml.py <src_dir> <docs_yaml_dir>
 - Extracts metadata, properties, constraints, examples, and inheritance information
 - Creates `.doc.yaml` files with structured documentation data
 - Generates hierarchical `index.yaml` files for navigation
-- Machine-readable format suitable for consumption by other tools (Jekyll, etc.)
+- Machine-readable format suitable for consumption by other tools (jekyll, etc.)
 
 ### 2. `generate_docs_markdown.py`
 
-Generates Markdown documentation from YAML documentation files.
+Generates Markdown documentation from yaml documentation files.
 
 ```bash
 python generate_docs_markdown.py <docs_yaml_dir> <docs_md_dir>
@@ -31,11 +31,11 @@ python generate_docs_markdown.py <docs_yaml_dir> <docs_md_dir>
 
 **Features:**
 
-- Converts YAML documentation to human-readable Markdown
+- Converts yaml documentation to human-readable Markdown
 - Creates hierarchical index files with navigation
 - Preserves all schema information in readable format
-- Generates front matter for Jekyll/static site generators
-- **Embeds source YAML schema in front matter** for tool consumption
+- Generates front matter for jekyll/static site generators
+- **Embeds source yaml schema in front matter** for tool consumption
 - Supports nested properties and complex schema structures
 
 ### 3. `generate_docs_all.py`
@@ -49,7 +49,7 @@ python generate_docs_all.py <src_dir> [output_dir]
 **Features:**
 
 - Copies source schema files to `output/schemas/`
-- Generates YAML documentation in `output/docs/yaml/`
+- Generates yaml documentation in `output/docs/yaml/`
 - Generates Markdown documentation in `output/docs/md/`
 - Creates a complete, self-contained documentation package
 
@@ -63,14 +63,14 @@ Original single-stage documentation generator. Still available but recommend usi
 
 ## Other Utility Scripts
 
-- `yaml_to_json.py` - Converts YAML schema files to JSON format using PyYAML
+- `yaml_to_json.py` - Converts yaml schema files to JSON format using PyYAML
 
 ## Documentation File Structure
 
 ```text
 output/                        # Complete documentation package
 ├── docs/
-│   ├── yaml/                  # Generated YAML documentation
+│   ├── yaml/                  # Generated yaml documentation
 │   │   ├── index.yaml         # Root index
 │   │   └── 2025-10/
 │   │       ├── index.yaml     # Directory index
@@ -87,12 +87,12 @@ output/                        # Complete documentation package
 
 ## Benefits of Two-Stage Approach
 
-1. **Flexibility**: YAML files can be consumed by different tools (Jekyll themes, API generators, etc.)
+1. **Flexibility**: yaml files can be consumed by different tools (jekyll themes, API generators, etc.)
 2. **Separation of Concerns**: Documentation extraction separate from presentation
-3. **Caching**: YAML generation only needs to run when schemas change
-4. **Multiple Outputs**: Same YAML can generate different formats (Markdown, HTML, PDF, etc.)
-5. **Tool Integration**: Other applications can easily consume the structured YAML data
-6. **Source Preservation**: Original YAML schema embedded in Markdown front matter for tool access
+3. **Caching**: yaml generation only needs to run when schemas change
+4. **Multiple Outputs**: Same yaml can generate different formats (Markdown, HTML, PDF, etc.)
+5. **Tool Integration**: Other applications can easily consume the structured yaml data
+6. **Source Preservation**: Original yaml schema embedded in Markdown front matter for tool access
 
 ## Markdown Front Matter Structure
 
@@ -128,7 +128,7 @@ examples:
 ---
 ```
 
-This allows tools like Jekyll to:
+This allows tools like jekyll to:
 
 - Access all metadata for listing and organization
 - Process properties directly for form generation or validation
@@ -149,13 +149,13 @@ python generate_docs_all.py src
 python generate_docs_all.py src my_output
 ```
 
-### Generate only YAML (for tool consumption)
+### Generate only yaml (for tool consumption)
 
 ```bash
 python generate_docs_yaml.py src docs_yaml
 ```
 
-### Generate only Markdown (from existing YAML)
+### Generate only Markdown (from existing yaml)
 
 ```bash
 python generate_docs_markdown.py docs_yaml docs_md
@@ -167,7 +167,7 @@ python generate_docs_markdown.py docs_yaml docs_md
 python generate_docs.py src docs
 ```
 
-### Convert YAML to JSON
+### Convert yaml to JSON
 
 ```bash
 python yaml_to_json.py input.schema.yaml output.schema.json
