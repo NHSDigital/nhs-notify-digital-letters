@@ -20,5 +20,5 @@ properties:
     examples:
       - digital-letter-base-data.schema.yaml
   data:
-    $ref: ../data/digital-letter-base-data.schema.yaml
+    $ref: ../data/digital-letters-mesh-inbox-message-received.schema.yaml
     description: Example payload wrapper containing notify-payload.
