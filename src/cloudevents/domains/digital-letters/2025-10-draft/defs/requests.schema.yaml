@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: Some Object
+title: Request data
 description: Reusable types for NHS Notify payload schemas.
 type: object
 properties:
@@ -15,6 +15,7 @@ properties:
       - ""
   messageUri:
     type: string
+    format: uri
     description: Uri to the storage location of the FHIR resource relating to this message request
     examples:
       - "s3://my-bucket/path/to/my-object"

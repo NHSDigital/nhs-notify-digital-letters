@@ -1,4 +1,5 @@
 $schema: https://json-schema.org/draft/2020-12/schema
+
 title: PDMResourceSubmitted
 type: object
 allOf:
@@ -20,5 +21,4 @@ properties:
     examples:
       - digital-letter-base-data.schema.yaml
   data:
-    $ref: ../data/digital-letter-base-data.schema.yaml
-    description: Example payload wrapper containing notify-payload.
+    $ref: ../data/digital-letters-pdm-resource-submitted-data.schema.yaml

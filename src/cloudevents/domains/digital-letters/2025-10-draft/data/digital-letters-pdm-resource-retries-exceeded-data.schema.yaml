@@ -1,0 +1,16 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: PDMResourceRetriesExceeded Data
+description: Base data of the PDMResourceRetriesExceeded event
+additionalProperties: false
+properties:
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  resourceId:
+    $ref: ../defs/pdm.schema.yaml#/properties/resourceId
+required:
+  - messageReference
+  - senderId
+  - resourceId
+  - retryCount

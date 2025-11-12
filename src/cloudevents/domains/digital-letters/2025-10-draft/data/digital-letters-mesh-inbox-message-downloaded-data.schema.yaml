@@ -1,6 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: Placeholder Data
-description: Base data for digital letters - a placeholder until all data schemas are defined
+title: MESHInboxMessageDownloaded Data
+description: Data payload of the MESHInboxMessageDownloaded event
 type: object
 additionalProperties: false
 properties:
