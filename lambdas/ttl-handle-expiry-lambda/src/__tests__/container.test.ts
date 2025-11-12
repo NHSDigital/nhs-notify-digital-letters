@@ -28,7 +28,8 @@ describe('createContainer', () => {
       eventPublisherEventBusArn:
         'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
       eventPublisherDlqUrl:
-        'https://sqs.us-east-1.amazonaws.com/123456789012/test-dlq',
+        'https://sqs.us-east-1.amazonaws.com/123456789012/test-event-dlq',
+      dlqUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/test-dlq',
     };
 
     mockLoadConfig.mockReturnValue(mockConfig);
@@ -53,6 +54,7 @@ describe('createContainer', () => {
     expect(container).toEqual({
       eventPublisher: mockEventPublisherInstance,
       logger: expect.any(Object),
+      dlq: expect.any(Object),
     });
   });
 
@@ -66,10 +68,12 @@ describe('createContainer', () => {
     expect(container1).toMatchObject({
       eventPublisher: expect.any(Object),
       logger: expect.any(Object),
+      dlq: expect.any(Object),
     });
     expect(container2).toMatchObject({
       eventPublisher: expect.any(Object),
       logger: expect.any(Object),
+      dlq: expect.any(Object),
     });
   });
 });

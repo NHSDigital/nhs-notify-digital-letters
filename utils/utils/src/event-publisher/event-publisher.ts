@@ -199,7 +199,7 @@ export class EventPublisher {
 
     for (const event of events) {
       // NOTE: CCM-12896 created to apply specific event validation.
-      const { success, error } = $CloudEvent.safeParse(event)
+      const { error, success } = $CloudEvent.safeParse(event);
       if (success) {
         validEvents.push(event);
       } else {
@@ -207,7 +207,7 @@ export class EventPublisher {
 
         this.logger.info({
           description: 'Error parsing event',
-          error
+          error,
         });
       }
     }

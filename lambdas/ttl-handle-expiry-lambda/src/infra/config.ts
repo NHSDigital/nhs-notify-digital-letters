@@ -3,6 +3,7 @@ import { defaultConfigReader } from 'utils';
 export type SendRequestConfig = {
   eventPublisherEventBusArn: string;
   eventPublisherDlqUrl: string;
+  dlqUrl: string;
 };
 
 export function loadConfig(): SendRequestConfig {
@@ -13,5 +14,6 @@ export function loadConfig(): SendRequestConfig {
     eventPublisherDlqUrl: defaultConfigReader.getValue(
       'EVENT_PUBLISHER_DLQ_URL',
     ),
+    dlqUrl: defaultConfigReader.getValue('DLQ_URL'),
   };
 }

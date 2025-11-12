@@ -2,9 +2,11 @@ import type { DynamoDBRecord, DynamoDBStreamEvent } from 'aws-lambda';
 import { EventPublisher, Logger } from 'utils';
 import { mock } from 'jest-mock-extended';
 import { createHandler } from 'apis/dynamodb-stream-handler';
+import { Dlq } from 'app/dlq';
 
 const logger = mock<Logger>();
 const eventPublisher = mock<EventPublisher>();
+const dlq = mock<Dlq>();
 const futureTimestamp = Date.now() + 1_000_000;
 
 const mockEvent: DynamoDBStreamEvent = {
@@ -39,12 +41,14 @@ const mockEvent: DynamoDBStreamEvent = {
 
 describe('createHandler', () => {
   const handler = createHandler({
+    dlq,
     eventPublisher,
     logger,
   });
 
   beforeEach(() => {
     jest.clearAllMocks();
+    dlq.send.mockResolvedValue([]);
   });
 
   it('should process DynamoDB stream event with valid TTL expired records', async () => {
@@ -72,7 +76,8 @@ describe('createHandler', () => {
         profileversion: '1.0.0',
         profilepublished: '2025-10',
         specversion: '1.0',
-        source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
+        source:
+          '/nhs/england/notify/production/primary/data-plane/digital-letters',
         subject:
           'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
         type: 'uk.nhs.notify.digital.letters.expired.v1',
@@ -154,7 +159,7 @@ describe('createHandler', () => {
     expect(result).toEqual({});
   });
 
-  it('should handle parsing errors by adding to batch failures', async () => {
+  it('should handle processing errors by sending to DLQ', async () => {
     const mockInvalidEvent: DynamoDBStreamEvent = {
       Records: [
         {
@@ -181,18 +186,16 @@ describe('createHandler', () => {
 
     const result = await handler(mockInvalidEvent);
 
-    expect(logger.error).toHaveBeenCalledWith(
+    expect(logger.warn).toHaveBeenCalledWith(
       expect.objectContaining({
         err: expect.any(Object),
         description: 'Error parsing ttl dynamodb record',
       }),
     );
 
+    expect(dlq.send).toHaveBeenCalledWith([mockInvalidEvent.Records[0]]);
     expect(eventPublisher.sendEvents).not.toHaveBeenCalled();
-
-    expect(result).toEqual({
-      batchItemFailures: [{ itemIdentifier: '123456789' }],
-    });
+    expect(result).toEqual({});
   });
 
   it('should handle empty records array', async () => {
@@ -216,17 +219,51 @@ describe('createHandler', () => {
     expect(result).toEqual({});
   });
 
-  it('should handle EventPublisher errors by adding to batch failures', async () => {
+  it('should handle EventPublisher errors by sending to DLQ', async () => {
     const error = new Error('EventPublisher failed');
     eventPublisher.sendEvents.mockRejectedValueOnce(error);
 
     const result = await handler(mockEvent);
 
-    expect(logger.error).toHaveBeenCalledWith({
+    expect(logger.warn).toHaveBeenCalledWith({
       err: error,
-      description: 'Error parsing ttl dynamodb record',
+      description: 'Error processing ttl dynamodb record',
     });
 
+    expect(dlq.send).toHaveBeenCalledWith([mockEvent.Records[0]]);
+    expect(result).toEqual({});
+  });
+
+  it('should handle DLQ failures by adding to batch failures', async () => {
+    const mockInvalidEvent: DynamoDBStreamEvent = {
+      Records: [
+        {
+          eventID: 'test-event-1',
+          eventName: 'REMOVE',
+          eventVersion: '1.1',
+          eventSource: 'aws:dynamodb',
+          awsRegion: 'us-east-1',
+          dynamodb: {
+            ApproximateCreationDateTime: 1_234_567_890,
+            Keys: {
+              id: { S: 'test-id-1' },
+            },
+            OldImage: {
+              invalidField: { S: 'invalid-data' },
+            },
+            SequenceNumber: '123456789',
+            SizeBytes: 100,
+            StreamViewType: 'OLD_IMAGE',
+          },
+        },
+      ] as DynamoDBRecord[],
+    };
+
+    dlq.send.mockResolvedValueOnce([mockInvalidEvent.Records[0]]);
+
+    const result = await handler(mockInvalidEvent);
+
+    expect(dlq.send).toHaveBeenCalledWith([mockInvalidEvent.Records[0]]);
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: '123456789' }],
     });
