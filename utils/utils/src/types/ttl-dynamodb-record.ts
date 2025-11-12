@@ -7,6 +7,7 @@ export const $TtlDynamodbRecord = z.object({
   messageReference: z.string(),
   ttl: z.number(),
   senderId: z.string(),
+  withdrawn: z.boolean().optional(),
 });
 
 export type TtlDynamodbRecord = z.infer<typeof $TtlDynamodbRecord>;

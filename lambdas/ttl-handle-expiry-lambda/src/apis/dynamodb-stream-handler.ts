@@ -57,7 +57,14 @@ export const createHandler = ({
         return;
       }
 
-      if (item.ttl * 1000 > Date.now()) {
+      if (item.withdrawn) {
+        logger.info({
+          description: 'ItemDequeued event not sent as item withdrawn',
+          messageReference: item.messageReference,
+          messageUri: item.PK,
+          senderId: item.senderId,
+        });
+      } else {
         await eventPublisher.sendEvents([
           {
             profileversion: '1.0.0',

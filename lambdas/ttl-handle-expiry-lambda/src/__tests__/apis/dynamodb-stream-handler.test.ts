@@ -51,7 +51,7 @@ describe('createHandler', () => {
     dlq.send.mockResolvedValue([]);
   });
 
-  it('should process DynamoDB stream event with valid TTL expired records', async () => {
+  it('should process DynamoDB stream event with valid TTL expired records (withdrawn=undefined)', async () => {
     const result = await handler(mockEvent);
 
     expect(logger.info).toHaveBeenCalledWith({
@@ -267,5 +267,73 @@ describe('createHandler', () => {
     expect(result).toEqual({
       batchItemFailures: [{ itemIdentifier: '123456789' }],
     });
+  });
+
+  it('should not send event when item is withdrawn (withdrawn=true)', async () => {
+    const mockWithdrawnEvent: DynamoDBStreamEvent = {
+      ...mockEvent,
+      Records: [
+        {
+          ...mockEvent.Records[0],
+          dynamodb: {
+            ...mockEvent.Records[0].dynamodb,
+            OldImage: {
+              ...mockEvent.Records[0].dynamodb!.OldImage,
+              withdrawn: { BOOL: true },
+            },
+          },
+        },
+      ],
+    };
+
+    const result = await handler(mockWithdrawnEvent);
+
+    expect(logger.info).toHaveBeenCalledWith({
+      description: 'Processing DynamoDB event record',
+      record: mockWithdrawnEvent.Records[0],
+    });
+
+    expect(logger.info).toHaveBeenCalledWith({
+      description: 'ItemDequeued event not sent as item withdrawn',
+      messageReference: 'ref1',
+      messageUri: 'MESSAGE#test-id-1',
+      senderId: 'sender1',
+    });
+
+    expect(eventPublisher.sendEvents).not.toHaveBeenCalled();
+    expect(result).toEqual({});
+  });
+
+  it('should send event when item is not withdrawn (withdrawn=false)', async () => {
+    const mockNotWithdrawnEvent: DynamoDBStreamEvent = {
+      ...mockEvent,
+      Records: [
+        {
+          ...mockEvent.Records[0],
+          dynamodb: {
+            ...mockEvent.Records[0].dynamodb,
+            OldImage: {
+              ...mockEvent.Records[0].dynamodb!.OldImage,
+              withdrawn: { BOOL: false },
+            },
+          },
+        },
+      ],
+    };
+
+    const result = await handler(mockNotWithdrawnEvent);
+
+    expect(eventPublisher.sendEvents).toHaveBeenCalledTimes(1);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+      expect.objectContaining({
+        type: 'uk.nhs.notify.digital.letters.expired.v1',
+        data: expect.objectContaining({
+          messageReference: 'ref1',
+          messageUri: 'MESSAGE#test-id-1',
+          senderId: 'sender1',
+        }),
+      }),
+    ]);
+    expect(result).toEqual({});
   });
 });
