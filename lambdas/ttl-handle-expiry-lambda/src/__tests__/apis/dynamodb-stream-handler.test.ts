@@ -72,18 +72,20 @@ describe('createHandler', () => {
         profileversion: '1.0.0',
         profilepublished: '2025-10',
         specversion: '1.0',
-        source: 'uk.nhs.notify.digital-letters.ttl-expiry',
+        source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
         subject:
           'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-        type: 'uk.nhs.notify.digital.letters.letter.expired.v1',
+        type: 'uk.nhs.notify.digital.letters.expired.v1',
         datacontenttype: 'application/json',
         dataschema:
           'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
         data: expect.objectContaining({
-          messageUri: 'MESSAGE#test-id-1',
           'digital-letter-id': expect.stringMatching(
             /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
           ),
+          messageReference: 'ref1',
+          messageUri: 'MESSAGE#test-id-1',
+          senderId: 'sender1',
         }),
       }),
     ]);

@@ -56,7 +56,7 @@ export const createHandler = ({
         return;
       }
 
-      if (item.ttl > Date.now()) {
+      if ((item.ttl * 1000) > Date.now()) {
         await eventPublisher.sendEvents([
           {
             profileversion: '1.0.0',
@@ -65,21 +65,21 @@ export const createHandler = ({
             id: randomUUID(),
             time: new Date().toISOString(),
             recordedtime: new Date().toISOString(),
-            severitynumber: 6,
+            severitynumber: 5,
             traceparent:
               '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-            source: 'uk.nhs.notify.digital-letters.ttl-expiry',
+            source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
             subject:
               'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-            type: 'uk.nhs.notify.digital.letters.letter.expired.v1',
+            type: 'uk.nhs.notify.digital.letters.expired.v1',
             datacontenttype: 'application/json',
             dataschema:
               'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
             data: {
               'digital-letter-id': randomUUID(),
-              messageReference: 'UpdateME!',
+              messageReference: item.messageReference,
               messageUri: item.PK,
-              senderId: 'UpdateME!',
+              senderId: item.senderId,
             },
           },
         ]);
