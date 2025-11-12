@@ -18,7 +18,7 @@ _ALLOWED_HEADERS = [
 ]
 
 
-class InvalidHeaderException(BaseException):
+class InvalidHeaderException(Exception):
     """
     Indicates an invalid header on a MESH message
     """

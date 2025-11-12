@@ -62,16 +62,11 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      - name: "Set up Python"
-        uses: actions/setup-python@v4
+      - name: "Setup Python and Poetry"
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ inputs.python_version }}
-      - name: "Install Poetry"
-        uses: snok/install-poetry@v1
-        with:
-          version: latest
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+          working-directory: "lambdas/mesh-poll"
       - name: "Repo setup"
         run: |
           npm ci
@@ -100,16 +95,11 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      - name: "Set up Python"
-        uses: actions/setup-python@v4
+      - name: "Setup Python and Poetry"
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ inputs.python_version }}
-      - name: "Install Poetry"
-        uses: snok/install-poetry@v1
-        with:
-          version: latest
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+          working-directory: "lambdas/mesh-poll"
       - name: "Repo setup"
         run: |
           npm ci

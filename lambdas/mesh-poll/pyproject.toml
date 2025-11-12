@@ -3,23 +3,25 @@ name = "mesh-poll"
 version = "0.1.0"
 description = "Poll a MESH mailbox"
 authors = ["Your Name <you@example.com>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.9"
 structlog = "^21.5.0"
 py-mock-mesh = {path = "../../utils/py-mock-mesh", develop = false}
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.2"
 pylint = "^2.17.4"
 pytest = "^7.0.1"
 pytest-cov = "^4.0.0"
-
-[tool.poetry.group.dev.dependencies]
 jake = "^3.0.1"
 
 [tool.coverage.run]
-omit = ["tests/*"]
+omit = ["src/__tests__/*"]
+
+[tool.pytest.ini_options]
+pythonpath = "."
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
