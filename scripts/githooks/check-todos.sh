@@ -41,6 +41,7 @@ EXCLUDED_DIRS=(
   "docs/"
   "node_modules/"
   ".devcontainer/"
+  "src/changelog"
 )
 
 
