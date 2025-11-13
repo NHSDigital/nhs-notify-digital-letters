@@ -16,7 +16,7 @@ describe('$CloudEvent', () => {
     traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
     datacontenttype: 'application/json',
     dataschema:
-      'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
     dataschemaversion: '1',
     severitytext: 'INFO',
     data: {
@@ -71,7 +71,7 @@ describe('validateCloudEvent', () => {
     traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
     datacontenttype: 'application/json',
     dataschema:
-      'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
     dataschemaversion: '1',
     severitytext: 'INFO',
     data: {

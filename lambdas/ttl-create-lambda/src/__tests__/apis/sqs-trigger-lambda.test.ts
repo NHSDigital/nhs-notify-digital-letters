@@ -16,14 +16,14 @@ describe('createHandler', () => {
     source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
     subject:
       'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-    type: 'uk.nhs.notify.digital.letters.sent.v1',
+    type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
     time: '2023-06-20T12:00:00Z',
     recordedtime: '2023-06-20T12:00:00.250Z',
     severitynumber: 2,
     traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
     datacontenttype: 'application/json',
     dataschema:
-      'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
     dataschemaversion: '1.0',
     severitytext: 'INFO',
     data: {
@@ -54,7 +54,12 @@ describe('createHandler', () => {
 
     expect(res.batchItemFailures).toEqual([]);
     expect(createTtl.send).toHaveBeenCalledWith(validItem);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([validItem]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+      {
+        ...validItem,
+        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+      },
+    ]);
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 0,
@@ -164,7 +169,7 @@ describe('createHandler', () => {
       .spyOn($TtlItemEvent, 'safeParse')
       .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('sent');
-    const event: SQSEvent = {
+    const sqsEvent: SQSEvent = {
       Records: [
         { body: JSON.stringify(validItem), messageId: 'msg1' },
         { body: JSON.stringify(validItem), messageId: 'msg2' },
@@ -172,15 +177,16 @@ describe('createHandler', () => {
       ],
     } as any;
 
-    const res = await handler(event);
+    const res = await handler(sqsEvent);
 
     expect(res.batchItemFailures).toEqual([]);
     expect(createTtl.send).toHaveBeenCalledTimes(3);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      validItem,
-      validItem,
-      validItem,
-    ]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [validItem, validItem, validItem].map((event) => ({
+        ...event,
+        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+      })),
+    );
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 0,
@@ -208,8 +214,14 @@ describe('createHandler', () => {
 
     expect(res.batchItemFailures).toEqual([]);
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      validItem,
-      validItem,
+      {
+        ...validItem,
+        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+      },
+      {
+        ...validItem,
+        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+      },
     ]);
     expect(logger.warn).toHaveBeenCalledWith({
       description: 'Some events failed to publish',
@@ -233,7 +245,12 @@ describe('createHandler', () => {
     const res = await handler(event);
 
     expect(res.batchItemFailures).toEqual([]);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([validItem]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+      {
+        ...validItem,
+        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+      },
+    ]);
     expect(logger.warn).toHaveBeenCalledWith({
       err: publishError,
       description: 'Failed to send events to EventBridge',
@@ -287,7 +304,12 @@ describe('createHandler', () => {
       { itemIdentifier: 'msg2' },
       { itemIdentifier: 'msg3' },
     ]);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([validItem]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+      {
+        ...validItem,
+        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+      },
+    ]);
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 2,

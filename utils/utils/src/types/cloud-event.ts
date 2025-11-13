@@ -122,14 +122,14 @@ export const $CloudEvent = $CloudEventBase.extend({
   type: z
     .string()
     .regex(
-      /^uk\.nhs\.notify\.digital\.letters\.[a-z]+\.v\d+$/,
+      /^uk\.nhs\.notify\.digital\.letters\.[a-z0-9]+(?:\.[a-z0-9]+)*\.v\d+$/,
       'Type must follow the digital letters event type pattern',
     )
     .describe('Concrete versioned event type string'),
 
   dataschema: z
     .literal(
-      'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
     )
     .describe('Canonical URI of the event data schema'),
 

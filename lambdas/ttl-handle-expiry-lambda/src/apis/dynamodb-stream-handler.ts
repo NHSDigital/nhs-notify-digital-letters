@@ -75,15 +75,15 @@ export const createHandler = ({
             recordedtime: new Date().toISOString(),
             severitynumber: 5,
             traceparent:
-              '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+              '00-00000000000000000000000000000000-0000000000000000-01',
             source:
               '/nhs/england/notify/production/primary/data-plane/digital-letters',
             subject:
-              'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-            type: 'uk.nhs.notify.digital.letters.expired.v1',
+              'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000',
+            type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
             datacontenttype: 'application/json',
             dataschema:
-              'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
+              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
             data: {
               'digital-letter-id': randomUUID(),
               messageReference: item.messageReference,
