@@ -4,7 +4,12 @@ import type {
   DynamoDBStreamEvent,
 } from 'aws-lambda';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { $TtlDynamodbRecord, EventPublisher, Logger } from 'utils';
+import {
+  $TtlDynamodbRecord,
+  $TtlItemEvent,
+  EventPublisher,
+  Logger,
+} from 'utils';
 import { randomUUID } from 'node:crypto';
 import { Dlq } from 'app/dlq';
 
@@ -57,39 +62,38 @@ export const createHandler = ({
         return;
       }
 
+      const {
+        data: itemEvent,
+        error: eventParseError,
+        success: eventParseSuccess,
+      } = $TtlItemEvent.safeParse(item.event);
+
+      if (!eventParseSuccess) {
+        logger.warn({
+          err: eventParseError,
+          description: 'Error parsing ttl item event',
+        });
+
+        failures.push(record);
+
+        return;
+      }
+
       if (item.withdrawn) {
         logger.info({
           description: 'ItemDequeued event not sent as item withdrawn',
-          messageReference: item.messageReference,
+          messageReference: itemEvent.data.messageReference,
           messageUri: item.PK,
-          senderId: item.senderId,
+          senderId: itemEvent.data.senderId,
         });
       } else {
         await eventPublisher.sendEvents([
           {
-            profileversion: '1.0.0',
-            profilepublished: '2025-10',
-            specversion: '1.0',
+            ...itemEvent,
             id: randomUUID(),
             time: new Date().toISOString(),
             recordedtime: new Date().toISOString(),
-            severitynumber: 5,
-            traceparent:
-              '00-00000000000000000000000000000000-0000000000000000-01',
-            source:
-              '/nhs/england/notify/production/primary/data-plane/digital-letters',
-            subject:
-              'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000',
             type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
-            datacontenttype: 'application/json',
-            dataschema:
-              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
-            data: {
-              'digital-letter-id': randomUUID(),
-              messageReference: item.messageReference,
-              messageUri: item.PK,
-              senderId: item.senderId,
-            },
           },
         ]);
       }

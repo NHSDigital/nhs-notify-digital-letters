@@ -4,9 +4,8 @@ export const $TtlDynamodbRecord = z.object({
   PK: z.string(),
   SK: z.string(),
   dateOfExpiry: z.string(),
-  messageReference: z.string(),
   ttl: z.number(),
-  senderId: z.string(),
+  event: z.looseObject({}),
   withdrawn: z.boolean().optional(),
 });
 

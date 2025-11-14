@@ -37,7 +37,7 @@ describe('TtlRepository', () => {
       'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000',
       messageReference: 'ref1',
       senderId: 'sender1',
-      uri: 'https://example.com/ttl/resource',
+      messageUri: 'https://example.com/ttl/resource',
     },
   };
 
@@ -79,12 +79,11 @@ describe('TtlRepository', () => {
     expect(putCommand.input).toStrictEqual({
       TableName: tableName,
       Item: {
-        PK: item.data.uri,
+        PK: item.data.messageUri,
         SK: 'TTL',
         dateOfExpiry: expectedDateOfExpiry,
-        messageReference: 'ref1',
+        event: item,
         ttl: expectedTtlSeconds,
-        senderId: 'sender1',
       },
     });
   });
