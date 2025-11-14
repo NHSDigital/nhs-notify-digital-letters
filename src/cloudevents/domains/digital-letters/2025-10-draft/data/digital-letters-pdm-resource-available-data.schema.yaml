@@ -7,7 +7,15 @@ properties:
     $ref: ../defs/requests.schema.yaml#/properties/messageReference
   senderId:
     $ref: ../defs/requests.schema.yaml#/properties/senderId
+  resourceId:
+    $ref: ../defs/pdm.schema.yaml#/properties/resourceId
+  nhsNumber:
+    $ref: ../defs/requests.schema.yaml#/properties/nhsNumber
+  odsCode:
+    $ref: ../defs/requests.schema.yaml#/properties/odsCode
 required:
   - messageReference
   - senderId
   - resourceId
+  - nhsNumber
+  - odsCode

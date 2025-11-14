@@ -19,3 +19,16 @@ properties:
     description: Uri to the storage location of the FHIR resource relating to this message request
     examples:
       - "s3://my-bucket/path/to/my-object"
+  nhsNumber:
+    type: string
+    description: Unique identifier of the intended recipient of the digital letter
+    pattern: '^\d{10}$'
+    minLength: 10
+    maxLength: 10
+    examples:
+      - "4857773456"
+  odsCode:
+    type: string
+    description: The ODS Code of the sending organisation. Used to identify the sender in NHS App
+    examples:
+      - ""
