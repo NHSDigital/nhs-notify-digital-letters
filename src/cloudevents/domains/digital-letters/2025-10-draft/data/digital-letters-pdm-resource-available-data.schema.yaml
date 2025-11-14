@@ -1,0 +1,21 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: PDMResourceAvailable Data
+description: Base data of the PDMResourceAvailable event
+additionalProperties: false
+properties:
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  resourceId:
+    $ref: ../defs/pdm.schema.yaml#/properties/resourceId
+  nhsNumber:
+    $ref: ../defs/requests.schema.yaml#/properties/nhsNumber
+  odsCode:
+    $ref: ../defs/requests.schema.yaml#/properties/odsCode
+required:
+  - messageReference
+  - senderId
+  - resourceId
+  - nhsNumber
+  - odsCode

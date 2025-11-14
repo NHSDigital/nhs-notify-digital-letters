@@ -15,10 +15,9 @@ properties:
 
   dataschema:
     type: string
-    const: ../data/digital-letter-base-data.schema.yaml
+    const: ../data/digital-letters-mesh-inbox-message-received-data.schema.yaml
     description: Canonical URI of the example event's data schema.
     examples:
-      - digital-letter-base-data.schema.yaml
+      - digital-letters-mesh-inbox-message-received-data.schema.yaml
   data:
-    $ref: ../data/digital-letter-base-data.schema.yaml
-    description: Example payload wrapper containing notify-payload.
+    $ref: ../data/digital-letters-mesh-inbox-message-received-data.schema.yaml

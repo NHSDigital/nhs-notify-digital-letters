@@ -1,0 +1,34 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Request data
+description: Reusable types for NHS Notify payload schemas.
+type: object
+properties:
+  messageReference:
+    type: string
+    description: Globally unique reference for each message, provided by the sender
+    examples:
+      - "19cd1d01-98c3-4ab8-a7b8-c1adabda7641"
+  senderId:
+    type: string
+    description: Identifier that the sender provided during onboarding. Provided in the body of each FHIR resource submitted by the sender.
+    examples:
+      - ""
+  messageUri:
+    type: string
+    format: uri
+    description: Uri to the storage location of the FHIR resource relating to this message request
+    examples:
+      - "s3://my-bucket/path/to/my-object"
+  nhsNumber:
+    type: string
+    description: Unique identifier of the intended recipient of the digital letter
+    pattern: '^\d{10}$'
+    minLength: 10
+    maxLength: 10
+    examples:
+      - "4857773456"
+  odsCode:
+    type: string
+    description: The ODS Code of the sending organisation. Used to identify the sender in NHS App
+    examples:
+      - ""

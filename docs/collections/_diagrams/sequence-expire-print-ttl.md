@@ -23,5 +23,5 @@ sequenceDiagram
     stream ->> processTTLExpiry:
   end
   processTTLExpiry ->> processTTLExpiry: Filter unread attachments
-  processTTLExpiry ->> eb: ItemReady Event
+  processTTLExpiry ->> eb: ItemDequeued Event
 ```

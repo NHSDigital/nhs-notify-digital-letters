@@ -3,7 +3,7 @@
 # To regenerate, run: make update-readme
 # To customize labels and purposes, edit: readme-metadata.yaml
 
-generated: '2025-11-11T08:37:28.379Z'
+generated: '2025-11-14T13:43:12.216Z'
 common: null
 domains:
   - name: digital-letters
@@ -22,6 +22,41 @@ domains:
             source: src/digital-letters/2025-10-draft/data/digital-letter-base-data.schema.yaml
             published: schemas/digital-letters/2025-10-draft/data/digital-letter-base-data.schema.json
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letter-base-data.schema.md
+          - type: Digital Letters Mesh Inbox Message Downloaded Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.md
+          - type: Digital Letters Mesh Inbox Message Received Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.md
+          - type: Digital Letters Pdm Resource Available Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.md
+          - type: Digital Letters Pdm Resource Retries Exceeded Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-retries-exceeded-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-retries-exceeded-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-retries-exceeded-data.schema.md
+          - type: Digital Letters Pdm Resource Submission Rejected Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submission-rejected-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submission-rejected-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submission-rejected-data.schema.md
+          - type: Digital Letters Pdm Resource Submitted Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.md
+          - type: Digital Letters Pdm Resource Unavailable Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.md
           - type: Messages.status.updated Data.v1
             category: data
             source: src/digital-letters/2025-10-draft/data/messages.status.updated-data.v1.schema.yaml
@@ -37,6 +72,16 @@ domains:
             source: src/digital-letters/2025-10-draft/defs/message-status.schema.yaml
             published: schemas/digital-letters/2025-10-draft/defs/message-status.schema.json
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/defs/message-status.schema.md
+          - type: Pdm
+            category: definitions
+            source: src/digital-letters/2025-10-draft/defs/pdm.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/defs/pdm.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/defs/pdm.schema.md
+          - type: Requests
+            category: definitions
+            source: src/digital-letters/2025-10-draft/defs/requests.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/defs/requests.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/defs/requests.schema.md
           - type: Someobject
             category: definitions
             source: src/digital-letters/2025-10-draft/defs/someobject.schema.yaml
@@ -152,6 +197,11 @@ domains:
             source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1.schema.yaml
             published: schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1.schema.json
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1.schema.md
+          - type: Uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1
+            category: events
+            source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1.schema.md
           - type: Uk.nhs.notify.digital.letters.pdm.resource.submitted.v1
             category: events
             source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.submitted.v1.schema.yaml
@@ -262,6 +312,10 @@ domains:
             filename: uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1-event
             json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1-event.json
             markdown: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1-event.md
+          - name: Uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1
+            filename: uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1-event
+            json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1-event.json
+            markdown: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1-event.md
           - name: Uk.nhs.notify.digital.letters.pdm.resource.submitted.v1
             filename: uk.nhs.notify.digital.letters.pdm.resource.submitted.v1-event
             json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.pdm.resource.submitted.v1-event.json
