@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@eventcatalog/core": "2.64.3"
+    "@eventcatalog/core": "2.64.4"
   },
   "devDependencies": {
     "http-server": "^14.1.1"
@@ -11,7 +11,7 @@
     "build": "npx eventcatalog build --",
     "dev": "npx eventcatalog dev --",
     "generate": "eventcatalog generate",
-    "preview": "eventcatalog preview",
+    "preview": "eventcatalog preview -- --host",
     "start": "eventcatalog start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
