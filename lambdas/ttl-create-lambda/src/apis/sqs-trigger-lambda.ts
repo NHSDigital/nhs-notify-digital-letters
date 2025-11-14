@@ -3,6 +3,7 @@ import type {
   SQSBatchResponse,
   SQSEvent,
 } from 'aws-lambda';
+import { randomUUID } from 'node:crypto';
 import type { CreateTtl, CreateTtlOutcome } from 'app/create-ttl';
 import { $TtlItemEvent, EventPublisher, Logger, TtlItemEvent } from 'utils';
 
@@ -92,6 +93,9 @@ export const createHandler = ({
         const failedEvents = await eventPublisher.sendEvents(
           successfulEvents.map((event) => ({
             ...event,
+            id: randomUUID(),
+            time: new Date().toISOString(),
+            recordedtime: new Date().toISOString(),
             type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
           })),
         );

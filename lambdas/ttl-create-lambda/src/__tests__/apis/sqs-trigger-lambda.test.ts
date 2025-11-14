@@ -1,6 +1,16 @@
 import { createHandler } from 'apis/sqs-trigger-lambda';
 import type { SQSEvent } from 'aws-lambda';
 import { $TtlItemEvent, TtlItemEvent } from 'utils';
+import { randomUUID } from 'node:crypto';
+
+jest.mock('node:crypto', () => ({
+  randomUUID: jest.fn(),
+}));
+
+const mockRandomUUID = randomUUID as jest.MockedFunction<typeof randomUUID>;
+const mockDate = jest.spyOn(Date.prototype, 'toISOString');
+mockRandomUUID.mockReturnValue('550e8400-e29b-41d4-a716-446655440001');
+mockDate.mockReturnValue('2023-06-20T12:00:00.250Z');
 
 describe('createHandler', () => {
   let createTtl: any;
@@ -57,6 +67,9 @@ describe('createHandler', () => {
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
       {
         ...validItem,
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        time: '2023-06-20T12:00:00.250Z',
+        recordedtime: '2023-06-20T12:00:00.250Z',
         type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
       },
     ]);
@@ -181,12 +194,29 @@ describe('createHandler', () => {
 
     expect(res.batchItemFailures).toEqual([]);
     expect(createTtl.send).toHaveBeenCalledTimes(3);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
-      [validItem, validItem, validItem].map((event) => ({
-        ...event,
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+      {
+        ...validItem,
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        time: '2023-06-20T12:00:00.250Z',
+        recordedtime: '2023-06-20T12:00:00.250Z',
         type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
-      })),
-    );
+      },
+      {
+        ...validItem,
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        time: '2023-06-20T12:00:00.250Z',
+        recordedtime: '2023-06-20T12:00:00.250Z',
+        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+      },
+      {
+        ...validItem,
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        time: '2023-06-20T12:00:00.250Z',
+        recordedtime: '2023-06-20T12:00:00.250Z',
+        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+      },
+    ]);
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 0,
@@ -216,10 +246,16 @@ describe('createHandler', () => {
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
       {
         ...validItem,
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        time: '2023-06-20T12:00:00.250Z',
+        recordedtime: '2023-06-20T12:00:00.250Z',
         type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
       },
       {
         ...validItem,
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        time: '2023-06-20T12:00:00.250Z',
+        recordedtime: '2023-06-20T12:00:00.250Z',
         type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
       },
     ]);
@@ -248,6 +284,9 @@ describe('createHandler', () => {
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
       {
         ...validItem,
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        time: '2023-06-20T12:00:00.250Z',
+        recordedtime: '2023-06-20T12:00:00.250Z',
         type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
       },
     ]);
@@ -307,6 +346,9 @@ describe('createHandler', () => {
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
       {
         ...validItem,
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        time: '2023-06-20T12:00:00.250Z',
+        recordedtime: '2023-06-20T12:00:00.250Z',
         type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
       },
     ]);
