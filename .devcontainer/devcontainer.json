@@ -1,0 +1,10 @@
+{
+  "containerEnv": {
+    "GITHUBMONITOR": "false",
+    "MAKECONFIG": "true",
+    "SHOWWELCOME": "true",
+    "UPDATEFROMTEMPLATE": "false"
+  },
+  "image": "ghcr.io/nhsdigital/nhs-notify-devcontainer-loaded-codespaces:1.0.19",
+  "name": "Codespaces Online Development"
+}
