@@ -14,17 +14,21 @@ runs:
         node-version: 18
 
     - name: Make Config
-      working-directory: ./schemas
+      working-directory: ./src/cloudeventjekylldocs
       shell: bash
       run: make config
 
     - name: Make Build
-      working-directory: ./schemas
+      working-directory: ./src/cloudeventjekylldocs
       shell: bash
       run: make build
 
+    - name: tar schema
+      run: tar -cvf artifact.tar src/cloudeventjekylldocs/output/schemas"
+      shell: bash
+
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        path: "schemas/output/"
+        path: "artifact.tar"
         name: schemas-${{ inputs.version }}

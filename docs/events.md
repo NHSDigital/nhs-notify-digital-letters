@@ -18,9 +18,72 @@ author: Ross Buggins
 {% assign sorted_events = site.events | group_by: "service"  %}
 {% assign serviceSorteds = sorted_events | sort: "name" %}
 
-<table>
+<h2>Events Summary</h2>
+
+{% for service_sorted in serviceSorteds %}
+{% assign nameSortedService = service_sorted.items | sort: "nice_name" %}
+{% assign service = site.pages | where_exp:"service", "service.title ==  service_sorted.name" | first %}
+
+ <h3>   <a href="{{service.url | relative_url}}">{{ service.title }}</a></h3>
+
+{% assign microservices = site.pages | where_exp:"microservice", "microservice.parent ==  service.title" %}
+
+<div style="width:50%;background-color:black;">
+<table style="word-wrap:break-word;table-layout: fixed;width:100%">
+<tr>
+
+<th style="align:left">Consumes</th>
+<th style="align:left">Microservice</th>
+<th style="align:left">Produces</th>
+</tr>
+
+{% for microservice in microservices %}
+<tr>
+
+<td>
+<ul>
+    {% for eventconsumed in microservice.events-consumed %}
+        {% assign event = site.events | where_exp:"event", "event.title == eventconsumed" | first %}
+         <li>
+        <a href="{{event.url | relative_url}}">{{ event.nice_name }}</a>
+        </li>
+    {% endfor %}
+</ul>
+</td>
+
+<td>
+   <a href="{{microservice.url | relative_url}}">{{ microservice.title }}</a>
+</td>
+
+<td>
+<ul>
+  {% for eventproduced in microservice.events-raised %}
+    {% assign event = site.events | where_exp:"event", "event.title == eventproduced" | first %}
+    <li>
+        <a href="{{event.url | relative_url}}">{{ event.nice_name }}</a>
+    </li>
+  {% endfor %}
+</ul>
+</td>
+
+</tr>
+{% endfor %}
+</table>
+</div>
+
+{% endfor %}
+
+<h2>Events Detailed Information</h2>
+
+{% for service_sorted in serviceSorteds %}
+{% assign nameSortedService = service_sorted.items | sort: "nice_name" %}
+{% assign service = site.pages | where_exp:"service", "service.title ==  service_sorted.name" | first %}
+
+ <h3>   <a href="{{service.url | relative_url}}">{{ service.title }}</a></h3>
+
+<div style="width:100%;background-color:black;">
+<table style="word-wrap:break-word;table-layout: fixed;width:100%">
     <tr>
-        <th>Service</th>
         <th>Nice Name</th>
         <th>Title</th>
         <th>Type</th>
@@ -30,15 +93,8 @@ author: Ross Buggins
         <th>Data</th>
     </tr>
 
-{% for service_sorted in serviceSorteds %}
- {% assign nameSortedService = service_sorted.items | sort: "nice_name" %}
 {% for event in nameSortedService %}
     <tr>
-        <td>
-          {% assign service = site.pages | where_exp:"service", "service.title == event.service" | first %}
-           <a href="{{service.url | relative_url}}">{{ event.service }}</a>
-
-        </td>
         <td>
             <a href="{{event.url | relative_url}}">{{ event.nice_name }}</a>
         </td>
@@ -49,14 +105,8 @@ author: Ross Buggins
             <a href="{{event.url | relative_url}}">{{ event.type }}</a>
         </td>
         <td>
-            {% assign producedby = site.pages | where_exp:"producer", "producer.events-raised contains event.title and producer.c4type == 'code'" %}
-            <ul>
-            {% for producer in producedby %}
-                <li>
-                    <a href="{{producer.url | relative_url}}">{{ producer.title }}</a>
-                </li>
-            {% endfor %}
-            </ul>
+            {% assign producedby = site.pages | where_exp:"producer", "producer.events-raised contains event.title and producer.c4type == 'code'" | first %}
+            <a href="{{producedby.url | relative_url}}">{{ producedby.title }}</a>
         </td>
         <td>
             {% assign consumedby = site.pages | where_exp:"consumer", "consumer.events-consumed contains event.title and consumer.c4type == 'code'" %}
@@ -76,5 +126,7 @@ author: Ross Buggins
         </td>
     </tr>
 {% endfor %}
-{% endfor %}
+
 </table>
+</div>
+{% endfor %}

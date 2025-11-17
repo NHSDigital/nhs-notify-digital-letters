@@ -9,7 +9,7 @@ description: PDM Upload
 architecture-beta
     service meshDownloaded(aws:res-amazon-eventbridge-event)[MESHInboxMessageDownloaded Event]
     service pdmSaved(aws:res-amazon-eventbridge-event)[PDMResourceSubmitted Event]
-    service pdmFailed(aws:res-amazon-eventbridge-event)[PDMResourceSubmssionFailed Event]
+    service pdmFailed(aws:res-amazon-eventbridge-event)[PDMResourceSubmssionRejected Event]
     group uploadToPdm(cloud)[UploadToPDM]
     service uploadQueue(logos:aws-sqs)[UploadToPDM Queue] in uploadToPdm
     service uploadLambda(logos:aws-lambda)[UploadToPDM] in uploadToPdm

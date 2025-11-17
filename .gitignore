@@ -22,10 +22,17 @@ node_modules
 dist
 .DS_Store
 .reports
+output
+/schemas
+.env
 
-# Don't track ephemeral local build files
-.turbo
-target/
-
-# Ignore coverage files
+# Coverage reports
+htmlcov/
 .coverage
+coverage.xml
+*.coverage
+coverage/
+coverage-*/
+**/playwright-report
+**/test-results
+plugin-cache

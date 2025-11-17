@@ -18,6 +18,24 @@ cd "$(git rev-parse --show-toplevel)"
 # tasks in scripts/test.mk.
 
 # run tests
+
+# Python projects - asyncapigenerator
+echo "Setting up and running asyncapigenerator tests..."
+make -C ./src/asyncapigenerator install-dev
+make -C ./src/asyncapigenerator coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
+# Python projects - cloudeventjekylldocs
+echo "Setting up and running cloudeventjekylldocs tests..."
+make -C ./src/cloudeventjekylldocs install-dev
+make -C ./src/cloudeventjekylldocs coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
+# Python projects - eventcatalogasyncapiimporter
+echo "Setting up and running eventcatalogasyncapiimporter tests..."
+make -C ./src/eventcatalogasyncapiimporter install-dev
+make -C ./src/eventcatalogasyncapiimporter coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
+# TypeScript/JavaScript projects (npm workspace)
+# Note: src/cloudevents is included in workspaces, so it will be tested here
 npm ci
 npm run test:unit --workspaces
 

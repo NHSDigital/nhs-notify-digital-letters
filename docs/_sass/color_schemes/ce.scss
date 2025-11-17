@@ -13,16 +13,16 @@ $grey-nhs-mid-grey: #768692;
 $grey-nhs-pale-grey: #E8EDEE;
 
 $header-height: 100px;
-$content-width: 1200px;
-$nav-width: 300px;
+$content-width: 2500px;
+$nav-width: 350px;
 $nav-width-md: 248px;
 
 $media-queries: (
   xs: 320px,
   sm: 500px,
   md: 800px, //$content-width,
-  lg: $content-width + $nav-width,
-  xl: 1800px,
+  lg: 1600px, //$content-width + $nav-width,
+  xl: 2000px,
 );
 
 section > h2 {

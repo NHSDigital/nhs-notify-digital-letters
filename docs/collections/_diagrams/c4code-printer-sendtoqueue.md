@@ -5,7 +5,7 @@ description: PDM Upload
 
 ```mermaid
    architecture-beta
-    group createTtl(cloud)[Time_To_Live]
+    group createTtl(cloud)[QueueAdder]
 
     service db(aws:arch-amazon-dynamodb)[ItemsWithTTL] in createTtl
     service createLambda(logos:aws-lambda)[CreateTTL] in createTtl

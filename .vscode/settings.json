@@ -8,7 +8,7 @@
     "**/.svn": true,
     "**/CVS": true,
     "**/Thumbs.db": true,
-    ".devcontainer": true,
+    ".devcontainer": false,
     ".github": false,
     ".vscode": false
   }

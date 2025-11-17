@@ -29,7 +29,8 @@
   "scripts": {
     "build": "webpack && bundle config set --local path 'vendor/bundle' && bundle install && bundle exec just-the-docs rake search:init && JEKYLL_ENV=production bundle exec jekyll build --trace --config _config.yml,_config.version.yml",
     "build-development": "webpack --mode=development && bundle config set --local path 'vendor/bundle' && bundle install && bundle exec just-the-docs rake search:init && JEKYLL_ENV=development bundle exec jekyll build --config _config.yml,_config.dev.yml",
-    "debug": "JEKYLL_ENV=development BUNDLE_GEMFILE=Gemfile-dev bundle exec jekyll serve --config _config.yml,_config.dev.yml --limit_posts 100"
+    "debug": "JEKYLL_ENV=development BUNDLE_GEMFILE=Gemfile-dev bundle exec jekyll serve --config _config.yml,_config.dev.yml --limit_posts 100 --trace",
+    "serve": "JEKYLL_ENV=development bundle exec jekyll serve --config _config.yml,_config.dev.yml --limit_posts 100 --skip-initial-build"
   },
   "version": "1.0.0"
 }

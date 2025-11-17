@@ -1,0 +1,13 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: messages.status.updated-data.v1
+description: do this later
+type: object
+additionalProperties: false
+properties:
+  messageId:
+    $ref: ../defs/message-id.schema.yaml#/$defs/messageId
+  messageStatus:
+    $ref: ../defs/message-status.schema.yaml#/$defs/messageStatus
+required:
+  - messageId
+  - messageStatus

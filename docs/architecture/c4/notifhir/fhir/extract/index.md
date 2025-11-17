@@ -9,7 +9,7 @@ last_modified_date: 2024-05-28
 owner: Ross Buggins
 author: Ross Buggins
 diagrams: []
-events-raised: []
-events-consumed: []
+events-raised: [fhir-attachment-extracted]
+events-consumed: [queue-item-dequeued]
 c4type: code
 ---

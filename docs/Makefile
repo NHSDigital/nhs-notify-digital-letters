@@ -3,16 +3,24 @@ VERSION ?= ""
 SCHEMA_PATTERN = *.schema.json
 SCHEMA_DOCS_PATTERN = *.md
 SCHEMA_YAML_DOCS_PATTERN= *.yaml
-SCHEMA_BASE_INPUT_DIR = ../schemas
+SCHEMA_BASE_INPUT_DIR = ../src/cloudeventjekylldocs
+SCHEMA_SRC_BASE_DIR = ../src/cloudevents
 SCHEMA_INPUT_DIR = $(SCHEMA_BASE_INPUT_DIR)/output/schemas
 SCHEMA_DOCS_INPUT_DIR = $(SCHEMA_BASE_INPUT_DIR)/output/docs/md
 SCHEMA_YAML_DOCS_INPUT_DIR = $(SCHEMA_BASE_INPUT_DIR)/output/docs/yaml
 BASE_OUTPUT_DIR = _site
 BASE_DOCS_OUTPUT_DIR = schemas
-SCHEMA_OUTPUT_DIR = $(BASE_OUTPUT_DIR)/schemas
+SCHEMA_OUTPUT_DIR = schemas
 SCHEMA_DOCS_OUTPUT_DIR = $(BASE_DOCS_OUTPUT_DIR)
 SCHEMA_YAML_DOCS_OUTPUT_DIR = _data/schema
 SHELL = /bin/bash
+
+EVENT_CAT_ROOT_DIR = ../src/eventcatalog
+EVENT_CAT_INPUT_DIR = ../src/eventcatalog/dist
+EVENT_CAT_OUTPUT_DIR = eventcatalog
+
+BASE_URL_REMOVE_TRAILING_SLASH := $(patsubst %/,%,$(BASE_URL))
+EVENT_CAT_URL := $(BASE_URL_REMOVE_TRAILING_SLASH)/$(EVENT_CAT_OUTPUT_DIR)
 
 default: install
 
@@ -25,19 +33,49 @@ install:
 	bundle install
 
 s serve:
-	npm run
+	npm run serve
 
 define baseurlparam =
 $(if $(BASE_URL),-- --baseurl $(BASE_URL),-- --baseurl "")
 endef
 
-build: build-schemas copy-schema-docs copy-schema-yaml-docs build-docs copy-schemas show-build-output
+build: clean build-schemas copy-schema-docs copy-schema-yaml-docs copy-schemas build-eventcatalog build-docs show-build-output
+
+build-ci: build-schemas-ci copy-schema-docs copy-schema-yaml-docs copy-schemas build-eventcatalog build-docs show-build-output
+
+
+build-eventcatalog:
+	$(MAKE) build-eventcatalog-prereq
+	make -C $(EVENT_CAT_ROOT_DIR) build BASE_URL=$(EVENT_CAT_URL)
+	$(MAKE) build-eventcatalog-copy
+
+build-eventcatalog-prereq:
+	mkdir -p $(EVENT_CAT_OUTPUT_DIR)
+	rm -rf $(EVENT_CAT_OUTPUT_DIR)/*
+	mkdir -p $(EVENT_CAT_OUTPUT_DIR)/_astro
+	touch $(EVENT_CAT_OUTPUT_DIR)/.nojekyll
+	touch $(EVENT_CAT_OUTPUT_DIR)/_astro/.nojekyll
+
+build-eventcatalog-copy:
+
+
+	cp -r $(EVENT_CAT_INPUT_DIR)/. $(EVENT_CAT_OUTPUT_DIR)/
+
 
 build-docs: version
 	npm run build $(baseurlparam)
 
+
+build-schemas-ci: clean-schemas
+	make -C $(SCHEMA_SRC_BASE_DIR) deploy-ci
+	make -C $(SCHEMA_BASE_INPUT_DIR) config
+	make -C $(SCHEMA_BASE_INPUT_DIR) build
+
 build-schemas: clean-schemas
-	(cd $(SCHEMA_BASE_INPUT_DIR) && make config && make build)
+	make -C $(SCHEMA_SRC_BASE_DIR) deploy
+	make -C $(SCHEMA_BASE_INPUT_DIR) config
+	make -C $(SCHEMA_BASE_INPUT_DIR) build
+#	(cd $(SCHEMA_SCRIPTS_BASE_INPUT_DIR) && make config && make build)
 
 
 copy-schema-docs:
@@ -73,14 +111,19 @@ show-build-output:
 	@find $(BASE_OUTPUT_DIR) -type f -name "*" | sort
 
 clean: clean-docs clean-schemas
+	rm -rf assets-webpack
+	rm -rf cloudevents
+
 clean-docs:
 	rm -rf $(BASE_OUTPUT_DIR)
 
 
 clean-schemas:
+
 	rm -rf $(SCHEMA_OUTPUT_DIR)
 	rm -rf $(SCHEMA_DOCS_OUTPUT_DIR)
 	rm -rf $(SCHEMA_YAML_DOCS_OUTPUT_DIR)
+	rm -rf $(EVENT_CAT_OUTPUT_DIR)
 
 debug: version
 	bundle install --gemfile Gemfile-dev
