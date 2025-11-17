@@ -60,17 +60,24 @@ export async function handleCli(
 }
 
 // Execute CLI if this module is run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  // Get the root directory (3 levels up from this file: tools/generator/readme-generator)
-  const rootDir = new URL("../../../", import.meta.url).pathname;
-  const args = process.argv.slice(2);
+// Note: This uses eval to prevent Jest/CommonJS from parsing import.meta
+// @ts-ignore
+try {
+  const importMeta = eval('import.meta');
+  if (importMeta && importMeta.url === `file://${process.argv[1]}`) {
+    // Get the root directory (3 levels up from this file: tools/generator/readme-generator)
+    const rootDir = new URL("../../../", importMeta.url).pathname;
+    const args = process.argv.slice(2);
 
-  handleCli(args, rootDir)
-    .then((result) => {
-      process.exit(result.exitCode);
-    })
-    .catch((err) => {
-      console.error("Unexpected error:", err);
-      process.exit(1);
-    });
+    handleCli(args, rootDir)
+      .then((result) => {
+        process.exit(result.exitCode);
+      })
+      .catch((err) => {
+        console.error("Unexpected error:", err);
+        process.exit(1);
+      });
+  }
+} catch (e) {
+  // import.meta not available (CommonJS/Jest environment)
 }

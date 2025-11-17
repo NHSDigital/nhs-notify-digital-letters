@@ -35,10 +35,12 @@ make -C ./src/eventcatalogasyncapiimporter install-dev
 make -C ./src/eventcatalogasyncapiimporter coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
 # TypeScript/JavaScript projects (npm workspace)
-# Note: src/cloudevents is included in workspaces, so it will be tested here
+
 npm ci
 npm run test:unit --workspaces
 
+# Note: needs node 24 so out of workspace
+cd src/cloudevents && npm ci && npm run test:unit && cd -
 # merge coverage reports
 mkdir -p .reports
 TMPDIR="./.reports" ./node_modules/.bin/lcov-result-merger "**/.reports/unit/coverage/lcov.info" ".reports/lcov.info" --ignore "node_modules" --prepend-source-files --prepend-path-fix "../../.."

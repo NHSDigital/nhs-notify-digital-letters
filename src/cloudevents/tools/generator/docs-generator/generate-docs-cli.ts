@@ -132,11 +132,18 @@ export async function handleCli(args: string[]): Promise<CliResult> {
 }
 
 // Execute CLI if this module is run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  handleCli(process.argv.slice(2)).then((result) => {
-    process.exit(result.exitCode);
-  }).catch((err) => {
-    console.error('Unexpected error:', err);
-    process.exit(1);
-  });
+// Note: This uses eval to prevent Jest/CommonJS from parsing import.meta
+// @ts-ignore
+try {
+  const importMeta = eval('import.meta');
+  if (importMeta && importMeta.url === `file://${process.argv[1]}`) {
+    handleCli(process.argv.slice(2)).then((result) => {
+      process.exit(result.exitCode);
+    }).catch((err) => {
+      console.error('Unexpected error:', err);
+      process.exit(1);
+    });
+  }
+} catch (e) {
+  // import.meta not available (CommonJS/Jest environment)
 }

@@ -54,7 +54,6 @@
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-poll-lambda",
     "utils/utils",
-    "src/cloudevents",
     "tests/playwright"
   ]
 }
