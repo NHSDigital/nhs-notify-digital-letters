@@ -69,6 +69,7 @@ jobs:
       - name: "Repo setup"
         run: |
           npm ci
+        working-directory: ./docs
       - name: "Generate dependencies"
         run: |
           npm run generate-dependencies --workspaces --if-present
