@@ -1,8 +1,8 @@
-name: "2. Deploy docs to GitHub Pages"
+name: "Docs 3. CI/CD Deploy"
 
 on:
   workflow_run:
-      workflows: ["Docs 1. CI/CD"]
+      workflows: ["Docs 1. CI/CD pull request"]
       types:
         - completed
       branches: [main]
