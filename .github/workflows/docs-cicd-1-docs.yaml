@@ -26,9 +26,9 @@ jobs:
       id: changes
       with:
         filters: |
-          docs:`
+          docs:
             - 'docs/**'
-          src:`
+          src:
             - 'src/**'
     outputs:
       docs: ${{ steps.changes.outputs.docs }}
