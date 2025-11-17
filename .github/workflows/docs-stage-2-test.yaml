@@ -74,7 +74,7 @@ jobs:
           npm run generate-dependencies --workspaces --if-present
       - name: "Run unit test suite"
         run: |
-          make test-unit
+          make -C docs test
       - name: "Save the result of fast test suite"
         uses: actions/upload-artifact@v4
         with:
