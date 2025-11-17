@@ -22,14 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
-      - uses: dorny/paths-filter@v3
-        id: changes
-        with:
-          filters: |
-            docs:`
-              - 'docs/**'
-            src:`
-              - 'src/**'
+    - uses: dorny/paths-filter@v3
+      id: changes
+      with:
+        filters: |
+          docs:`
+            - 'docs/**'
+          src:`
+            - 'src/**'
     outputs:
       docs: ${{ steps.changes.outputs.docs }}
       src: ${{ steps.changes.outputs.src }}
