@@ -8,7 +8,7 @@ is_not_draft: false
 last_modified_date: 2025-10-15
 owner: Ross Buggins
 author: Ross Buggins
-events-raised: [timer-time-expired]
+events-raised: [event-bus-timer-time-expired]
 events-consumed: []
 diagrams: [c4code-eventbus-timer]
 c4type: code

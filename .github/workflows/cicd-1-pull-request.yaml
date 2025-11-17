@@ -3,6 +3,7 @@ name: "1. CI/CD pull request"
 # The total recommended execution time for the "CI/CD Pull Request" workflow is around 20 minutes.
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "**"
@@ -97,7 +98,7 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
+  #    secrets: inherit
   test-stage: # Recommended maximum execution time is 5 minutes
     name: "Test stage"
     needs: [metadata, commit-stage]
@@ -110,7 +111,8 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
+    secrets: #inherit
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   build-stage: # Recommended maximum execution time is 3 minutes
     name: "Build stage"
     needs: [metadata, test-stage]
@@ -124,7 +126,7 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
+  #    secrets: inherit
   pr-create-dynamic-environment:
     name: Trigger dynamic environment creation
     needs: [metadata, build-stage]
@@ -162,7 +164,8 @@ jobs:
       APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
   publish-stage: # Recommended maximum execution time is 10 minutes
     name: "Publish stage"
-    needs: [metadata, acceptance-stage]
+    needs: [metadata, acceptance-stage] #PUT THIS BACK WHEN ACCEPTANCE STAGE IS ENABLED
+    #needs: [metadata, build-stage] BYPASSING ACCEPTANCE STAGE
     uses: ./.github/workflows/stage-5-publish.yaml
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
     with:
@@ -174,4 +177,4 @@ jobs:
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
       is_version_prerelease: "${{ needs.metadata.outputs.is_version_prerelease }}"
-    secrets: inherit
+#    secrets: inherit

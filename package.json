@@ -55,6 +55,7 @@
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
     "utils/utils",
+    "src/cloudevents",
     "tests/playwright"
   ]
 }

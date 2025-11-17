@@ -8,7 +8,8 @@ repos:
       - id: check-added-large-files
         exclude: |
           (?x)^(
-            docs/assets/aws-icons-mermaid.json
+            docs/assets/aws-icons-mermaid.json |
+            src/eventcatalog/package-lock.json
           )$
       - id: check-symlinks
       - id: detect-private-key

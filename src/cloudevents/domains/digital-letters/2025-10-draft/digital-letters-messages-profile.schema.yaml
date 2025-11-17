@@ -1,0 +1,19 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Notify Core Profile
+description: Core System Notifier profile
+type: object
+allOf:
+  - $ref: ./digital-letters-profile.schema.json
+properties:
+  type:
+    type: string
+    minLength: 1
+    allOf:
+      - name: NHS Notify versioned event type pattern
+        type: string
+        pattern: ^uk\.nhs\.notify\.digital\.letters\.messages\.[a-z0-9]+(?:\.[a-z0-9]+)*\.v[0-9]+$
+  source:
+    type: string
+    pattern: ^/nhs/england/notify/(production|staging|development|uat)/(primary|secondary|dev-[0-9]+)/(data-plane|control-plane)/digitalletters/messages
+    minLength: 40
+    format: uri-reference

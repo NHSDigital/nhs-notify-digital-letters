@@ -1,0 +1,10 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Placeholder Data
+description: Base data for digital letters - a placeholder until all data schemas are defined
+type: object
+additionalProperties: false
+properties:
+  something:
+    $ref: ../defs/someobject.schema.yaml#/properties/something
+required:
+  - something

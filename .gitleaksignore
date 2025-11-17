@@ -4,6 +4,10 @@ cd9c0efec38c5d63053dd865e5d4e207c0760d91:docs/guides/Perform_static_analysis.md:
 cd9c0efec38c5d63053dd865e5d4e207c0760d91:docs/guides/Perform_static_analysis.md:sonar-api-token:37
 96096685ab3d6876671e2bc9a6ff4d48fc56e521:src/helloworld/helloworld.sln:ipv4:4
 4f4e8c15629b2cb09356a7fed4d72953590227ce:docs/Gemfile.lock:ipv4:4
+0cbdddbf54927dfc4a226b88d2fed045dfc0cb92:docs/cloudevents/digital-letters/2025-10/example-events/file-received-event.md:ipv4:44
+0cbdddbf54927dfc4a226b88d2fed045dfc0cb92:docs/cloudevents/digital-letters/2025-10/example-events/file-received-event.json:ipv4:23
+0cbdddbf54927dfc4a226b88d2fed045dfc0cb92:docs/cloudevents/digital-letters/2025-10/example-events/file-deleted-event.md:ipv4:42
+0cbdddbf54927dfc4a226b88d2fed045dfc0cb92:docs/cloudevents/digital-letters/2025-10/example-events/file-deleted-event.json:ipv4:21
 52386bca9b88c0c8c7dee52ab0ec69d04fb72c46:src/TESTING_PLAN.md:ipv4:145
 973c8a1feb76f3cd8743ce27b14e4acc4252240c:src/TESTING_PLAN.md:ipv4:2507
 cc74128e4207833109339e96f3aaebf3cd40dd65:src/TESTING_PLAN.md:ipv4:2507

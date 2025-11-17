@@ -1,0 +1,7 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$defs:
+  messageId:
+    type: string
+    description: Unique identifier for the message.
+    examples:
+      - "123e4567-e89b-12d3-a456-426614174000"

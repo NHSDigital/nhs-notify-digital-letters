@@ -1,0 +1,12 @@
+# Configuration for AsyncAPI to EventCatalog Importer
+# Copy this file to config.sh and customize as needed
+
+# Paths (relative to repository root)
+export ASYNCAPI_DIR="src/asyncapigenerator/output"
+export EVENTCATALOG_DIR="src/eventcatalog/digital-letters"
+
+# Domain name
+export DOMAIN_NAME="Digital Letters"
+
+# Verbose output (true/false)
+export VERBOSE="false"

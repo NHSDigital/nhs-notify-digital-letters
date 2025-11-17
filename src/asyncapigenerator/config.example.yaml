@@ -1,0 +1,42 @@
+# AsyncAPI Generator Configuration Example
+
+# Path to directory containing event markdown files
+events_dir: ../../docs/collections/_events
+
+# Path to directory containing service architecture definitions
+services_dir: ../../docs/architecture/c4/notifhir
+
+# Path to directory containing JSON schemas
+schemas_dir: ../../schemas/digital-letters
+
+# Output directory for generated AsyncAPI specs
+output_dir: ./output
+
+# AsyncAPI specification metadata
+asyncapi:
+  version: 3.0.0
+
+info:
+  title: NHS Notify Digital Letters
+  version: 2025-10-draft
+  description: |
+    Event-driven architecture for NHS Notify Digital Letters system.
+    This system handles pre-rendered letters for both print and digital viewing.
+  contact:
+    name: NHS Notify Team
+    url: https://notify.nhs.uk
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+# Schema base URL (where schemas are hosted/accessible)
+schema_base_url: https://notify.nhs.uk/cloudevents/schemas/digital-letters
+
+# Generate individual AsyncAPI files per service
+generate_per_service: true
+
+# Generate a combined AsyncAPI file with all services
+generate_combined: true
+
+# Include CloudEvents wrapper in message definitions
+include_cloudevents: true

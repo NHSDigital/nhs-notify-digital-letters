@@ -1,0 +1,292 @@
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
+
+/**
+ * Manual schema bundler that handles external HTTP refs gracefully
+ * Bundles only local file references, leaves HTTP/HTTPS refs as-is
+ */
+
+interface SchemaObject {
+  [key: string]: any;
+  $ref?: string;
+  $defs?: Record<string, any>;
+}
+
+function isExternalRef(ref: string): boolean {
+  return ref.startsWith('http://') || ref.startsWith('https://');
+}
+
+function resolveRefPath(currentFilePath: string, ref: string): string {
+  const currentDir = path.dirname(currentFilePath);
+  // Remove fragment if present
+  const [refPath] = ref.split('#');
+  return path.resolve(currentDir, refPath);
+}
+
+function loadSchema(filePath: string): SchemaObject {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  if (filePath.endsWith('.yaml') || filePath.endsWith('.yml')) {
+    return yaml.load(content) as SchemaObject;
+  }
+  return JSON.parse(content);
+}
+
+async function bundleSchema(
+  entryPath: string,
+  flatten: boolean = false
+): Promise<SchemaObject> {
+  const visited = new Set<string>();
+  const allDefs: Record<string, any> = {};
+  let defCounter = 0;
+
+  function generateDefName(originalPath: string): string {
+    const basename = path.basename(originalPath, path.extname(originalPath));
+    const cleaned = basename.replace(/[^a-zA-Z0-9]/g, '_');
+    defCounter++;
+    return `${cleaned}_${defCounter}`;
+  }
+
+  function processSchema(schema: any, currentFile: string): any {
+    if (!schema || typeof schema !== 'object') {
+      return schema;
+    }
+
+    if (Array.isArray(schema)) {
+      return schema.map(item => processSchema(item, currentFile));
+    }
+
+    const result: any = {};
+
+    for (const [key, value] of Object.entries(schema)) {
+      if (key === '$ref' && typeof value === 'string') {
+        const ref = value as string;
+
+        // Keep external HTTP/HTTPS refs as-is
+        if (isExternalRef(ref)) {
+          result[key] = value;
+          continue;
+        }
+
+        // Handle fragment-only refs (internal to current schema)
+        if (ref.startsWith('#/')) {
+          result[key] = value;
+          continue;
+        }
+
+        // Resolve and bundle local file refs
+        const [refPath, fragment] = ref.split('#');
+        if (refPath) {
+          const resolvedPath = resolveRefPath(currentFile, refPath);
+
+          // Only bundle if we haven't seen this file yet
+          if (!visited.has(resolvedPath)) {
+            visited.add(resolvedPath);
+
+            try {
+              const refSchema = loadSchema(resolvedPath);
+              const defName = generateDefName(resolvedPath);
+
+              // Process the referenced schema recursively
+              const processedRefSchema = processSchema(refSchema, resolvedPath);
+
+              // Remove $id from sub-schemas to avoid conflicts
+              if (processedRefSchema.$id) {
+                delete processedRefSchema.$id;
+              }
+
+              // Store in $defs
+              allDefs[defName] = processedRefSchema;
+
+              // Update ref to point to $defs
+              result[key] = `#/$defs/${defName}${fragment || ''}`;
+            } catch (error: any) {
+              console.warn(`Warning: Could not load ${resolvedPath}: ${error.message}. Keeping original ref.`);
+              result[key] = value;
+            }
+          } else {
+            // Already bundled - need to find the def name
+            // For now, keep the relative ref (this is a limitation)
+            result[key] = value;
+          }
+        }
+      } else {
+        // Recursively process nested objects/arrays
+        result[key] = processSchema(value, currentFile);
+      }
+    }
+
+    return result;
+  }
+
+  // Load and process the entry schema
+  const entrySchema = loadSchema(entryPath);
+  visited.add(path.resolve(entryPath));
+
+  const bundled = processSchema(entrySchema, entryPath);
+
+  // Add collected $defs to the bundled schema
+  if (Object.keys(allDefs).length > 0) {
+    bundled.$defs = { ...(bundled.$defs || {}), ...allDefs };
+  }
+
+  // Optionally flatten allOf
+  if (flatten && Array.isArray(bundled.allOf)) {
+    // Helper to resolve a $ref pointer
+    function resolveRef(ref: string, schema: any): any {
+      if (!ref.startsWith('#/')) {
+        return null; // Can't resolve non-fragment refs
+      }
+      const path = ref.substring(2).split('/'); // Remove '#/' and split
+      let current = schema;
+      for (const segment of path) {
+        if (!current || typeof current !== 'object') return null;
+        current = current[segment];
+      }
+      return current;
+    }
+
+    // Recursively flatten allOf, resolving $refs
+    function flattenAllOfItems(items: any[], rootSchema: any): {
+      properties: Record<string, any>,
+      required: string[],
+      remaining: any[]
+    } {
+      const mergedProperties: Record<string, any> = {};
+      const mergedRequired: Set<string> = new Set();
+      const remaining: any[] = [];
+
+      for (const item of items) {
+        if (item.$ref && typeof item.$ref === 'string') {
+          // Try to resolve the $ref
+          const resolved = resolveRef(item.$ref, rootSchema);
+          if (resolved && typeof resolved === 'object') {
+            // Recursively flatten the resolved schema
+            if (Array.isArray(resolved.allOf)) {
+              const nested = flattenAllOfItems(resolved.allOf, rootSchema);
+              Object.assign(mergedProperties, nested.properties);
+              nested.required.forEach(r => mergedRequired.add(r));
+              remaining.push(...nested.remaining);
+            }
+
+            // Merge direct properties and required
+            if (resolved.properties) {
+              Object.assign(mergedProperties, resolved.properties);
+            }
+            if (Array.isArray(resolved.required)) {
+              resolved.required.forEach((r: string) => mergedRequired.add(r));
+            }
+
+            // Keep complex constraints (oneOf, anyOf, if/then/else, etc.)
+            const complexKeys = ['oneOf', 'anyOf', 'not', 'if', 'then', 'else'];
+            if (complexKeys.some(k => k in resolved)) {
+              remaining.push(item); // Keep as $ref since it has complex logic
+            }
+          } else {
+            // Can't resolve - keep the $ref
+            remaining.push(item);
+          }
+        } else if (item.properties || item.required) {
+          // Direct properties/required without $ref
+          if (item.properties) {
+            Object.assign(mergedProperties, item.properties);
+          }
+          if (Array.isArray(item.required)) {
+            item.required.forEach((r: string) => mergedRequired.add(r));
+          }
+        } else {
+          // Keep other constraints (oneOf, anyOf, if/then/else, etc.)
+          remaining.push(item);
+        }
+      }
+
+      return {
+        properties: mergedProperties,
+        required: Array.from(mergedRequired),
+        remaining
+      };
+    }
+
+    // Start with existing properties/required from root
+    const result = flattenAllOfItems(bundled.allOf, bundled);
+
+    // Merge with existing root properties/required
+    bundled.properties = { ...(bundled.properties || {}), ...result.properties };
+    const existingRequired = Array.isArray(bundled.required) ? bundled.required : [];
+    bundled.required = [...new Set([...existingRequired, ...result.required])];
+
+    // Update or remove allOf
+    if (result.remaining.length > 0) {
+      bundled.allOf = result.remaining;
+    } else {
+      delete bundled.allOf;
+    }
+  }
+
+  return bundled;
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+  let flatten = false;
+  let rootDir: string | undefined;
+  const filtered: string[] = [];
+
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '--flatten' || a === '--flatten-allof') {
+      flatten = true;
+    } else if (a === '--root-dir' && i + 1 < args.length) {
+      rootDir = args[i + 1];
+      i++;
+    } else {
+      filtered.push(a);
+    }
+  }
+
+  const [entry, outFile] = filtered;
+  if (!entry || !outFile) {
+    console.error('Usage: ts-node manual-bundle-schema.ts [--flatten] [--root-dir <path>] <entry-schema> <output-file>');
+    process.exit(1);
+  }
+
+  const entryPath = path.isAbsolute(entry) ? entry : path.join(process.cwd(), entry);
+  if (!fs.existsSync(entryPath)) {
+    console.error(`Entry schema not found: ${entryPath}`);
+    process.exit(1);
+  }
+
+  try {
+    const bundled = await bundleSchema(entryPath, flatten);
+
+    // Set $id
+    const outFileAbs = path.isAbsolute(outFile) ? outFile : path.join(process.cwd(), outFile);
+    const repoRoot = rootDir ? path.resolve(rootDir) : process.cwd();
+    const outputRoot = path.join(repoRoot, 'output');
+
+    let schemaId: string;
+    if (outFileAbs.startsWith(outputRoot)) {
+      schemaId = "/" + path.relative(outputRoot, outFileAbs).replace(/\\/g, '/');
+    } else if (outFileAbs.includes('/schemas/')) {
+      const schemasRoot = path.join(repoRoot, 'schemas');
+      const relativePath = path.relative(schemasRoot, outFileAbs).replace(/\\/g, '/');
+      schemaId = `https://notify.nhs.uk/cloudevents/schemas/${relativePath}`;
+    } else {
+      schemaId = path.basename(outFile);
+    }
+
+    bundled.$id = schemaId;
+    bundled.$comment = ((bundled.$comment ? bundled.$comment + ' | ' : '') +
+      `Bundled schema (local file $refs inlined${flatten ? ', allOf flattened' : ''}).`);
+
+    const outDir = path.dirname(path.resolve(outFile));
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(outFile, JSON.stringify(bundled, null, 2));
+    console.log(`✅ Bundled schema written to ${outFile}`);
+  } catch (err) {
+    console.error('Failed to bundle schema:', err);
+    process.exit(1);
+  }
+}
+
+main();
