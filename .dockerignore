@@ -1,0 +1,65 @@
+# This is source, these should be mounted in the container
+src/cloudevents/domains
+docs
+
+# Git and version control
+# Exclude .git directory except hooks (needed for pre-commit)
+**/.git/
+**/.gitignore
+**/.version
+**/version.json
+
+# Build outputs and generated files
+docs/_site/
+docs/.jekyll-cache/
+docs/eventcatalog/
+docs/cloudevents/
+docs/_data/schema/
+docs/assets-webpack/
+
+src/eventcatalog/domains/
+src/eventcatalog/channels/
+src/eventcatalog/dist/
+src/eventcatalog/public/
+
+**/vendor/
+**/node_modules/
+**/dist/
+**/build/
+**/*.log
+**/output/
+**/schemas/
+**/.reports
+**/.scannerwork
+**/*cloc*report*.json
+**/*sbom*report*.json
+**/*vulnerabilities*report*.json
+**/*report*json.zip
+**/htmlcov/
+**/.coverage
+**/coverage.xml
+*.coverage
+**/coverage/
+**/coverage-*/
+**/playwright-report
+**/test-results
+**/plugin-cache
+
+# IDE and editor files
+**/.vscode/
+**/.idea/
+**/*.swp
+**/*.swo
+**/*~
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+
+# Testing and coverage
+**/.pytest_cache/
+**/__pycache__/
+
+# Temporary files
+**/*.tmp
+**/.scannerwork/

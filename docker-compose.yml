@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  schema-gen:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nhs-notify-schema-gen:latest
+    container_name: nhs-notify-schema-gen
+    volumes:
+      # Mount source directories (required)
+      - ./src/cloudevents/domains:/workspace/src/cloudevents/domains
+      - ./docs:/workspace/docs
+
+    ports:
+      # Expose docs server port (if serve-docs runs on a port)
+      - "4000:4000"
+    environment:
+      - TERM=xterm-256color
+
+    # Override CMD if needed for development
+    # command: ["/bin/zsh", "-c", "source ~/.zshrc && /bin/zsh"]
