@@ -53,9 +53,9 @@ Title: {{page.title}}
 </ul>
 
 <h2>Envelope Schema</h2>
-<iframe title="Envelope Schema {{page.title}}" src="{{ page.schema_envelope }}" width="100%" height="600px"></iframe>
+<iframe title="Envelope Schema {{page.title}}" src="{{ page.schema_envelope | replace: 'https://notify.nhs.uk/cloudevents', '' | replace: '.schema.json', '.bundle.schema.json' }}" width="100%" height="600px"></iframe>
 
 <h2>Data Schema</h2>
-<iframe title="Data Schema {{page.title}}" src="{{ page.schema_data }}" width="100%" height="600px"></iframe>
+<iframe title="Data Schema {{page.title}}" src="{{ page.schema_data | replace: 'https://notify.nhs.uk/cloudevents', '' }}" width="100%" height="600px"></iframe>
 
 {{ content }}
