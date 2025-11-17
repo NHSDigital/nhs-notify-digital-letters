@@ -1,0 +1,17 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Request data
+description: Reusable types for NHS Notify payload schemas.
+type: object
+properties:
+  meshMessageId:
+    type: string
+    minLength: 1
+    description: Id of the message in the MESH inbox
+    examples:
+      - "20200601122152994285_D59900"
+  meshMailboxId:
+    type: string
+    minLength: 1
+    description: Id of the mailbox
+    examples:
+      - "MAILBOX01"

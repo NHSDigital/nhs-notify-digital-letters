@@ -3,7 +3,7 @@
 # To regenerate, run: make update-readme
 # To customize labels and purposes, edit: readme-metadata.yaml
 
-generated: '2025-11-14T13:43:12.216Z'
+generated: '2025-11-17T18:22:19.926Z'
 common: null
 domains:
   - name: digital-letters
@@ -22,6 +22,11 @@ domains:
             source: src/digital-letters/2025-10-draft/data/digital-letter-base-data.schema.yaml
             published: schemas/digital-letters/2025-10-draft/data/digital-letter-base-data.schema.json
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letter-base-data.schema.md
+          - type: Digital Letters Digital Letter Read Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-digital-letter-read-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-digital-letter-read-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-digital-letter-read-data.schema.md
           - type: Digital Letters Mesh Inbox Message Downloaded Data
             category: data
             source: src/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.yaml
@@ -32,6 +37,16 @@ domains:
             source: src/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.yaml
             published: schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.md
+          - type: Digital Letters Message Request Failed Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-message-request-failed-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-message-request-failed-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-message-request-failed-data.schema.md
+          - type: Digital Letters Message Request Submitted Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-message-request-submitted-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-message-request-submitted-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-message-request-submitted-data.schema.md
           - type: Digital Letters Pdm Resource Available Data
             category: data
             source: src/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.yaml
@@ -57,11 +72,46 @@ domains:
             source: src/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.yaml
             published: schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.md
-          - type: Messages.status.updated Data.v1
+          - type: Digital Letters Queue Item Dequeued Data
             category: data
-            source: src/digital-letters/2025-10-draft/data/messages.status.updated-data.v1.schema.yaml
-            published: schemas/digital-letters/2025-10-draft/data/messages.status.updated-data.v1.schema.json
-            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/messages.status.updated-data.v1.schema.md
+            source: src/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.md
+          - type: Digital Letters Queue Item Enqueued Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.md
+          - type: Digital Letters Queue Item Removed Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-queue-item-removed-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-removed-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-queue-item-removed-data.schema.md
+          - type: Digital Letters Reporting Generate Report Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-reporting-generate-report-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-generate-report-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-reporting-generate-report-data.schema.md
+          - type: Digital Letters Reporting Report Generated Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-reporting-report-generated-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-report-generated-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-reporting-report-generated-data.schema.md
+          - type: Digital Letters Reporting Report Sent Data
+            category: data
+            source: src/digital-letters/2025-10-draft/data/digital-letters-reporting-report-sent-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-report-sent-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-reporting-report-sent-data.schema.md
+          - type: Core
+            category: definitions
+            source: src/digital-letters/2025-10-draft/defs/core.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/defs/core.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/defs/core.schema.md
+          - type: Mesh
+            category: definitions
+            source: src/digital-letters/2025-10-draft/defs/mesh.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/defs/mesh.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/defs/mesh.schema.md
           - type: Message Id
             category: definitions
             source: src/digital-letters/2025-10-draft/defs/message-id.schema.yaml
@@ -77,6 +127,11 @@ domains:
             source: src/digital-letters/2025-10-draft/defs/pdm.schema.yaml
             published: schemas/digital-letters/2025-10-draft/defs/pdm.schema.json
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/defs/pdm.schema.md
+          - type: Reporting
+            category: definitions
+            source: src/digital-letters/2025-10-draft/defs/reporting.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/defs/reporting.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/defs/reporting.schema.md
           - type: Requests
             category: definitions
             source: src/digital-letters/2025-10-draft/defs/requests.schema.yaml
@@ -237,16 +292,26 @@ domains:
             source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.queue.timer.expired.v1.schema.yaml
             published: schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.queue.timer.expired.v1.schema.json
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.queue.timer.expired.v1.schema.md
-          - type: Uk.nhs.notify.digital.letters.reporting.daily.report.generated.v1
+          - type: Uk.nhs.notify.digital.letters.reporting.generate.report.v1
             category: events
-            source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.daily.report.generated.v1.schema.yaml
-            published: schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.daily.report.generated.v1.schema.json
-            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.daily.report.generated.v1.schema.md
-          - type: Uk.nhs.notify.digital.letters.reporting.daily.report.timer.expired.v1
+            source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.generate.report.v1.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.generate.report.v1.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.generate.report.v1.schema.md
+          - type: Uk.nhs.notify.digital.letters.reporting.report.generated.v1
             category: events
-            source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.daily.report.timer.expired.v1.schema.yaml
-            published: schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.daily.report.timer.expired.v1.schema.json
-            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.daily.report.timer.expired.v1.schema.md
+            source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.report.generated.v1.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.report.generated.v1.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.report.generated.v1.schema.md
+          - type: Uk.nhs.notify.digital.letters.reporting.report.sent.v1
+            category: events
+            source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.report.sent.v1.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.report.sent.v1.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.report.sent.v1.schema.md
+          - type: Uk.nhs.notify.digital.letters.reporting.report.timer.expired.v1
+            category: events
+            source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.report.timer.expired.v1.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.report.timer.expired.v1.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.reporting.report.timer.expired.v1.schema.md
           - type: Uk.nhs.notify.digital.letters.viewer.digital.letter.read.v1
             category: events
             source: src/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.viewer.digital.letter.read.v1.schema.yaml
@@ -344,14 +409,22 @@ domains:
             filename: uk.nhs.notify.digital.letters.queue.timer.expired.v1-event
             json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.queue.timer.expired.v1-event.json
             markdown: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.queue.timer.expired.v1-event.md
-          - name: Uk.nhs.notify.digital.letters.reporting.daily.report.generated.v1
-            filename: uk.nhs.notify.digital.letters.reporting.daily.report.generated.v1-event
-            json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.daily.report.generated.v1-event.json
-            markdown: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.daily.report.generated.v1-event.md
-          - name: Uk.nhs.notify.digital.letters.reporting.daily.report.timer.expired.v1
-            filename: uk.nhs.notify.digital.letters.reporting.daily.report.timer.expired.v1-event
-            json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.daily.report.timer.expired.v1-event.json
-            markdown: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.daily.report.timer.expired.v1-event.md
+          - name: Uk.nhs.notify.digital.letters.reporting.generate.report.v1
+            filename: uk.nhs.notify.digital.letters.reporting.generate.report.v1-event
+            json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.generate.report.v1-event.json
+            markdown: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.generate.report.v1-event.md
+          - name: Uk.nhs.notify.digital.letters.reporting.report.generated.v1
+            filename: uk.nhs.notify.digital.letters.reporting.report.generated.v1-event
+            json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.report.generated.v1-event.json
+            markdown: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.report.generated.v1-event.md
+          - name: Uk.nhs.notify.digital.letters.reporting.report.sent.v1
+            filename: uk.nhs.notify.digital.letters.reporting.report.sent.v1-event
+            json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.report.sent.v1-event.json
+            markdown: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.report.sent.v1-event.md
+          - name: Uk.nhs.notify.digital.letters.reporting.report.timer.expired.v1
+            filename: uk.nhs.notify.digital.letters.reporting.report.timer.expired.v1-event
+            json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.report.timer.expired.v1-event.json
+            markdown: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.reporting.report.timer.expired.v1-event.md
           - name: Uk.nhs.notify.digital.letters.viewer.digital.letter.read.v1
             filename: uk.nhs.notify.digital.letters.viewer.digital.letter.read.v1-event
             json: ../../docs/cloudevents/digital-letters/2025-10-draft/example-events/uk.nhs.notify.digital.letters.viewer.digital.letter.read.v1-event.json
