@@ -99,6 +99,26 @@ jobs:
           mkdir -p .reports
           TMPDIR="./.reports" ./node_modules/.bin/lcov-result-merger "**/.reports/unit/coverage/lcov.info" ".reports/lcov.info" --ignore "node_modules" --prepend-source-files --prepend-path-fix "../../.."
 
+      - name: "Python asyncapigenerator"
+        run: |
+          # Python projects - asyncapigenerator
+          echo "Setting up and running asyncapigenerator tests..."
+          make -C ./src/asyncapigenerator install-dev
+          make -C ./src/asyncapigenerator coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
+      - name: "python cloudeventjekylldocs"
+        run: |
+          # Python projects - cloudeventjekylldocs
+          echo "Setting up and running cloudeventjekylldocs tests..."
+          make -C ./src/cloudeventjekylldocs install-dev
+          make -C ./src/cloudeventjekylldocs coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
+      - name: "python eventcatalogasyncapiimporter"
+        run: |
+          # Python projects - eventcatalogasyncapiimporter
+          echo "Setting up and running eventcatalogasyncapiimporter tests..."
+          make -C ./src/eventcatalogasyncapiimporter install-dev
+          make -C ./src/eventcatalogasyncapiimporter coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
       - name: "Save the result of fast test suite"
         uses: actions/upload-artifact@v4

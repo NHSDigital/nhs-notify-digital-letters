@@ -17,6 +17,7 @@
     "json-schema-static-docs": "^0.28.1",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.0.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.0.0"
   },
   "main": "tools/generator/example-generator/generate-example.ts",
