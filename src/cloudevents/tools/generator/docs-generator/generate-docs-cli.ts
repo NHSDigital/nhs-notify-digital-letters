@@ -145,12 +145,11 @@ try {
       process.exit(1);
     });
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 } catch (e) {
-  // NOSONAR - Intentionally ignoring error when import.meta is not available
-  // This occurs in CommonJS/Jest environments and is expected behavior
-  // The module is being imported, not executed directly, so no action needed
+  // Intentionally ignoring: import.meta not available in CommonJS/Jest environments
+  // This is expected when the module is imported rather than executed directly
   if (process.env.DEBUG) {
     console.debug('Module loaded in CommonJS/Jest environment (import.meta not available)');
   }
+  void e; // Mark exception as intentionally unused
 }
