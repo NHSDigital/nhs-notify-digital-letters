@@ -158,6 +158,7 @@ describe('createHandler', () => {
 
     expect(logger.error).toHaveBeenCalledWith({
       description: 'Non-REMOVE event or missing OldImage',
+      record: mockInsertEvent.Records[0],
     });
 
     expect(eventPublisher.sendEvents).not.toHaveBeenCalled();
@@ -190,6 +191,7 @@ describe('createHandler', () => {
 
     expect(logger.error).toHaveBeenCalledWith({
       description: 'Non-REMOVE event or missing OldImage',
+      record: mockNoOldImageEvent.Records[0],
     });
 
     expect(eventPublisher.sendEvents).not.toHaveBeenCalled();
