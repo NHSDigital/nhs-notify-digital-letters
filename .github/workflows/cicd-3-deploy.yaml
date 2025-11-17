@@ -1,4 +1,4 @@
-name: "2. Deploy docs to GitHub Pages"
+name: "3. CI/CD deploy"
 
 on:
   workflow_run:
@@ -65,84 +65,84 @@ jobs:
           echo "terraform_version=$(grep "^terraform\s" .tool-versions | cut -f2 -d' ')" >> $GITHUB_OUTPUT
           echo "version=$(head -n 1 .version 2> /dev/null || echo unknown)" >> $GITHUB_OUTPUT
           # echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-      - name: "List variables"
-        run: |
-          export BUILD_DATETIME="${{ steps.variables.outputs.build_datetime }}"
-          export BUILD_TIMESTAMP="${{ steps.variables.outputs.build_timestamp }}"
-          export BUILD_EPOCH="${{ steps.variables.outputs.build_epoch }}"
-          export NODEJS_VERSION="${{ steps.variables.outputs.nodejs_version }}"
-          export PYTHON_VERSION="${{ steps.variables.outputs.python_version }}"
-          export TERRAFORM_VERSION="${{ steps.variables.outputs.terraform_version }}"
-          export VERSION="${{ steps.variables.outputs.version }}"
-          # export TAG="${{ steps.variables.outputs.tag }}"
-          make list-variables
+  #     - name: "List variables"
+  #       run: |
+  #         export BUILD_DATETIME="${{ steps.variables.outputs.build_datetime }}"
+  #         export BUILD_TIMESTAMP="${{ steps.variables.outputs.build_timestamp }}"
+  #         export BUILD_EPOCH="${{ steps.variables.outputs.build_epoch }}"
+  #         export NODEJS_VERSION="${{ steps.variables.outputs.nodejs_version }}"
+  #         export PYTHON_VERSION="${{ steps.variables.outputs.python_version }}"
+  #         export TERRAFORM_VERSION="${{ steps.variables.outputs.terraform_version }}"
+  #         export VERSION="${{ steps.variables.outputs.version }}"
+  #         # export TAG="${{ steps.variables.outputs.tag }}"
+  #         make list-variables
 
-  deploy-jekyll:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: metadata
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v5
+  # deploy-jekyll:
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   runs-on: ubuntu-latest
+  #   needs: metadata
+  #   steps:
+  #     - name: "Checkout code"
+  #       uses: actions/checkout@v5
 
-      - name: "Get version"
-        id: get-asset-version
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          INPUTS_INCLUDE_PRERELEASES="${{ inputs.include_prereleases }}"
-          INPUTS_INCLUDE_PRERELEASES=${INPUTS_INCLUDE_PRERELEASES:-"true"}
+  #     - name: "Get version"
+  #       id: get-asset-version
+  #       shell: bash
+  #       env:
+  #         GH_TOKEN: ${{ github.token }}
+  #       run: |
+  #         INPUTS_INCLUDE_PRERELEASES="${{ inputs.include_prereleases }}"
+  #         INPUTS_INCLUDE_PRERELEASES=${INPUTS_INCLUDE_PRERELEASES:-"true"}
 
-          INPUTS_VERSION="${{ inputs.version }}"
-          INPUTS_VERSION=${INPUTS_VERSION:-"latest"}
+  #         INPUTS_VERSION="${{ inputs.version }}"
+  #         INPUTS_VERSION=${INPUTS_VERSION:-"latest"}
 
 
-          if [[ $INPUTS_INCLUDE_PRERELEASES == true ]]; then
-            json=$(gh release list --json tagName --limit 1 --exclude-drafts)
-          else
-            json=$(gh release list --json tagName --limit 1 --exclude-drafts --exclude-pre-releases)
-          fi
+  #         if [[ $INPUTS_INCLUDE_PRERELEASES == true ]]; then
+  #           json=$(gh release list --json tagName --limit 1 --exclude-drafts)
+  #         else
+  #           json=$(gh release list --json tagName --limit 1 --exclude-drafts --exclude-pre-releases)
+  #         fi
 
-          echo "Release list response: $json"
+  #         echo "Release list response: $json"
 
-          # Check if the response is empty
-          if [[ "$json" == "[]" ]] || [[ -z "$json" ]]; then
-            echo "::error::No releases found. Please create a release before deploying docs."
-            exit 1
-          fi
+  #         # Check if the response is empty
+  #         if [[ "$json" == "[]" ]] || [[ -z "$json" ]]; then
+  #           echo "::error::No releases found. Please create a release before deploying docs."
+  #           exit 1
+  #         fi
 
-          release_version=$(echo $json | jq -r '.[0].tagName')
-          if [[ "$release_version" == "null" ]] || [[ -z "$release_version" ]]; then
-            echo "::error::Could not extract release version from: $json"
-            exit 1
-          fi
+  #         release_version=$(echo $json | jq -r '.[0].tagName')
+  #         if [[ "$release_version" == "null" ]] || [[ -z "$release_version" ]]; then
+  #           echo "::error::Could not extract release version from: $json"
+  #           exit 1
+  #         fi
 
-          echo "Found release version: $release_version"
+  #         echo "Found release version: $release_version"
 
-          if [[ $INPUTS_VERSION == latest ]]; then
-            echo "release_version=$release_version" >> $GITHUB_OUTPUT
-          else
-            echo "release_version=$INPUTS_VERSION" >> $GITHUB_OUTPUT
-          fi
+  #         if [[ $INPUTS_VERSION == latest ]]; then
+  #           echo "release_version=$release_version" >> $GITHUB_OUTPUT
+  #         else
+  #           echo "release_version=$INPUTS_VERSION" >> $GITHUB_OUTPUT
+  #         fi
 
-      - name: "Get release version"
-        id: download-asset
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download ${{steps.get-asset-version.outputs.release_version}} -p jekyll-docs-*.tar --output artifact.tar
+  #     - name: "Get release version"
+  #       id: download-asset
+  #       shell: bash
+  #       env:
+  #         GH_TOKEN: ${{ github.token }}
+  #       run: |
+  #         gh release download ${{steps.get-asset-version.outputs.release_version}} -p jekyll-docs-*.tar --output artifact.tar
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: jekyll-docs-${{steps.get-asset-version.outputs.release_version}}
-          path: artifact.tar
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: jekyll-docs-${{steps.get-asset-version.outputs.release_version}}
+  #         path: artifact.tar
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          artifact_name: jekyll-docs-${{steps.get-asset-version.outputs.release_version}}
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4
+  #       with:
+  #         artifact_name: jekyll-docs-${{steps.get-asset-version.outputs.release_version}}
