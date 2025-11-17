@@ -133,6 +133,7 @@ export async function handleCli(args: string[]): Promise<CliResult> {
 
 // Execute CLI if this module is run directly
 // Note: This uses eval to prevent Jest/CommonJS from parsing import.meta
+// istanbul ignore next - CLI entry point, difficult to test in Jest
 // @ts-ignore
 try {
   const importMeta = eval('import.meta');
