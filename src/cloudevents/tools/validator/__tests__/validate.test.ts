@@ -19,7 +19,7 @@ function runValidator(schemaPath: string, dataPath: string, baseDir?: string): {
     const args = baseDir ? ['--base', baseDir, schemaPath, dataPath] : [schemaPath, dataPath];
     const result = spawnSync('npx', ['ts-node', SCRIPT_PATH, ...args], {
       encoding: 'utf-8',
-      timeout: 10000 // Increased timeout for ts-node
+      timeout: 25000 // Increased timeout for ts-node in CI
     });
 
     return {
@@ -37,6 +37,9 @@ function runValidator(schemaPath: string, dataPath: string, baseDir?: string): {
 }
 
 describe('validate.ts', () => {
+  // Increase timeout for this suite since it spawns ts-node processes
+  jest.setTimeout(30000); // 30 seconds per test
+
   beforeEach(() => {
     // Create test directory
     if (!fs.existsSync(TEST_DIR)) {
@@ -53,7 +56,7 @@ describe('validate.ts', () => {
 
   describe('command line arguments', () => {
     it('should exit with error when no arguments provided', () => {
-      const result = spawnSync('npx', ['ts-node', SCRIPT_PATH], { encoding: 'utf-8', timeout: 10000 });
+      const result = spawnSync('npx', ['ts-node', SCRIPT_PATH], { encoding: 'utf-8', timeout: 25000 });
       expect(result.status).not.toBe(0);
       expect(result.stderr).toContain('Usage:');
     });
