@@ -32,16 +32,19 @@ jobs:
             - 'docs/**'
           src:
             - 'src/**'
+          workflows:
+            - '.github/workflows/docs-*'
     outputs:
       docs: ${{ steps.changes.outputs.docs }}
       src: ${{ steps.changes.outputs.src }}
+      workflows: ${{ steps.changes.outputs.workflows }}
 
   metadata:
     name: "Set CI/CD metadata"
     runs-on: ubuntu-latest
     timeout-minutes: 1
     needs: changes
-    if: ${{ needs.changes.outputs.docs == 'true' || needs.changes.outputs.src == 'true' }}
+    if: ${{ needs.changes.outputs.docs == 'true' || needs.changes.outputs.src == 'true' || needs.changes.outputs.workflows == 'true'}}
 
     outputs:
       build_datetime_london: ${{ steps.variables.outputs.build_datetime_london }}
