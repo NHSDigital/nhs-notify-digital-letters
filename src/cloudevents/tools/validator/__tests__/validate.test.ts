@@ -154,7 +154,6 @@ describe('validate.ts CLI', () => {
       expect(result.success).toBe(false);
     });
   });
-});
 
   describe('basic validation', () => {
     it('should validate simple object schema', () => {
