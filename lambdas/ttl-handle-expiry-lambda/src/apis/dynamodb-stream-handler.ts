@@ -38,7 +38,7 @@ export const createHandler = ({
         // This shouldn't happen unless the stream filter has been changed.
         logger.error({
           description: 'Non-REMOVE event or missing OldImage',
-          record
+          record,
         });
 
         return;
