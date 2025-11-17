@@ -289,6 +289,10 @@ summary: |
             schema_path = schema_path.replace(
                 "https://notify.nhs.uk/cloudevents", "")
 
+            # Switch so bundled version is used
+            if ".bundle.schema.json" not in schema_path:
+                schema_path = schema_path.replace(".schema.json", ".bundle.schema.json")
+
         # Create event folder and index.mdx (EventCatalog expects events/eventname/index.mdx)
         event_dir = events_dir / event_slug
         event_dir.mkdir(parents=True, exist_ok=True)
