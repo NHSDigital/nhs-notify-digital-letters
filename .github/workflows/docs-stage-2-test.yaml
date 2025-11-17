@@ -66,24 +66,30 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
+
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
+
       - name: "Repo setup"
         run: |
           npm ci
         working-directory: ./docs
+
       - name: "Repo setup"
         run: |
           npm ci
         working-directory: ./src/cloudevents
+
       - name: "Generate dependencies"
         run: |
           npm run generate-dependencies --workspaces --if-present
+
       - name: "Run unit test suite"
         run: |
           make -C docs test
+
       - name: "Save the result of fast test suite"
         uses: actions/upload-artifact@v4
         with:
@@ -91,11 +97,13 @@ jobs:
           path: "**/.reports/unit"
           include-hidden-files: true
         if: always()
+
       - name: "Save the result of code coverage"
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
-          path: ".reports/lcov.info"
+          path: "**/.reports/lcov.info"
+
       - name: "Save Python coverage reports"
         uses: actions/upload-artifact@v4
         with:
