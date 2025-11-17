@@ -145,11 +145,10 @@ try {
       process.exit(1);
     });
   }
-} catch (e) {
-  // Intentionally ignoring: import.meta not available in CommonJS/Jest environments
-  // This is expected when the module is imported rather than executed directly
+} catch {
+  // Intentionally ignoring exception: import.meta not available in CommonJS/Jest environments.
+  // This is expected when the module is imported rather than executed directly.
   if (process.env.DEBUG) {
     console.debug('Module loaded in CommonJS/Jest environment (import.meta not available)');
   }
-  void e; // Mark exception as intentionally unused
 }
