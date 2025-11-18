@@ -12,3 +12,7 @@ cd9c0efec38c5d63053dd865e5d4e207c0760d91:docs/guides/Perform_static_analysis.md:
 973c8a1feb76f3cd8743ce27b14e4acc4252240c:src/TESTING_PLAN.md:ipv4:2507
 cc74128e4207833109339e96f3aaebf3cd40dd65:src/TESTING_PLAN.md:ipv4:2507
 791619daf5af4806da7266fa301c0e82145b6de8:src/TESTING_PLAN.md:ipv4:2507
+f8546e35b77b69ba7b15dbe3174d2d7e375200ef:utils/utils/src/__tests__/key-generation/validate-private-key.test.ts:private-key:7
+f8546e35b77b69ba7b15dbe3174d2d7e375200ef:utils/utils/src/__tests__/key-generation/get-private-key.test.ts:private-key:23
+f8546e35b77b69ba7b15dbe3174d2d7e375200ef:utils/utils/src/__tests__/key-generation/get-private-key.test.ts:private-key:30
+f8546e35b77b69ba7b15dbe3174d2d7e375200ef:utils/utils/src/__tests__/key-generation/get-private-key.test.ts:private-key:46
