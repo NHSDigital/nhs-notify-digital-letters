@@ -1,4 +1,10 @@
-import { DeleteItemCommand, DeleteItemCommandOutput, DynamoDBClient, PutItemCommand, PutItemCommandOutput } from '@aws-sdk/client-dynamodb';
+import {
+  DeleteItemCommand,
+  DeleteItemCommandOutput,
+  DynamoDBClient,
+  PutItemCommand,
+  PutItemCommandOutput,
+} from '@aws-sdk/client-dynamodb';
 import { QueryCommand, QueryCommandOutput } from '@aws-sdk/lib-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { REGION, TTL_TABLE_NAME } from 'constants/backend-constants';
@@ -34,17 +40,17 @@ export async function putTtl(ttlItem: TtlDynamodbRecord) {
 export async function deleteTtl(messageUri: string) {
   const params = {
     TableName: TTL_TABLE_NAME,
-    Key:{
+    Key: {
       PK: {
         S: messageUri,
       },
       SK: {
         S: 'TTL',
       },
-    }
+    },
   };
   const request = new DeleteItemCommand(params);
-  const output : DeleteItemCommandOutput = await dynamoDbClient.send(request);
+  const output: DeleteItemCommandOutput = await dynamoDbClient.send(request);
 
   return output.$metadata.httpStatusCode;
 }

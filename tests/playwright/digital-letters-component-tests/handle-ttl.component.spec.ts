@@ -8,8 +8,7 @@ test.describe('Digital Letters - Handle TTL', () => {
     profileversion: '1.0.0',
     profilepublished: '2025-10',
     specversion: '1.0',
-    source:
-      '/nhs/england/notify/production/primary/data-plane/digital-letters',
+    source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
     subject:
       'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
     type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
@@ -26,8 +25,7 @@ test.describe('Digital Letters - Handle TTL', () => {
       messageReference: 'ref1',
       senderId: 'sender1',
     },
-  }
-
+  };
 
   test('should handle withdrawn item', async () => {
     const letterId = uuidv4();
@@ -40,18 +38,17 @@ test.describe('Digital Letters - Handle TTL', () => {
         ...baseEvent.data,
         messageUri,
         'digital-letter-id': letterId,
-      }
-    }
+      },
+    };
 
     const ttlItem = {
       PK: messageUri,
       SK: 'TTL',
       dateOfExpiry: '2023-12-31#0',
       event,
-      ttl: (Date.now() / 1000) + 3600,
+      ttl: Date.now() / 1000 + 3600,
       withdrawn: true,
-    }
-
+    };
 
     await expectToPassEventually(async () => {
       const putResponseCode = await putTtl(ttlItem);
