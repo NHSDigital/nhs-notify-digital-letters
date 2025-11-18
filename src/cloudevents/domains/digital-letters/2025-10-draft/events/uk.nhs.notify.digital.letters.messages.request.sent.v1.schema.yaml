@@ -11,7 +11,7 @@ properties:
   source:
     type: string
     pattern: ^/nhs/england/notify/(production|staging|development|uat)/(primary|secondary|dev-[0-9]+)/data-plane/digitalletters/messages
-    description: Event source for digital letters .
+    description: Event source for digital letters.
 
   dataschema:
     type: string
