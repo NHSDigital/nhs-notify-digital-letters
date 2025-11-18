@@ -7,6 +7,6 @@ schema_envelope: https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-
 schema_data: https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/messages.request.submitted-data.v1.schema.json
 ---
 
-This is an event.
+This event indicates that a request has been submitted to Notify Core for the sending of a digital message to a patient.
 
-uk.nhs.notify.digital.letters.core.request.submitted.v1.schema
+uk.nhs.notify.digital.letters.messages.request.submitted.v1.schema
