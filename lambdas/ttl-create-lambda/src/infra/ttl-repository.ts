@@ -23,7 +23,7 @@ export class TtlRepository {
 
     this.logger.info({
       description: 'Inserting item into TTL table',
-      PK: item.data.uri,
+      PK: item.data.messageUri,
       ttlTime,
     });
 
@@ -38,7 +38,7 @@ export class TtlRepository {
     }
   }
 
-  private async putTtlRecord({ data: { uri } }: TtlItemEvent, ttlTime: number) {
+  private async putTtlRecord(ttlItemEvent: TtlItemEvent, ttlTime: number) {
     // GSI PK utilising write sharding YYYY-MM-DD#<RANDOM_INT_BETWEEN_0_AND_[shardCount]>
     const ttlGsiPk = `${
       new Date(ttlTime * 1000).toISOString().split('T')[0]
@@ -48,10 +48,11 @@ export class TtlRepository {
       new PutCommand({
         TableName: this.tableName,
         Item: {
-          PK: uri,
+          PK: ttlItemEvent.data.messageUri,
           SK: 'TTL',
           ttl: ttlTime,
           dateOfExpiry: ttlGsiPk,
+          event: ttlItemEvent,
         },
       }),
     );
