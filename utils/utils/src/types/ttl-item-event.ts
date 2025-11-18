@@ -11,11 +11,13 @@ export const $TtlItemEvent = $CloudEvent.extend({
   data: $TtlItemData,
 });
 
+export const $TtlItemBusEvent = z.object({
+  detail: $TtlItemEvent,
+});
+
 export type TtlItemEvent = z.infer<typeof $TtlItemEvent>;
 
-export type TtlItemBusEvent = {
-  detail: TtlItemEvent;
-};
+export type TtlItemBusEvent = z.infer<typeof $TtlItemBusEvent>;
 
 export const validateTtlItemEvent = (data: unknown) => {
   return $TtlItemEvent.safeParse(data);

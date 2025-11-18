@@ -9,7 +9,7 @@ describe('$CloudEvent', () => {
     source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
     subject:
       'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-    type: 'uk.nhs.notify.digital.letters.example.v1',
+    type: 'uk.nhs.notify.digital.letters.example.with.multiple.words.v1',
     time: '2024-07-10T14:30:00Z',
     recordedtime: '2024-07-10T14:30:00.250Z',
     severitynumber: 2,
@@ -64,7 +64,7 @@ describe('validateCloudEvent', () => {
     source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
     subject:
       'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-    type: 'uk.nhs.notify.digital.letters.example.v1',
+    type: 'uk.nhs.notify.digital.letters.example.with.multiple.words.v1',
     time: '2024-07-10T14:30:00Z',
     recordedtime: '2024-07-10T14:30:00.250Z',
     severitynumber: 2,
