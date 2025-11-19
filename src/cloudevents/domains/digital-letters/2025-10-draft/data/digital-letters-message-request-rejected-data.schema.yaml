@@ -1,6 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: MessageRequestSendingFailed Data
-description: Data payload of the MessageRequestSendingFailed event
+title: MessageRequestRejected Data
+description: Data payload of the MessageRequestRejected event
 type: object
 additionalProperties: false
 properties:

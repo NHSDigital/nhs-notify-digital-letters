@@ -11,7 +11,7 @@ architecture-beta
     service sqs(logos:aws-sqs)[CoreNotifier Queue] in coreNotifier
     service clientConfig(aws:res-aws-systems-manager-parameter-store)[Client Configuration] in coreNotifier
     service coreNotified(aws:res-amazon-eventbridge-event)[MessageRequestSubmitted Event]
-    service coreFailed(aws:res-amazon-eventbridge-event)[MessageRequestFailed Event]
+    service coreFailed(aws:res-amazon-eventbridge-event)[MessageRequestRejected Event]
     service coreSkipped(aws:res-amazon-eventbridge-event)[MessageRequestSkipped Event]
     service notifier(logos:aws-lambda)[CoreNotifier] in coreNotifier
     service notify(server)[NHS Notify Core]

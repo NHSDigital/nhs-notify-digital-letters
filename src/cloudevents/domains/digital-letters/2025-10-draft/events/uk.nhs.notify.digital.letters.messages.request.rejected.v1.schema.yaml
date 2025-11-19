@@ -1,12 +1,12 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: MessageRequestFailed
+title: MessageRequestRejected
 type: object
 allOf:
   - $ref: ../digital-letters-messages-profile.schema.yaml
 properties:
   type:
     type: string
-    const: uk.nhs.notify.digital.letters.messages.request.failed.v1
+    const: uk.nhs.notify.digital.letters.messages.request.rejected.v1
     description: Concrete versioned event type string for this event (.vN suffix).
   source:
     type: string
@@ -15,9 +15,9 @@ properties:
 
   dataschema:
     type: string
-    const: ../data/digital-letters-message-request-failed-data.schema.yaml
+    const: ../data/digital-letters-message-request-rejected-data.schema.yaml
     description: Canonical URI of the event's data schema.
     examples:
-      - digital-letters-message-request-failed-data.schema.yaml
+      - digital-letters-message-request-rejected-data.schema.yaml
   data:
-    $ref: ../data/digital-letters-message-request-failed-data.schema.yaml
+    $ref: ../data/digital-letters-message-request-rejected-data.schema.yaml
