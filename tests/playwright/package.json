@@ -6,7 +6,7 @@
     "@aws-sdk/client-sqs": "^3.844.0",
     "@aws-sdk/client-dynamodb": "^3.844.0",
     "@aws-sdk/lib-dynamodb": "3.844.0",
-    "@faker-js/faker": "^9.6.0",
+    "@faker-js/faker": "^10.1.0",
     "@playwright/test": "^1.51.1",
     "utils": "^0.0.1",
     "uuid": "^8.3.2"
