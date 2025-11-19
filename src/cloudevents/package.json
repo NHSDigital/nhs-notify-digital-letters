@@ -39,7 +39,8 @@
     "test:watch": "jest --watch",
     "typecheck": "echo 'no typechecking configured'",
     "update-readme": "ts-node tools/generator/readme-generator/update-readme-cli.ts",
-    "validate": "ts-node tools/validator/validate.ts $@"
+    "validate": "ts-node tools/validator/validate.ts $@",
+    "validate:dataschema-consistency": "tsx tools/validator/validate-dataschema-consistency.ts"
   },
   "type": "module",
   "version": "1.0.0"
