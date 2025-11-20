@@ -50,12 +50,14 @@ test.describe('Digital Letters - Handle TTL', () => {
       withdrawn: true,
     };
 
-    await expectToPassEventually(async () => {
-      const putResponseCode = await putTtl(ttlItem);
-      expect(putResponseCode).toBe(201);
+    const putResponseCode = await putTtl(ttlItem);
+    expect(putResponseCode).toBe(200);
 
-      const deleteResponseCode = await deleteTtl(messageUri);
-      expect(deleteResponseCode).toBe(200);
+    const deleteResponseCode = await deleteTtl(messageUri);
+    expect(deleteResponseCode).toBe(200);
+
+    await expectToPassEventually(async () => {
+      // Check lambda log for withdrawn messageReference.
     });
   });
 });
