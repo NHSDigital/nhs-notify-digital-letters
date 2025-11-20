@@ -1,5 +1,5 @@
 ---
-title: reporting-daily-generate-report
+title: reporting-generate-report
 nice_name: GenerateReport
 service: Reporting
 type: uk.nhs.notify.digital.letters.reporting.generate.report.v1
