@@ -1,0 +1,13 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: ReportGenerated Data
+description: Data payload of the ReportGenerated event
+type: object
+additionalProperties: false
+properties:
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  reportUri:
+    $ref: ../defs/reporting.schema.yaml#/properties/reportUri
+required:
+  - senderId
+  - reportUri

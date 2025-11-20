@@ -1,0 +1,20 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Request data
+description: Reusable types for NHS Notify payload schemas.
+type: object
+properties:
+  notifyId:
+    type: string
+    description: "KSUID assigned by Notify to uniquely identify the message request"
+    minLength: 27
+    maxLength: 27
+    pattern: "^[0-9a-zA-Z]{27}$"
+    examples:
+      - "35bVTLgU9sVCukH6Cgri39g5xPF"
+  failureCode:
+    type: string
+    description: "A code representing the reason for failure"
+    examples:
+      - "CM_NOT_ALLOWED"
+      - "CM_NO_SUCH_ROUTING_PLAN"
+      - "CM_DUPLICATE_REQUEST"

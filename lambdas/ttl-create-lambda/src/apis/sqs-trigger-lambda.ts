@@ -5,7 +5,7 @@ import type {
 } from 'aws-lambda';
 import { randomUUID } from 'node:crypto';
 import type { CreateTtl, CreateTtlOutcome } from 'app/create-ttl';
-import { $TtlItemEvent, EventPublisher, Logger, TtlItemEvent } from 'utils';
+import { $TtlItemBusEvent, EventPublisher, Logger, TtlItemEvent } from 'utils';
 
 interface ProcessingResult {
   result: CreateTtlOutcome;
@@ -34,7 +34,7 @@ export const createHandler = ({
             data: item,
             error: parseError,
             success: parseSuccess,
-          } = $TtlItemEvent.safeParse(JSON.parse(body));
+          } = $TtlItemBusEvent.safeParse(JSON.parse(body));
 
           if (!parseSuccess) {
             logger.error({
@@ -45,14 +45,14 @@ export const createHandler = ({
             return { result: 'failed' };
           }
 
-          const result = await createTtl.send(item);
+          const result = await createTtl.send(item.detail);
 
           if (result === 'failed') {
             batchItemFailures.push({ itemIdentifier: messageId });
             return { result: 'failed' };
           }
 
-          return { result, item };
+          return { result, item: item.detail };
         } catch (error) {
           logger.error({
             err: error,
