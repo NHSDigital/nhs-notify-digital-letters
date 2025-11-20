@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "event-publisher-py"
+version = "1.0.0"
+description = "Event Publisher utility for publishing CloudEvents to EventBridge with DLQ support"
+authors = ["NHS Digital"]
+packages = [{include = "event_publisher"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+boto3 = "^1.40.70"
+pydantic = "^2.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-cov = "^6.0.0"
+pytest-mock = "^3.14.0"
+moto = "^5.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

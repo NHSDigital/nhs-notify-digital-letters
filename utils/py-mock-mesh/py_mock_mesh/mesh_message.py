@@ -22,6 +22,10 @@ class InvalidHeaderException(Exception):
     """
     Indicates an invalid header on a MESH message
     """
+    def __init__(self, header_key, header_value):
+        self.header_key = header_key
+        self.header_value = header_value
+        super().__init__(f"Invalid header: {header_key}={header_value}")
 
 
 class MockMeshMessage():  # pylint: disable=too-many-instance-attributes

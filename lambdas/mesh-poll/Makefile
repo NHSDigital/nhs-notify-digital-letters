@@ -14,7 +14,7 @@ test-coverage:
 	poetry run pytest --cov --cov-report xml:target/coverage/@comms/mesh-poll-lambda/cobertura-coverage.xml
 
 lint:
-	poetry run pylint src
+	poetry run pylint mesh_poll
 
 format:
 	poetry run autopep8 -ri .

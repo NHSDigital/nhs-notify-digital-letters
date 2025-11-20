@@ -51,7 +51,6 @@
   },
   "version": "0.0.1",
   "workspaces": [
-    "lambdas/mesh-poll",
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
