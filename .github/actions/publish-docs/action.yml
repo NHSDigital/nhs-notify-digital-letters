@@ -33,36 +33,44 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
         GH_REPO: ${{ github.repository }}
+        VERSION: ${{ inputs.version }}
+        IS_PRERELEASE: ${{ inputs.is_version_prerelease }}
       run: |
+        PRERELEASE_FLAG=""
+        if [ "$IS_PRERELEASE" = "true" ]; then
+          PRERELEASE_FLAG="--prerelease"
+        fi
         gh release create \
-        "${{ inputs.version }}" \
+        "$VERSION" \
         --draft \
         --latest \
-        --title "${{ inputs.version }}" \
-        --notes "Release of ${{ inputs.version }}" \
-        ${{ inputs.is_version_prerelease == 'true' && '--prerelease' || '' }}
+        --title "$VERSION" \
+        --notes "Release of $VERSION" \
+        $PRERELEASE_FLAG
 
     - name: "Upload jeykll docs release asset"
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
         GH_REPO: ${{ github.repository }}
+        VERSION: ${{ inputs.version }}
       run: |
-        cp ./artifacts/jekyll-docs-${{ inputs.version }}/artifact.tar $RUNNER_TEMP/jekyll-docs-${{ inputs.version }}.tar
+        cp "./artifacts/jekyll-docs-$VERSION/artifact.tar" "$RUNNER_TEMP/jekyll-docs-$VERSION.tar"
         gh release upload \
-        "${{ inputs.version }}" \
-        $RUNNER_TEMP/jekyll-docs-${{ inputs.version }}.tar#jekyll-docs-${{ inputs.version }}
+        "$VERSION" \
+        "$RUNNER_TEMP/jekyll-docs-$VERSION.tar#jekyll-docs-$VERSION"
 
     - name: "Upload schema release asset"
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
         GH_REPO: ${{ github.repository }}
+        VERSION: ${{ inputs.version }}
       run: |
-        cp ./artifacts/schemas-${{ inputs.version }}/artifact.tar $RUNNER_TEMP/schemas-${{ inputs.version }}.tar
+        cp "./artifacts/schemas-$VERSION/artifact.tar" "$RUNNER_TEMP/schemas-$VERSION.tar"
         gh release upload \
-        "${{ inputs.version }}" \
-        $RUNNER_TEMP/schemas-${{ inputs.version }}.tar#schemas-${{ inputs.version }}
+        "$VERSION" \
+        "$RUNNER_TEMP/schemas-$VERSION.tar#schemas-$VERSION"
 
 
     - name: Publish Release
@@ -70,4 +78,5 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
         GH_REPO: ${{ github.repository }}
-      run: gh release edit "${{ inputs.version }}" --draft=false
+        VERSION: ${{ inputs.version }}
+      run: gh release edit "$VERSION" --draft=false

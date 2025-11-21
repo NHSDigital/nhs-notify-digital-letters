@@ -87,11 +87,10 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          INPUTS_INCLUDE_PRERELEASES: ${{ inputs.include_prereleases }}
+          INPUTS_VERSION: ${{ inputs.version }}
         run: |
-          INPUTS_INCLUDE_PRERELEASES="${{ inputs.include_prereleases }}"
           INPUTS_INCLUDE_PRERELEASES=${INPUTS_INCLUDE_PRERELEASES:-"true"}
-
-          INPUTS_VERSION="${{ inputs.version }}"
           INPUTS_VERSION=${INPUTS_VERSION:-"latest"}
 
 
