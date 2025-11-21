@@ -1,11 +1,6 @@
-name: "2. Deploy docs to GitHub Pages"
+name: "3. CI/CD deploy"
 
 on:
-  workflow_run:
-      workflows: ["1. CI/CD pull request"]
-      types:
-        - completed
-      branches: [main]
   workflow_dispatch:
     inputs:
       include_prereleases:
@@ -65,17 +60,17 @@ jobs:
           echo "terraform_version=$(grep "^terraform\s" .tool-versions | cut -f2 -d' ')" >> $GITHUB_OUTPUT
           echo "version=$(head -n 1 .version 2> /dev/null || echo unknown)" >> $GITHUB_OUTPUT
           # echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-      - name: "List variables"
-        run: |
-          export BUILD_DATETIME="${{ steps.variables.outputs.build_datetime }}"
-          export BUILD_TIMESTAMP="${{ steps.variables.outputs.build_timestamp }}"
-          export BUILD_EPOCH="${{ steps.variables.outputs.build_epoch }}"
-          export NODEJS_VERSION="${{ steps.variables.outputs.nodejs_version }}"
-          export PYTHON_VERSION="${{ steps.variables.outputs.python_version }}"
-          export TERRAFORM_VERSION="${{ steps.variables.outputs.terraform_version }}"
-          export VERSION="${{ steps.variables.outputs.version }}"
-          # export TAG="${{ steps.variables.outputs.tag }}"
-          make list-variables
+  #     - name: "List variables"
+  #       run: |
+  #         export BUILD_DATETIME="${{ steps.variables.outputs.build_datetime }}"
+  #         export BUILD_TIMESTAMP="${{ steps.variables.outputs.build_timestamp }}"
+  #         export BUILD_EPOCH="${{ steps.variables.outputs.build_epoch }}"
+  #         export NODEJS_VERSION="${{ steps.variables.outputs.nodejs_version }}"
+  #         export PYTHON_VERSION="${{ steps.variables.outputs.python_version }}"
+  #         export TERRAFORM_VERSION="${{ steps.variables.outputs.terraform_version }}"
+  #         export VERSION="${{ steps.variables.outputs.version }}"
+  #         # export TAG="${{ steps.variables.outputs.tag }}"
+  #         make list-variables
 
   deploy-jekyll:
     environment:
@@ -92,11 +87,10 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          INPUTS_INCLUDE_PRERELEASES: ${{ inputs.include_prereleases }}
+          INPUTS_VERSION: ${{ inputs.version }}
         run: |
-          INPUTS_INCLUDE_PRERELEASES="${{ inputs.include_prereleases }}"
           INPUTS_INCLUDE_PRERELEASES=${INPUTS_INCLUDE_PRERELEASES:-"true"}
-
-          INPUTS_VERSION="${{ inputs.version }}"
           INPUTS_VERSION=${INPUTS_VERSION:-"latest"}
 
 

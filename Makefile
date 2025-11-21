@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 # This file is for you! Edit it to implement your own hooks (make targets) into
 # the project as automated steps to be executed on locally and in the CD pipeline.
 
@@ -7,10 +9,28 @@ include scripts/init.mk
 
 # Example CI/CD targets are: dependencies, build, publish, deploy, clean, etc.
 
-quick-start: config clean build serve-docs # Quick start target to setup, build and serve docs @Pipeline
+# make config: Config - this assumes all system dependencies are already installed, eg asdf etc. This is fine for default dev containers
+# make dependencies: If using a clean environment, eg ubuntu native container, you must run make dependencies first to install system dependencies, before then running make config
 
-dependencies: # Install dependencies needed to build and test the project @Pipeline
-	# TODO: Implement installation of your project dependencies
+quick-start: # Quick start target to setup, build and serve docs @Pipeline
+	$(MAKE) install && \
+	$(MAKE) clean && \
+	$(MAKE) test-docs && \
+	$(MAKE) build && \
+	$(MAKE) serve-docs
+
+install:
+	./dependencies.sh --skip-system-deps
+
+dependencies:
+	./dependencies.sh
+
+test-docs:
+	@if $(MAKE) -C docs -n test >/dev/null 2>&1; then \
+		$(MAKE) -C docs test; \
+	else \
+		echo "⚠️⚠️ WARNING: Test docs target does not exist in docs/Makefile, skipping..."; \
+	fi
 
 build: # Build the project artefact @Pipeline
 	$(MAKE) -C docs build
@@ -19,23 +39,20 @@ debug:
 	$(MAKE) -C docs debug
 
 publish: # Publish the project artefact @Pipeline
-	# TODO: Implement the artefact publishing step
+	# Implement the artefact publishing step
 
 deploy: # Deploy the project artefact to the target environment @Pipeline
-	# TODO: Implement the artefact deployment step
+	# Implement the artefact deployment step
 
 clean:: # Clean-up project resources (main) @Operations
-	$(MAKE) -C docs clean
-	$(MAKE) -C src/cloudevents clean
-	$(MAKE) -C src/eventcatalogasyncapiimporter clean
-	$(MAKE) -C src/eventcatalogasyncapiimporter clean-output
+	$(MAKE) -C docs clean && \
+	$(MAKE) -C src/cloudevents clean && \
+	$(MAKE) -C src/eventcatalogasyncapiimporter clean && \
+	$(MAKE) -C src/eventcatalogasyncapiimporter clean-output && \
 	rm -f .version
-	# TODO: Implement project resources clean-up step
 
-config:: _install-dependencies version # Configure development environment (main) @Configuration
-	$(MAKE) -C docs install
-	$(MAKE) -C src/cloudevents install
-	$(MAKE) -C src/eventcatalogasyncapiimporter install
+config:: _install-dependencies version
+	$(MAKE) install
 
 serve-docs:
 	$(MAKE) -C docs s

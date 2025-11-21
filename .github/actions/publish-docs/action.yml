@@ -1,0 +1,82 @@
+name: "Build Docs"
+description: "build jekyll docs"
+inputs:
+      version:
+        description: "Version of the software, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
+      is_version_prerelease:
+        description: "Is this a semantically versioned pre release, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Checkout code"
+      uses: actions/checkout@v5
+
+    - name: "Get artifacts: jekyll docs"
+      uses: actions/download-artifact@v5
+      with:
+        path: ./artifacts/jekyll-docs-${{ inputs.version }}
+        name: jekyll-docs-${{ inputs.version }}
+
+    - name: "Get artifacts: schema"
+      uses: actions/download-artifact@v5
+      with:
+        path: ./artifacts/schemas-${{ inputs.version }}
+        name: schemas-${{ inputs.version }}
+
+    - name: Draft Release
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        VERSION: ${{ inputs.version }}
+        IS_PRERELEASE: ${{ inputs.is_version_prerelease }}
+      run: |
+        PRERELEASE_FLAG=""
+        if [ "$IS_PRERELEASE" = "true" ]; then
+          PRERELEASE_FLAG="--prerelease"
+        fi
+        gh release create \
+        "$VERSION" \
+        --draft \
+        --latest \
+        --title "$VERSION" \
+        --notes "Release of $VERSION" \
+        $PRERELEASE_FLAG
+
+    - name: "Upload jeykll docs release asset"
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        VERSION: ${{ inputs.version }}
+      run: |
+        cp "./artifacts/jekyll-docs-$VERSION/artifact.tar" "$RUNNER_TEMP/jekyll-docs-$VERSION.tar"
+        gh release upload \
+        "$VERSION" \
+        "$RUNNER_TEMP/jekyll-docs-$VERSION.tar#jekyll-docs-$VERSION"
+
+    - name: "Upload schema release asset"
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        VERSION: ${{ inputs.version }}
+      run: |
+        cp "./artifacts/schemas-$VERSION/artifact.tar" "$RUNNER_TEMP/schemas-$VERSION.tar"
+        gh release upload \
+        "$VERSION" \
+        "$RUNNER_TEMP/schemas-$VERSION.tar#schemas-$VERSION"
+
+
+    - name: Publish Release
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        VERSION: ${{ inputs.version }}
+      run: gh release edit "$VERSION" --draft=false
