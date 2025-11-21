@@ -15,7 +15,7 @@ export function createClientManager({
 }: Dependencies) {
   const config = loadConfig(configOverrides);
   const domain = createDomain();
-  const infra = createInfra({ config, domain, parameterStore });
+  const infra = createInfra({ config, parameterStore });
 
   return createApp({ domain, infra });
 }

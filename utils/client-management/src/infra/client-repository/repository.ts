@@ -1,7 +1,7 @@
 import { ParameterNotFound } from '@aws-sdk/client-ssm';
 import { Client, $Client } from 'utils';
 import { IParameterStore } from 'utils';
-import { ContextLogger, createLogger } from '@comms/util-logger';
+import { ContextLogger, logger } from 'utils';
 import { ConflictException } from '../../domain/exceptions';
 import { Config } from '../../config/config';
 import { IClientRepository } from '../interfaces';
@@ -22,7 +22,7 @@ export class ClientRepository implements IClientRepository {
   constructor({
     config,
     parameterStore,
-    logger = createLogger(),
+    logger,
   }: Dependencies) {
     this.config = config;
     this.parameterStore = parameterStore;
