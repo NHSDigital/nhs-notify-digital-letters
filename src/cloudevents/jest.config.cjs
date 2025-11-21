@@ -17,6 +17,9 @@ module.exports = {
         target: 'ES2020',
         moduleResolution: 'node',
         noEmit: true
+      },
+      diagnostics: {
+        ignoreCodes: [1343]  // Ignore TS1343: import.meta errors
       }
     }]
   },
@@ -49,6 +52,21 @@ module.exports = {
   moduleNameMapper: {
     '^(.*)\\.ts$': '$1',
   },
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: './.reports/unit',
+        outputName: 'junit.xml',
+        ancestorSeparator: ' › ',
+        uniqueOutputName: false,
+        suiteNameTemplate: '{filepath}',
+        classNameTemplate: '{classname}',
+        titleTemplate: '{title}',
+      },
+    ],
+  ],
   verbose: true,
   testTimeout: 10000
 };

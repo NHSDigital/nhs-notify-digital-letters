@@ -17,28 +17,14 @@ cd "$(git rev-parse --show-toplevel)"
 # tests from here. If you want to run other test suites, see the predefined
 # tasks in scripts/test.mk.
 
-# run tests
+# run testsscripts/tests/unit.sh
 
-# Python projects - asyncapigenerator
-echo "Setting up and running asyncapigenerator tests..."
-make -C ./src/asyncapigenerator install-dev
-make -C ./src/asyncapigenerator coverage  # Run with coverage to generate coverage.xml for SonarCloud
-
-# Python projects - cloudeventjekylldocs
-echo "Setting up and running cloudeventjekylldocs tests..."
-make -C ./src/cloudeventjekylldocs install-dev
-make -C ./src/cloudeventjekylldocs coverage  # Run with coverage to generate coverage.xml for SonarCloud
-
-# Python projects - eventcatalogasyncapiimporter
-echo "Setting up and running eventcatalogasyncapiimporter tests..."
-make -C ./src/eventcatalogasyncapiimporter install-dev
-make -C ./src/eventcatalogasyncapiimporter coverage  # Run with coverage to generate coverage.xml for SonarCloud
-
-# TypeScript/JavaScript projects (npm workspace)
-# Note: src/cloudevents is included in workspaces, so it will be tested here
-npm ci
-npm run test:unit --workspaces
-
-# merge coverage reports
-mkdir -p .reports
-TMPDIR="./.reports" ./node_modules/.bin/lcov-result-merger "**/.reports/unit/coverage/lcov.info" ".reports/lcov.info" --ignore "node_modules" --prepend-source-files --prepend-path-fix "../../.."
+npm ci && \
+npm run test:unit --workspaces && \
+cd docs && \
+./test.sh && \
+cd .. && \
+mkdir -p .reports && \
+TMPDIR="./.reports" ./node_modules/.bin/lcov-result-merger "**/.reports/unit/coverage/lcov.info" ".reports/lcov.info" --ignore "node_modules" --prepend-source-files --prepend-path-fix "../../.." && \
+echo "Combined converage is:" && \
+cat .reports/lcov.info

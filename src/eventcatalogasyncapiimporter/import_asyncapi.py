@@ -64,10 +64,17 @@ class AsyncAPIImporter:
         # Track all subdomains created
         self.created_subdomains: Dict[str, str] = {}  # slug -> version
 
+        # Track errors
+        self.errors: List[str] = []
+
     def log(self, message: str, level: str = "INFO") -> None:
         """Log a message."""
         if self.verbose or level in ["ERROR", "WARNING"]:
             print(f"[{level}] {message}")
+
+        # Track errors for later reporting
+        if level == "ERROR":
+            self.errors.append(message)
 
     def load_asyncapi_file(self, file_path: Path) -> Optional[Dict[str, Any]]:
         """Load and parse an AsyncAPI YAML file."""
@@ -289,6 +296,10 @@ summary: |
             schema_path = schema_path.replace(
                 "https://notify.nhs.uk/cloudevents", "")
 
+            # Switch so bundled version is used
+            if ".bundle.schema.json" not in schema_path:
+                schema_path = schema_path.replace(".schema.json", ".bundle.schema.json")
+
         # Create event folder and index.mdx (EventCatalog expects events/eventname/index.mdx)
         event_dir = events_dir / event_slug
         event_dir.mkdir(parents=True, exist_ok=True)
@@ -357,22 +368,22 @@ summary: |
                                             f"Copied data schema file: {data_schema_filename}", "DEBUG")
                                     except Exception as e:
                                         self.log(
-                                            f"Error copying data schema file {source_data_schema_file}: {e}", "WARNING")
+                                            f"Error copying data schema file:\n  File: {source_data_schema_file}\n  Error: {e}\n  Referenced by: event '{event_name}' in service '{service_path.name}'", "ERROR")
                                         data_schema_filename = None
                                 else:
                                     self.log(
-                                        f"Data schema file not found: {source_data_schema_file}", "WARNING")
+                                        f"Data schema file not found:\n  File: {source_data_schema_file}\n  Referenced by: event '{event_name}' in service '{service_path.name}'", "ERROR")
                     except Exception as e:
                         self.log(
-                            f"Error parsing schema file {source_schema_file}: {e}", "WARNING")
+                            f"Error parsing schema file:\n  File: {source_schema_file}\n  Error: {e}\n  Referenced by: event '{event_name}' in service '{service_path.name}'", "ERROR")
 
                 except Exception as e:
                     self.log(
-                        f"Error copying schema file {source_schema_file}: {e}", "WARNING")
+                        f"Error copying schema file:\n  File: {source_schema_file}\n  Error: {e}\n  Referenced by: event '{event_name}' in service '{service_path.name}'", "ERROR")
                     schema_filename = None
             else:
                 self.log(
-                    f"Schema file not found: {source_schema_file}", "WARNING")
+                    f"Schema file not found:\n  File: {source_schema_file}\n  Referenced by: event '{event_name}' in service '{service_path.name}'", "ERROR")
 
         # Create event markdown file
         frontmatter_parts = [
@@ -794,6 +805,16 @@ This channel carries the following messages:
         self.log(f"  Events created: {len(self.created_events)}")
         self.log(f"  Channels created: {len(self.created_channels)}")
         self.log(f"{'='*60}")
+
+        # Check for errors and fail if any were encountered
+        if self.errors:
+            # Print error summary directly (not via log to avoid infinite loop)
+            print(f"\n[ERROR] {'='*60}")
+            print(f"[ERROR] Import completed with {len(self.errors)} error(s):")
+            for error in self.errors:
+                print(f"[ERROR]   - {error}")
+            print(f"[ERROR] {'='*60}")
+            raise RuntimeError(f"Import failed with {len(self.errors)} error(s). See above for details.")
 
 
 def main():

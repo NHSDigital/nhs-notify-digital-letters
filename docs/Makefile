@@ -1,10 +1,13 @@
+SHELL := /bin/bash
+
 BASE_URL ?= "/"
 VERSION ?= ""
 SCHEMA_PATTERN = *.schema.json
 SCHEMA_DOCS_PATTERN = *.md
 SCHEMA_YAML_DOCS_PATTERN= *.yaml
-SCHEMA_BASE_INPUT_DIR = ../src/cloudeventjekylldocs
-SCHEMA_SRC_BASE_DIR = ../src/cloudevents
+SRC_BASE_DIR = ../src
+SCHEMA_BASE_INPUT_DIR = $(SRC_BASE_DIR)/cloudeventjekylldocs
+SCHEMA_SRC_BASE_DIR = $(SRC_BASE_DIR)/cloudevents
 SCHEMA_INPUT_DIR = $(SCHEMA_BASE_INPUT_DIR)/output/schemas
 SCHEMA_DOCS_INPUT_DIR = $(SCHEMA_BASE_INPUT_DIR)/output/docs/md
 SCHEMA_YAML_DOCS_INPUT_DIR = $(SCHEMA_BASE_INPUT_DIR)/output/docs/yaml
@@ -15,8 +18,8 @@ SCHEMA_DOCS_OUTPUT_DIR = $(BASE_DOCS_OUTPUT_DIR)
 SCHEMA_YAML_DOCS_OUTPUT_DIR = _data/schema
 SHELL = /bin/bash
 
-EVENT_CAT_ROOT_DIR = ../src/eventcatalog
-EVENT_CAT_INPUT_DIR = ../src/eventcatalog/dist
+EVENT_CAT_ROOT_DIR = $(SRC_BASE_DIR)/eventcatalog
+EVENT_CAT_INPUT_DIR = $(SRC_BASE_DIR)/eventcatalog/dist
 EVENT_CAT_OUTPUT_DIR = eventcatalog
 
 BASE_URL_REMOVE_TRAILING_SLASH := $(patsubst %/,%,$(BASE_URL))
@@ -28,9 +31,7 @@ h help:
 	@egrep '^\S|^$$' Makefile
 
 install:
-	npm install
-	bundle config set --local path vendor/bundle
-	bundle install
+	./install.sh $(SRC_BASE_DIR)
 
 s serve:
 	npm run serve
@@ -38,6 +39,9 @@ s serve:
 define baseurlparam =
 $(if $(BASE_URL),-- --baseurl $(BASE_URL),-- --baseurl "")
 endef
+
+test:
+	./test.sh $(SRC_BASE_DIR)
 
 build: clean build-schemas copy-schema-docs copy-schema-yaml-docs copy-schemas build-eventcatalog build-docs show-build-output
 

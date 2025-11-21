@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 # Makefile for cloudevents - orchestrates src/ subdomain Makefiles
 
 # Get absolute path of this Makefile's directory
@@ -19,8 +20,7 @@ TOOLS_BASE_PATH = $(shell mkdir -p $(MAKEFILE_DIR)tools && cd $(MAKEFILE_DIR)too
 
 .PHONY: build publish publish-json publish-yaml generate test-domains deploy clean build-docs update-readme test test-unit coverage
 
-config:: _install-dependencies version # Configure development environment (main) @Configuration
-	npm install
+config: install
 
 install:
 		npm install
@@ -101,7 +101,7 @@ asdf-manual-install:
 	pwd && \
 	ls -la
 	@echo "from manual test tools versions file contains:"
-	cat .tool-versions
+	cat .tool-versions || echo "  -> .tool-versions file not found in this directory"
 	/usr/local/bin/asdf --version
 	@echo "Setting up asdf environment and adding plugins"
 	export ASDF_DATA_DIR=$$HOME/.asdf && \
@@ -134,7 +134,7 @@ asdf-install-test:
 	@echo "current directory is:"
 	ls -la
 	@echo "tools versions file contains:"
-	cat .tool-versions
+	cat .tool-versions || echo "  -> .tool-versions file not found in this directory"
 	@echo "installing asdf versions"
 	asdf install
 	@echo "asdf installation complete"
@@ -147,7 +147,7 @@ deploy-ci:
 	pwd && \
 	ls -la
 	@echo "from manual test tools versions file contains:"
-	cat .tool-versions
+	cat .tool-versions || echo "  -> .tool-versions file not found in this directory"
 	/usr/local/bin/asdf --version
 	@echo "Setting up asdf environment and adding plugins"
 	export ASDF_DATA_DIR=$$HOME/.asdf && \

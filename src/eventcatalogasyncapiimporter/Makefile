@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 # Makefile for AsyncAPI to EventCatalog Importer
 #
 # Common tasks for running the importer, testing, and maintenance
@@ -96,7 +97,7 @@ test: ## Run unit tests
 .PHONY: coverage
 coverage: ## Run tests with coverage report
 	@echo "$(COLOR_GREEN)Running tests with coverage...$(COLOR_RESET)"
-	cd ../.. && $(PYTHON) -m pytest src/eventcatalogasyncapiimporter/tests --cov=src/eventcatalogasyncapiimporter --cov-config=src/eventcatalogasyncapiimporter/pytest.ini --cov-report=html:src/eventcatalogasyncapiimporter/htmlcov --cov-report=term-missing --cov-report=xml:src/eventcatalogasyncapiimporter/coverage.xml
+	./test.sh $(PYTHON)
 
 .PHONY: test-watch
 test-watch: ## Run tests in watch mode

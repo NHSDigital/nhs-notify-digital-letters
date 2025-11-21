@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 BASE_URL ?= /
 BASE_URL_REMOVE_TRAILING_SLASH := $(patsubst %/,%,$(BASE_URL))
 # Remove all leading slashes using shell command, then ensure exactly one leading slash

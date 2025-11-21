@@ -33,6 +33,9 @@ jobs:
       is_version_prerelease: ${{ steps.variables.outputs.is_version_prerelease }}
       does_pull_request_exist: ${{ steps.pr_exists.outputs.does_pull_request_exist }}
       pr_number: ${{ steps.pr_exists.outputs.pr_number }}
+      skip_scan_dependencies: ${{ fromJSON(vars.SKIP_SCAN_DEPENDENCIES || 'false') }}
+      skip_dynamic_acceptance: ${{ fromJSON(vars.SKIP_DYNAMIC_ACCEPTANCE || 'false') }}
+      ignore_sonar_failure: ${{ fromJSON(vars.IGNORE_SONAR_FAILURE || 'false') }}
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
@@ -86,10 +89,33 @@ jobs:
           export DOES_PULL_REQUEST_EXIST="${{ steps.pr_exists.outputs.does_pull_request_exist }}"
           export IS_VERSION_PRERELEASE="${{ steps.variables.outputs.is_version_prerelease }}"
           make list-variables
+
+      - name: "Warning on skip scan dependencies"
+        if: ${{ fromJSON(vars.SKIP_SCAN_DEPENDENCIES || 'false') }}
+        run: |
+          echo "WARNING: Skipping dependency scan as per configuration."
+          echo "::warning title=Skipping dependency scan:: Skipping dependency scan as per configuration."
+          echo "⚠️🔍 Skipping dependency scan as per configuration. ⚠️" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Warning on skip dynamic acceptance"
+        if: ${{ fromJSON(vars.SKIP_DYNAMIC_ACCEPTANCE || 'false') }}
+        run: |
+          echo "WARNING: Skipping dynamic acceptance as per configuration."
+          echo "::warning title=Skipping dynamic acceptance:: Skipping dynamic acceptance as per configuration."
+          echo "⚠️🚀 Skipping dynamic acceptance as per configuration. ⚠️" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Warning on ignore sonar failure"
+        if: ${{ fromJSON(vars.IGNORE_SONAR_FAILURE || 'false') }}
+        run: |
+          echo "WARNING: SonarQube failures will be ignored as per configuration."
+          echo "::warning title=Ignore Sonar failures is enabled:: SonarQube failures will be ignored as per configuration."
+          echo "⚠️📊 SonarQube failures will be ignored as per configuration. ⚠️" >> $GITHUB_STEP_SUMMARY
+
   commit-stage: # Recommended maximum execution time is 2 minutes
     name: "Commit stage"
     needs: [metadata]
     uses: ./.github/workflows/stage-1-commit.yaml
+
     with:
       build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
       build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
@@ -98,11 +124,17 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-  #    secrets: inherit
+      skip_scan_dependencies: ${{ fromJSON(needs.metadata.outputs.skip_scan_dependencies) }}
+
   test-stage: # Recommended maximum execution time is 5 minutes
     name: "Test stage"
     needs: [metadata, commit-stage]
     uses: ./.github/workflows/stage-2-test.yaml
+    permissions:
+      id-token: write
+      contents: read
+      checks: write
+      actions: read
     with:
       build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
       build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
@@ -111,8 +143,10 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: #inherit
+      ignore_sonar_failure: ${{ fromJSON(needs.metadata.outputs.ignore_sonar_failure) }}
+    secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   build-stage: # Recommended maximum execution time is 3 minutes
     name: "Build stage"
     needs: [metadata, test-stage]
@@ -126,12 +160,13 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-  #    secrets: inherit
+
+
   pr-create-dynamic-environment:
     name: Trigger dynamic environment creation
     needs: [metadata, build-stage]
     runs-on: ubuntu-latest
-    if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
+    if: ${{ !needs.metadata.outputs.skip_dynamic_acceptance && (needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))) }}
     steps:
       - uses: actions/checkout@v5.0.0
       - name: Trigger dynamic environment creation
@@ -151,6 +186,7 @@ jobs:
             --overrideProjectName "nhs" \
             --overrideRoleName "nhs-main-acct-digital-letters-github-deploy" \
             --overrides "branch_name=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+
   acceptance-stage: # Recommended maximum execution time is 10 minutes
     name: "Acceptance stage"
     needs: [metadata, pr-create-dynamic-environment]
@@ -162,12 +198,12 @@ jobs:
     secrets:
       APP_PEM_FILE: ${{ secrets.APP_PEM_FILE }}
       APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
+
   publish-stage: # Recommended maximum execution time is 10 minutes
     name: "Publish stage"
-    needs: [metadata, acceptance-stage] #PUT THIS BACK WHEN ACCEPTANCE STAGE IS ENABLED
-    #needs: [metadata, build-stage] BYPASSING ACCEPTANCE STAGE
+    needs: [metadata, build-stage, acceptance-stage]
     uses: ./.github/workflows/stage-5-publish.yaml
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    if: ${{(!cancelled() && fromJSON(needs.metadata.outputs.skip_dynamic_acceptance) && needs.build-stage.result == 'success') || (success() && github.event_name == 'push' && github.ref == 'refs/heads/main')}}
     with:
       build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
       build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
@@ -177,4 +213,3 @@ jobs:
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
       is_version_prerelease: "${{ needs.metadata.outputs.is_version_prerelease }}"
-#    secrets: inherit

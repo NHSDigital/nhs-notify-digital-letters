@@ -36,64 +36,77 @@ on:
         required: true
         type: string
 jobs:
-  publish:
-    name: "Publish packages"
+  publish-docs:
+    name: "Publish Docs"
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    timeout-minutes: 15
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-
-      - name: "Get artifacts: jekyll docs"
-        uses: actions/download-artifact@v5
+      - name: "Publish docs"
+        uses: ./.github/actions/publish-docs
         with:
-          path: ./artifacts/jekyll-docs-${{ inputs.version }}
-          name: jekyll-docs-${{ inputs.version }}
+          version: "${{ inputs.version }}"
+          is_version_prerelease: "${{ inputs.is_version_prerelease }}"
 
-      - name: "Get artifacts: schema"
-        uses: actions/download-artifact@v5
-        with:
-          path: ./artifacts/schemas-${{ inputs.version }}
-          name: schemas-${{ inputs.version }}
+  # publish:
+  #   name: "Publish packages"
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
 
+  #   steps:
+  #     - name: "Checkout code"
+  #       uses: actions/checkout@v5
 
-      - name: Draft Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          gh release create \
-          "${{ inputs.version }}" \
-          --draft \
-          --latest \
-          --title "${{ inputs.version }}" \
-          --notes "Release of ${{ inputs.version }}" \
-          ${{ inputs.is_version_prerelease == 'true' && '--prerelease' || '' }}
+  #     - name: "Get artifacts: jekyll docs"
+  #       uses: actions/download-artifact@v5
+  #       with:
+  #         path: ./artifacts/jekyll-docs-${{ inputs.version }}
+  #         name: jekyll-docs-${{ inputs.version }}
 
-      - name: "Upload jeykll docs release asset"
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          cp ./artifacts/jekyll-docs-${{ inputs.version }}/artifact.tar $RUNNER_TEMP/jekyll-docs-${{ inputs.version }}.tar
-          gh release upload \
-          "${{ inputs.version }}" \
-          $RUNNER_TEMP/jekyll-docs-${{ inputs.version }}.tar#jekyll-docs-${{ inputs.version }}
-
-      - name: "Upload schema release asset"
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          cp ./artifacts/schemas-${{ inputs.version }}/artifact.tar $RUNNER_TEMP/schemas-${{ inputs.version }}.tar
-          gh release upload \
-          "${{ inputs.version }}" \
-          $RUNNER_TEMP/schemas-${{ inputs.version }}.tar#schemas-${{ inputs.version }}
+  #     - name: "Get artifacts: schema"
+  #       uses: actions/download-artifact@v5
+  #       with:
+  #         path: ./artifacts/schemas-${{ inputs.version }}
+  #         name: schemas-${{ inputs.version }}
 
 
-      - name: Publish Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: gh release edit "${{ inputs.version }}" --draft=false
+  #     - name: Draft Release
+  #       env:
+  #         GH_TOKEN: ${{ github.token }}
+  #         GH_REPO: ${{ github.repository }}
+  #       run: |
+  #         gh release create \
+  #         "${{ inputs.version }}" \
+  #         --draft \
+  #         --latest \
+  #         --title "${{ inputs.version }}" \
+  #         --notes "Release of ${{ inputs.version }}" \
+  #         ${{ inputs.is_version_prerelease == 'true' && '--prerelease' || '' }}
+
+  #     - name: "Upload jeykll docs release asset"
+  #       env:
+  #         GH_TOKEN: ${{ github.token }}
+  #         GH_REPO: ${{ github.repository }}
+  #       run: |
+  #         cp ./artifacts/jekyll-docs-${{ inputs.version }}/artifact.tar $RUNNER_TEMP/jekyll-docs-${{ inputs.version }}.tar
+  #         gh release upload \
+  #         "${{ inputs.version }}" \
+  #         $RUNNER_TEMP/jekyll-docs-${{ inputs.version }}.tar#jekyll-docs-${{ inputs.version }}
+
+  #     - name: "Upload schema release asset"
+  #       env:
+  #         GH_TOKEN: ${{ github.token }}
+  #         GH_REPO: ${{ github.repository }}
+  #       run: |
+  #         cp ./artifacts/schemas-${{ inputs.version }}/artifact.tar $RUNNER_TEMP/schemas-${{ inputs.version }}.tar
+  #         gh release upload \
+  #         "${{ inputs.version }}" \
+  #         $RUNNER_TEMP/schemas-${{ inputs.version }}.tar#schemas-${{ inputs.version }}
+
+
+  #     - name: Publish Release
+  #       env:
+  #         GH_TOKEN: ${{ github.token }}
+  #         GH_REPO: ${{ github.repository }}
+  #       run: gh release edit "${{ inputs.version }}" --draft=false
