@@ -119,6 +119,9 @@ jobs:
     permissions:
       checks: write
     steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v5
+
       - name: "Download test results"
         uses: actions/download-artifact@v5
         with:
@@ -126,7 +129,7 @@ jobs:
           path: test-results
 
       - name: "Publish Jest test report"
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
         with:
           name: Jest Test Report
           path: 'test-results/**/junit.xml'
@@ -134,7 +137,7 @@ jobs:
           fail-on-error: false
 
       - name: "Publish pytest test report"
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
         with:
           name: Pytest Test Report
           path: 'test-results/**/pytest-report.xml'
