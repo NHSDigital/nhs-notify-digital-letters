@@ -108,7 +108,7 @@ jobs:
         if: ${{ fromJSON(vars.IGNORE_SONAR_FAILURE || 'false') }}
         run: |
           echo "WARNING: SonarQube failures will be ignored as per configuration."
-          echo "::warning title=Stopping for Sonar failure is disabled:: SonarQube failures will be ignored as per configuration."
+          echo "::warning title=Ignore Sonar failures is enabled:: SonarQube failures will be ignored as per configuration."
           echo "⚠️📊 SonarQube failures will be ignored as per configuration. ⚠️" >> $GITHUB_STEP_SUMMARY
 
   commit-stage: # Recommended maximum execution time is 2 minutes

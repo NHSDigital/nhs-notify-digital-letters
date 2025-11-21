@@ -23,7 +23,7 @@ runs:
       shell: bash
       run: |
         echo "WARNING: SonarQube failures will be ignored as per configuration."
-        echo "::warning title=Stopping for Sonar failure is disabled:: SonarQube failures will be ignored as per configuration."
+        echo "::warning title=Ignore Sonar failures is enabled:: SonarQube failures will be ignored as per configuration."
     - name: "Check prerequisites for performing static analysis"
       shell: bash
       id: check
