@@ -124,12 +124,20 @@ jobs:
           name: unit-tests
           path: test-results
 
-      - name: "Publish test report"
+      - name: "Publish Jest test report"
         uses: dorny/test-reporter@v1
         with:
           name: Jest Test Report
-          path: 'test-results/**/*.xml'
+          path: 'test-results/**/junit.xml'
           reporter: jest-junit
+          fail-on-error: false
+
+      - name: "Publish pytest test report"
+        uses: dorny/test-reporter@v1
+        with:
+          name: Pytest Test Report
+          path: 'test-results/**/pytest-report.xml'
+          reporter: java-junit
           fail-on-error: false
 
   test-lint:
