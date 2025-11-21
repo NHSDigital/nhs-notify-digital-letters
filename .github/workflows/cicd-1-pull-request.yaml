@@ -130,6 +130,11 @@ jobs:
     name: "Test stage"
     needs: [metadata, commit-stage]
     uses: ./.github/workflows/stage-2-test.yaml
+    permissions:
+      id-token: write
+      contents: read
+      checks: write
+      actions: read
     with:
       build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
       build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
