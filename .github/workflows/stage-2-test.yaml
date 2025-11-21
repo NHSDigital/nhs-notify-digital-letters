@@ -98,15 +98,18 @@ jobs:
           include-hidden-files: true
         if: always()
       - name: "Save the result of code coverage"
+
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
           path: ".reports/lcov.info"
+
       - name: "Save Python coverage reports"
         uses: actions/upload-artifact@v4
         with:
           name: python-coverage-reports
           path: "**/coverage.xml"
+
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
