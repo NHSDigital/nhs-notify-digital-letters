@@ -15,6 +15,11 @@ inputs:
     description: "Whether to fail the build if the quality gate fails"
     default: 'false'
 
+outputs:
+  sonar_report_url:
+    description: "URL to the SonarCloud report for this branch"
+    value: ${{ steps.report.outputs.url }}
+
 runs:
   using: "composite"
   steps:
@@ -30,6 +35,7 @@ runs:
       run: echo "secret_exist=${{ inputs.sonar_token != '' }}" >> $GITHUB_OUTPUT
     - name: "Perform static analysis"
       shell: bash
+      id: sonar
       if: steps.check.outputs.secret_exist == 'true'
       continue-on-error: ${{ fromJSON(inputs.ignore_sonar_failure) }}
       env:
@@ -39,3 +45,20 @@ runs:
       run: |
         export BRANCH_NAME=${GITHUB_HEAD_REF:-$(echo $GITHUB_REF | sed 's#refs/heads/##')}
         ./scripts/reports/perform-static-analysis.sh
+    - name: "Add SonarCloud report link to step summary"
+      shell: bash
+      id: report
+      if: steps.sonar.outcome == 'success' || (steps.sonar.outcome == 'failure' && fromJSON(inputs.ignore_sonar_failure))
+      env:
+        SONAR_ORGANISATION_KEY: ${{ inputs.sonar_organisation_key }}
+        SONAR_PROJECT_KEY: ${{ inputs.sonar_project_key }}
+      run: |
+        export BRANCH_NAME=${GITHUB_HEAD_REF:-$(echo $GITHUB_REF | sed 's#refs/heads/##')}
+        ENCODED_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\//%2F/g')
+        SONAR_URL="https://sonarcloud.io/summary/overall?id=${SONAR_PROJECT_KEY}&branch=${ENCODED_BRANCH}"
+        echo "url=${SONAR_URL}" >> $GITHUB_OUTPUT
+        echo "### :bar_chart: SonarCloud Analysis Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** \`${BRANCH_NAME}\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[View detailed SonarCloud report →]($SONAR_URL)" >> $GITHUB_STEP_SUMMARY

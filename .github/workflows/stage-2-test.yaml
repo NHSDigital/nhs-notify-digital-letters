@@ -214,9 +214,14 @@ jobs:
           name: python-coverage-reports
           path: .
       - name: "Perform static analysis"
+        id: static-analysis
         uses: ./.github/actions/perform-static-analysis
         with:
           sonar_organisation_key: "${{ vars.SONAR_ORGANISATION_KEY }}"
           sonar_project_key: "${{ vars.SONAR_PROJECT_KEY }}"
           sonar_token: "${{ secrets.SONAR_TOKEN }}"
           ignore_sonar_failure: "${{ inputs.ignore_sonar_failure}}"
+      - name: "Output SonarCloud report URL"
+        if: steps.static-analysis.outputs.sonar_report_url != ''
+        run: |
+          echo "SonarCloud Report: ${{ steps.static-analysis.outputs.sonar_report_url }}"
