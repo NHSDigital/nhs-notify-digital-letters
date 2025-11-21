@@ -110,6 +110,28 @@ jobs:
           name: python-coverage-reports
           path: "**/coverage.xml"
 
+  test-report:
+    name: "Test Report"
+    needs: [test-unit]
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() }}
+    permissions:
+      checks: write
+    steps:
+      - name: "Download test results"
+        uses: actions/download-artifact@v5
+        with:
+          name: unit-tests
+          path: test-results
+
+      - name: "Publish test report"
+        uses: dorny/test-reporter@v1
+        with:
+          name: Jest Test Report
+          path: 'test-results/**/*.xml'
+          reporter: jest-junit
+          fail-on-error: false
+
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest

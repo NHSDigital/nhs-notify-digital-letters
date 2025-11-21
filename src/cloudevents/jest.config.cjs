@@ -52,6 +52,21 @@ module.exports = {
   moduleNameMapper: {
     '^(.*)\\.ts$': '$1',
   },
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: './.reports/unit',
+        outputName: 'junit.xml',
+        ancestorSeparator: ' › ',
+        uniqueOutputName: false,
+        suiteNameTemplate: '{filepath}',
+        classNameTemplate: '{classname}',
+        titleTemplate: '{title}',
+      },
+    ],
+  ],
   verbose: true,
   testTimeout: 10000
 };
