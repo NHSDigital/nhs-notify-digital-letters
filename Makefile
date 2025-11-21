@@ -12,7 +12,12 @@ include scripts/init.mk
 # make config: Config - this assumes all system dependencies are already installed, eg asdf etc. This is fine for default dev containers
 # make dependencies: If using a clean environment, eg ubuntu native container, you must run make dependencies first to install system dependencies, before then running make config
 
-quick-start: install clean test-docs build serve-docs # Quick start target to setup, build and serve docs @Pipeline
+quick-start: # Quick start target to setup, build and serve docs @Pipeline
+	$(MAKE) install && \
+	$(MAKE) clean && \
+	$(MAKE) test-docs && \
+	$(MAKE) build && \
+	$(MAKE) serve-docs
 
 install:
 	./dependencies.sh --skip-system-deps
@@ -21,7 +26,11 @@ dependencies:
 	./dependencies.sh
 
 test-docs:
-	$(MAKE) -C docs test || echo "Docs tests failed or not available"
+	@if $(MAKE) -C docs -n test >/dev/null 2>&1; then \
+		$(MAKE) -C docs test; \
+	else \
+		echo "⚠️⚠️ WARNING: Test docs target does not exist in docs/Makefile, skipping..."; \
+	fi
 
 build: # Build the project artefact @Pipeline
 	$(MAKE) -C docs build
