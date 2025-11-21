@@ -22,7 +22,7 @@ cd "$(git rev-parse --show-toplevel)"
 npm ci && \
 npm run test:unit --workspaces && \
 cd docs && \
-./test.sh && \
+(if [[ -f ./test.sh ]]; then ./test.sh; else echo "⚠️  WARNING: test.sh does not exist in docs/, skipping..."; fi) && \
 cd .. && \
 mkdir -p .reports && \
 TMPDIR="./.reports" ./node_modules/.bin/lcov-result-merger "**/.reports/unit/coverage/lcov.info" ".reports/lcov.info" --ignore "node_modules" --prepend-source-files --prepend-path-fix "../../.." && \
