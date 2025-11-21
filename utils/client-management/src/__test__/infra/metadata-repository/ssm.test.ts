@@ -1,6 +1,6 @@
 import { Parameter, ParameterNotFound } from '@aws-sdk/client-ssm';
 import { mockDeep } from 'jest-mock-extended';
-import { IParameterStore } from '@comms/util-aws';
+import { IParameterStore } from 'utils';
 import { ClientMetadata } from 'utils';
 import { MetadataRepository } from '../../../infra/metadata-repository/repository';
 import type { Domain } from '../../../domain';

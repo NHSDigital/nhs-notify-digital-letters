@@ -12,7 +12,6 @@ import { createListClientMetadataCommand } from './list-client-metadata';
 import { createListClientsCommand } from './list-clients';
 import { createPutClientCommand } from './put-client';
 import { createPutClientMetadataCommand } from './put-client-metadata';
-import { createRenameClientsCommand } from './rename-clients';
 
 export type AppDependencies = {
   domain: Domain;

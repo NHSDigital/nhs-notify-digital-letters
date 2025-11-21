@@ -1,4 +1,4 @@
-import { IParameterStore } from 'util-aws';
+import { IParameterStore } from 'utils';
 import { createApp } from './app';
 import { loadConfig, type Config } from './config/config';
 import { createDomain } from './domain';

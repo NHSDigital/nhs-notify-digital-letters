@@ -1,5 +1,5 @@
 import { ParameterNotFound, Parameter } from '@aws-sdk/client-ssm';
-import { IParameterStore } from '@comms/util-aws';
+import { IParameterStore } from 'utils';
 import { mockDeep } from 'jest-mock-extended';
 import { Client } from 'utils';
 import { ConflictException } from '../../../domain/exceptions';

@@ -1,4 +1,4 @@
-import { ParameterStore } from '@comms/util-aws';
+import { ParameterStore } from 'utils';
 import type { ClientMetadata } from 'utils';
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';

@@ -1,6 +1,6 @@
 import { ParameterNotFound } from '@aws-sdk/client-ssm';
 import { Client, $Client } from 'utils';
-import { IParameterStore } from '@comms/util-aws';
+import { IParameterStore } from 'utils';
 import { ContextLogger, createLogger } from '@comms/util-logger';
 import { ConflictException } from '../../domain/exceptions';
 import { Config } from '../../config/config';

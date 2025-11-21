@@ -1,4 +1,4 @@
-import { IParameterStore } from '@comms/util-aws';
+import { IParameterStore } from 'utils';
 import { ClientRepository } from './client-repository';
 import { MetadataRepository } from './metadata-repository';
 import type { IClientRepository, IMetadataRepository } from './interfaces';
