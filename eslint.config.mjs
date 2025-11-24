@@ -253,6 +253,7 @@ export default defineConfig([
       'no-await-in-loop': 0,
       'no-plusplus': [2, { allowForLoopAfterthoughts: true }],
       'unicorn/prefer-top-level-await': 0, // top level await is not available in commonjs
+      'import-x/prefer-default-export': "off"
     },
   },
 ]);
