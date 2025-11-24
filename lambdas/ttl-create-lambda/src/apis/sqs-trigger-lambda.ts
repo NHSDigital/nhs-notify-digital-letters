@@ -3,8 +3,9 @@ import type {
   SQSBatchResponse,
   SQSEvent,
 } from 'aws-lambda';
+import { randomUUID } from 'node:crypto';
 import type { CreateTtl, CreateTtlOutcome } from 'app/create-ttl';
-import { $TtlItemEvent, EventPublisher, Logger, TtlItemEvent } from 'utils';
+import { $TtlItemBusEvent, EventPublisher, Logger, TtlItemEvent } from 'utils';
 
 interface ProcessingResult {
   result: CreateTtlOutcome;
@@ -22,18 +23,18 @@ export const createHandler = ({
   eventPublisher,
   logger,
 }: CreateHandlerDependencies) =>
-  async function handler(event: SQSEvent): Promise<SQSBatchResponse> {
+  async function handler(sqsEvent: SQSEvent): Promise<SQSBatchResponse> {
     const batchItemFailures: SQSBatchItemFailure[] = [];
     const successfulEvents: TtlItemEvent[] = [];
 
-    const promises = event.Records.map(
+    const promises = sqsEvent.Records.map(
       async ({ body, messageId }): Promise<ProcessingResult> => {
         try {
           const {
             data: item,
             error: parseError,
             success: parseSuccess,
-          } = $TtlItemEvent.safeParse(JSON.parse(body));
+          } = $TtlItemBusEvent.safeParse(JSON.parse(body));
 
           if (!parseSuccess) {
             logger.error({
@@ -44,14 +45,14 @@ export const createHandler = ({
             return { result: 'failed' };
           }
 
-          const result = await createTtl.send(item);
+          const result = await createTtl.send(item.detail);
 
           if (result === 'failed') {
             batchItemFailures.push({ itemIdentifier: messageId });
             return { result: 'failed' };
           }
 
-          return { result, item };
+          return { result, item: item.detail };
         } catch (error) {
           logger.error({
             err: error,
@@ -89,8 +90,15 @@ export const createHandler = ({
 
     if (successfulEvents.length > 0) {
       try {
-        // NOTE: CCM-12896 created to send an actual ItemEnqueued event.
-        const failedEvents = await eventPublisher.sendEvents(successfulEvents);
+        const failedEvents = await eventPublisher.sendEvents(
+          successfulEvents.map((event) => ({
+            ...event,
+            id: randomUUID(),
+            time: new Date().toISOString(),
+            recordedtime: new Date().toISOString(),
+            type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+          })),
+        );
         if (failedEvents.length > 0) {
           logger.warn({
             description: 'Some events failed to publish',

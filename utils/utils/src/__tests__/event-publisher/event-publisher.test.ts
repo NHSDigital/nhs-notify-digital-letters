@@ -43,16 +43,24 @@ const validCloudEvent: CloudEvent = {
   traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
   datacontenttype: 'application/json',
   dataschema:
-    'https://notify.nhs.uk/schemas/events/digital-letters/2025-10/digital-letters.schema.json',
+    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
   dataschemaversion: '1.0',
   severitytext: 'INFO',
-  data: { 'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000' },
+  data: {
+    'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000',
+    messageReference: 'ref1',
+    senderId: 'sender1',
+  },
 };
 
 const validCloudEvent2: CloudEvent = {
   ...validCloudEvent,
   id: '550e8400-e29b-41d4-a716-446655440002',
-  data: { 'digital-letter-id': '123e4567-e89b-12d3-a456-426614174001' },
+  data: {
+    'digital-letter-id': '123e4567-e89b-12d3-a456-426614174001',
+    messageReference: 'ref1',
+    senderId: 'sender1',
+  },
   source: '/nhs/england/notify/development/primary/data-plane/digital-letters',
   type: 'uk.nhs.notify.digital.letters.sent.v2',
 };

@@ -131,5 +131,34 @@ variable "pdm_access_token_ssm_path" {
 variable "pdm_use_non_mock_token" {
   type        = bool
   description = "Whether to use the SSM parameter token instead of the mock token"
+}
+
+variable "apim_base_url" {
+  type        = string
+  description = "The URL used to send requests to Notify and PDM"
+  default     = "https://sandbox.api.service.nhs.uk"
+}
+
+variable "apim_auth_token_url" {
+  type        = string
+  description = "URL to generate an APIM auth token"
+  default     = "https://int.api.service.nhs.uk/oauth2/token"
+}
+
+variable "apim_keygen_schedule" {
+  type        = string
+  description = "Schedule to refresh key pairs if necessary"
+  default     = "cron(0 14 * * ? *)"
+}
+
+variable "apim_auth_token_schedule" {
+  type        = string
+  description = "Schedule to renew the APIM auth token"
+  default     = "rate(9 minutes)"
+}
+
+variable "force_destroy" {
+  type        = bool
+  description = "Flag to force deletion of S3 buckets"
   default     = false
 }

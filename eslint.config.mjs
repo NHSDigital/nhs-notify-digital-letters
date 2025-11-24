@@ -229,9 +229,10 @@ export default defineConfig([
     },
   },
   {
-    files: ['utils/**'],
+    files: ['utils/**', '**/jest.config.ts'],
     rules: {
       'no-relative-import-paths/no-relative-import-paths': 0,
+      'import-x/no-relative-packages': 0,
     },
   },
   {
@@ -252,6 +253,7 @@ export default defineConfig([
       'no-await-in-loop': 0,
       'no-plusplus': [2, { allowForLoopAfterthoughts: true }],
       'unicorn/prefer-top-level-await': 0, // top level await is not available in commonjs
+      'import-x/prefer-default-export': "off"
     },
   },
 ]);

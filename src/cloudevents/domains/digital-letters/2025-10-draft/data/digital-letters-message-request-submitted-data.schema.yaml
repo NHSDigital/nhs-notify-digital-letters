@@ -1,0 +1,19 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: NotifyMessageRequestSubmitted Data
+description: Data payload of the NotifyMessageRequestSubmitted event
+type: object
+additionalProperties: false
+properties:
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  messageUri:
+    $ref: ../defs/requests.schema.yaml#/properties/messageUri
+  notifyId:
+    $ref: ../defs/core.schema.yaml#/properties/notifyId
+required:
+  - messageReference
+  - senderId
+  - messageUri
+  - notifyId

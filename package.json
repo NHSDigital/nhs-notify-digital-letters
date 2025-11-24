@@ -50,9 +50,12 @@
     "typecheck": "npm run typecheck --workspaces"
   },
   "workspaces": [
+    "lambdas/key-generation",
+    "lambdas/refresh-apim-access-token",
     "lambdas/mesh-poll",
     "lambdas/pdm-mock-api",
     "lambdas/ttl-create-lambda",
+    "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
     "utils/utils",
     "src/cloudevents",

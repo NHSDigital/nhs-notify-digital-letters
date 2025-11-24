@@ -11,3 +11,4 @@ export * from './validators';
 export * from './types';
 export * from './event-publisher';
 export * from './event-bridge-utils';
+export * from './key-generation-utils';
