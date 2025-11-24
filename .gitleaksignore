@@ -20,3 +20,7 @@ f8546e35b77b69ba7b15dbe3174d2d7e375200ef:utils/utils/src/__tests__/key-generatio
 39af95d4a48f3f2f4e5404da6cfe4a1350f25abe:utils/utils/src/__tests__/key-generation/get-private-key.test.ts:private-key:23
 39af95d4a48f3f2f4e5404da6cfe4a1350f25abe:utils/utils/src/__tests__/key-generation/get-private-key.test.ts:private-key:30
 39af95d4a48f3f2f4e5404da6cfe4a1350f25abe:utils/utils/src/__tests__/key-generation/get-private-key.test.ts:private-key:46
+d1c0a37078cbed4fbedae044e5cbafac71717af0:utils/utils/src/__tests__/key-generation/validate-private-key.test.ts:private-key:7
+d1c0a37078cbed4fbedae044e5cbafac71717af0:utils/utils/src/__tests__/key-generation/get-private-key.test.ts:private-key:23
+d1c0a37078cbed4fbedae044e5cbafac71717af0:utils/utils/src/__tests__/key-generation/get-private-key.test.ts:private-key:30
+d1c0a37078cbed4fbedae044e5cbafac71717af0:utils/utils/src/__tests__/key-generation/get-private-key.test.ts:private-key:46
