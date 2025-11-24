@@ -20,10 +20,10 @@ type GetPrivateKeyFunction = () => Promise<Key>;
 
 export class SSMKeyStore {
   constructor(
-    private _client: SSMClient,
-    private _config: Config,
-    private _logger: Logger,
-    private _getPrivateKeyFn: GetPrivateKeyFunction,
+    private readonly _client: SSMClient,
+    private readonly _config: Config,
+    private readonly _logger: Logger,
+    private readonly _getPrivateKeyFn: GetPrivateKeyFunction,
   ) {}
 
   async getPrivateKey(): Promise<Key> {

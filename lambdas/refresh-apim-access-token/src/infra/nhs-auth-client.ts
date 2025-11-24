@@ -17,9 +17,9 @@ type Config = {
 
 export class NHSAuthClient {
   constructor(
-    private _config: Config,
-    private _http: AxiosInstance,
-    private _logger: Logger,
+    private readonly _config: Config,
+    private readonly _http: AxiosInstance,
+    private readonly _logger: Logger,
   ) {}
 
   get tokenEndpoint(): string {

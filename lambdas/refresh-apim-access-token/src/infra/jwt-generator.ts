@@ -10,9 +10,9 @@ type Signer = (
 
 export class JWTGenerator {
   constructor(
-    private _signer: Signer,
-    private _uuid: StringGenerator,
-    private _logger: Logger,
+    private readonly _signer: Signer,
+    private readonly _uuid: StringGenerator,
+    private readonly _logger: Logger,
   ) {}
 
   generate(

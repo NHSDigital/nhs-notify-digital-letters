@@ -1,5 +1,5 @@
 module "lambda_apim_key_generation" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.20/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
 
   function_name = "apim-key-generation"
   description   = "A function to generate APIM public and private keys"
