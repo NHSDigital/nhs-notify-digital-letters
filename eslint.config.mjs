@@ -40,6 +40,7 @@ export default defineConfig([
     '**/test-results',
     '**/playwright-report*',
     'eslint.config.mjs',
+    '**/generated/**',
   ]),
 
   //imports

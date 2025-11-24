@@ -58,6 +58,7 @@
     "lambdas/ttl-poll-lambda",
     "utils/utils",
     "src/cloudevents",
+    "src/typescript-schema-generator",
     "tests/playwright"
   ]
 }

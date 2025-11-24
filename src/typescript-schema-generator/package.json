@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "json-schema-to-typescript": "^15.0.4",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6"
+  },
+  "description": "Generate Typescript types for the application's event schemas.",
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "rimraf": "^5.0.10"
+  },
+  "name": "typescript-schema-generator",
+  "scripts": {
+    "clean": "rimraf generated",
+    "generate-dependencies": "json2ts --cwd '../../output/digital-letters/2025-10-draft/events/' --additionalProperties false --input '../../output/digital-letters/2025-10-draft/events/*.flattened.schema.json' --output 'generated/'",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "test:unit": "echo \"No unit tests configured\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "version": "0.0.1"
+}
