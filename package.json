@@ -51,10 +51,12 @@
   },
   "workspaces": [
     "lambdas/mesh-poll",
+    "lambdas/pdm-mock-api",
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-poll-lambda",
     "utils/utils",
     "src/cloudevents",
-    "tests/playwright"
+    "tests/playwright",
+    "components/apim-mock-api"
   ]
 }

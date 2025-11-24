@@ -115,3 +115,21 @@ variable "ttl_poll_schedule" {
   description = "Schedule to poll for any overdue TTL records"
   default     = "rate(10 minutes)"  # Every 10 minutes
 }
+
+variable "pdm_mock_access_token" {
+  type        = string
+  description = "Mock access token for PDM API authentication (used in local/dev environments)"
+  default     = "mock-pdm-token"
+}
+
+variable "pdm_access_token_ssm_path" {
+  type        = string
+  description = "SSM Parameter path for the PDM API access token"
+  default     = "/digital-letters/pdm/access-token"
+}
+
+variable "pdm_use_non_mock_token" {
+  type        = bool
+  description = "Whether to use the SSM parameter token instead of the mock token"
+  default     = false
+}
