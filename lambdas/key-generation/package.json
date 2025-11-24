@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",
-    "@types/aws-lambda": "^8.10.148",
+    "@types/aws-lambda": "^8.10.159",
     "@types/jest": "^29.5.14",
     "@types/node": "^24.0.10",
     "@types/node-jose": "^1.1.13",
