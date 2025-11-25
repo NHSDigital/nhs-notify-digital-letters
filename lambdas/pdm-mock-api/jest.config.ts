@@ -24,9 +24,10 @@ const config: Config = {
   },
 
   moduleNameMapper: {
+    '^utils$': '<rootDir>/../../utils/utils',
     '^handlers$': '<rootDir>/src/handlers',
-    '^utils$': '<rootDir>/src/utils',
     '^container$': '<rootDir>/src/container',
+    '^config$': '<rootDir>/src/config',
     '^authenticator$': '<rootDir>/src/authenticator',
   },
 };
