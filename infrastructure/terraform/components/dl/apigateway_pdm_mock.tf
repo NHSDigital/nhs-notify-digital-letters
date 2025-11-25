@@ -1,4 +1,3 @@
-# API Gateway REST API for PDM Mock
 resource "aws_api_gateway_rest_api" "pdm_mock" {
   name        = "${var.project}-${var.environment}-pdm-mock-api"
   description = "PDM Mock API for testing integration with Patient Data Manager"
@@ -15,26 +14,23 @@ resource "aws_api_gateway_rest_api" "pdm_mock" {
   }
 }
 
-# /resource path
 resource "aws_api_gateway_resource" "resource" {
   rest_api_id = aws_api_gateway_rest_api.pdm_mock.id
   parent_id   = aws_api_gateway_rest_api.pdm_mock.root_resource_id
   path_part   = "resource"
 }
 
-# /resource/{id} path
 resource "aws_api_gateway_resource" "resource_id" {
   rest_api_id = aws_api_gateway_rest_api.pdm_mock.id
   parent_id   = aws_api_gateway_resource.resource.id
   path_part   = "{id}"
 }
 
-# POST /resource - Create resource
 resource "aws_api_gateway_method" "create_resource" {
   rest_api_id   = aws_api_gateway_rest_api.pdm_mock.id
   resource_id   = aws_api_gateway_resource.resource.id
   http_method   = "POST"
-  authorization = "NONE"
+  authorization = "AWS_IAM"
 }
 
 resource "aws_api_gateway_integration" "create_resource" {
@@ -47,12 +43,11 @@ resource "aws_api_gateway_integration" "create_resource" {
   uri                     = module.pdm_mock_api.lambda_invoke_arn
 }
 
-# GET /resource/{id} - Get resource
 resource "aws_api_gateway_method" "get_resource" {
   rest_api_id   = aws_api_gateway_rest_api.pdm_mock.id
   resource_id   = aws_api_gateway_resource.resource_id.id
   http_method   = "GET"
-  authorization = "NONE"
+  authorization = "AWS_IAM"
 }
 
 resource "aws_api_gateway_integration" "get_resource" {
@@ -65,18 +60,15 @@ resource "aws_api_gateway_integration" "get_resource" {
   uri                     = module.pdm_mock_api.lambda_invoke_arn
 }
 
-# Lambda permission for API Gateway
 resource "aws_lambda_permission" "pdm_mock_api_gateway" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
   function_name = module.pdm_mock_api.lambda_function_name
   principal     = "apigateway.amazonaws.com"
 
-  # More specific source ARN for better security
   source_arn = "${aws_api_gateway_rest_api.pdm_mock.execution_arn}/*/*"
 }
 
-# Deployment
 resource "aws_api_gateway_deployment" "pdm_mock" {
   depends_on = [
     aws_api_gateway_integration.create_resource,
@@ -100,8 +92,6 @@ resource "aws_api_gateway_deployment" "pdm_mock" {
     create_before_destroy = true
   }
 }
-
-# Stage
 resource "aws_api_gateway_stage" "pdm_mock" {
   deployment_id = aws_api_gateway_deployment.pdm_mock.id
   rest_api_id   = aws_api_gateway_rest_api.pdm_mock.id
@@ -132,8 +122,6 @@ resource "aws_api_gateway_stage" "pdm_mock" {
     Component   = local.component
   }
 }
-
-# CloudWatch Log Group for API Gateway
 resource "aws_cloudwatch_log_group" "pdm_mock_api_gateway" {
   name              = "/aws/apigateway/${var.project}-${var.environment}-pdm-mock-api"
   retention_in_days = var.log_retention_in_days
@@ -146,8 +134,6 @@ resource "aws_cloudwatch_log_group" "pdm_mock_api_gateway" {
     Component   = local.component
   }
 }
-
-# Outputs
 output "pdm_mock_api_endpoint" {
   description = "The base URL of the PDM Mock API"
   value       = aws_api_gateway_stage.pdm_mock.invoke_url
