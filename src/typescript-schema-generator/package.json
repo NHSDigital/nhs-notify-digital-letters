@@ -1,20 +1,30 @@
 {
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "json-schema-to-typescript": "^15.0.4"
+  },
   "description": "Generate Typescript types for the application's event schemas.",
   "devDependencies": {
     "ajv-cli": "^5.0.0",
     "eslint": "^9.39.1",
-    "json-schema-to-typescript": "^15.0.4",
-    "rimraf": "^5.0.10"
+    "rimraf": "^5.0.10",
+    "tsx": "^4.20.6"
   },
+  "main": "src/index.ts",
   "name": "typescript-schema-generator",
   "scripts": {
-    "clean": "rimraf generated",
-    "generate-dependencies": "json2ts --cwd '../../schemas/digital-letters/2025-10-draft/events/' --additionalProperties false --input '../../schemas/digital-letters/2025-10-draft/events/*.flattened.schema.json' --output 'generated/'",
-    "generate-validators": "ajv compile --spec=draft2020 -c ajv-formats --strict=log --code-lines -s '../../schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.submitted.v1.flattened.schema.json' -o generated/validators.js ",
+    "clean": "rimraf generated types",
+    "generate-dependencies": "npm run generate-types && npm run generate-validators",
+    "generate-types": "tsx src/generate-types.ts",
+    "generate-types-cli": "json2ts --cwd '../../schemas/digital-letters/2025-10-draft/events/' --additionalProperties false --input '../../schemas/digital-letters/2025-10-draft/events/*.flattened.schema.json' --output 'types/'",
+    "generate-validators": "tsx src/generate-validators.ts",
+    "generate-validators-cli": "ajv compile --spec=draft2020 -c ajv-formats --strict=log --code-lines -s '../../schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.submitted.v1.flattened.schema.json' -o generated/validators.js ",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "test:unit": "echo \"No unit tests configured\"",
     "typecheck": "tsc --noEmit"
   },
+  "types": "types/index.d.ts",
   "version": "0.0.1"
 }

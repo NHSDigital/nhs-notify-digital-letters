@@ -1,6 +1,6 @@
 // Replace me with the actual code for your Lambda function
 import { Handler } from 'aws-lambda';
-import { PDMResourceSubmitted } from 'typescript-schema-generator/generated/uk.nhs.notify.digital.letters.pdm.resource.submitted.v1.flattened.schema';
+import { PDMResourceSubmitted } from 'typescript-schema-generator';
 
 export const handler: Handler = async (event) => {
   // eslint-disable-next-line no-console
