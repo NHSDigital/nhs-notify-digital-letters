@@ -59,7 +59,6 @@
     "lambdas/ttl-poll-lambda",
     "utils/utils",
     "src/cloudevents",
-    "tests/playwright",
-    "components/apim-mock-api"
+    "tests/playwright"
   ]
 }
