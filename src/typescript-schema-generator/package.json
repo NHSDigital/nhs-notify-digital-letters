@@ -14,7 +14,7 @@
   "scripts": {
     "clean": "rimraf generated",
     "generate-dependencies": "json2ts --cwd '../../schemas/digital-letters/2025-10-draft/events/' --additionalProperties false --input '../../schemas/digital-letters/2025-10-draft/events/*.flattened.schema.json' --output 'generated/'",
-    "generate-validators": "ajv compile --spec=draft2020 -c ajv-formats --strict=log --code-lines -s '../../schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.available.v1.flattened.schema.json' -o generated/validators.js ",
+    "generate-validators": "ajv compile --spec=draft2020 -c ajv-formats --strict=log --code-lines -s '../../schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.pdm.resource.submitted.v1.flattened.schema.json' -o generated/validators.js ",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "test:unit": "echo \"No unit tests configured\"",
