@@ -35,11 +35,11 @@ export const loadConfig = (): Config => {
 };
 
 export class ParameterStoreService {
-  private ssmClient: SSMClient;
+  readonly ssmClient: SSMClient;
 
-  private cache: Map<string, { value: string; timestamp: number }> = new Map();
+  readonly cache: Map<string, { value: string; timestamp: number }> = new Map();
 
-  private cacheTtl: number = 5 * 60 * 1000; // 5 minutes
+  readonly cacheTtl: number = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
     this.ssmClient = new SSMClient({

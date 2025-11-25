@@ -14,6 +14,18 @@ const config: Config = {
     '!src/**/*.test.ts',
   ],
 
+  reporters: [
+    'default',
+    [
+      'jest-html-reporter',
+      {
+        pageTitle: 'Test Report',
+        outputPath: './.reports/unit/test-report.html',
+        includeFailureMsg: true,
+      },
+    ],
+  ],
+
   coverageThreshold: {
     global: {
       branches: 80,
