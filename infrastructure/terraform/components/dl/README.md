@@ -28,7 +28,7 @@ No requirements.
 | <a name="input_parent_acct_environment"></a> [parent\_acct\_environment](#input\_parent\_acct\_environment) | Name of the environment responsible for the acct resources used, affects things like DNS zone. Useful for named dev environments | `string` | `"main"` | no |
 | <a name="input_pdm_access_token_ssm_path"></a> [pdm\_access\_token\_ssm\_path](#input\_pdm\_access\_token\_ssm\_path) | SSM Parameter path for the PDM API access token | `string` | `"/digital-letters/pdm/access-token"` | no |
 | <a name="input_pdm_mock_access_token"></a> [pdm\_mock\_access\_token](#input\_pdm\_mock\_access\_token) | Mock access token for PDM API authentication (used in local/dev environments) | `string` | `"mock-pdm-token"` | no |
-| <a name="input_pdm_use_non_mock_token"></a> [pdm\_use\_non\_mock\_token](#input\_pdm\_use\_non\_mock\_token) | Whether to use the SSM parameter token instead of the mock token | `bool` | n/a | yes |
+| <a name="input_pdm_use_non_mock_token"></a> [pdm\_use\_non\_mock\_token](#input\_pdm\_use\_non\_mock\_token) | Whether to use the SSM parameter token instead of the mock token | `bool` | `false` | no |
 | <a name="input_project"></a> [project](#input\_project) | The name of the tfscaffold project | `string` | n/a | yes |
 | <a name="input_queue_batch_size"></a> [queue\_batch\_size](#input\_queue\_batch\_size) | maximum number of queue items to process | `number` | `10` | no |
 | <a name="input_queue_batch_window_seconds"></a> [queue\_batch\_window\_seconds](#input\_queue\_batch\_window\_seconds) | maximum time in seconds between processing events | `number` | `10` | no |

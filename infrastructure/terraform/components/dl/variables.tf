@@ -131,6 +131,7 @@ variable "pdm_access_token_ssm_path" {
 variable "pdm_use_non_mock_token" {
   type        = bool
   description = "Whether to use the SSM parameter token instead of the mock token"
+  default     = false
 }
 
 variable "apim_base_url" {
