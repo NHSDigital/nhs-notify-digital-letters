@@ -1,3 +1,4 @@
+import { SSMClient } from '@aws-sdk/client-ssm';
 import { createContainer } from 'container';
 
 jest.mock('utils', () => ({
@@ -9,6 +10,8 @@ jest.mock('utils', () => ({
     child: jest.fn(),
   },
 }));
+
+jest.mock('@aws-sdk/client-ssm');
 
 describe('Container', () => {
   let container: ReturnType<typeof createContainer>;
@@ -70,5 +73,40 @@ describe('Container', () => {
     const result = await container.authenticator(mockEvent);
     expect(result).toBeDefined();
     expect(result.isValid).toBeDefined();
+  });
+
+  it('should handle USE_NON_MOCK_TOKEN configuration', () => {
+    process.env.USE_NON_MOCK_TOKEN = 'true';
+    const containerWithSSM = createContainer();
+
+    expect(containerWithSSM).toBeDefined();
+    expect(containerWithSSM.authenticator).toBeDefined();
+    expect(typeof containerWithSSM.authenticator).toBe('function');
+  });
+
+  it('should wire getAccessToken to authenticator when using SSM token', async () => {
+    const mockSend = jest.fn().mockResolvedValue({
+      Parameter: { Value: 'ssm-stored-token' },
+    });
+
+    process.env.USE_NON_MOCK_TOKEN = 'true';
+    process.env.ACCESS_TOKEN_SSM_PATH = '/test/token/path';
+    process.env.MOCK_ACCESS_TOKEN = 'unused-mock-token';
+
+    (SSMClient as jest.MockedClass<typeof SSMClient>).mockImplementation(
+      () =>
+        ({
+          send: mockSend,
+        }) as any,
+    );
+
+    const testContainer = createContainer();
+
+    const result = await testContainer.authenticator({
+      headers: { Authorization: 'Bearer ssm-stored-token' },
+    });
+
+    expect(result.isValid).toBe(true);
+    expect(mockSend).toHaveBeenCalled();
   });
 });

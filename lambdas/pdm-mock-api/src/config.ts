@@ -7,7 +7,7 @@ export interface Config {
   logLevel: string;
 }
 
-const getEnv = (key: string, defaultValue?: string): string => {
+export const getEnv = (key: string, defaultValue?: string): string => {
   // eslint-disable-next-line security/detect-object-injection
   const value = process.env[key];
   if (value === undefined && defaultValue === undefined) {

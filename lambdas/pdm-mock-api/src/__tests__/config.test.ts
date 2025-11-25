@@ -1,4 +1,4 @@
-import { ParameterStoreService, loadConfig } from 'config';
+import { ParameterStoreService, getEnv, loadConfig } from 'config';
 
 describe('Config', () => {
   const originalEnv = process.env;
@@ -10,6 +10,31 @@ describe('Config', () => {
 
   afterAll(() => {
     process.env = originalEnv;
+  });
+
+  describe('getEnv', () => {
+    it('should throw error when required env var is not set and no default provided', () => {
+      delete process.env.SOME_REQUIRED_VAR;
+
+      expect(() => getEnv('SOME_REQUIRED_VAR')).toThrow(
+        'Environment variable SOME_REQUIRED_VAR is required but not set',
+      );
+    });
+
+    it('should return environment variable value when set', () => {
+      process.env.TEST_VAR = 'test-value';
+      expect(getEnv('TEST_VAR')).toBe('test-value');
+    });
+
+    it('should return default value when env var not set', () => {
+      delete process.env.TEST_VAR;
+      expect(getEnv('TEST_VAR', 'default-value')).toBe('default-value');
+    });
+
+    it('should return env var value over default when both present', () => {
+      process.env.TEST_VAR = 'actual-value';
+      expect(getEnv('TEST_VAR', 'default-value')).toBe('actual-value');
+    });
   });
 
   describe('loadConfig', () => {
@@ -53,9 +78,17 @@ describe('Config', () => {
       process.env.USE_NON_MOCK_TOKEN = 'FALSE';
       config = loadConfig();
       expect(config.useNonMockToken).toBe(false);
+
+      process.env.USE_NON_MOCK_TOKEN = 'yes';
+      config = loadConfig();
+      expect(config.useNonMockToken).toBe(false);
+
+      process.env.USE_NON_MOCK_TOKEN = '';
+      config = loadConfig();
+      expect(config.useNonMockToken).toBe(false);
     });
 
-    it('should throw error for missing required env var without default', () => {
+    it('should not throw when all required env vars have default values', () => {
       const config = loadConfig();
       expect(config).toBeDefined();
     });
