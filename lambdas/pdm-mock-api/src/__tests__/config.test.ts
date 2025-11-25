@@ -105,6 +105,20 @@ describe('Config', () => {
       expect(service).toBeInstanceOf(ParameterStoreService);
     });
 
+    it('should use default AWS region when AWS_REGION not set', () => {
+      delete process.env.AWS_REGION;
+      const serviceWithDefaultRegion = new ParameterStoreService();
+      expect(serviceWithDefaultRegion).toBeInstanceOf(ParameterStoreService);
+      expect(serviceWithDefaultRegion.ssmClient).toBeDefined();
+    });
+
+    it('should use AWS_REGION when set', () => {
+      process.env.AWS_REGION = 'us-east-1';
+      const serviceWithCustomRegion = new ParameterStoreService();
+      expect(serviceWithCustomRegion).toBeInstanceOf(ParameterStoreService);
+      expect(serviceWithCustomRegion.ssmClient).toBeDefined();
+    });
+
     it('should cache parameter values', async () => {
       const mockParameter = 'test-value';
       const mockSend = jest.fn().mockResolvedValue({
