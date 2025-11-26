@@ -29,7 +29,7 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         self.__polling_metric = kwargs['polling_metric']
 
         environment = os.getenv('ENVIRONMENT', 'development')
-        deployment = os.getenv('DEPLOYMENT', 'dev-1')
+        deployment = 'primary'
         plane = 'data-plane'
         self.__cloud_event_source = f'/nhs/england/notify/{environment}/{deployment}/{plane}/digital-letters'
 
@@ -91,14 +91,17 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         """
 
         message_type = getattr(message, 'message_type', '')
-        sender = getattr(message, "sender", "")
+        sender_mailbox_id = getattr(message, "sender", "")
+        workflow_id = getattr(message, "workflow_id", "")
+        subject = getattr(message, "subject", "")
+        local_id = getattr(message, "local_id", "")
 
         logger = self.__log.bind(
             message_id=message.id(),
-            sender=sender,
-            workflow_id=getattr(message, "workflow_id", ""),
-            subject=getattr(message, "subject", ""),
-            local_id=getattr(message, "local_id", ""),
+            sender=sender_mailbox_id,
+            workflow_id=workflow_id,
+            subject=subject,
+            local_id=local_id,
             message_type=message_type,
         )
 
@@ -106,15 +109,19 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
 
         try:
             # Basic sender validation - only publish events for known senders
-            if not self.__client_lookup.is_valid_sender(sender):
+            if not self.__client_lookup.is_valid_sender(sender_mailbox_id):
                 raise AuthorizationError(
-                    f'Cannot authorize sender with mailbox ID "{sender}"')
+                    f'Cannot authorize sender with mailbox ID "{sender_mailbox_id}"')
+
+            # Get the corresponding client ID
+            client_id = self.__client_lookup.get_client_id(sender_mailbox_id)
 
             # Publish event for valid sender
             message_id = message.id()
             event_detail = {
                 "data": {
-                    "meshMessageId": message_id
+                    "meshMessageId": message_id,
+                    "senderId": client_id
                 }
             }
 
@@ -123,7 +130,6 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
                 "published MESHInboxMessageReceived event for valid sender")
 
         except AuthorizationError as exception:
-            # Do not process or respond to unauthorized messages
             logger.error(format_exception(exception))
             message.acknowledge()  # Remove from inbox - no notification to sender
             logger.info(ACKNOWLEDGED_MESSAGE)
@@ -159,9 +165,10 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         failed_events = self.__event_publisher.send_events([cloud_event])
 
         if failed_events:
-            error_msg = f"Failed to publish MESHInboxMessageReceived event (failed EventBridge and DLQ): {failed_events}"
+            error_msg = f"Failed to publish MESHInboxMessageReceived event: {failed_events}"
             self.__log.error(error_msg, failed_count=len(failed_events))
-            raise Exception(error_msg)
+            raise RuntimeError(error_msg)
 
         self.__log.info("Published MESHInboxMessageReceived event",
-                        mesh_message_id=event_detail["data"]["meshMessageId"])
+                        mesh_message_id=event_detail["data"]["meshMessageId"],
+                        sender_id=event_detail["data"]["senderId"])

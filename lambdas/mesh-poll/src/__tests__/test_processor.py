@@ -5,6 +5,7 @@ Following the pattern from backend comms-mgr mesh-poll tests
 import pytest
 from unittest.mock import Mock, call, patch
 from mesh_client import MeshClient
+from src.processor import MeshMessageProcessor
 
 
 def setup_mocks():
@@ -53,22 +54,20 @@ def setup_message_data(test_id="0"):
 
 
 def get_remaining_time_in_millis():
-    return 1000000
+    return 1000
 
 
 def get_remaining_time_in_millis_near_timeout():
     return 100
 
 
+@patch('src.processor.os.getenv')
+@patch('src.processor.EventPublisher')
 class TestMeshMessageProcessor:
     """Test suite for MeshMessageProcessor"""
 
-    @patch('src.processor.os.getenv')
-    @patch('src.processor.EventPublisher')
     def test_process_messages_iterates_through_inbox(self, mock_event_publisher_class, mock_getenv):
         """Test that processor iterates through all messages in MESH inbox"""
-        from src.processor import MeshMessageProcessor
-
         (config, client_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
         message2 = setup_message_data("2")
@@ -96,19 +95,13 @@ class TestMeshMessageProcessor:
 
         mesh_client.handshake.assert_called_once()
         assert mesh_client.iterate_all_messages.call_count == 2
-        # Messages are acknowledged only on auth errors, not on success
         polling_metric.record.assert_called_once()
 
-    @patch('src.processor.os.getenv')
-    @patch('src.processor.EventPublisher')
     def test_process_messages_stops_near_timeout(self, mock_event_publisher_class, mock_getenv):
         """Test that processor stops processing when near timeout"""
-        from src.processor import MeshMessageProcessor
-
         (config, client_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
 
-        # Mock environment variables
         mock_getenv.side_effect = lambda key, default='': {
             'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:eu-west-2:123456789012:event-bus/test',
             'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.eu-west-2.amazonaws.com/123456789012/test-dlq'
@@ -127,20 +120,14 @@ class TestMeshMessageProcessor:
 
         processor.process_messages()
 
-        # Should not process messages when near timeout
         client_lookup.is_valid_sender.assert_not_called()
         polling_metric.record.assert_called_once()
 
-    @patch('src.processor.os.getenv')
-    @patch('src.processor.EventPublisher')
     def test_process_message_with_valid_sender(self, mock_event_publisher_class, mock_getenv):
         """Test processing a single message from valid sender"""
-        from src.processor import MeshMessageProcessor
-
         (config, client_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message = setup_message_data("1")
 
-        # Mock environment variables
         mock_getenv.side_effect = lambda key, default='': {
             'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:eu-west-2:123456789012:event-bus/test',
             'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.eu-west-2.amazonaws.com/123456789012/test-dlq'
@@ -168,16 +155,11 @@ class TestMeshMessageProcessor:
         mock_event_publisher.send_events.assert_called_once()
         message.acknowledge.assert_not_called()  # Only acknowledged on auth error
 
-    @patch('src.processor.os.getenv')
-    @patch('src.processor.EventPublisher')
     def test_process_message_with_unknown_sender(self, mock_event_publisher_class, mock_getenv):
         """Test that messages from unknown senders are rejected silently"""
-        from src.processor import MeshMessageProcessor
-
         (config, client_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message = setup_message_data("1")
 
-        # Mock environment variables
         mock_getenv.side_effect = lambda key, default='': {
             'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:eu-west-2:123456789012:event-bus/test',
             'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.eu-west-2.amazonaws.com/123456789012/test-dlq'
@@ -197,22 +179,16 @@ class TestMeshMessageProcessor:
 
         processor.process_message(message)
 
-        # Message should be acknowledged (removed from inbox)
         client_lookup.is_valid_sender.assert_called_once_with(message.sender)
         message.acknowledge.assert_called_once()
 
-    @patch('src.processor.os.getenv')
-    @patch('src.processor.EventPublisher')
     def test_process_messages_across_multiple_iterations(self, mock_event_publisher_class, mock_getenv):
         """Test that processor continues polling until no messages remain"""
-        from src.processor import MeshMessageProcessor
-
         (config, client_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
         message2 = setup_message_data("2")
         message3 = setup_message_data("3")
 
-        # Mock environment variables
         mock_getenv.side_effect = lambda key, default='': {
             'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:eu-west-2:123456789012:event-bus/test',
             'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.eu-west-2.amazonaws.com/123456789012/test-dlq'
@@ -227,7 +203,6 @@ class TestMeshMessageProcessor:
             polling_metric=polling_metric
         )
 
-        # Messages across multiple iterations
         mesh_client.iterate_all_messages.side_effect = [
             [message1, message2],  # First iteration
             [message3],            # Second iteration

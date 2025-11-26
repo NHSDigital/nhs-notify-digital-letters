@@ -4,10 +4,10 @@ Tests for ClientLookup
 import json
 import pytest
 from unittest.mock import Mock, call
+from src.client_lookup import ClientLookup
 
 
 def setup_mocks():
-
     ssm = Mock()
 
     config = Mock()
@@ -19,7 +19,6 @@ def setup_mocks():
 
 
 def create_client_parameter(client_id, mailbox_id):
-
     return {
         "Name": f"/dl/test/mesh/clients/{client_id}",
         "Value": json.dumps({
@@ -35,7 +34,6 @@ class TestClientLookup:
 
     def test_load_valid_senders_single_page(self):
         """Test loading valid senders from SSM (single page)"""
-        from src.client_lookup import ClientLookup
 
         ssm, config, logger = setup_mocks()
 
@@ -60,7 +58,6 @@ class TestClientLookup:
 
     def test_load_valid_senders_multiple_pages(self):
         """Test loading valid senders from SSM with pagination"""
-        from src.client_lookup import ClientLookup
 
         ssm, config, logger = setup_mocks()
 
@@ -85,17 +82,14 @@ class TestClientLookup:
         assert ssm.get_parameters_by_path.call_count == 2
         ssm.get_parameters_by_path.assert_has_calls([
             call(Path="/dl/test/mesh/clients/", WithDecryption=True),
-            call(Path="/dl/test/mesh/clients/",
-                WithDecryption=True, NextToken="token123")
-        ])
+            call(Path="/dl/test/mesh/clients/", WithDecryption=True, NextToken="token123")
+        ], any_order=False)
         assert client_lookup.is_valid_sender("MAILBOX_001")
         assert client_lookup.is_valid_sender("MAILBOX_002")
         assert client_lookup.is_valid_sender("MAILBOX_003")
 
     def test_is_valid_sender_case_insensitive(self):
         """Test that sender validation is case-insensitive"""
-        from src.client_lookup import ClientLookup
-
         ssm, config, logger = setup_mocks()
 
         ssm.get_parameters_by_path.return_value = {
@@ -113,8 +107,6 @@ class TestClientLookup:
 
     def test_is_valid_sender_returns_false_for_empty_mailbox_id(self):
         """Test that empty mailbox IDs are rejected"""
-        from src.client_lookup import ClientLookup
-
         ssm, config, logger = setup_mocks()
 
         ssm.get_parameters_by_path.return_value = {
@@ -130,8 +122,6 @@ class TestClientLookup:
 
     def test_load_valid_senders_handles_malformed_json(self):
         """Test that malformed JSON in parameters is handled gracefully"""
-        from src.client_lookup import ClientLookup
-
         ssm, config, logger = setup_mocks()
 
         ssm.get_parameters_by_path.return_value = {
@@ -149,12 +139,10 @@ class TestClientLookup:
 
         assert client_lookup.is_valid_sender("MAILBOX_001")
         assert client_lookup.is_valid_sender("MAILBOX_003")
-        logger.warn.assert_called()
+        assert logger.warn.called
 
     def test_load_valid_senders_handles_missing_mailbox_id(self):
         """Test that parameters without meshMailboxSenderId are skipped"""
-        from src.client_lookup import ClientLookup
-
         ssm, config, logger = setup_mocks()
 
         ssm.get_parameters_by_path.return_value = {
@@ -179,8 +167,6 @@ class TestClientLookup:
 
     def test_load_valid_senders_handles_empty_mailbox_id(self):
         """Test that empty meshMailboxSenderId values are skipped"""
-        from src.client_lookup import ClientLookup
-
         ssm, config, logger = setup_mocks()
 
         ssm.get_parameters_by_path.return_value = {
@@ -206,8 +192,6 @@ class TestClientLookup:
 
     def test_load_valid_senders_with_trailing_slash_in_path(self):
         """Test that paths with trailing slashes are handled correctly"""
-        from src.client_lookup import ClientLookup
-
         ssm, config, logger = setup_mocks()
         config.ssm_clients_parameter_path = "/dl/test/mesh/clients/"  # Trailing slash
 
@@ -227,8 +211,6 @@ class TestClientLookup:
 
     def test_load_valid_senders_handles_empty_response(self):
         """Test that empty SSM response is handled correctly"""
-        from src.client_lookup import ClientLookup
-
         ssm, config, logger = setup_mocks()
 
         ssm.get_parameters_by_path.return_value = {

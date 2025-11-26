@@ -173,6 +173,7 @@ class CloudEvent(BaseModel):
 class MeshInboxMessageData(BaseModel):
     """Data payload for MESH inbox message received event"""
     meshMessageId: str = Field(..., min_length=1)
+    senderId: str = Field(..., min_length=1)
 
 
 class MeshInboxMessageEvent(CloudEvent):
@@ -187,7 +188,7 @@ class MeshInboxMessageEvent(CloudEvent):
             return v
         if isinstance(v, dict):
             return MeshInboxMessageData(**v)
-        raise ValueError('data must be a dict with meshMessageId')
+        raise ValueError('data must be a dict with meshMessageId and senderId')
 
 
 class MeshDownloadMessageData(BaseModel):
@@ -200,23 +201,6 @@ class MeshDownloadMessageData(BaseModel):
 class MeshDownloadMessageEvent(CloudEvent):
     """Complete CloudEvent for MESH inbox message downloaded"""
     data: MeshDownloadMessageData
-
-    @field_validator('source')
-    @classmethod
-    def validate_source(cls, v: str) -> str:
-        """Validate source matches MESH-specific pattern"""
-        if not v:
-            raise ValueError('Source cannot be empty')
-        import re
-
-        pattern = r'^/nhs/england/notify/(production|staging|development|uat)/(primary|secondary|dev-[0-9]+)/data-plane/digitalletters/mesh$'
-
-        if not re.match(pattern, v):
-            raise ValueError(
-                f'Invalid source pattern for MESH event: {v}. '
-                'Must match /nhs/england/notify/{{environment}}/{{instance}}/data-plane/digitalletters/mesh'
-            )
-        return v
 
     @field_validator('data', mode='before')
     @classmethod
