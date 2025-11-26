@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "isolatedModules": true
   },
   "extends": "@tsconfig/node22/tsconfig.json",

@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src/",
-    "isolatedModules": true
+    "allowJs": true,
+    "isolatedModules": true,
+    "outDir": "dist"
   },
   "exclude": [
     "node_modules"
@@ -9,7 +10,7 @@
   "extends": "@tsconfig/node22/tsconfig.json",
   "include": [
     "src/**/*",
-    "generated/**/*",
+    "validators/**/*",
     "types/**/*"
   ]
 }
