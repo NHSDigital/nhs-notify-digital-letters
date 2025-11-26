@@ -15,7 +15,7 @@ sequenceDiagram
   participant s3 as S3 Bucket<br/>DigitalLetters
 
   eventBus -) sqs: MESHInboxMessageReceived(meshMessageId, senderId)
-  sqs -) meshDownload: MESHInboxMessageReceived(meshMessageId)
+  sqs -) meshDownload: MESHInboxMessageReceived(meshMessageId, senderId)
   activate meshDownload
     meshDownload ->> meshMailbox: Retrieve file(meshMessageId)
     activate meshMailbox
