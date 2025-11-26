@@ -23,7 +23,7 @@ sequenceDiagram
     deactivate meshMailbox
     meshDownload ->> s3: Upload file
     activate s3
-      s3 -->> meshDownload: S3Uri
+      s3 -->> meshDownload: messageUri
     deactivate s3
     meshDownload -) eventBus: MESHInboxMessageDownloaded(senderId, messageReference, messageUri) Event
     meshDownload -) meshMailbox: Ack
