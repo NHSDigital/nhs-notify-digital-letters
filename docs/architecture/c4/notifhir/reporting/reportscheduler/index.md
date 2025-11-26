@@ -9,7 +9,7 @@ last_modified_date: 2025-10-28
 owner: Ross Buggins
 author: Tom D'Roza
 diagrams: [c4code-mesh-statusreporter-scheduler]
-events-raised: [reporting-daily-report-timer-expired]
+events-raised: [reporting-generate-report]
 events-consumed: []
 c4type: code
 ---
