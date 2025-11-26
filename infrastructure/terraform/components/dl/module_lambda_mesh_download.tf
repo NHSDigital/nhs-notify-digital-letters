@@ -36,14 +36,60 @@ module "mesh_download" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
+    # Required by Config
     EVENT_PUBLISHER_EVENT_BUS_ARN = aws_cloudwatch_event_bus.main.arn
     EVENT_PUBLISHER_DLQ_URL       = module.sqs_event_publisher_dlq.queue_url
     ENVIRONMENT                   = var.environment
     DEPLOYMENT                    = var.deployment
+
+    # Optional
+    USE_MESH_MOCK                 = var.enable_mock_mesh ? "true" : "false"
+    MOCK_MESH_BUCKET              = module.s3bucket_non_pii_data.bucket
   }
+
 }
 
 data "aws_iam_policy_document" "mesh_download_lambda" {
+  # Mock S3 ListBucket only when enabled
+  dynamic "statement" {
+    for_each = var.enable_mock_mesh ? [1] : []
+    content {
+      sid    = "MockMeshListBucket"
+      effect = "Allow"
+
+      actions = [
+        "s3:ListBucket"
+      ]
+
+      resources = [
+        module.s3bucket_non_pii_data.arn
+      ]
+
+      condition {
+        test     = "StringLike"
+        variable = "s3:prefix"
+        values   = ["mock-mesh/*"]
+      }
+    }
+  }
+
+  # Mock S3 GetObject only when enabled
+  dynamic "statement" {
+    for_each = var.enable_mock_mesh ? [1] : []
+    content {
+      sid    = "MockMeshGetObject"
+      effect = "Allow"
+
+      actions = [
+        "s3:GetObject"
+      ]
+
+      resources = [
+        "${module.s3bucket_non_pii_data.arn}/mock-mesh/*"
+      ]
+    }
+  }
+
   statement {
     sid    = "KMSPermissions"
     effect = "Allow"

@@ -1,5 +1,5 @@
 """
-Module for configuring Mesh Poll application
+Module for configuring MESH Download application
 """
 import json
 import os
@@ -11,10 +11,20 @@ from py_mock_mesh.mesh_client import MockMeshClient
 from metric_publishers.certificate_monitor import report_expiry_time
 from metric_publishers.metric_client import Metric
 
-from .errors import InvalidMeshEndpointError, InvalidEnvironmentVariableError
-
 structlog.configure(processors=[structlog.processors.JSONRenderer()])
 log = structlog.get_logger()
+
+
+class InvalidMeshEndpointError(Exception):
+    """
+    Indicates an invalid MESH endpoint in configuration
+    """
+
+
+class InvalidEnvironmentVariableError(Exception):
+    """
+    Indicates an invalid environment variable
+    """
 
 
 def store_file(content):
@@ -30,12 +40,9 @@ def store_file(content):
 
 _REQUIRED_ENV_VAR_MAP = {
     "ssm_prefix": "SSM_PREFIX",
-    "ssm_clients_parameter_path": "SSM_CLIENTS_PARAMETER_PATH",
     "inbox_workflow_id": "INBOX_WORKFLOW_ID",
     "outbox_workflow_id": "OUTBOX_WORKFLOW_ID",
-    "maximum_runtime_milliseconds": "MAXIMUM_RUNTIME_MILLISECONDS",
     "environment": "ENVIRONMENT",
-    "event_bus_arn": "EVENT_PUBLISHER_EVENT_BUS_ARN",
     "certificate_expiry_metric_name": "CERTIFICATE_EXPIRY_METRIC_NAME",
     "certificate_expiry_metric_namespace": "CERTIFICATE_EXPIRY_METRIC_NAMESPACE",
     "polling_metric_name": "POLLING_METRIC_NAME",
@@ -50,13 +57,15 @@ _OPTIONAL_ENV_VAR_MAP = {
 class Config:  # pylint: disable=too-many-instance-attributes
 
     """
-    Represents the configuration of the Mesh Poll application
+    Represents the configuration of the MESH Download application
     """
 
     def __init__(self,
-                ssm=None):
+                ssm=None,
+                s3_client=None):
 
         self.ssm = ssm if ssm is not None else boto3.client('ssm')
+        self.s3_client = s3_client if s3_client is not None else boto3.client('s3')
         self.mesh_endpoint = None
         self.mesh_mailbox = None
         self.mesh_mailbox_password = None
@@ -65,16 +74,11 @@ class Config:  # pylint: disable=too-many-instance-attributes
         self.client_key = None
         self.mesh_client = None
         self.ssm_prefix = None
-        self.ssm_clients_parameter_path = None
         self.inbox_workflow_id = None
         self.outbox_workflow_id = None
         self.environment = None
-        self.event_bus_arn = None
         self.certificate_expiry_metric_name = None
         self.certificate_expiry_metric_namespace = None
-        self.polling_metric_name = None
-        self.polling_metric_namespace = None
-        self.polling_metric = None
         self.use_mesh_mock = False
 
         missing_env_vars = []
@@ -90,8 +94,7 @@ class Config:  # pylint: disable=too-many-instance-attributes
                 value = os.environ[key]
                 if attr == "use_mesh_mock":
                     # Convert string to boolean
-                    setattr(self, attr, value.lower()
-                            in ('true', '1', 'yes', 'on'))
+                    setattr(self, attr, value.lower() in ('true', '1', 'yes', 'on'))
                 else:
                     setattr(self, attr, value)
 
@@ -132,9 +135,6 @@ class Config:  # pylint: disable=too-many-instance-attributes
         )
 
         self.mesh_client = self.build_mesh_client()
-
-        # Build Polling Metric
-        self.polling_metric = self.build_polling_metric()
 
         return self
 
@@ -186,11 +186,3 @@ class Config:  # pylint: disable=too-many-instance-attributes
             transparent_compress=True,
             cert=(self.client_cert, self.client_key)
         )
-
-    def build_polling_metric(self):
-        """
-            Returns a custom metric to record messages processed during a successful polling
-        """
-        return Metric(name=self.polling_metric_name,
-                        namespace=self.polling_metric_namespace,
-                        dimensions={"Environment": self.environment})
