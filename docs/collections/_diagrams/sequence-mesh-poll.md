@@ -10,19 +10,21 @@ sequenceDiagram
   actor trust as Trust
   participant meshMailbox as MESH<br/>Mailbox
   participant meshPoll as Lambda<br/>MESHPoll
+  participant clientConfig as SSM<br/>Client Config
   participant eventBus as EventBus
 
   trust ->> meshMailbox: MESH (DocumentReference)
-  activate meshMailbox
-    meshMailbox ->> trust: MESH Ack
-  deactivate meshMailbox
 
-  Loop Interval TBC
+  Loop 5 min interval
     eventBus -) meshPoll: Scheduled event
     activate meshPoll
   end
   meshPoll ->> meshMailbox: Check for new files
-  meshPoll -) eventBus: MESHInboxMessageReceived Event(meshFileId)
+  meshPoll ->> clientConfig: GetClientConfig(mailboxId)
+  activate clientConfig
+    clientConfig -->> meshPoll: ClientConfig
+  deactivate clientConfig
+  meshPoll -) eventBus: MESHInboxMessageReceived Event<br/>(meshMessageId, senderId)
   deactivate meshPoll
 
 ```
