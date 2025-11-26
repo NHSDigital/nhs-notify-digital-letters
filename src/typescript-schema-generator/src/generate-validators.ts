@@ -1,47 +1,66 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+// We don't accept user input, so path traversal attacks should not be a risk.
+/* eslint-disable security/detect-non-literal-fs-filename */
+
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import Ajv from 'ajv';
+
+// Note: We are using the Ajv 2020 version to support JSON Schema draft 2020-12.
+import Ajv from 'ajv/dist/2020';
+
 import standaloneCode from 'ajv/dist/standalone';
-import addFormats from 'ajv-formats';
+// import addFormats from 'ajv-formats';
 
-const schemaFoo = {
-  $id: '#/definitions/Foo',
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  type: 'object',
-  properties: {
-    foo: { $ref: '#/definitions/Bar' },
-  },
-};
-const schemaBar = {
-  $id: '#/definitions/Bar',
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  type: 'object',
-  properties: {
-    bar: { type: 'string' },
-  },
-  required: ['bar'],
-};
+const inDir = path.resolve(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'schemas',
+  'digital-letters',
+  '2025-10-draft',
+  'events',
+);
+const flattenedSchemaFiles = readdirSync(inDir).filter((f) =>
+  f.endsWith('.flattened.schema.json'),
+);
 
-// For ESM, the export name needs to be a valid export name, it can not be `export const #/definitions/Foo = ...;` so we
-// need to provide a mapping between a valid name and the $id field. Below will generate
-// `export const Foo = ...;export const Bar = ...;`
-// This mapping would not have been needed if the `$ids` was just `Bar` and `Foo` instead of `#/definitions/Foo`
-// and `#/definitions/Bar` respectively
 const ajv = new Ajv({
-  schemas: [schemaFoo, schemaBar],
-  // code: { source: true, esm: true, lines: true },
   code: { source: true, lines: true },
-});
-addFormats(ajv);
 
-const moduleCode = standaloneCode(ajv, {
-  Foo: '#/definitions/Foo',
-  Bar: '#/definitions/Bar',
+  // Required because our schemas use the unknown keyword "name".
+  strictSchema: false,
 });
 
-const outDir = path.resolve(__dirname, '..', 'validators');
-mkdirSync(outDir, { recursive: true });
+// !!! This doesn't work with the standalone code !!!
+// If we don't enable it we don't enforce the string formats defined in the schema.
+// addFormats(ajv);
 
-// Now you can write the module code to file
-// writeFileSync(path.join(outDir, 'validate-esm.mjs'), moduleCode);
-writeFileSync(path.join(outDir, 'validate.js'), moduleCode);
+const outputDir = path.resolve(__dirname, '..', 'validators');
+mkdirSync(outputDir, { recursive: true });
+
+// Generate a standalone validator for each schema.
+const moduleDeclarations: string[] = [];
+for (const schemaFile of flattenedSchemaFiles) {
+  const schemaFilePath = path.join(inDir, schemaFile);
+  const schema = JSON.parse(readFileSync(schemaFilePath, 'utf8'));
+  const validatorFilename = `${schema.title}.js`;
+
+  const validatorFn = ajv.compile(schema);
+  const standaloneValidatorCode = standaloneCode(ajv, validatorFn);
+
+  writeFileSync(
+    path.join(outputDir, validatorFilename),
+    standaloneValidatorCode,
+  );
+
+  // Also create a module declaration for this validator.
+  moduleDeclarations.push(
+    `declare module 'typescript-schema-generator/${validatorFilename}';`,
+  );
+}
+
+// Write an index.d.ts file containing all module declarations.
+writeFileSync(
+  path.join(outputDir, 'index.d.ts'),
+  `${moduleDeclarations.join('\n')}\n`,
+);

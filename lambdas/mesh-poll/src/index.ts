@@ -1,12 +1,13 @@
+/* eslint-disable no-console -- Allowing console logging as this is an example file. */
 // Replace me with the actual code for your Lambda function
 import { Handler } from 'aws-lambda';
 import { PDMResourceSubmitted } from 'typescript-schema-generator';
-import { Foo } from 'typescript-schema-generator/validate.js';
+import eventValidator from 'typescript-schema-generator/PDMResourceSubmitted.js';
 
-export const handler: Handler = async (event) => {
-  // eslint-disable-next-line no-console
+export const handler: Handler = async (event: PDMResourceSubmitted) => {
   console.log('Received event:', event);
 
+  // We can build a new PDMResourceSubmitted event object like this:
   const pdmResourceSubmittedEvent: PDMResourceSubmitted = {
     type: 'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
     source:
@@ -37,39 +38,16 @@ export const handler: Handler = async (event) => {
       retryCount: 97_903_257,
     },
   };
-  // eslint-disable-next-line no-console
+
   console.log('PDM resource submitted event:', pdmResourceSubmittedEvent);
 
-  const fooPass = {
-    foo: {
-      bar: 'something',
-    },
-  };
-
-  const fooFail = {
-    foo: {
-      // bar: "something" // bar: "something" <= empty properties
-    },
-  };
-
-  const isFooPassValid = Foo(fooPass);
-  if (isFooPassValid) {
-    // eslint-disable-next-line no-console
-    console.log('fooPass is valid!');
+  // We can validate an event like this:
+  const isEventValid = eventValidator(pdmResourceSubmittedEvent);
+  if (isEventValid) {
+    console.log('pdmResourceSubmittedEvent is valid!');
   } else {
-    // eslint-disable-next-line no-console
-    console.error('Validation failure!');
+    console.error('Validation failure!', eventValidator.errors);
     throw new Error('Event validation failed');
-  }
-
-  const isFooFailValid = Foo(fooFail);
-  if (isFooFailValid) {
-    // eslint-disable-next-line no-console
-    console.log('fooFail is valid!');
-    throw new Error('fooFail should not be valid');
-  } else {
-    // eslint-disable-next-line no-console
-    console.error('Validation failure as expected for fooFail');
   }
 
   return {
