@@ -111,12 +111,12 @@ class CloudEvent(BaseModel):
             raise ValueError('Source cannot be empty')
         import re
         # Must match NHS Notify CloudEvents pattern
-        pattern = r'^/nhs/england/notify/(production|staging|development|uat)/(primary|secondary|dev-\d+)/data-plane/digital-letters$'
+        pattern = r'^/nhs/england/notify/(production|staging|development|uat)/(primary|secondary|dev-\d+)/(data-plane|control-plane)/digitalletters/mesh$'
 
         if not re.match(pattern, v):
             raise ValueError(
                 f'Invalid source pattern: {v}. '
-                'Must match /nhs/england/notify/{{environment}}/{{instance}}/data-plane/digital-letters'
+                'Must match /nhs/england/notify/{{environment}}/{{instance}}/{{plane}}/digitalletters/mesh'
             )
         return v
 

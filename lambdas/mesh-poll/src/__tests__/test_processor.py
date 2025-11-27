@@ -11,7 +11,6 @@ from src.processor import MeshMessageProcessor
 def setup_mocks():
     """
     Create all mock objects needed for processor testing
-    Similar to backend comms-mgr mesh-poll tests
     """
     config = Mock()
     config.maximum_runtime_milliseconds = "500"
