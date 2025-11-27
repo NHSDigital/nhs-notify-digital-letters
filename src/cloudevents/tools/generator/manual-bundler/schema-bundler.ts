@@ -422,11 +422,9 @@ export class SchemaBundler {
       // Load and process schema
       const entrySchema = this.loadSchema(entryPath);
 
-      let processedSchema: SchemaObject;
+      let processedSchema: SchemaObject = this.dereferencePropertiesOnly(entrySchema, entryPath, false);
       if (this.options.flatten) {
-        processedSchema = await this.flattenAllOf(entrySchema, entryPath);
-      } else {
-        processedSchema = this.dereferencePropertiesOnly(entrySchema, entryPath, false);
+        processedSchema = await this.flattenAllOf(processedSchema, entryPath);
       }
 
       // Post-process: convert relative refs to external URLs if baseUrl provided
