@@ -2,9 +2,6 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { randomUUID } from 'node:crypto';
 import type { Logger } from 'utils';
 
-/**
- * Mock DocumentReference data structure for PDM
- */
 export interface PdmResource {
   resourceType: string;
   id: string;

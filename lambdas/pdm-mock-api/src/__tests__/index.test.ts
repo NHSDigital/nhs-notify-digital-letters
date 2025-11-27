@@ -6,7 +6,6 @@ import type {
 } from 'aws-lambda';
 import { handler } from '..';
 
-// Mock the container
 jest.mock('../container', () => {
   const mockAuthenticator = jest.fn();
   const mockGetResourceHandler = jest.fn();
@@ -73,7 +72,6 @@ describe('Lambda Handler Integration', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
 
-    // Get mocked functions from the container
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { createContainer } = require('../container');
     const container = createContainer();
