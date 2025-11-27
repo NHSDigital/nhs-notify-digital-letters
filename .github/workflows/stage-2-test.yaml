@@ -152,11 +152,11 @@ jobs:
         with:
           fetch-depth: 0 # Full history is needed to improving relevancy of reporting
       - name: "Download coverage report for SONAR"
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: code-coverage-report
       - name: "Download Python coverage reports"
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: python-coverage-reports
           path: src/
