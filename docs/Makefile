@@ -39,13 +39,9 @@ define baseurlparam =
 $(if $(BASE_URL),-- --baseurl $(BASE_URL),-- --baseurl "")
 endef
 
-build: clean build-and-copy-schemas build-and-copy-docs show-build-output
+build: clean build-schemas copy-schema-docs copy-schema-yaml-docs copy-schemas build-eventcatalog build-docs show-build-output
 
-build-ci: build-schemas-ci copy-schemas build-and-copy-docs show-build-output
-
-build-and-copy-schemas: build-schemas copy-schemas
-
-build-and-copy-docs: copy-schema-docs copy-schema-yaml-docs build-eventcatalog build-docs
+build-ci: build-schemas-ci copy-schema-docs copy-schema-yaml-docs copy-schemas build-eventcatalog build-docs show-build-output
 
 build-eventcatalog:
 	$(MAKE) build-eventcatalog-prereq
