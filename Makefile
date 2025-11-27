@@ -31,6 +31,7 @@ clean:: # Clean-up project resources (main) @Operations
 	$(MAKE) -C src/eventcatalogasyncapiimporter clean
 	$(MAKE) -C src/eventcatalogasyncapiimporter clean-output
 	rm -f .version
+	npm run clean
 
 config:: _install-dependencies version # Configure development environment (main) @Configuration
 	$(MAKE) -C docs install
