@@ -42,6 +42,17 @@ EVENT_NAMES = $(sort $(patsubst %.schema.yaml,%,$(notdir $(EVENT_SCHEMAS))))
 .PHONY: build publish publish-json publish-bundled-json publish-yaml generate test deploy clean
 
 build:
+	$(MAKE) build-no-bundle
+	@if [ -n "$(EVENT_NAMES)" ]; then \
+		echo "Bundling and flattening event schemas..."; \
+		for schema in $(EVENT_NAMES); do \
+			echo "  - $$schema (bundle & flatten)"; \
+			cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --root-dir $(ROOT_DIR) $(OUTPUT_DIR)/events/$$schema.schema.json $(OUTPUT_DIR)/events/$$schema.bundle.schema.json || exit 1; \
+			cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --flatten --root-dir $(ROOT_DIR) $(OUTPUT_DIR)/events/$$schema.schema.json $(OUTPUT_DIR)/events/$$schema.flattened.schema.json || exit 1; \
+		done; \
+	fi
+
+build-no-bundle:
 	@echo "Building $(DOMAIN) schemas to output/..."
 	@if [ -n "$(PROFILE_NAMES)" ]; then \
 		echo "Building profile schemas..."; \
@@ -69,12 +80,6 @@ build:
 		for schema in $(EVENT_NAMES); do \
 			echo "  - $$schema"; \
 			cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/events/$$schema.schema.yaml $(OUTPUT_DIR)/events || exit 1; \
-		done; \
-		echo "Bundling and flattening event schemas..."; \
-		for schema in $(EVENT_NAMES); do \
-			echo "  - $$schema (bundle & flatten)"; \
-			cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --root-dir $(ROOT_DIR) $(OUTPUT_DIR)/events/$$schema.schema.json $(OUTPUT_DIR)/events/$$schema.bundle.schema.json || exit 1; \
-			cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --flatten --root-dir $(ROOT_DIR) $(OUTPUT_DIR)/events/$$schema.schema.json $(OUTPUT_DIR)/events/$$schema.flattened.schema.json || exit 1; \
 		done; \
 	fi
 
@@ -123,14 +128,18 @@ publish-json:
 				cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/events/$$schema.schema.yaml $(SCHEMAS_DIR)/events $(SCHEMA_BASE_URL) || exit 1; \
 			fi; \
 		done; \
+		echo "Bundling published event schemas...";
+			for schema in $(EVENT_NAMES); do \
+				echo "  - $$schema (bundle)"; \
+				cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --root-dir $(ROOT_DIR) --base-url $(SCHEMA_BASE_URL) $(OUTPUT_DIR)/events/$$schema.schema.json $(SCHEMAS_DIR)/events/$$schema.bundle.schema.json || exit 1; \
+			done; \
 		$(MAKE) publish-bundled-json \
 	fi
 
 publish-bundled-json:
-	echo "Bundling and flattening published event schemas...";
+	echo "Flattening published event schemas...";
 	for schema in $(EVENT_NAMES); do \
-		echo "  - $$schema (bundle & flatten)"; \
-		cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --root-dir $(ROOT_DIR) --base-url $(SCHEMA_BASE_URL) $(OUTPUT_DIR)/events/$$schema.schema.json $(SCHEMAS_DIR)/events/$$schema.bundle.schema.json || exit 1; \
+		echo "  - $$schema (flatten)"; \
 		cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --flatten --root-dir $(ROOT_DIR) --base-url $(SCHEMA_BASE_URL) $(OUTPUT_DIR)/events/$$schema.schema.json $(SCHEMAS_DIR)/events/$$schema.flattened.schema.json || exit 1; \
 	done;
 

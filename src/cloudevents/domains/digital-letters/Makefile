@@ -27,6 +27,6 @@ build publish publish-json publish-yaml generate test deploy clean:
 	done
 else
 # Build specific version
-build publish publish-json publish-bundled-json publish-yaml generate test deploy clean:
+build build-no-bundle publish publish-json publish-bundled-json publish-yaml generate test deploy clean:
 	@$(MAKE) -f ../common.mk $@ PUBLISH_VERSION=$(PUBLISH_VERSION) DOMAIN=$(DOMAIN) ROOT_DIR=$(ROOT_DIR)
 endif
