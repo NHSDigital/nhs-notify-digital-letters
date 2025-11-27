@@ -4,23 +4,23 @@ This Lambda function provides a mock implementation of the PDM (Patient Data Man
 
 ## Overview
 
-The PDM Mock API simulates two key PDM endpoints:
+The PDM Mock API simulates two key PDM endpoints following the FHIR R4 DocumentReference structure:
 
-- **POST /resource** - Create a new resource
-- **GET /resource/{id}** - Retrieve a specific resource
+- **POST /patient-data-manager/FHIR/R4/DocumentReference** - Create a new DocumentReference
+- **GET /patient-data-manager/FHIR/R4/DocumentReference/{id}** - Retrieve a specific DocumentReference
 
 The mock includes the same authentication mechanism used in the PDS mock, requiring a Bearer token in the Authorization header.
 
 ## API Endpoints
 
-### POST /resource
+### POST /patient-data-manager/FHIR/R4/DocumentReference
 
-Creates a new PDM resource.
+Creates a new PDM DocumentReference.
 
 **Request:**
 
 ```bash
-curl -X POST https://<api-gateway-url>/resource \
+curl -X POST https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentReference \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"id": "custom-id"}'
@@ -30,29 +30,38 @@ curl -X POST https://<api-gateway-url>/resource \
 
 ```json
 {
-  "resourceType": "CommunicationRequest",
-  "id": "custom-id",
-  "status": "active",
-  "created": "2025-11-24T12:00:00Z",
-  "subject": {
-    "reference": "Patient/custom-id"
+  "resourceType": "DocumentReference",
+  "id": "c7a74264-cf34-31b1-a395-811fa375cec6",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2025-11-26T16:50:48.338244Z"
   },
-  "payload": [
+  "status": "current",
+  "subject": {
+    "identifier": {
+      "system": "https://fhir.nhs.uk/Id/nhs-number",
+      "value": "9912003071"
+    }
+  },
+  "content": [
     {
-      "contentString": "Mock PDM resource content"
+      "attachment": {
+        "contentType": "application/pdf",
+        "title": "Dummy PDF"
+      }
     }
   ]
 }
 ```
 
-### GET /resource/{id}
+### GET /patient-data-manager/FHIR/R4/DocumentReference/{id}
 
-Retrieves a specific PDM resource by ID.
+Retrieves a specific PDM DocumentReference by ID.
 
 **Request:**
 
 ```bash
-curl https://<api-gateway-url>/resource/test-id \
+curl https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentReference/test-id \
   -H "Authorization: Bearer <token>"
 ```
 
@@ -60,16 +69,26 @@ curl https://<api-gateway-url>/resource/test-id \
 
 ```json
 {
-  "resourceType": "CommunicationRequest",
-  "id": "test-id",
-  "status": "active",
-  "created": "2025-11-24T12:00:00Z",
-  "subject": {
-    "reference": "Patient/test-id"
+  "resourceType": "DocumentReference",
+  "id": "848b67ea-eeaa-3620-a388-e4e8594ff2e3",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2025-11-26T11:23:57.591072Z"
   },
-  "payload": [
+  "status": "current",
+  "subject": {
+    "identifier": {
+      "system": "https://fhir.nhs.uk/Id/nhs-number",
+      "value": "9912003071"
+    }
+  },
+  "content": [
     {
-      "contentString": "Mock PDM resource content"
+      "attachment": {
+        "contentType": "application/pdf",
+        "data": "XYZ",
+        "title": "Dummy PDF"
+      }
     }
   ]
 }

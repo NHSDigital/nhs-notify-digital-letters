@@ -38,7 +38,7 @@ const createMockEvent = (
     multiValueHeaders: {},
     httpMethod: 'GET',
     isBase64Encoded: false,
-    path: '/resource/test-id',
+    path: '/patient-data-manager/FHIR/R4/DocumentReference/test-id',
     pathParameters: { id: 'test-id' },
     queryStringParameters: null,
     multiValueQueryStringParameters: null,
@@ -48,19 +48,19 @@ const createMockEvent = (
       apiId: 'api-id',
       protocol: 'HTTP/1.1',
       httpMethod: 'GET',
-      path: '/resource/test-id',
+      path: '/patient-data-manager/FHIR/R4/DocumentReference/test-id',
       stage: 'test',
       requestId: 'test-request-id',
       requestTimeEpoch: Date.now(),
       resourceId: 'resource-id',
-      resourcePath: '/resource/{id}',
+      resourcePath: '/patient-data-manager/FHIR/R4/DocumentReference/{id}',
       identity: {
         sourceIp: '127.0.0.1',
         userAgent: 'test-agent',
       } as any,
       authorizer: null,
     } as any,
-    resource: '/resource/{id}',
+    resource: '/patient-data-manager/FHIR/R4/DocumentReference/{id}',
     ...overrides,
   } as APIGatewayProxyEvent;
 };
@@ -111,7 +111,7 @@ describe('Lambda Handler Integration', () => {
 
     const event = createMockEvent({
       httpMethod: 'GET',
-      path: '/resource/test-id',
+      path: '/patient-data-manager/FHIR/R4/DocumentReference/test-id',
     });
 
     const response = (await handler(
@@ -134,7 +134,7 @@ describe('Lambda Handler Integration', () => {
 
     const event = createMockEvent({
       httpMethod: 'POST',
-      path: '/resource',
+      path: '/patient-data-manager/FHIR/R4/DocumentReference',
       body: JSON.stringify({ data: 'test' }),
     });
 

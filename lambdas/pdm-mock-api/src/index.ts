@@ -32,10 +32,16 @@ export const handler: Handler<
       return authResult.error!;
     }
 
-    if (httpMethod === 'GET' && path.includes('/resource/')) {
+    if (
+      httpMethod === 'GET' &&
+      path.includes('/patient-data-manager/FHIR/R4/DocumentReference/')
+    ) {
       return await getResourceHandler(event);
     }
-    if (httpMethod === 'POST' && path.includes('/resource')) {
+    if (
+      httpMethod === 'POST' &&
+      path === '/patient-data-manager/FHIR/R4/DocumentReference'
+    ) {
       return await createResourceHandler(event);
     }
     logger.warn('Unsupported endpoint', { httpMethod, path });

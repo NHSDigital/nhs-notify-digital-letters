@@ -64,10 +64,19 @@ describe('GET Resource Handler', () => {
     expect(response.headers?.['Content-Type']).toBe('application/fhir+json');
 
     const body = JSON.parse(response.body);
-    expect(body.resourceType).toBe('CommunicationRequest');
+    expect(body.resourceType).toBe('DocumentReference');
     expect(body.id).toBe('test-id');
-    expect(body.status).toBe('active');
-    expect(body.created).toBeDefined();
+    expect(body.status).toBe('current');
+    expect(body.meta).toBeDefined();
+    expect(body.meta.versionId).toBe('1');
+    expect(body.meta.lastUpdated).toBeDefined();
+    expect(body.subject.identifier.system).toBe(
+      'https://fhir.nhs.uk/Id/nhs-number',
+    );
+    expect(body.subject.identifier.value).toBe('9912003071');
+    expect(body.content[0].attachment.contentType).toBe('application/pdf');
+    expect(body.content[0].attachment.data).toBe('XYZ');
+    expect(body.content[0].attachment.title).toBe('Dummy PDF');
   });
 
   it('should return 400 error when resource ID is missing', async () => {
@@ -165,9 +174,15 @@ describe('POST Create Resource Handler', () => {
     expect(response.headers?.['Content-Type']).toBe('application/fhir+json');
 
     const body = JSON.parse(response.body);
-    expect(body.resourceType).toBe('CommunicationRequest');
-    expect(body.id).toBe('custom-id');
-    expect(body.status).toBe('active');
+    expect(body.resourceType).toBe('DocumentReference');
+    expect(body.id).toBeDefined();
+    expect(body.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+    expect(body.status).toBe('current');
+    expect(body.meta).toBeDefined();
+    expect(body.meta.versionId).toBe('1');
+    expect(body.meta.lastUpdated).toBeDefined();
   });
 
   it('should create a new resource with generated ID when not provided', async () => {
@@ -182,7 +197,9 @@ describe('POST Create Resource Handler', () => {
     expect(response.statusCode).toBe(201);
 
     const body = JSON.parse(response.body);
-    expect(body.id).toMatch(/^generated-\d+$/);
+    expect(body.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
   });
 
   it('should handle empty body', async () => {
@@ -196,7 +213,9 @@ describe('POST Create Resource Handler', () => {
 
     expect(response.statusCode).toBe(201);
     const body = JSON.parse(response.body);
-    expect(body.id).toMatch(/^generated-\d+$/);
+    expect(body.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
   });
 
   it('should return 400 error for invalid JSON', async () => {

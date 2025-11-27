@@ -14,56 +14,74 @@ resource "aws_api_gateway_rest_api" "pdm_mock" {
   }
 }
 
-resource "aws_api_gateway_resource" "resource" {
+resource "aws_api_gateway_resource" "patient_data_manager" {
   rest_api_id = aws_api_gateway_rest_api.pdm_mock.id
   parent_id   = aws_api_gateway_rest_api.pdm_mock.root_resource_id
-  path_part   = "resource"
+  path_part   = "patient-data-manager"
 }
 
-resource "aws_api_gateway_resource" "resource_id" {
+resource "aws_api_gateway_resource" "fhir" {
   rest_api_id = aws_api_gateway_rest_api.pdm_mock.id
-  parent_id   = aws_api_gateway_resource.resource.id
+  parent_id   = aws_api_gateway_resource.patient_data_manager.id
+  path_part   = "FHIR"
+}
+
+resource "aws_api_gateway_resource" "r4" {
+  rest_api_id = aws_api_gateway_rest_api.pdm_mock.id
+  parent_id   = aws_api_gateway_resource.fhir.id
+  path_part   = "R4"
+}
+
+resource "aws_api_gateway_resource" "document_reference" {
+  rest_api_id = aws_api_gateway_rest_api.pdm_mock.id
+  parent_id   = aws_api_gateway_resource.r4.id
+  path_part   = "DocumentReference"
+}
+
+resource "aws_api_gateway_resource" "document_reference_id" {
+  rest_api_id = aws_api_gateway_rest_api.pdm_mock.id
+  parent_id   = aws_api_gateway_resource.document_reference.id
   path_part   = "{id}"
 }
 
-resource "aws_api_gateway_method" "create_resource" {
+resource "aws_api_gateway_method" "create_document_reference" {
   rest_api_id   = aws_api_gateway_rest_api.pdm_mock.id
-  resource_id   = aws_api_gateway_resource.resource.id
+  resource_id   = aws_api_gateway_resource.document_reference.id
   http_method   = "POST"
   authorization = "AWS_IAM"
 }
 
-resource "aws_api_gateway_integration" "create_resource" {
+resource "aws_api_gateway_integration" "create_document_reference" {
   rest_api_id = aws_api_gateway_rest_api.pdm_mock.id
-  resource_id = aws_api_gateway_resource.resource.id
-  http_method = aws_api_gateway_method.create_resource.http_method
+  resource_id = aws_api_gateway_resource.document_reference.id
+  http_method = aws_api_gateway_method.create_document_reference.http_method
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = module.pdm_mock_api.lambda_invoke_arn
+  uri                     = module.pdm_mock_api.function_invoke_arn
 }
 
-resource "aws_api_gateway_method" "get_resource" {
+resource "aws_api_gateway_method" "get_document_reference" {
   rest_api_id   = aws_api_gateway_rest_api.pdm_mock.id
-  resource_id   = aws_api_gateway_resource.resource_id.id
+  resource_id   = aws_api_gateway_resource.document_reference_id.id
   http_method   = "GET"
   authorization = "AWS_IAM"
 }
 
-resource "aws_api_gateway_integration" "get_resource" {
+resource "aws_api_gateway_integration" "get_document_reference" {
   rest_api_id = aws_api_gateway_rest_api.pdm_mock.id
-  resource_id = aws_api_gateway_resource.resource_id.id
-  http_method = aws_api_gateway_method.get_resource.http_method
+  resource_id = aws_api_gateway_resource.document_reference_id.id
+  http_method = aws_api_gateway_method.get_document_reference.http_method
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = module.pdm_mock_api.lambda_invoke_arn
+  uri                     = module.pdm_mock_api.function_invoke_arn
 }
 
 resource "aws_lambda_permission" "pdm_mock_api_gateway" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = module.pdm_mock_api.lambda_function_name
+  function_name = module.pdm_mock_api.function_name
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.pdm_mock.execution_arn}/*/*"
@@ -71,20 +89,23 @@ resource "aws_lambda_permission" "pdm_mock_api_gateway" {
 
 resource "aws_api_gateway_deployment" "pdm_mock" {
   depends_on = [
-    aws_api_gateway_integration.create_resource,
-    aws_api_gateway_integration.get_resource,
+    aws_api_gateway_integration.create_document_reference,
+    aws_api_gateway_integration.get_document_reference,
   ]
 
   rest_api_id = aws_api_gateway_rest_api.pdm_mock.id
 
   triggers = {
     redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.resource.id,
-      aws_api_gateway_resource.resource_id.id,
-      aws_api_gateway_method.create_resource.id,
-      aws_api_gateway_method.get_resource.id,
-      aws_api_gateway_integration.create_resource.id,
-      aws_api_gateway_integration.get_resource.id,
+      aws_api_gateway_resource.patient_data_manager.id,
+      aws_api_gateway_resource.fhir.id,
+      aws_api_gateway_resource.r4.id,
+      aws_api_gateway_resource.document_reference.id,
+      aws_api_gateway_resource.document_reference_id.id,
+      aws_api_gateway_method.create_document_reference.id,
+      aws_api_gateway_method.get_document_reference.id,
+      aws_api_gateway_integration.create_document_reference.id,
+      aws_api_gateway_integration.get_document_reference.id,
     ]))
   }
 

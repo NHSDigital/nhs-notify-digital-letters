@@ -1,14 +1,18 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { randomUUID } from 'node:crypto';
 import type { Logger } from 'utils';
 
 /**
- * Mock resource data structure for PDM resources
+ * Mock DocumentReference data structure for PDM
  */
 export interface PdmResource {
   resourceType: string;
   id: string;
+  meta: {
+    versionId: string;
+    lastUpdated: string;
+  };
   status: string;
-  created: string;
   [key: string]: unknown;
 }
 
@@ -135,16 +139,26 @@ const createEmptySuccessResponse = (): APIGatewayProxyResult => {
 
 const generateMockResource = (id: string): PdmResource => {
   return {
-    resourceType: 'CommunicationRequest',
+    resourceType: 'DocumentReference',
     id,
-    status: 'active',
-    created: new Date().toISOString(),
-    subject: {
-      reference: `Patient/${id}`,
+    meta: {
+      versionId: '1',
+      lastUpdated: new Date().toISOString(),
     },
-    payload: [
+    status: 'current',
+    subject: {
+      identifier: {
+        system: 'https://fhir.nhs.uk/Id/nhs-number',
+        value: '9912003071',
+      },
+    },
+    content: [
       {
-        contentString: 'Mock PDM resource content',
+        attachment: {
+          contentType: 'application/pdf',
+          data: 'XYZ',
+          title: 'Dummy PDF',
+        },
       },
     ],
   };
@@ -214,7 +228,7 @@ export const createCreateResourceHandler = (logger: Logger) => {
       );
     }
 
-    const resourceId = requestBody.id || `generated-${Date.now()}`;
+    const resourceId = randomUUID();
 
     if (requestBody.triggerError) {
       const errorScenario = ERROR_SCENARIOS.find(
