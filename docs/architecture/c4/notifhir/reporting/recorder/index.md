@@ -8,7 +8,7 @@ is_not_draft: false
 last_modified_date: 2025-10-24
 owner: Tom D'Roza
 author: Tom D'Roza
-diagrams: [c4code-tracker-listener, c4component-nhsapp-callback, sequence-nhsapp-callback]
+diagrams: [c4code-mesh-statusreporter-recorder, sequence-nhsapp-callback]
 events-raised: []
 events-consumed: [
     mesh-inbox-message-downloaded,
