@@ -8,6 +8,7 @@ description: PDM Upload
     group createTtl(cloud)[QueueAdder]
 
     service db(aws:arch-amazon-dynamodb)[ItemsWithTTL] in createTtl
+    service clientConfig(aws:res-aws-systems-manager-parameter-store)[Client Configuration] in createTtl
     service createLambda(logos:aws-lambda)[CreateTTL] in createTtl
     service queue(logos:aws-sqs)[SQS] in createTtl
     service storedEvent(aws:res-amazon-eventbridge-event)[MESHInboxMessageDownloaded event]
@@ -15,6 +16,7 @@ description: PDM Upload
 
     storedEvent:R --> L:queue
     queue:R --> L:createLambda
+    clientConfig:B --> T:createLambda
     createLambda:R --> L:db
-    createLambda:T --> L:scheduledEvent
+    createLambda:B --> L:scheduledEvent
 ```

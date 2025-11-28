@@ -51,6 +51,8 @@
   },
   "version": "0.0.1",
   "workspaces": [
+    "lambdas/key-generation",
+    "lambdas/refresh-apim-access-token",
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
