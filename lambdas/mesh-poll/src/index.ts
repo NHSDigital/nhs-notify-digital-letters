@@ -42,7 +42,7 @@ export const handler: Handler = async (event: PDMResourceSubmitted) => {
   console.log('PDM resource submitted event:', pdmResourceSubmittedEvent);
 
   // We can validate an event like this:
-  const isEventValid = eventValidator(pdmResourceSubmittedEvent);
+  const isEventValid = eventValidator(event);
   if (isEventValid) {
     console.log('pdmResourceSubmittedEvent is valid!');
   } else {
