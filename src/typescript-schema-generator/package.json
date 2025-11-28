@@ -4,7 +4,7 @@
     "ajv-formats": "^3.0.1",
     "json-schema-to-typescript": "^15.0.4"
   },
-  "description": "Generate Typescript types for the application's event schemas.",
+  "description": "Generate Typescript types and standalone validator functions for the application's event schemas.",
   "devDependencies": {
     "eslint": "^9.39.1",
     "rimraf": "^5.0.10",
@@ -30,6 +30,5 @@
     "test:unit": "echo \"No unit tests configured\"",
     "typecheck": "tsc --noEmit"
   },
-  "types": "types/index.d.ts",
   "version": "0.0.1"
 }

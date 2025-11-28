@@ -39,7 +39,7 @@ DATA_NAMES = $(sort $(patsubst %.yaml,%,$(notdir $(DATA_SCHEMAS))))
 DEFS_NAMES = $(sort $(patsubst %.yaml,%,$(notdir $(DEFS_SCHEMAS))))
 EVENT_NAMES = $(sort $(patsubst %.schema.yaml,%,$(notdir $(EVENT_SCHEMAS))))
 
-.PHONY: build publish publish-json publish-bundled-json publish-yaml generate test deploy clean
+.PHONY: build build-no-bundle publish publish-json publish-bundled-json publish-yaml generate test deploy clean
 
 build:
 	$(MAKE) build-no-bundle
