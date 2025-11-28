@@ -10,5 +10,5 @@ export const $Sender = z.object({
   meshMailboxSenderId: z.string(),
   meshMailboxReportsId: z.string(),
   fallbackWaitTimeSeconds: z.number().positive().int(),
-  routingConfigId: z.string(),
+  routingConfigId: z.string().optional(),
 });

@@ -7,5 +7,5 @@ export type Sender = {
   meshMailboxSenderId: string;
   meshMailboxReportsId: string;
   fallbackWaitTimeSeconds: number;
-  routingConfigId: string;
+  routingConfigId?: string;
 };

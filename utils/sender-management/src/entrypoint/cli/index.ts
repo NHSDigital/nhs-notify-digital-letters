@@ -109,7 +109,7 @@ export async function main() {
         },
         'routing-config-id': {
           type: 'string',
-          demandOption: true,
+          demandOption: false,
         },
       },
       async (argv) => {

@@ -28,7 +28,7 @@ const sm = SenderManagement({ parameterStore: new ParameterStore() });
 
 #### CLI Options
 
-- `--environment` - The name of the environment to run the command on e.g. 'de-<shortcode>', 'uat', 'prod'. Required.
+- `--environment` - The name of the environment to run the command on e.g. 'pr123', 'main', 'uat', 'prod'. Required.
 - `--format` - print data in json or tabular format. Default is `table`.
 
 #### Library Options
@@ -36,7 +36,7 @@ const sm = SenderManagement({ parameterStore: new ParameterStore() });
 ```ts
 const sm = SenderManagement({
   parameterStore: new ParameterStore(),
-  configOverrides: { environment: 'de-miha12' },
+  configOverrides: { environment: 'pr123' },
 });
 ```
 
@@ -60,7 +60,7 @@ Insert a new sender or update an existing one. Omit the `--sender-id` option to 
 - `--mesh-mailbox-sender-id` - the mesh mailbox id for this sender. Unique across all the senders. (required)
 - `--mesh-mailbox-reports-id` - the mesh mailbox id used for reporting for this sender. It can be the same as mesh-mailbox-sender-id. (required)
 - `--fallback-wait-time-seconds` - the fallback wait time to print letters. (required) (number)
-- `--routing-config-id` - the routing configuration id. (required)
+- `--routing-config-id` - the routing configuration id.
 
 ##### Put Sender Examples
 
@@ -71,7 +71,7 @@ npm --prefix utils/sender-management run-script cli -- put-sender \
   --mesh-mailbox-reports-id 'DerbyMailboxReportsId' \
   --fallback-wait-time-seconds 100 \
   --routing-config-id 'abc123' \
-  --environment 'de-cljo1'
+  --environment 'pr123'
 ```
 
 ```bash
@@ -82,7 +82,7 @@ npm --prefix utils/sender-management run-script cli -- put-sender \
   --mesh-mailbox-reports-id '123456' \
   --fallback-wait-time-seconds 100 \
   --routing-config-id 'abc123' \
-  --environment 'de-cljo1'
+  --environment 'pr123'
 ```
 
 ```ts
@@ -102,7 +102,7 @@ Return a list of all existing senders
 ##### List Senders Examples
 
 ```bash
-npm --prefix utils/sender-management run-script cli -- list-senders --environment de-cljo1
+npm --prefix utils/sender-management run-script cli -- list-senders --environment pr123
 ```
 
 ```ts
@@ -118,7 +118,7 @@ Return an individual sender by senderId
 ```bash
 npm --prefix utils/sender-management run-script cli -- get-sender \
   --sender-id 'integration_test_sender' \
-  --environment 'de-cljo1'
+  --environment 'pr123'
 ```
 
 ```ts
@@ -136,7 +136,7 @@ Delete an individual sender by senderId.
 ```bash
 npm --prefix utils/sender-management run-script cli -- delete-sender \
   --sender-id 'integration_test_sender' \
-  --environment de-cljo1
+  --environment pr123
 ```
 
 ```ts

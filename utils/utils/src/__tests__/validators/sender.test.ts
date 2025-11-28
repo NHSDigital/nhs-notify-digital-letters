@@ -27,6 +27,18 @@ describe('Sender Validator', () => {
     expect(() => $Sender.parse(validSender)).not.toThrow();
   });
 
+  it('should validate a correct Sender object without routingConfigId', () => {
+    const validSender = {
+      senderId: '123e4567-e89b-12d3-a456-426614174000',
+      senderName: 'Test Sender',
+      meshMailboxSenderId: 'SENDER123',
+      meshMailboxReportsId: 'REPORTS123',
+      fallbackWaitTimeSeconds: 300,
+    };
+
+    expect(() => $Sender.parse(validSender)).not.toThrow();
+  });
+
   it('should throw an error when senderId has spaces', () => {
     const invalidSender = {
       senderId: 'Spaces are invalid',
@@ -108,18 +120,6 @@ describe('Sender Validator', () => {
       meshMailboxSenderId: 'SENDER123',
       meshMailboxReportsId: 'REPORTS123',
       routingConfigId: 'ROUTE123',
-    };
-
-    expect(() => $Sender.parse(invalidSender)).toThrow();
-  });
-
-  it('should throw an error when routingConfigId is missing', () => {
-    const invalidSender = {
-      senderId: '123e4567-e89b-12d3-a456-426614174000',
-      senderName: 'Test Sender',
-      meshMailboxSenderId: 'SENDER123',
-      meshMailboxReportsId: 'REPORTS123',
-      fallbackWaitTimeSeconds: 300,
     };
 
     expect(() => $Sender.parse(invalidSender)).toThrow();
