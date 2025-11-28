@@ -91,6 +91,23 @@ data "aws_iam_policy_document" "mesh_download_lambda" {
     }
   }
 
+  # Mock S3 PutObject for storing messages when mock enabled
+  dynamic "statement" {
+    for_each = var.enable_mock_mesh ? [1] : []
+    content {
+      sid    = "MockMeshPutObject"
+      effect = "Allow"
+
+      actions = [
+        "s3:PutObject"
+      ]
+
+      resources = [
+        "${module.s3bucket_non_pii_data.arn}/document-reference/*"
+      ]
+    }
+  }
+
   statement {
     sid    = "KMSPermissions"
     effect = "Allow"
