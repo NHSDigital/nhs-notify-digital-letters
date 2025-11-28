@@ -10,7 +10,6 @@ include scripts/init.mk
 quick-start: config clean build serve-docs # Quick start target to setup, build and serve docs @Pipeline
 
 dependencies:: # Install dependencies needed to build and test the project @Pipeline
-	$(MAKE) -C docs install
 	$(MAKE) -C src/cloudevents install
 	$(MAKE) -C src/eventcatalogasyncapiimporter install
 	$(MAKE) -C lambdas/mesh-poll install
@@ -20,7 +19,10 @@ dependencies:: # Install dependencies needed to build and test the project @Pipe
 	$(MAKE) -C utils/py-mock-mesh install
 	npm install --workspaces
 
-build: # Build the project artefact @Pipeline
+dependencies-docs:: # Install documentation dependencies @Pipeline
+	$(MAKE) -C docs install
+
+build: dependencies-docs # Build the project artefact @Pipeline
 	$(MAKE) -C docs build
 
 debug:
