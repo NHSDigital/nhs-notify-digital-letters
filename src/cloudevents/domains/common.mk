@@ -128,20 +128,22 @@ publish-json:
 				cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/events/$$schema.schema.yaml $(SCHEMAS_DIR)/events $(SCHEMA_BASE_URL) || exit 1; \
 			fi; \
 		done; \
-		echo "Bundling published event schemas...";
-			for schema in $(EVENT_NAMES); do \
-				echo "  - $$schema (bundle)"; \
-				cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --root-dir $(ROOT_DIR) --base-url $(SCHEMA_BASE_URL) $(OUTPUT_DIR)/events/$$schema.schema.json $(SCHEMAS_DIR)/events/$$schema.bundle.schema.json || exit 1; \
-			done; \
-		$(MAKE) publish-bundled-json \
+		echo "Bundling published event schemas..."; \
+		for schema in $(EVENT_NAMES); do \
+			echo "  - $$schema (bundle)"; \
+			cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --root-dir $(ROOT_DIR) --base-url $(SCHEMA_BASE_URL) $(OUTPUT_DIR)/events/$$schema.schema.json $(SCHEMAS_DIR)/events/$$schema.bundle.schema.json || exit 1; \
+		done; \
 	fi
+	$(MAKE) publish-bundled-json
 
 publish-bundled-json:
-	echo "Flattening published event schemas...";
-	for schema in $(EVENT_NAMES); do \
-		echo "  - $$schema (flatten)"; \
-		cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --flatten --root-dir $(ROOT_DIR) --base-url $(SCHEMA_BASE_URL) $(OUTPUT_DIR)/events/$$schema.schema.json $(SCHEMAS_DIR)/events/$$schema.flattened.schema.json || exit 1; \
-	done;
+	@if [ -n "$(EVENT_NAMES)" ]; then \
+		@echo "Flattening published event schemas..."; \
+		for schema in $(EVENT_NAMES); do \
+			echo "  - $$schema (flatten)"; \
+			cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --flatten --root-dir $(ROOT_DIR) --base-url $(SCHEMA_BASE_URL) $(OUTPUT_DIR)/events/$$schema.schema.json $(SCHEMAS_DIR)/events/$$schema.flattened.schema.json || exit 1; \
+		done; \
+	fi
 
 publish-yaml:
 	@echo "Publishing $(DOMAIN) YAML schemas alongside JSON..."
