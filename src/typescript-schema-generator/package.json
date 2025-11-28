@@ -6,7 +6,6 @@
   },
   "description": "Generate Typescript types for the application's event schemas.",
   "devDependencies": {
-    "ajv-cli": "^5.0.0",
     "eslint": "^9.39.1",
     "rimraf": "^5.0.10",
     "tsx": "^4.20.6"
