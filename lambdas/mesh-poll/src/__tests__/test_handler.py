@@ -18,7 +18,7 @@ def setup_mocks():
 
     mock_ssm = Mock()
 
-    mock_client_lookup = Mock()
+    mock_sender_lookup = Mock()
 
     mock_processor = Mock()
     mock_processor.process_messages = Mock()
@@ -27,7 +27,7 @@ def setup_mocks():
         mock_context,
         mock_config,
         mock_ssm,
-        mock_client_lookup,
+        mock_sender_lookup,
         mock_processor
     )
 
@@ -36,21 +36,21 @@ class TestHandler:
     """Test suite for Lambda handler"""
 
     @patch('src.handler.Config')
-    @patch('src.handler.ClientLookup')
+    @patch('src.handler.SenderLookup')
     @patch('src.handler.MeshMessageProcessor')
     @patch('src.handler.client')
-    def test_handler_success(self, mock_boto_client, mock_processor_class, mock_client_lookup_class, mock_config_class):
+    def test_handler_success(self, mock_boto_client, mock_processor_class, mock_sender_lookup_class, mock_config_class):
         """Test successful handler execution"""
         from src.handler import handler
 
         (mock_context, mock_config, mock_ssm,
-        mock_client_lookup, mock_processor) = setup_mocks()
+        mock_sender_lookup, mock_processor) = setup_mocks()
 
         # Wire up the mocks
         mock_config_class.return_value.__enter__.return_value = mock_config
         mock_config_class.return_value.__exit__ = Mock(return_value=None)
         mock_boto_client.return_value = mock_ssm
-        mock_client_lookup_class.return_value = mock_client_lookup
+        mock_sender_lookup_class.return_value = mock_sender_lookup
         mock_processor_class.return_value = mock_processor
 
         # Execute handler
@@ -63,9 +63,9 @@ class TestHandler:
         # Verify SSM client was created
         mock_boto_client.assert_called_once_with('ssm')
 
-        # Verify ClientLookup was created with correct parameters
-        mock_client_lookup_class.assert_called_once()
-        call_args = mock_client_lookup_class.call_args
+        # Verify SenderLookup was created with correct parameters
+        mock_sender_lookup_class.assert_called_once()
+        call_args = mock_sender_lookup_class.call_args
         assert call_args[0][0] == mock_ssm
         assert call_args[0][1] == mock_config
 
@@ -73,7 +73,7 @@ class TestHandler:
         mock_processor_class.assert_called_once()
         call_kwargs = mock_processor_class.call_args[1]
         assert call_kwargs['config'] == mock_config
-        assert call_kwargs['client_lookup'] == mock_client_lookup
+        assert call_kwargs['sender_lookup'] == mock_sender_lookup
         assert call_kwargs['mesh_client'] == mock_config.mesh_client
         assert call_kwargs['get_remaining_time_in_millis'] == mock_context.get_remaining_time_in_millis
         assert call_kwargs['polling_metric'] == mock_config.polling_metric
@@ -82,15 +82,15 @@ class TestHandler:
         mock_processor.process_messages.assert_called_once()
 
     @patch('src.handler.Config')
-    @patch('src.handler.ClientLookup')
+    @patch('src.handler.SenderLookup')
     @patch('src.handler.MeshMessageProcessor')
     @patch('src.handler.client')
-    def test_handler_config_cleanup_on_exception(self, mock_boto_client, mock_processor_class, mock_client_lookup_class, mock_config_class):
+    def test_handler_config_cleanup_on_exception(self, mock_boto_client, mock_processor_class, mock_sender_lookup_class, mock_config_class):
         """Test that Config context manager cleanup is called even on exception"""
         from src.handler import handler
 
         (mock_context, mock_config, mock_ssm,
-        mock_client_lookup, mock_processor) = setup_mocks()
+        mock_sender_lookup, mock_processor) = setup_mocks()
 
         # Make processor raise an exception
         test_exception = RuntimeError("Test error")
@@ -100,7 +100,7 @@ class TestHandler:
         mock_exit = Mock(return_value=None)
         mock_config_class.return_value.__exit__ = mock_exit
         mock_boto_client.return_value = mock_ssm
-        mock_client_lookup_class.return_value = mock_client_lookup
+        mock_sender_lookup_class.return_value = mock_sender_lookup
         mock_processor_class.return_value = mock_processor
 
         # Handler should raise the exception
@@ -115,15 +115,15 @@ class TestHandler:
         assert call_args[1] == test_exception
 
     @patch('src.handler.Config')
-    @patch('src.handler.ClientLookup')
+    @patch('src.handler.SenderLookup')
     @patch('src.handler.MeshMessageProcessor')
     @patch('src.handler.client')
-    def test_handler_passes_correct_parameters_to_processor(self, mock_boto_client, mock_processor_class, mock_client_lookup_class, mock_config_class):
+    def test_handler_passes_correct_parameters_to_processor(self, mock_boto_client, mock_processor_class, mock_sender_lookup_class, mock_config_class):
         """Test that handler passes all required parameters to MeshMessageProcessor"""
         from src.handler import handler
 
         (mock_context, mock_config, mock_ssm,
-        mock_client_lookup, mock_processor) = setup_mocks()
+        mock_sender_lookup, mock_processor) = setup_mocks()
 
         mock_remaining_time_func = Mock(return_value=250000)
         mock_context.get_remaining_time_in_millis = mock_remaining_time_func
@@ -135,7 +135,7 @@ class TestHandler:
         mock_config_class.return_value.__enter__.return_value = mock_config
         mock_config_class.return_value.__exit__ = Mock(return_value=None)
         mock_boto_client.return_value = mock_ssm
-        mock_client_lookup_class.return_value = mock_client_lookup
+        mock_sender_lookup_class.return_value = mock_sender_lookup
         mock_processor_class.return_value = mock_processor
 
         handler(None, mock_context)
@@ -144,7 +144,7 @@ class TestHandler:
         call_kwargs = mock_processor_class.call_args[1]
 
         assert call_kwargs['config'] == mock_config
-        assert call_kwargs['client_lookup'] == mock_client_lookup
+        assert call_kwargs['sender_lookup'] == mock_sender_lookup
         assert call_kwargs['mesh_client'] == mock_mesh_client
         assert call_kwargs['get_remaining_time_in_millis'] == mock_remaining_time_func
         assert call_kwargs['polling_metric'] == mock_polling_metric

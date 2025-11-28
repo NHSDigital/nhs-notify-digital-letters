@@ -16,8 +16,8 @@ def setup_mocks():
     config.maximum_runtime_milliseconds = "500"
     config.ssm_prefix = "/dl/test/mesh"
 
-    client_lookup = Mock()
-    client_lookup.is_valid_sender.return_value = True  # Default to valid sender
+    sender_lookup = Mock()
+    sender_lookup.is_valid_sender.return_value = True  # Default to valid sender
 
     mesh_client = Mock(spec=MeshClient)
 
@@ -27,7 +27,7 @@ def setup_mocks():
 
     return (
         config,
-        client_lookup,
+        sender_lookup,
         mesh_client,
         log,
         polling_metric
@@ -67,7 +67,7 @@ class TestMeshMessageProcessor:
 
     def test_process_messages_iterates_through_inbox(self, mock_event_publisher_class, mock_getenv):
         """Test that processor iterates through all messages in MESH inbox"""
-        (config, client_lookup, mesh_client, log, polling_metric) = setup_mocks()
+        (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
         message2 = setup_message_data("2")
 
@@ -79,7 +79,7 @@ class TestMeshMessageProcessor:
 
         processor = MeshMessageProcessor(
             config=config,
-            client_lookup=client_lookup,
+            sender_lookup=sender_lookup,
             mesh_client=mesh_client,
             get_remaining_time_in_millis=get_remaining_time_in_millis,
             log=log,
@@ -88,7 +88,7 @@ class TestMeshMessageProcessor:
 
         mesh_client.iterate_all_messages.side_effect = [
             [message1, message2], []]
-        client_lookup.is_valid_sender.return_value = True
+        sender_lookup.is_valid_sender.return_value = True
 
         processor.process_messages()
 
@@ -98,7 +98,7 @@ class TestMeshMessageProcessor:
 
     def test_process_messages_stops_near_timeout(self, mock_event_publisher_class, mock_getenv):
         """Test that processor stops processing when near timeout"""
-        (config, client_lookup, mesh_client, log, polling_metric) = setup_mocks()
+        (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
 
         mock_getenv.side_effect = lambda key, default='': {
@@ -108,7 +108,7 @@ class TestMeshMessageProcessor:
 
         processor = MeshMessageProcessor(
             config=config,
-            client_lookup=client_lookup,
+            sender_lookup=sender_lookup,
             mesh_client=mesh_client,
             get_remaining_time_in_millis=get_remaining_time_in_millis_near_timeout,
             log=log,
@@ -119,12 +119,12 @@ class TestMeshMessageProcessor:
 
         processor.process_messages()
 
-        client_lookup.is_valid_sender.assert_not_called()
+        sender_lookup.is_valid_sender.assert_not_called()
         polling_metric.record.assert_called_once()
 
     def test_process_message_with_valid_sender(self, mock_event_publisher_class, mock_getenv):
         """Test processing a single message from valid sender"""
-        (config, client_lookup, mesh_client, log, polling_metric) = setup_mocks()
+        (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message = setup_message_data("1")
 
         mock_getenv.side_effect = lambda key, default='': {
@@ -138,25 +138,25 @@ class TestMeshMessageProcessor:
 
         processor = MeshMessageProcessor(
             config=config,
-            client_lookup=client_lookup,
+            sender_lookup=sender_lookup,
             mesh_client=mesh_client,
             get_remaining_time_in_millis=get_remaining_time_in_millis,
             log=log,
             polling_metric=polling_metric
         )
 
-        client_lookup.is_valid_sender.return_value = True
+        sender_lookup.is_valid_sender.return_value = True
 
         processor.process_message(message)
 
         mesh_client.handshake.assert_called_once()
-        client_lookup.is_valid_sender.assert_called_once_with(message.sender)
+        sender_lookup.is_valid_sender.assert_called_once_with(message.sender)
         mock_event_publisher.send_events.assert_called_once()
         message.acknowledge.assert_not_called()  # Only acknowledged on auth error
 
     def test_process_message_with_unknown_sender(self, mock_event_publisher_class, mock_getenv):
         """Test that messages from unknown senders are rejected silently"""
-        (config, client_lookup, mesh_client, log, polling_metric) = setup_mocks()
+        (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message = setup_message_data("1")
 
         mock_getenv.side_effect = lambda key, default='': {
@@ -166,7 +166,7 @@ class TestMeshMessageProcessor:
 
         processor = MeshMessageProcessor(
             config=config,
-            client_lookup=client_lookup,
+            sender_lookup=sender_lookup,
             mesh_client=mesh_client,
             get_remaining_time_in_millis=get_remaining_time_in_millis,
             log=log,
@@ -174,16 +174,16 @@ class TestMeshMessageProcessor:
         )
 
         # Invalid sender
-        client_lookup.is_valid_sender.return_value = False
+        sender_lookup.is_valid_sender.return_value = False
 
         processor.process_message(message)
 
-        client_lookup.is_valid_sender.assert_called_once_with(message.sender)
+        sender_lookup.is_valid_sender.assert_called_once_with(message.sender)
         message.acknowledge.assert_called_once()
 
     def test_process_messages_across_multiple_iterations(self, mock_event_publisher_class, mock_getenv):
         """Test that processor continues polling until no messages remain"""
-        (config, client_lookup, mesh_client, log, polling_metric) = setup_mocks()
+        (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
         message2 = setup_message_data("2")
         message3 = setup_message_data("3")
@@ -195,7 +195,7 @@ class TestMeshMessageProcessor:
 
         processor = MeshMessageProcessor(
             config=config,
-            client_lookup=client_lookup,
+            sender_lookup=sender_lookup,
             mesh_client=mesh_client,
             get_remaining_time_in_millis=get_remaining_time_in_millis,
             log=log,
@@ -207,11 +207,11 @@ class TestMeshMessageProcessor:
             [message3],            # Second iteration
             []                     # Third iteration - empty, stops
         ]
-        client_lookup.is_valid_sender.return_value = True
+        sender_lookup.is_valid_sender.return_value = True
 
         processor.process_messages()
 
         mesh_client.handshake.assert_called_once()
         assert mesh_client.iterate_all_messages.call_count == 3
-        assert client_lookup.is_valid_sender.call_count == 3
+        assert sender_lookup.is_valid_sender.call_count == 3
         polling_metric.record.assert_called_once()

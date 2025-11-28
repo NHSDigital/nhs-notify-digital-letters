@@ -38,17 +38,16 @@ module "mesh_poll" {
 
   lambda_env_vars = {
     # Required by Config
-    SSM_PREFIX                          = var.ssm_prefix
-    SSM_CLIENTS_PARAMETER_PATH          = var.ssm_clients_parameter_path
-    INBOX_WORKFLOW_ID                   = var.inbox_workflow_id
-    OUTBOX_WORKFLOW_ID                  = var.outbox_workflow_id
-    MAXIMUM_RUNTIME_MILLISECONDS        = var.maximum_runtime_milliseconds
+    SSM_PREFIX                          = "dl/${var.environment}/mesh"
+    SSM_SENDERS_PARAMETER_PATH          = "dl/${var.environment}/mesh/senders"
+    MAXIMUM_RUNTIME_MILLISECONDS        = "240000"  # 4 minutes (Lambda has 5 min timeout)
     ENVIRONMENT                         = var.environment
     EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
-    CERTIFICATE_EXPIRY_METRIC_NAME      = var.certificate_expiry_metric_name
-    CERTIFICATE_EXPIRY_METRIC_NAMESPACE = var.certificate_expiry_metric_namespace
-    POLLING_METRIC_NAME                 = var.polling_metric_name
-    POLLING_METRIC_NAMESPACE            = var.polling_metric_namespace
+    EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_dlq.queue_url
+    CERTIFICATE_EXPIRY_METRIC_NAME      = "mesh-poll-client-certificate-near-expiry"
+    CERTIFICATE_EXPIRY_METRIC_NAMESPACE = "dl-mesh-poll"
+    POLLING_METRIC_NAME                 = "mesh-poll-successful-polls"
+    POLLING_METRIC_NAMESPACE            = "dl-mesh-poll"
 
     # Optional
     USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"
@@ -109,6 +108,19 @@ data "aws_iam_policy_document" "mesh_poll_lambda" {
 
     resources = [
       module.kms.key_arn,
+    ]
+  }
+
+  statement {
+    sid    = "EventBridgePermissions"
+    effect = "Allow"
+
+    actions = [
+      "events:PutEvents",
+    ]
+
+    resources = [
+      aws_cloudwatch_event_bus.main.arn,
     ]
   }
 }

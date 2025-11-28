@@ -37,15 +37,19 @@ module "mesh_download" {
 
   lambda_env_vars = {
     # Required by Config
-    EVENT_PUBLISHER_EVENT_BUS_ARN = aws_cloudwatch_event_bus.main.arn
-    EVENT_PUBLISHER_DLQ_URL       = module.sqs_event_publisher_dlq.queue_url
-    ENVIRONMENT                   = var.environment
-    DEPLOYMENT                    = var.deployment
-    PII_BUCKET                    = module.s3bucket_pii_data.bucket
+    SSM_PREFIX                          = "dl/${var.environment}/mesh"
+    EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
+    EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_dlq.queue_url
+    ENVIRONMENT                         = var.environment
+    PII_BUCKET                          = module.s3bucket_pii_data.bucket
+    CERTIFICATE_EXPIRY_METRIC_NAME      = "mesh-download-client-certificate-near-expiry"
+    CERTIFICATE_EXPIRY_METRIC_NAMESPACE = "dl-mesh-download"
+    POLLING_METRIC_NAME                 = "mesh-download-successful-polls"
+    POLLING_METRIC_NAMESPACE            = "dl-mesh-download"
 
     # Optional
-    USE_MESH_MOCK                 = var.enable_mock_mesh ? "true" : "false"
-    MOCK_MESH_BUCKET              = module.s3bucket_non_pii_data.bucket
+    USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"
+    MOCK_MESH_BUCKET                    = module.s3bucket_non_pii_data.bucket
   }
 
 }

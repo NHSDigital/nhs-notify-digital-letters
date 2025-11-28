@@ -22,7 +22,7 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
     def __init__(self, **kwargs):
         self.__config = kwargs['config']
         self.__mesh_client = kwargs['mesh_client']
-        self.__client_lookup = kwargs['client_lookup']
+        self.__sender_lookup = kwargs['sender_lookup']
         self.__log = kwargs['log']
         self.__get_remaining_time_in_millis = kwargs['get_remaining_time_in_millis']
         self.__mesh_client.handshake()
@@ -109,19 +109,19 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
 
         try:
             # Basic sender validation - only publish events for known senders
-            if not self.__client_lookup.is_valid_sender(sender_mailbox_id):
+            if not self.__sender_lookup.is_valid_sender(sender_mailbox_id):
                 raise AuthorizationError(
                     f'Cannot authorize sender with mailbox ID "{sender_mailbox_id}"')
 
-            # Get the corresponding client ID
-            client_id = self.__client_lookup.get_client_id(sender_mailbox_id)
+            # Get the corresponding sender ID
+            sender_id = self.__sender_lookup.get_sender_id(sender_mailbox_id)
 
             # Publish event for valid sender
             message_id = message.id()
             event_detail = {
                 "data": {
                     "meshMessageId": message_id,
-                    "senderId": client_id,
+                    "senderId": sender_id,
                     "messageReference": message_reference
                 }
             }

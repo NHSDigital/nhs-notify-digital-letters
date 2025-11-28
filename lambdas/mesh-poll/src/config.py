@@ -30,9 +30,7 @@ def store_file(content):
 
 _REQUIRED_ENV_VAR_MAP = {
     "ssm_prefix": "SSM_PREFIX",
-    "ssm_clients_parameter_path": "SSM_CLIENTS_PARAMETER_PATH",
-    "inbox_workflow_id": "INBOX_WORKFLOW_ID",
-    "outbox_workflow_id": "OUTBOX_WORKFLOW_ID",
+    "ssm_senders_parameter_path": "SSM_SENDERS_PARAMETER_PATH",
     "maximum_runtime_milliseconds": "MAXIMUM_RUNTIME_MILLISECONDS",
     "environment": "ENVIRONMENT",
     "event_bus_arn": "EVENT_PUBLISHER_EVENT_BUS_ARN",
@@ -65,9 +63,7 @@ class Config:  # pylint: disable=too-many-instance-attributes
         self.client_key = None
         self.mesh_client = None
         self.ssm_prefix = None
-        self.ssm_clients_parameter_path = None
-        self.inbox_workflow_id = None
-        self.outbox_workflow_id = None
+        self.ssm_senders_parameter_path = None
         self.environment = None
         self.event_bus_arn = None
         self.certificate_expiry_metric_name = None

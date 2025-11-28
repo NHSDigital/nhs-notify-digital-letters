@@ -8,5 +8,5 @@ __version__ = '0.1.0'
 from .config import *
 from .handler import *
 from .processor import *
-from .client_lookup import *
+from .sender_lookup import *
 from .errors import *
