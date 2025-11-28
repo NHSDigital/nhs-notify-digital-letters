@@ -62,7 +62,7 @@ describe('validate.ts', () => {
       const schemaFile = path.join(TEST_DIR, 'schema.json');
       fs.writeFileSync(schemaFile, JSON.stringify({ type: 'object' }));
 
-      const result = spawnSync('node', [SCRIPT_PATH, schemaFile], { encoding: 'utf-8' });
+      const result = spawnSync('npx', ['tsx', SCRIPT_PATH, schemaFile], { encoding: 'utf-8', timeout: 10000 });
       expect(result.status).not.toBe(0);
       expect(result.stderr).toContain('Usage:');
     });
