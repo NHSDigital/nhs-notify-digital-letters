@@ -104,6 +104,7 @@ class MeshDownloadProcessor:
             data = validated_event.data
             mesh_message_id = data.meshMessageId
             sender_id = data.senderId
+            message_reference = data.messageReference
 
             if not mesh_message_id:
                 self.__log.error("Missing meshMessageId in event data", sqs_record=sqs_record)
@@ -113,7 +114,7 @@ class MeshDownloadProcessor:
             logger.info("Processing MESH download request")
 
             # Download and store the MESH message
-            self.download_and_store_message(mesh_message_id, sender_id, logger)
+            self.download_and_store_message(mesh_message_id, sender_id, message_reference, logger)
 
         except Exception as exc:
             self.__log.error("Error processing SQS message",
@@ -121,7 +122,7 @@ class MeshDownloadProcessor:
                             sqs_record=sqs_record)
             raise
 
-    def download_and_store_message(self, mesh_message_id, sender_id, logger):
+    def download_and_store_message(self, mesh_message_id, sender_id, message_reference, logger):
         """
         Downloads a MESH message and stores it in S3
         """
@@ -135,7 +136,7 @@ class MeshDownloadProcessor:
 
             # Extract data from MESH message headers
             sender_mailbox_id = getattr(message, 'sender', '')
-            message_reference = getattr(message, 'local_id', '')
+            local_id = getattr(message, 'local_id', '')
             message_type = getattr(message, 'message_type', '')
             subject = getattr(message, 'subject', '')
             workflow_id = getattr(message, 'workflow_id', '')
@@ -146,9 +147,21 @@ class MeshDownloadProcessor:
                 sender=sender_mailbox_id,
                 workflow_id=workflow_id,
                 subject=subject,
-                local_id=message_reference,
-                message_type=message_type
+                local_id=local_id,
+                message_type=message_type,
+                message_reference_from_event=message_reference
             )
+
+            # Validate messageReference matches local_id from MESH
+            if message_reference != local_id:
+                logger.warning(
+                    "messageReference mismatch between event and MESH message",
+                    expected=message_reference,
+                    actual=local_id
+                )
+                raise ValueError(
+                    f"messageReference mismatch: event has '{message_reference}' but MESH message has '{local_id}'"
+                )
 
             logger.info("Processing message based on type")
 

@@ -45,7 +45,7 @@ def create_valid_cloud_event():
         'data': {
             'meshMessageId': 'test_message_123',
             'senderId': 'TEST_SENDER',
-            'workflowId': 'TEST_WORKFLOW'
+            'messageReference': 'ref_001'
         }
     }
 
@@ -419,3 +419,44 @@ class TestMeshDownloadProcessor:
         assert len(published_events) == 1
         message_uri = published_events[0]['data']['messageUri']
         assert message_uri.startswith('s3://test-pii-bucket/')
+
+    @patch('src.processor.os.getenv')
+    def test_message_reference_mismatch_raises_error(self, mock_getenv):
+        """When messageReference from event doesn't match local_id from MESH, should raise ValueError"""
+        from src.processor import MeshDownloadProcessor
+
+        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+
+        def getenv_side_effect(key, default=None):
+            return {
+                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
+                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
+                'ENVIRONMENT': 'development',
+                'DEPLOYMENT': 'dev-1',
+                'PII_BUCKET': 'test-pii-bucket',
+                'MOCK_MESH_BUCKET': 'test-mock-bucket'
+            }.get(key, default)
+
+        mock_getenv.side_effect = getenv_side_effect
+
+        processor = MeshDownloadProcessor(
+            mesh_client=mesh_client,
+            log=log,
+            s3_client=s3_client,
+            document_store=document_store,
+            event_publisher=event_publisher
+        )
+
+        # Create MESH message with different local_id than event messageReference
+        mesh_message = create_mesh_message(local_id='different_ref')
+        mesh_client.retrieve_message.return_value = mesh_message
+
+        # Event has messageReference='ref_001' (from create_valid_cloud_event)
+        sqs_record = create_sqs_record()
+
+        with pytest.raises(ValueError, match="messageReference mismatch"):
+            processor.process_sqs_message(sqs_record)
+
+        # Should not acknowledge or publish if validation fails
+        mesh_message.acknowledge.assert_not_called()
+        event_publisher.send_events.assert_not_called()

@@ -94,14 +94,14 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         sender_mailbox_id = getattr(message, "sender", "")
         workflow_id = getattr(message, "workflow_id", "")
         subject = getattr(message, "subject", "")
-        local_id = getattr(message, "local_id", "")
+        message_reference = getattr(message, "local_id", "")
 
         logger = self.__log.bind(
             message_id=message.id(),
             sender=sender_mailbox_id,
             workflow_id=workflow_id,
             subject=subject,
-            local_id=local_id,
+            local_id=message_reference,
             message_type=message_type,
         )
 
@@ -121,7 +121,8 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
             event_detail = {
                 "data": {
                     "meshMessageId": message_id,
-                    "senderId": client_id
+                    "senderId": client_id,
+                    "messageReference": message_reference
                 }
             }
 

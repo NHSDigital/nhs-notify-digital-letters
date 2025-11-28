@@ -46,16 +46,18 @@ def valid_cloud_event():
         'specversion': '1.0',
         'source': '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
         'subject': 'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-        'type': 'uk.nhs.notify.digital.letters.sent.v1',
+        'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
         'time': '2023-06-20T12:00:00Z',
         'recordedtime': '2023-06-20T12:00:00.250Z',
         'severitynumber': 2,
+        'severitytext': 'INFO',
         'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-        'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
+        'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letters-mesh-inbox-message-received-data.schema.json',
+        'dataschemaversion': '1.0',
         'data': {
-            'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000',
-            'messageReference': 'ref1',
+            'meshMessageId': 'test-123',
             'senderId': 'sender1',
+            'messageReference': 'ref_001'
         },
     }
 
@@ -67,18 +69,19 @@ def valid_cloud_event2():
         'profilepublished': '2025-10',
         'id': '550e8400-e29b-41d4-a716-446655440002',
         'specversion': '1.0',
-        'source': '/nhs/england/notify/development/primary/data-plane/digital-letters',
+        'source': '/nhs/england/notify/development/primary/data-plane/digitalletters/mesh',
         'subject': 'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-        'type': 'uk.nhs.notify.digital.letters.sent.v2',
+        'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
         'time': '2023-06-20T12:00:00Z',
         'recordedtime': '2023-06-20T12:00:00.250Z',
         'severitynumber': 2,
         'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-        'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
+        'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letters-mesh-inbox-message-received-data.schema.json',
+        'dataschemaversion': '1.0',
         'data': {
-            'digital-letter-id': '123e4567-e89b-12d3-a456-426614174001',
-            'messageReference': 'ref1',
+            'meshMessageId': 'test-123',
             'senderId': 'sender1',
+            'messageReference': 'ref_001'
         },
     }
 
@@ -101,10 +104,13 @@ class TestEventPublishing:
         mock_events_client.put_events.assert_not_called()
         mock_sqs_client.send_message_batch.assert_not_called()
 
-    def test_should_send_valid_events_to_eventbridge(self, test_config, mock_events_client, valid_cloud_event, valid_cloud_event2):
+    def test_should_send_valid_events_to_eventbridge(self, test_config, mock_events_client, mock_sqs_client, valid_cloud_event, valid_cloud_event2):
         mock_events_client.put_events.return_value = {
             'FailedEntryCount': 0,
             'Entries': [{'EventId': 'event-1'}]
+        }
+        mock_sqs_client.send_message_batch.return_value = {
+            'Successful': []
         }
 
         publisher = EventPublisher(**test_config)
@@ -154,6 +160,7 @@ class TestEventPublishing:
 
         assert result == []
         assert mock_events_client.put_events.call_count == 1
+        # Should call DLQ once for the failed event
         assert mock_sqs_client.send_message_batch.call_count == 1
 
         # Verify EventBridge was called with both events
@@ -180,6 +187,7 @@ class TestEventPublishing:
 
         assert result == []
         assert mock_events_client.put_events.call_count == 1
+        # Should call DLQ once for all events after EventBridge failure
         assert mock_sqs_client.send_message_batch.call_count == 1
 
     def test_should_return_failed_events_when_dlq_also_fails(self, test_config, mock_sqs_client, invalid_cloud_event):
@@ -280,10 +288,13 @@ class TestEventPublisherClass:
         with pytest.raises(ValueError, match='dlq_url has not been specified'):
             EventPublisher(**test_config)
 
-    def test_should_be_reusable_for_multiple_calls(self, test_config, mock_events_client, valid_cloud_event, valid_cloud_event2):
+    def test_should_be_reusable_for_multiple_calls(self, test_config, mock_events_client, mock_sqs_client, valid_cloud_event, valid_cloud_event2):
         mock_events_client.put_events.return_value = {
             'FailedEntryCount': 0,
             'Entries': [{'EventId': 'event-1'}]
+        }
+        mock_sqs_client.send_message_batch.return_value = {
+            'Successful': []
         }
 
         publisher = EventPublisher(**test_config)

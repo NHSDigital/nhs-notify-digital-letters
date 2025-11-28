@@ -174,6 +174,7 @@ class MeshInboxMessageData(BaseModel):
     """Data payload for MESH inbox message received event"""
     meshMessageId: str = Field(..., min_length=1)
     senderId: str = Field(..., min_length=1)
+    messageReference: str = Field(..., min_length=1)
 
 
 class MeshInboxMessageEvent(CloudEvent):
