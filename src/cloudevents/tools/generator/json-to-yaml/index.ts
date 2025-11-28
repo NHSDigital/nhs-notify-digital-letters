@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env tsx
 /**
  * Entry point for json-to-yaml CLI tool
  * This file runs the CLI handler when executed directly

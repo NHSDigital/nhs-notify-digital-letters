@@ -31,13 +31,13 @@ describe('discover-schema-dependencies CLI', () => {
   describe('CLI argument validation', () => {
     it('should exit with error when no arguments provided', () => {
       expect(() => {
-        execSync(`npx ts-node ${SCRIPT_PATH}`, { encoding: 'utf-8', stdio: 'pipe' });
+        execSync(`npx tsx ${SCRIPT_PATH}`, { encoding: 'utf-8', stdio: 'pipe' });
       }).toThrow();
     });
 
     it('should exit with error when only one argument provided', () => {
       expect(() => {
-        execSync(`npx ts-node ${SCRIPT_PATH} /some/path`, {
+        execSync(`npx tsx ${SCRIPT_PATH} /some/path`, {
           encoding: 'utf-8',
           stdio: 'pipe',
         });
@@ -49,7 +49,7 @@ describe('discover-schema-dependencies CLI', () => {
       const outputDir = path.join(tempDir, 'output');
 
       expect(() => {
-        execSync(`npx ts-node ${SCRIPT_PATH} ${nonExistentPath} ${outputDir}`, {
+        execSync(`npx tsx ${SCRIPT_PATH} ${nonExistentPath} ${outputDir}`, {
           encoding: 'utf-8',
           stdio: 'pipe',
         });
@@ -77,7 +77,7 @@ properties:
       const outputDir = path.join(tempDir, 'output');
       fs.mkdirSync(outputDir, { recursive: true });
 
-      const result = execSync(`npx ts-node ${SCRIPT_PATH} ${schemaPath} ${outputDir}`, {
+      const result = execSync(`npx tsx ${SCRIPT_PATH} ${schemaPath} ${outputDir}`, {
         encoding: 'utf-8',
       });
 
@@ -126,7 +126,7 @@ properties:
       const outputDir = path.join(tempDir, 'output');
       fs.mkdirSync(outputDir, { recursive: true });
 
-      const result = execSync(`npx ts-node ${SCRIPT_PATH} ${schemaPath} ${outputDir}`, {
+      const result = execSync(`npx tsx ${SCRIPT_PATH} ${schemaPath} ${outputDir}`, {
         encoding: 'utf-8',
       });
 
@@ -178,7 +178,7 @@ properties:
       fs.mkdirSync(outputDir, { recursive: true });
 
       // Should complete without hanging or error
-      const result = execSync(`npx ts-node ${SCRIPT_PATH} ${schemaAPath} ${outputDir}`, {
+      const result = execSync(`npx tsx ${SCRIPT_PATH} ${schemaAPath} ${outputDir}`, {
         encoding: 'utf-8',
         timeout: 5000, // 5 second timeout to catch infinite loops
       });
@@ -209,7 +209,7 @@ properties:
       const outputDir = path.join(tempDir, 'output');
       fs.mkdirSync(outputDir, { recursive: true });
 
-      const result = execSync(`npx ts-node ${SCRIPT_PATH} ${schemaPath} ${outputDir}`, {
+      const result = execSync(`npx tsx ${SCRIPT_PATH} ${schemaPath} ${outputDir}`, {
         encoding: 'utf-8',
       });
 
@@ -236,7 +236,7 @@ properties:
       const outputDir = path.join(tempDir, 'output');
       fs.mkdirSync(outputDir, { recursive: true });
 
-      const result = execSync(`npx ts-node ${SCRIPT_PATH} ${schemaPath} ${outputDir}`, {
+      const result = execSync(`npx tsx ${SCRIPT_PATH} ${schemaPath} ${outputDir}`, {
         encoding: 'utf-8',
       });
 
@@ -276,7 +276,7 @@ properties:
       const outputDir = path.join(tempDir, 'output');
       fs.mkdirSync(outputDir, { recursive: true });
 
-      const result = execSync(`npx ts-node ${SCRIPT_PATH} ${schema1Path} ${outputDir}`, {
+      const result = execSync(`npx tsx ${SCRIPT_PATH} ${schema1Path} ${outputDir}`, {
         encoding: 'utf-8',
       });
 
@@ -310,7 +310,7 @@ properties:
       const outputDir = path.join(tempDir, 'output');
       fs.mkdirSync(outputDir, { recursive: true });
 
-      const result = execSync(`npx ts-node ${SCRIPT_PATH} ${eventPath} ${outputDir}`, {
+      const result = execSync(`npx tsx ${SCRIPT_PATH} ${eventPath} ${outputDir}`, {
         encoding: 'utf-8',
       });
 
