@@ -50,7 +50,7 @@ describe('build-schema CLI', () => {
       // Run build-schema
       try {
         execSync(
-          `tsx tools/builder/build-schema.ts "${inputFile}" "${outputDir}"`,
+          `ts-node tools/builder/build-schema.ts "${inputFile}" "${outputDir}"`,
           {
             cwd: process.cwd(),
             stdio: 'pipe'
@@ -89,7 +89,7 @@ properties:
 
       try {
         execSync(
-          `tsx tools/builder/build-schema.ts "${inputFile}" "${outputDir}"`,
+          `ts-node tools/builder/build-schema.ts "${inputFile}" "${outputDir}"`,
           {
             cwd: process.cwd(),
             stdio: 'pipe'
@@ -118,7 +118,7 @@ properties:
 
       try {
         const result = execSync(
-          `tsx tools/builder/build-schema.ts "${inputFile}" "${outputDir}"`,
+          `ts-node tools/builder/build-schema.ts "${inputFile}" "${outputDir}"`,
           {
             cwd: process.cwd(),
             stdio: 'pipe',
@@ -137,7 +137,7 @@ properties:
     it('should handle missing arguments gracefully', () => {
       try {
         execSync(
-          'tsx tools/builder/build-schema.ts',
+          'ts-node tools/builder/build-schema.ts',
           {
             cwd: process.cwd(),
             stdio: 'pipe'
@@ -158,7 +158,7 @@ properties:
 
       try {
         execSync(
-          `tsx tools/builder/build-schema.ts "${inputFile}" "${outputDir}" "https://example.com"`,
+          `ts-node tools/builder/build-schema.ts "${inputFile}" "${outputDir}" "https://example.com"`,
           {
             cwd: process.cwd(),
             stdio: 'pipe'
@@ -196,7 +196,7 @@ properties:
       try {
         // Build the main schema
         execSync(
-          `tsx tools/builder/build-schema.ts "${mainFile}" "${outputDir}"`,
+          `ts-node tools/builder/build-schema.ts "${mainFile}" "${outputDir}"`,
           {
             cwd: process.cwd(),
             stdio: 'pipe'
@@ -222,7 +222,7 @@ properties:
 
       try {
         execSync(
-          `tsx tools/builder/build-schema.ts "${yamlFile}" "${outputDir}"`,
+          `ts-node tools/builder/build-schema.ts "${yamlFile}" "${outputDir}"`,
           {
             cwd: process.cwd(),
             stdio: 'pipe'
@@ -244,7 +244,7 @@ properties:
     it('should handle non-existent input file', () => {
       try {
         execSync(
-          `tsx tools/builder/build-schema.ts "nonexistent.json" "${outputDir}"`,
+          `ts-node tools/builder/build-schema.ts "nonexistent.json" "${outputDir}"`,
           {
             cwd: process.cwd(),
             stdio: 'pipe'
@@ -264,7 +264,7 @@ properties:
 
       try {
         execSync(
-          `tsx tools/builder/build-schema.ts "${invalidFile}" "${outputDir}"`,
+          `ts-node tools/builder/build-schema.ts "${invalidFile}" "${outputDir}"`,
           {
             cwd: process.cwd(),
             stdio: 'pipe'
