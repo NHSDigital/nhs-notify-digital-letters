@@ -93,6 +93,7 @@ class TestMeshDownloadProcessor:
         def getenv_side_effect(key, default=None):
             return {
                 'PII_BUCKET': 'test-pii-bucket',
+                'MOCK_MESH_BUCKET': 'test-mock-bucket',
                 'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
                 'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
                 'ENVIRONMENT': 'development',
@@ -129,7 +130,8 @@ class TestMeshDownloadProcessor:
                 'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
                 'ENVIRONMENT': 'development',
                 'DEPLOYMENT': 'dev-1',
-                'PII_BUCKET': 'test-pii-bucket'
+                'PII_BUCKET': 'test-pii-bucket',
+                'MOCK_MESH_BUCKET': 'test-mock-bucket'
             }.get(key, default)
 
         mock_getenv.side_effect = getenv_side_effect
@@ -186,6 +188,7 @@ class TestMeshDownloadProcessor:
         def getenv_side_effect(key, default=None):
             return {
                 'PII_BUCKET': 'test-pii-bucket',
+                'MOCK_MESH_BUCKET': 'test-mock-bucket',
                 'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
                 'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
                 'ENVIRONMENT': 'development',
@@ -222,6 +225,7 @@ class TestMeshDownloadProcessor:
         def getenv_side_effect(key, default=None):
             return {
                 'PII_BUCKET': 'test-pii-bucket',
+                'MOCK_MESH_BUCKET': 'test-mock-bucket',
                 'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
                 'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
                 'ENVIRONMENT': 'development',
@@ -261,7 +265,8 @@ class TestMeshDownloadProcessor:
                 'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
                 'ENVIRONMENT': 'development',
                 'DEPLOYMENT': 'dev-1',
-                'PII_BUCKET': 'test-pii-bucket'
+                'PII_BUCKET': 'test-pii-bucket',
+                'MOCK_MESH_BUCKET': 'test-mock-bucket'
             }.get(key, default)
 
         mock_getenv.side_effect = getenv_side_effect
@@ -294,7 +299,8 @@ class TestMeshDownloadProcessor:
                 'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
                 'ENVIRONMENT': 'development',
                 'DEPLOYMENT': 'dev-1',
-                'PII_BUCKET': 'test-pii-bucket'
+                'PII_BUCKET': 'test-pii-bucket',
+                'MOCK_MESH_BUCKET': 'test-mock-bucket'
             }.get(key, default)
 
         mock_getenv.side_effect = getenv_side_effect
@@ -318,3 +324,98 @@ class TestMeshDownloadProcessor:
 
         # ensure we did not acknowledge the message if storage failed
         mesh_message.acknowledge.assert_not_called()
+
+    @patch('src.processor.datetime')
+    @patch('src.processor.os.getenv')
+    def test_bucket_selection_with_mesh_mock_enabled(self, mock_getenv, mock_datetime):
+        """When USE_MESH_MOCK=true, processor uses MOCK_MESH_BUCKET for storage"""
+        from src.processor import MeshDownloadProcessor
+
+        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+
+        fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
+        mock_datetime.now.return_value = fixed_time
+
+        def getenv_side_effect(key, default=''):
+            return {
+                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
+                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
+                'ENVIRONMENT': 'development',
+                'DEPLOYMENT': 'dev-1',
+                'PII_BUCKET': 'test-pii-bucket',
+                'MOCK_MESH_BUCKET': 'test-mock-bucket',
+                'USE_MESH_MOCK': 'true'  # Mock enabled
+            }.get(key, default)
+
+        mock_getenv.side_effect = getenv_side_effect
+
+        document_store.store_document.return_value = 'document-reference/SENDER_001_ref_001'
+        event_publisher.send_events.return_value = []
+
+        processor = MeshDownloadProcessor(
+            mesh_client=mesh_client,
+            log=log,
+            s3_client=s3_client,
+            document_store=document_store,
+            event_publisher=event_publisher
+        )
+
+        mesh_message = create_mesh_message()
+        mesh_client.retrieve_message.return_value = mesh_message
+        sqs_record = create_sqs_record()
+
+        processor.process_sqs_message(sqs_record)
+
+        # Verify event was published with MOCK_MESH_BUCKET in URI
+        event_publisher.send_events.assert_called_once()
+        published_events = event_publisher.send_events.call_args[0][0]
+        assert len(published_events) == 1
+        message_uri = published_events[0]['data']['messageUri']
+        assert message_uri.startswith('s3://test-mock-bucket/')
+
+    @patch('src.processor.datetime')
+    @patch('src.processor.os.getenv')
+    def test_bucket_selection_with_mesh_mock_disabled(self, mock_getenv, mock_datetime):
+        """When USE_MESH_MOCK=false, processor uses PII_BUCKET for storage"""
+        from src.processor import MeshDownloadProcessor
+
+        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+
+        fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
+        mock_datetime.now.return_value = fixed_time
+
+        def getenv_side_effect(key, default=''):
+            return {
+                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
+                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
+                'ENVIRONMENT': 'development',
+                'DEPLOYMENT': 'dev-1',
+                'PII_BUCKET': 'test-pii-bucket',
+                'MOCK_MESH_BUCKET': 'test-mock-bucket',
+                'USE_MESH_MOCK': 'false'  # Mock disabled
+            }.get(key, default)
+
+        mock_getenv.side_effect = getenv_side_effect
+
+        document_store.store_document.return_value = 'document-reference/SENDER_001_ref_001'
+        event_publisher.send_events.return_value = []
+
+        processor = MeshDownloadProcessor(
+            mesh_client=mesh_client,
+            log=log,
+            s3_client=s3_client,
+            document_store=document_store,
+            event_publisher=event_publisher
+        )
+
+        mesh_message = create_mesh_message()
+        mesh_client.retrieve_message.return_value = mesh_message
+        sqs_record = create_sqs_record()
+
+        processor.process_sqs_message(sqs_record)
+
+        event_publisher.send_events.assert_called_once()
+        published_events = event_publisher.send_events.call_args[0][0]
+        assert len(published_events) == 1
+        message_uri = published_events[0]['data']['messageUri']
+        assert message_uri.startswith('s3://test-pii-bucket/')

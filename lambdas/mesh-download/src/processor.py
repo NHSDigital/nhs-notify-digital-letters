@@ -44,11 +44,19 @@ class MeshDownloadProcessor:
                 self.s3_client = s3_client
                 self.transactional_data_bucket = bucket
 
-        pii_bucket = os.getenv('PII_BUCKET')
-        if not pii_bucket:
-            raise ValueError("PII_BUCKET environment variable not set")
+        # Select bucket based on whether using mesh mock
+        use_mesh_mock = os.getenv('USE_MESH_MOCK', 'false').lower() == 'true'
+        if use_mesh_mock:
+            bucket = os.getenv('MOCK_MESH_BUCKET')
+            if not bucket:
+                raise ValueError("MOCK_MESH_BUCKET environment variable not set")
+        else:
+            bucket = os.getenv('PII_BUCKET')
+            if not bucket:
+                raise ValueError("PII_BUCKET environment variable not set")
 
-        config = Config(self.__s3_client, pii_bucket)
+        self.__storage_bucket = bucket
+        config = Config(self.__s3_client, bucket)
 
         # Allow document_store to be injected for testing
         if 'document_store' in kwargs:
@@ -161,19 +169,18 @@ class MeshDownloadProcessor:
 
             logger.info("Downloaded MESH message content")
 
-            # Store document in S3 PII bucket using DocumentStore
+            # Store document in S3 using DocumentStore
             s3_key = self.__document_store.store_document(
                 sender_id=sender_id,
                 message_reference=message_reference,
                 content=message_content,
             )
 
-            # Generate message URI
-            pii_bucket = os.getenv('PII_BUCKET')
-            message_uri = f"s3://{pii_bucket}/{s3_key}"
+            # Generate message URI using the selected storage bucket
+            message_uri = f"s3://{self.__storage_bucket}/{s3_key}"
 
             logger.info("Stored MESH message in S3",
-                        s3_bucket=pii_bucket,
+                        s3_bucket=self.__storage_bucket,
                         s3_key=s3_key)
 
             event_detail = {
