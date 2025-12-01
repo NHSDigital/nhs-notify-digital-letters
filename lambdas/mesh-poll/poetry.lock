@@ -556,7 +556,12 @@ develop = false
 
 [package.dependencies]
 boto3 = "^1.40.70"
+mesh-client = "^3.2.3"
+metric-publishers = {path = "../metric-publishers", develop = true}
+py-mock-mesh = {path = "../py-mock-mesh", develop = true}
 pydantic = "^2.0.0"
+pyopenssl = "^24.0.0"
+structlog = "^21.5.0"
 
 [package.source]
 type = "directory"

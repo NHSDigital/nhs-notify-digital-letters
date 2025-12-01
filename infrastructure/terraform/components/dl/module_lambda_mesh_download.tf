@@ -44,8 +44,8 @@ module "mesh_download" {
     PII_BUCKET                          = module.s3bucket_pii_data.bucket
     CERTIFICATE_EXPIRY_METRIC_NAME      = "mesh-download-client-certificate-near-expiry"
     CERTIFICATE_EXPIRY_METRIC_NAMESPACE = "dl-mesh-download"
-    POLLING_METRIC_NAME                 = "mesh-download-successful-polls"
-    POLLING_METRIC_NAMESPACE            = "dl-mesh-download"
+    DOWNLOAD_METRIC_NAME                = "mesh-download-successful-downloads"
+    DOWNLOAD_METRIC_NAMESPACE           = "dl-mesh-download"
 
     # Optional
     USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"

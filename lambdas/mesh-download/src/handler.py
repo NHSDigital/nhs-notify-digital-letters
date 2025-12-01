@@ -25,6 +25,7 @@ def handler(event, context):
         with Config() as config:
             processor = MeshDownloadProcessor(
                 mesh_client=config.mesh_client,
+                download_metric=config.download_metric,
                 log=log
             )
 

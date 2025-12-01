@@ -19,8 +19,9 @@ def setup_mocks():
     s3_client = Mock()
     event_publisher = Mock()
     document_store = Mock()
+    download_metric = Mock()
 
-    return mesh_client, log, s3_client, event_publisher, document_store
+    return mesh_client, log, s3_client, event_publisher, document_store, download_metric
 
 
 def create_valid_cloud_event():
@@ -88,7 +89,7 @@ class TestMeshDownloadProcessor:
         """Processor initializes and handshakes mesh client when EventPublisher configured"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
 
         def getenv_side_effect(key, default=None):
             return {
@@ -107,7 +108,8 @@ class TestMeshDownloadProcessor:
             log=log,
             s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher
+            event_publisher=event_publisher,
+            download_metric=download_metric
         )
 
         mesh_client.handshake.assert_called_once()
@@ -118,9 +120,8 @@ class TestMeshDownloadProcessor:
         """Successful end-to-end: validate, download, store via document_store, publish, acknowledge"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
 
-        # Fix now for deterministic behaviour if used; not absolutely required here
         fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
         mock_datetime.now.return_value = fixed_time
 
@@ -136,10 +137,8 @@ class TestMeshDownloadProcessor:
 
         mock_getenv.side_effect = getenv_side_effect
 
-        # document_store returns an S3 key when storing
         document_store.store_document.return_value = 'document-reference/SENDER_001_ref_001'
 
-        # event publisher successful
         event_publisher.send_events.return_value = []
 
         processor = MeshDownloadProcessor(
@@ -147,35 +146,31 @@ class TestMeshDownloadProcessor:
             log=log,
             s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher
+            event_publisher=event_publisher,
+            download_metric=download_metric
         )
 
-        # Setup MESH message
         mesh_message = create_mesh_message()
         mesh_client.retrieve_message.return_value = mesh_message
 
-        # Prepare SQS record containing valid event
         sqs_record = create_sqs_record()
 
         processor.process_sqs_message(sqs_record)
 
-        # Verify MESH message was retrieved with meshMessageId from the cloud event
         mesh_client.retrieve_message.assert_called_once_with('test_message_123')
 
-        # Verify message content was read
         mesh_message.read.assert_called_once()
 
-        # Verify we delegated storage to document_store with correct arguments
         document_store.store_document.assert_called_once_with(
             sender_id='TEST_SENDER',
             message_reference='ref_001',
             content=b'Test message content'
         )
 
-        # Verify message was acknowledged after successful store and publish
         mesh_message.acknowledge.assert_called_once()
 
-        # Verify event was published once
+        download_metric.record.assert_called_once_with(1)
+
         event_publisher.send_events.assert_called_once()
 
     @patch('src.processor.os.getenv')
@@ -183,7 +178,7 @@ class TestMeshDownloadProcessor:
         """Malformed CloudEvents should be rejected by pydantic and not trigger downloads"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
 
         def getenv_side_effect(key, default=None):
             return {
@@ -202,7 +197,8 @@ class TestMeshDownloadProcessor:
             log=log,
             s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher
+            event_publisher=event_publisher,
+            download_metric=download_metric
         )
 
         # Create broken cloud event
@@ -212,7 +208,6 @@ class TestMeshDownloadProcessor:
         with pytest.raises(ValidationError):
             processor.process_sqs_message(sqs_record)
 
-        # No retrieval attempted
         mesh_client.retrieve_message.assert_not_called()
 
     @patch('src.processor.os.getenv')
@@ -220,7 +215,7 @@ class TestMeshDownloadProcessor:
         """Event missing meshMessageId should not be processed"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
 
         def getenv_side_effect(key, default=None):
             return {
@@ -239,7 +234,8 @@ class TestMeshDownloadProcessor:
             log=log,
             s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher
+            event_publisher=event_publisher,
+            download_metric=download_metric
         )
 
         event = create_valid_cloud_event()
@@ -257,7 +253,7 @@ class TestMeshDownloadProcessor:
         """If MESH returns None, nothing is stored or published"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
 
         def getenv_side_effect(key, default=None):
             return {
@@ -276,7 +272,8 @@ class TestMeshDownloadProcessor:
             log=log,
             s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher
+            event_publisher=event_publisher,
+            download_metric=download_metric
         )
 
         mesh_client.retrieve_message.return_value = None
@@ -291,7 +288,7 @@ class TestMeshDownloadProcessor:
         """If storing fails the processor should raise and not acknowledge the MESH message"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
 
         def getenv_side_effect(key, default=None):
             return {
@@ -312,7 +309,8 @@ class TestMeshDownloadProcessor:
             log=log,
             s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher
+            event_publisher=event_publisher,
+            download_metric=download_metric
         )
 
         mesh_message = create_mesh_message()
@@ -331,7 +329,7 @@ class TestMeshDownloadProcessor:
         """When USE_MESH_MOCK=true, processor uses MOCK_MESH_BUCKET for storage"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
 
         fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
         mock_datetime.now.return_value = fixed_time
@@ -357,7 +355,8 @@ class TestMeshDownloadProcessor:
             log=log,
             s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher
+            event_publisher=event_publisher,
+            download_metric=download_metric
         )
 
         mesh_message = create_mesh_message()
@@ -379,7 +378,7 @@ class TestMeshDownloadProcessor:
         """When USE_MESH_MOCK=false, processor uses PII_BUCKET for storage"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
 
         fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
         mock_datetime.now.return_value = fixed_time
@@ -405,7 +404,8 @@ class TestMeshDownloadProcessor:
             log=log,
             s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher
+            event_publisher=event_publisher,
+            download_metric=download_metric
         )
 
         mesh_message = create_mesh_message()
@@ -425,7 +425,7 @@ class TestMeshDownloadProcessor:
         """When messageReference from event doesn't match local_id from MESH, should raise ValueError"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store = setup_mocks()
+        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
 
         def getenv_side_effect(key, default=None):
             return {
@@ -444,14 +444,14 @@ class TestMeshDownloadProcessor:
             log=log,
             s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher
+            event_publisher=event_publisher,
+            download_metric=download_metric
         )
 
         # Create MESH message with different local_id than event messageReference
         mesh_message = create_mesh_message(local_id='different_ref')
         mesh_client.retrieve_message.return_value = mesh_message
 
-        # Event has messageReference='ref_001' (from create_valid_cloud_event)
         sqs_record = create_sqs_record()
 
         with pytest.raises(ValueError, match="messageReference mismatch"):

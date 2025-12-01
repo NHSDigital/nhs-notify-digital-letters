@@ -9,6 +9,11 @@ packages = [{include = "event_publisher"}]
 python = "^3.13"
 boto3 = "^1.40.70"
 pydantic = "^2.0.0"
+structlog = "^21.5.0"
+mesh-client = "^3.2.3"
+pyopenssl = "^24.0.0"
+metric-publishers = { path = "../metric-publishers", develop = true }
+py-mock-mesh = { path = "../py-mock-mesh", develop = true }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

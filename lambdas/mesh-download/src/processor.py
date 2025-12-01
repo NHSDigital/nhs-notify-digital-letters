@@ -24,6 +24,7 @@ class MeshDownloadProcessor:
     def __init__(self, **kwargs):
         self.__mesh_client = kwargs['mesh_client']
         self.__log = kwargs['log']
+        self.__download_metric = kwargs['download_metric']
 
         # Allow s3_client to be injected for testing
         if 's3_client' in kwargs:
@@ -37,7 +38,6 @@ class MeshDownloadProcessor:
         plane = 'data-plane'
         self.__cloud_event_source = f'/nhs/england/notify/{environment}/{deployment}/{plane}/digitalletters/mesh'
 
-        # Create config object for DocumentStore (mimicking mesh-poll pattern)
         class Config:
             """Configuration holder for S3 client and bucket"""
             def __init__(self, s3_client, bucket):
@@ -68,7 +68,6 @@ class MeshDownloadProcessor:
         if 'event_publisher' in kwargs:
             self.__event_publisher = kwargs['event_publisher']
         else:
-            # Initialize EventPublisher
             event_bus_arn = os.getenv('EVENT_PUBLISHER_EVENT_BUS_ARN')
             dlq_url = os.getenv('EVENT_PUBLISHER_DLQ_URL', '')
 
@@ -100,7 +99,6 @@ class MeshDownloadProcessor:
                                 event_detail=event_detail)
                 raise
 
-            # Extract data payload
             data = validated_event.data
             mesh_message_id = data.meshMessageId
             sender_id = data.senderId
@@ -113,7 +111,6 @@ class MeshDownloadProcessor:
             logger = self.__log.bind(mesh_message_id=mesh_message_id)
             logger.info("Processing MESH download request")
 
-            # Download and store the MESH message
             self.download_and_store_message(mesh_message_id, sender_id, message_reference, logger)
 
         except Exception as exc:
@@ -152,7 +149,6 @@ class MeshDownloadProcessor:
                 message_reference_from_event=message_reference
             )
 
-            # Validate messageReference matches local_id from MESH
             if message_reference != local_id:
                 logger.warning(
                     "messageReference mismatch between event and MESH message",
@@ -165,7 +161,6 @@ class MeshDownloadProcessor:
 
             logger.info("Processing message based on type")
 
-            # Process DATA message (document reference)
             self.process_data_message(message, sender_id, message_reference, logger)
 
         except Exception as exc:
@@ -177,19 +172,17 @@ class MeshDownloadProcessor:
         Processes a DATA message (document reference) from MESH inbox
         """
         try:
-            # Download message content
             message_content = message.read()
 
             logger.info("Downloaded MESH message content")
 
-            # Store document in S3 using DocumentStore
+            # Store document in S3
             s3_key = self.__document_store.store_document(
                 sender_id=sender_id,
                 message_reference=message_reference,
                 content=message_content,
             )
 
-            # Generate message URI using the selected storage bucket
             message_uri = f"s3://{self.__storage_bucket}/{s3_key}"
 
             logger.info("Stored MESH message in S3",
@@ -212,6 +205,9 @@ class MeshDownloadProcessor:
             # Acknowledge the message to remove it from MESH inbox
             message.acknowledge()
             logger.info("Acknowledged message")
+
+            # Record successful download metric
+            self.__download_metric.record(1)
 
         except Exception as exc:
             logger.error("Error processing data message", error=format_exception(exc))

@@ -1,6 +1,5 @@
 """
 Tests for Lambda handler
-Following the pattern from mesh-poll tests
 """
 import pytest
 from unittest.mock import Mock, patch, MagicMock
@@ -59,7 +58,6 @@ class TestHandler:
 
         result = handler(event, mock_context)
 
-        # Verify Config was created and used as context manager
         mock_config_class.assert_called_once()
         mock_config_class.return_value.__enter__.assert_called_once()
 
@@ -68,10 +66,8 @@ class TestHandler:
         call_kwargs = mock_processor_class.call_args[1]
         assert call_kwargs['mesh_client'] == mock_config.mesh_client
 
-        # Verify process_sqs_message was called
         mock_processor.process_sqs_message.assert_called_once()
 
-        # Verify return value (no failures)
         assert result == {"batchItemFailures": []}
 
     @patch('src.handler.Config')
@@ -113,9 +109,7 @@ class TestHandler:
 
         handler(event, mock_context)
 
-        # Verify __exit__ was called (cleanup happened)
         mock_exit.assert_called_once()
-        # __exit__ should be called with (None, None, None) on success
         assert mock_exit.call_args[0] == (None, None, None)
 
     @patch('src.handler.Config')
@@ -132,9 +126,9 @@ class TestHandler:
 
         # Make second message fail
         mock_processor.process_sqs_message.side_effect = [
-            None,  # First succeeds
-            Exception("Test error"),  # Second fails
-            None   # Third succeeds
+            None,
+            Exception("Test error"),
+            None
         ]
 
         event = create_sqs_event(num_records=3)
@@ -161,10 +155,8 @@ class TestHandler:
 
         result = handler(event, mock_context)
 
-        # Verify process_sqs_message was NOT called
         mock_processor.process_sqs_message.assert_not_called()
 
-        # Verify return value (no failures)
         assert result == {"batchItemFailures": []}
 
     @patch('src.handler.Config')
@@ -203,10 +195,8 @@ class TestHandler:
 
         result = handler(event, mock_context)
 
-        # Verify process_sqs_message was NOT called
         mock_processor.process_sqs_message.assert_not_called()
 
-        # Verify return value
         assert result == {"batchItemFailures": []}
 
     @patch('src.handler.Config')
@@ -218,7 +208,9 @@ class TestHandler:
         (mock_context, mock_config, mock_processor) = setup_mocks()
 
         mock_mesh_client = Mock()
+        mock_download_metric = Mock()
         mock_config.mesh_client = mock_mesh_client
+        mock_config.download_metric = mock_download_metric
 
         mock_config_class.return_value.__enter__.return_value = mock_config
         mock_config_class.return_value.__exit__ = Mock(return_value=None)
@@ -228,10 +220,9 @@ class TestHandler:
 
         handler(event, mock_context)
 
-        # Verify all parameters are passed correctly
         mock_processor_class.assert_called_once()
         call_kwargs = mock_processor_class.call_args[1]
 
-        # Check each parameter individually
         assert call_kwargs['mesh_client'] == mock_mesh_client
+        assert call_kwargs['download_metric'] == mock_download_metric
         assert 'log' in call_kwargs
