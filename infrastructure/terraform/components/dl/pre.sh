@@ -11,6 +11,6 @@ ls -la
 
 npm ci
 
-make generate
+npm run generate-dependencies
 
 npm run lambda-build --workspaces --if-present
