@@ -59,7 +59,6 @@ test-domains:
 
 deploy:
 	@echo "=== Deploying all schemas (version: $(PUBLISH_VERSION)) ==="
-	$(MAKE) clean
 	$(MAKE) -C $(CLOUDEVENTS_BASE_PATH) deploy PUBLISH_VERSION=$(PUBLISH_VERSION)
 	$(MAKE) build-docs
 	$(MAKE) update-readme
