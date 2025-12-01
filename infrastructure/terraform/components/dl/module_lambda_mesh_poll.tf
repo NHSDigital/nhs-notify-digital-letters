@@ -38,8 +38,8 @@ module "mesh_poll" {
 
   lambda_env_vars = {
     # Required by Config
-    SSM_PREFIX                          = "dl/${var.environment}/mesh"
-    SSM_SENDERS_PARAMETER_PATH          = "dl/${var.environment}/mesh/senders"
+    SSM_PREFIX                          = "/dl/${var.environment}/mesh"
+    SSM_SENDERS_PARAMETER_PATH          = "/dl/${var.environment}/mesh/senders"
     MAXIMUM_RUNTIME_MILLISECONDS        = "240000"  # 4 minutes (Lambda has 5 min timeout)
     ENVIRONMENT                         = var.environment
     EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
