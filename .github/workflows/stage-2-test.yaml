@@ -143,7 +143,7 @@ jobs:
         with:
           name: Pytest Test Report
           path: 'test-results/**/pytest-report.xml'
-          reporter: java-junit
+          reporter: python-xunit
           fail-on-error: false
 
   test-lint:
