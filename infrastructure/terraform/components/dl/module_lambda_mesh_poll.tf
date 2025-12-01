@@ -23,7 +23,7 @@ module "mesh_poll" {
   function_code_dir       = "mesh-poll/target/dist"
   function_include_common = true
   handler_function_name   = "mesh_poll.handler.handler"
-  runtime                 = "python3.9"
+  runtime                 = "python3.13"
   memory                  = 128
   timeout                 = 5
   log_level               = var.log_level

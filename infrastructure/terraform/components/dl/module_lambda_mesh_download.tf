@@ -23,7 +23,7 @@ module "mesh_download" {
   function_code_dir       = "mesh-download/target/dist"
   function_include_common = true
   handler_function_name   = "mesh_download.handler.handler"
-  runtime                 = "python3.9"
+  runtime                 = "python3.13"
   memory                  = 256
   timeout                 = 60
   log_level               = var.log_level
