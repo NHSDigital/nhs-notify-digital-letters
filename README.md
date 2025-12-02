@@ -11,6 +11,7 @@ NHS Trusts currently generate a high volume of letters for patients and other ca
 
 - [NHS Notify Digital Letters](#nhs-notify-digital-letters)
   - [Table of Contents](#table-of-contents)
+  - [Schema generation](#schema-generation)
   - [Setup](#setup)
     - [Prerequisites](#prerequisites)
     - [Configuration](#configuration)
@@ -25,6 +26,10 @@ NHS Trusts currently generate a high volume of letters for patients and other ca
     - [Diagrams](#diagrams)
   - [Contacts](#contacts)
   - [Licence](#licence)
+
+## Schema generation
+
+Located in `src` directory.
 
 ## Setup
 
