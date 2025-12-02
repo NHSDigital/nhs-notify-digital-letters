@@ -179,6 +179,10 @@ generate:
 	fi
 
 test:
+	@echo "Validating schema consistency (dataschema/data \$$ref)..."
+	@cd $(CLOUD_EVENTS_DIR) && npm run validate:dataschema-consistency $(SRC_DIR) || (echo "❌ Schema consistency validation failed"; exit 1)
+	@echo "✅ Schema consistency validation passed"
+	@echo ""
 	@if [ -n "$(EVENT_NAMES)" ]; then \
 		echo "Testing $(DOMAIN) events..."; \
 		FAILED=0; \
