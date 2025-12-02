@@ -68,8 +68,6 @@ deploy:
 
 clean::
 	@echo "=== Cleaning output/ and schemas/ directories ==="
-	npm run clear-cache
-	npm run cache-info
 	rm -rf $(OUTPUT_BASE_PATH)
 	rm -rf $(SCHEMAS_BASE_PATH)
 	rm -rf $(DOCS_BASE_PATH)
