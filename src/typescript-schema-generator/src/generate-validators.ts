@@ -12,7 +12,6 @@ import {
   writeFile,
   writeTypesIndex,
 } from 'file-utils';
-// import addFormats from 'ajv-formats';
 
 const ajv = new Ajv({
   code: { source: true, lines: true },
@@ -20,10 +19,6 @@ const ajv = new Ajv({
   // Required because our schemas use the unknown keyword "name".
   strictSchema: false,
 });
-
-// !!! This doesn't work with the standalone code !!!
-// If we don't enable it we don't enforce the string formats defined in the schema.
-// addFormats(ajv);
 
 const eventSchemaFilenames = listEventSchemas();
 const outputDir = createOutputDir('validators');
