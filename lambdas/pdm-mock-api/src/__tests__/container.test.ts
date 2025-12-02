@@ -58,6 +58,9 @@ describe('Container', () => {
     const mockEvent = {
       pathParameters: { id: 'test-id' },
       requestContext: { requestId: 'test-request' },
+      headers: {
+        'X-Request-ID': 'container-test-1234-5678-9abc-def012345678',
+      },
     };
 
     const result = await container.getResourceHandler(mockEvent as never);

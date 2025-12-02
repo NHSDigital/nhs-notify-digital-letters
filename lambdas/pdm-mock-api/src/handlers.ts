@@ -1,5 +1,4 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { randomUUID } from 'node:crypto';
 import type { Logger } from 'utils';
 
 export interface PdmResource {
@@ -170,6 +169,33 @@ export const createGetResourceHandler = (logger: Logger) => {
 
     logger.info('GET resource request received', { resourceId, requestId });
 
+    const xRequestId =
+      event.headers['X-Request-ID'] ||
+      event.headers['x-request-id'] ||
+      event.headers['X-REQUEST-ID'];
+
+    if (!xRequestId) {
+      logger.warn('Missing X-Request-ID header', { requestId });
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/fhir+json',
+        },
+        body: JSON.stringify({
+          resourceType: 'OperationOutcome',
+          issue: [
+            {
+              severity: 'error',
+              code: 'required',
+              details: {
+                text: 'Missing X-Request-ID header',
+              },
+            },
+          ],
+        }),
+      };
+    }
+
     if (!resourceId) {
       return createErrorResponse(
         400,
@@ -212,6 +238,33 @@ export const createCreateResourceHandler = (logger: Logger) => {
 
     logger.info('POST create resource request received', { requestId });
 
+    const xRequestId =
+      event.headers['X-Request-ID'] ||
+      event.headers['x-request-id'] ||
+      event.headers['X-REQUEST-ID'];
+
+    if (!xRequestId) {
+      logger.warn('Missing X-Request-ID header', { requestId });
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/fhir+json',
+        },
+        body: JSON.stringify({
+          resourceType: 'OperationOutcome',
+          issue: [
+            {
+              severity: 'error',
+              code: 'required',
+              details: {
+                text: 'Missing X-Request-ID header',
+              },
+            },
+          ],
+        }),
+      };
+    }
+
     let requestBody: any;
     try {
       requestBody = event.body ? JSON.parse(event.body) : {};
@@ -225,7 +278,12 @@ export const createCreateResourceHandler = (logger: Logger) => {
       );
     }
 
-    const resourceId = randomUUID();
+    const resourceId = xRequestId;
+
+    logger.info('Creating resource', {
+      resourceId,
+      requestId,
+    });
 
     if (requestBody.triggerError) {
       const errorScenario = ERROR_SCENARIOS.find(

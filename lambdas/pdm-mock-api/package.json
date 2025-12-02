@@ -14,11 +14,10 @@
     "jest-mock-extended": "^3.0.7",
     "typescript": "^5.9.3"
   },
-  "main": "dist/index.js",
-  "name": "pdm-mock-api",
+  "name": "nhs-notify-digital-letters-pdm-mock-api",
   "private": true,
   "scripts": {
-    "build": "rm -rf dist && npx esbuild --bundle --minify --sourcemap --target=es2020 --platform=node --loader:.node=file --entry-names=[name] --outdir=dist src/index.ts",
+    "lambda-build": "rm -rf dist && npx esbuild --bundle --minify --sourcemap --target=es2020 --platform=node --loader:.node=file --entry-names=[name] --outdir=dist src/index.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test:unit": "jest",

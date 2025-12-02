@@ -9,8 +9,6 @@ The PDM Mock API simulates two key PDM endpoints following the FHIR R4 DocumentR
 - **POST /patient-data-manager/FHIR/R4/DocumentReference** - Create a new DocumentReference
 - **GET /patient-data-manager/FHIR/R4/DocumentReference/{id}** - Retrieve a specific DocumentReference
 
-The mock includes the same authentication mechanism used in the PDS mock, requiring a Bearer token in the Authorization header.
-
 ## API Endpoints
 
 ### POST /patient-data-manager/FHIR/R4/DocumentReference
@@ -22,19 +20,26 @@ Creates a new PDM DocumentReference.
 ```bash
 curl -X POST https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentReference \
   -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"id": "custom-id"}'
+  -H "Content-Type: application/fhir+json" \
+  -H "X-Request-ID: 4a0e5f18-1747-4438-ac52-5ba2c21575f5" \
+  -d '{}'
 ```
+
+**Headers:**
+
+- `Authorization: Bearer <token>` - Required authentication token (default: `mock-pdm-token`)
+- `Content-Type: application/fhir+json` - Required content type
+- `X-Request-ID: <UUID>` - This uuid will be used as the DocumentReference `id` in the response.
 
 **Response (201 Created):**
 
 ```json
 {
   "resourceType": "DocumentReference",
-  "id": "c7a74264-cf34-31b1-a395-811fa375cec6",
+  "id": "4a0e5f18-1747-4438-ac52-5ba2c21575f5",
   "meta": {
     "versionId": "1",
-    "lastUpdated": "2025-11-26T16:50:48.338244Z"
+    "lastUpdated": "2025-11-27T16:50:48.338244Z"
   },
   "status": "current",
   "subject": {
@@ -54,6 +59,8 @@ curl -X POST https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentRefe
 }
 ```
 
+**Note:** The `id` in the response matches the `X-Request-ID` header value.
+
 ### GET /patient-data-manager/FHIR/R4/DocumentReference/{id}
 
 Retrieves a specific PDM DocumentReference by ID.
@@ -62,8 +69,16 @@ Retrieves a specific PDM DocumentReference by ID.
 
 ```bash
 curl https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentReference/test-id \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/fhir+json" \
+  -H "X-Request-ID: 848b67ea-eeaa-3620-a388-e4e8594ff2e3"
 ```
+
+**Headers:**
+
+- `Authorization: Bearer <token>` - Required authentication token (default: `mock-pdm-token`)
+- `Content-Type: application/fhir+json` - Required content type
+- `X-Request-ID: <uuid>` - Used for request tracking and correlation.
 
 **Response (200 OK):**
 
@@ -95,6 +110,29 @@ curl https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentReference/te
 ```
 
 ## Error Scenarios
+
+### Missing X-Request-ID Header
+
+Both GET and POST endpoints require the `X-Request-ID` header. If it's missing, a 400 error is returned:
+
+**Response (400 Bad Request):**
+
+```json
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "required",
+      "details": {
+        "text": "Missing X-Request-ID header"
+      }
+    }
+  ]
+}
+```
+
+### Error Scenarios
 
 The mock API supports triggering specific error responses for testing. Use these special resource IDs:
 
