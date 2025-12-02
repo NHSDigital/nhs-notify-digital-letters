@@ -1,4 +1,5 @@
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
+import { defaultConfigReader } from 'utils';
 
 export interface Config {
   mockAccessToken: string;
@@ -7,30 +8,22 @@ export interface Config {
   logLevel: string;
 }
 
-export const getEnv = (key: string, defaultValue?: string): string => {
-  // eslint-disable-next-line security/detect-object-injection
-  const value = process.env[key];
-  if (value === undefined && defaultValue === undefined) {
-    throw new Error(`Environment variable ${key} is required but not set`);
-  }
-  return value || defaultValue!;
-};
-
-const getBoolEnv = (key: string, defaultValue: boolean): boolean => {
-  // eslint-disable-next-line security/detect-object-injection
-  const value = process.env[key];
-  if (value === undefined) {
-    return defaultValue;
-  }
-  return value.toLowerCase() === 'true';
-};
-
 export const loadConfig = (): Config => {
+  const mockAccessToken =
+    defaultConfigReader.tryGetValue('MOCK_ACCESS_TOKEN') ||
+    'mock-token-for-local-dev';
+  const accessTokenSsmPath =
+    defaultConfigReader.tryGetValue('ACCESS_TOKEN_SSM_PATH') ||
+    '/mock/access-token';
+  const useNonMockToken =
+    defaultConfigReader.tryGetBoolean('USE_NON_MOCK_TOKEN') || false;
+  const logLevel = defaultConfigReader.tryGetValue('LOG_LEVEL') || 'INFO';
+
   return {
-    mockAccessToken: getEnv('MOCK_ACCESS_TOKEN', 'mock-token-for-local-dev'),
-    accessTokenSsmPath: getEnv('ACCESS_TOKEN_SSM_PATH', '/mock/access-token'),
-    useNonMockToken: getBoolEnv('USE_NON_MOCK_TOKEN', false),
-    logLevel: getEnv('LOG_LEVEL', 'INFO'),
+    mockAccessToken,
+    accessTokenSsmPath,
+    useNonMockToken,
+    logLevel,
   };
 };
 

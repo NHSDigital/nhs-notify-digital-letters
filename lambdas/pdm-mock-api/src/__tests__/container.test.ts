@@ -1,15 +1,19 @@
 import { SSMClient } from '@aws-sdk/client-ssm';
 import { createContainer } from 'container';
 
-jest.mock('utils', () => ({
-  logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    child: jest.fn(),
-  },
-}));
+jest.mock('utils', () => {
+  const actual = jest.requireActual('utils');
+  return {
+    ...actual,
+    logger: {
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      child: jest.fn(),
+    },
+  };
+});
 
 jest.mock('@aws-sdk/client-ssm');
 
