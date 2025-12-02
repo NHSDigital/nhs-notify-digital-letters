@@ -67,13 +67,13 @@ build-docs: version
 
 
 build-schemas-ci: clean-schemas
-	make -C $(SCHEMA_SRC_BASE_DIR) deploy-ci
 	make -C $(SCHEMA_BASE_INPUT_DIR) config
+	make -C $(SCHEMA_SRC_BASE_DIR) deploy-ci
 	make -C $(SCHEMA_BASE_INPUT_DIR) build
 
 build-schemas: clean-schemas
-	make -C $(SCHEMA_SRC_BASE_DIR) deploy
 	make -C $(SCHEMA_BASE_INPUT_DIR) config
+	make -C $(SCHEMA_SRC_BASE_DIR) deploy
 	make -C $(SCHEMA_BASE_INPUT_DIR) build
 #	(cd $(SCHEMA_SCRIPTS_BASE_INPUT_DIR) && make config && make build)
 
