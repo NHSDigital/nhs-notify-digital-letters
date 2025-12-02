@@ -7,10 +7,11 @@ from metric_publishers.metric_client import Metric
 
 _REQUIRED_ENV_VAR_MAP = {
     "ssm_prefix": "SSM_PREFIX",
-    "ssm_senders_parameter_path": "SSM_SENDERS_PARAMETER_PATH",
     "maximum_runtime_milliseconds": "MAXIMUM_RUNTIME_MILLISECONDS",
     "environment": "ENVIRONMENT",
     "event_bus_arn": "EVENT_PUBLISHER_EVENT_BUS_ARN",
+    "event_publisher_dlq_url": "EVENT_PUBLISHER_DLQ_URL",
+    "mock_mesh_bucket": "MOCK_MESH_BUCKET",
     "certificate_expiry_metric_name": "CERTIFICATE_EXPIRY_METRIC_NAME",
     "certificate_expiry_metric_namespace": "CERTIFICATE_EXPIRY_METRIC_NAMESPACE",
     "polling_metric_name": "POLLING_METRIC_NAME",
@@ -29,8 +30,6 @@ class Config(BaseMeshConfig):
     def __init__(self, ssm=None):
         super().__init__(ssm=ssm)
 
-        self.ssm_senders_parameter_path = None
-        self.event_bus_arn = None
         self.polling_metric = None
 
     def __enter__(self):

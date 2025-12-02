@@ -60,22 +60,15 @@ def get_remaining_time_in_millis_near_timeout():
     return 100
 
 
-@patch('src.processor.os.getenv')
 @patch('src.processor.EventPublisher')
 class TestMeshMessageProcessor:
     """Test suite for MeshMessageProcessor"""
 
-    def test_process_messages_iterates_through_inbox(self, mock_event_publisher_class, mock_getenv):
+    def test_process_messages_iterates_through_inbox(self, mock_event_publisher_class):
         """Test that processor iterates through all messages in MESH inbox"""
         (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
         message2 = setup_message_data("2")
-
-        # Mock environment variables for EventPublisher
-        mock_getenv.side_effect = lambda key, default='': {
-            'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:eu-west-2:123456789012:event-bus/test',
-            'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.eu-west-2.amazonaws.com/123456789012/test-dlq'
-        }.get(key, default)
 
         processor = MeshMessageProcessor(
             config=config,
@@ -96,15 +89,10 @@ class TestMeshMessageProcessor:
         assert mesh_client.iterate_all_messages.call_count == 2
         polling_metric.record.assert_called_once()
 
-    def test_process_messages_stops_near_timeout(self, mock_event_publisher_class, mock_getenv):
+    def test_process_messages_stops_near_timeout(self, mock_event_publisher_class):
         """Test that processor stops processing when near timeout"""
         (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
-
-        mock_getenv.side_effect = lambda key, default='': {
-            'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:eu-west-2:123456789012:event-bus/test',
-            'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.eu-west-2.amazonaws.com/123456789012/test-dlq'
-        }.get(key, default)
 
         processor = MeshMessageProcessor(
             config=config,
@@ -122,15 +110,10 @@ class TestMeshMessageProcessor:
         sender_lookup.is_valid_sender.assert_not_called()
         polling_metric.record.assert_called_once()
 
-    def test_process_message_with_valid_sender(self, mock_event_publisher_class, mock_getenv):
+    def test_process_message_with_valid_sender(self, mock_event_publisher_class):
         """Test processing a single message from valid sender"""
         (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message = setup_message_data("1")
-
-        mock_getenv.side_effect = lambda key, default='': {
-            'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:eu-west-2:123456789012:event-bus/test',
-            'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.eu-west-2.amazonaws.com/123456789012/test-dlq'
-        }.get(key, default)
 
         mock_event_publisher = Mock()
         mock_event_publisher.send_events.return_value = []  # No failed events
@@ -154,15 +137,10 @@ class TestMeshMessageProcessor:
         mock_event_publisher.send_events.assert_called_once()
         message.acknowledge.assert_not_called()  # Only acknowledged on auth error
 
-    def test_process_message_with_unknown_sender(self, mock_event_publisher_class, mock_getenv):
+    def test_process_message_with_unknown_sender(self, mock_event_publisher_class):
         """Test that messages from unknown senders are rejected silently"""
         (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message = setup_message_data("1")
-
-        mock_getenv.side_effect = lambda key, default='': {
-            'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:eu-west-2:123456789012:event-bus/test',
-            'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.eu-west-2.amazonaws.com/123456789012/test-dlq'
-        }.get(key, default)
 
         processor = MeshMessageProcessor(
             config=config,
@@ -181,17 +159,12 @@ class TestMeshMessageProcessor:
         sender_lookup.is_valid_sender.assert_called_once_with(message.sender)
         message.acknowledge.assert_called_once()
 
-    def test_process_messages_across_multiple_iterations(self, mock_event_publisher_class, mock_getenv):
+    def test_process_messages_across_multiple_iterations(self, mock_event_publisher_class):
         """Test that processor continues polling until no messages remain"""
         (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
         message2 = setup_message_data("2")
         message3 = setup_message_data("3")
-
-        mock_getenv.side_effect = lambda key, default='': {
-            'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:eu-west-2:123456789012:event-bus/test',
-            'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.eu-west-2.amazonaws.com/123456789012/test-dlq'
-        }.get(key, default)
 
         processor = MeshMessageProcessor(
             config=config,

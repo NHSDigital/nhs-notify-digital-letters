@@ -11,7 +11,7 @@ def setup_mocks():
     ssm = Mock()
 
     config = Mock()
-    config.ssm_senders_parameter_path = "/dl/test/mesh/senders"
+    config.ssm_prefix = "/dl/test/mesh"
 
     logger = Mock()
 
@@ -193,7 +193,7 @@ class TestSenderLookup:
     def test_load_valid_senders_with_trailing_slash_in_path(self):
         """Test that paths with trailing slashes are handled correctly"""
         ssm, config, logger = setup_mocks()
-        config.ssm_senders_parameter_path = "/dl/test/mesh/senders/"  # Trailing slash
+        config.ssm_prefix = "/dl/test/mesh/"  # Trailing slash
 
         ssm.get_parameters_by_path.return_value = {
             "Parameters": [

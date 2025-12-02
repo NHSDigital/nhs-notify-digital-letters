@@ -64,7 +64,8 @@ class TestHandler:
         # Verify MeshDownloadProcessor was created with correct parameters
         mock_processor_class.assert_called_once()
         call_kwargs = mock_processor_class.call_args[1]
-        assert call_kwargs['mesh_client'] == mock_config.mesh_client
+        assert call_kwargs['config'] == mock_config
+        assert call_kwargs['log'] is not None
 
         mock_processor.process_sqs_message.assert_called_once()
 
@@ -223,6 +224,6 @@ class TestHandler:
         mock_processor_class.assert_called_once()
         call_kwargs = mock_processor_class.call_args[1]
 
-        assert call_kwargs['mesh_client'] == mock_mesh_client
-        assert call_kwargs['download_metric'] == mock_download_metric
+        # Handler now passes the entire config object
+        assert call_kwargs['config'] == mock_config
         assert 'log' in call_kwargs

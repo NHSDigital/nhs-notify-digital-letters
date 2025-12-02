@@ -36,7 +36,6 @@ module "mesh_download" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    # Required by Config
     SSM_PREFIX                          = "/dl/${var.environment}/mesh"
     EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
     EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_dlq.queue_url
@@ -46,8 +45,6 @@ module "mesh_download" {
     CERTIFICATE_EXPIRY_METRIC_NAMESPACE = "dl-mesh-download"
     DOWNLOAD_METRIC_NAME                = "mesh-download-successful-downloads"
     DOWNLOAD_METRIC_NAMESPACE           = "dl-mesh-download"
-
-    # Optional
     USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"
     MOCK_MESH_BUCKET                    = module.s3bucket_non_pii_data.bucket
   }

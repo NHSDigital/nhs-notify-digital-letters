@@ -58,14 +58,16 @@ class SenderLookup:
         """
         Loads a page of sender data and extracts mailbox IDs and sender IDs
         """
+        senders_path = f"{self.__config.ssm_prefix.rstrip('/')}/senders/"
+
         if len(next_token) == 0:
             response = self.__ssm.get_parameters_by_path(
-                Path=f"{self.__config.ssm_senders_parameter_path.rstrip('/')}/",
+                Path=senders_path,
                 WithDecryption=True,
             )
         else:
             response = self.__ssm.get_parameters_by_path(
-                Path=f"{self.__config.ssm_senders_parameter_path.rstrip('/')}/",
+                Path=senders_path,
                 WithDecryption=True,
                 NextToken=next_token,
             )

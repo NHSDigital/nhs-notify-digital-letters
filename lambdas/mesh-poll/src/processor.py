@@ -2,7 +2,6 @@
 Module for processing messages from a MESH mailbox
 """
 
-import os
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -28,25 +27,14 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         self.__mesh_client.handshake()
         self.__polling_metric = kwargs['polling_metric']
 
-        environment = os.getenv('ENVIRONMENT', 'development')
         deployment = 'primary'
         plane = 'data-plane'
-        self.__cloud_event_source = f'/nhs/england/notify/{environment}/{deployment}/{plane}/digital-letters'
+        self.__cloud_event_source = f'/nhs/england/notify/{self.__config.environment}/{deployment}/{plane}/digital-letters'
 
         # Initialize EventPublisher
-        event_bus_arn = os.getenv('EVENT_PUBLISHER_EVENT_BUS_ARN')
-        dlq_url = os.getenv('EVENT_PUBLISHER_DLQ_URL')
-
-        if not event_bus_arn:
-            raise ValueError(
-                'EVENT_PUBLISHER_EVENT_BUS_ARN environment variable not set')
-        if not dlq_url:
-            raise ValueError(
-                'EVENT_PUBLISHER_DLQ_URL environment variable not set')
-
         self.__event_publisher = EventPublisher(
-            event_bus_arn=event_bus_arn,
-            dlq_url=dlq_url,
+            event_bus_arn=self.__config.event_bus_arn,
+            dlq_url=self.__config.event_publisher_dlq_url,
             logger=self.__log
         )
 

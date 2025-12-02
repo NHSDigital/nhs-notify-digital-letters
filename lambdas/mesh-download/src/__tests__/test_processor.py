@@ -14,14 +14,20 @@ def setup_mocks():
     """
     Create all mock objects needed for processor testing
     """
-    mesh_client = Mock()
+    config = Mock()
+    # Set up default config attributes
+    config.mesh_client = Mock()
+    config.download_metric = Mock()
+    config.s3_client = Mock()
+    config.environment = 'development'
+    config.transactional_data_bucket = 'test-pii-bucket'
+    config.use_mesh_mock = False
+
     log = Mock()
-    s3_client = Mock()
     event_publisher = Mock()
     document_store = Mock()
-    download_metric = Mock()
 
-    return mesh_client, log, s3_client, event_publisher, document_store, download_metric
+    return config, log, event_publisher, document_store
 
 
 def create_valid_cloud_event():
@@ -84,80 +90,50 @@ def create_mesh_message(message_id='test_123', sender='SENDER_001', local_id='re
 class TestMeshDownloadProcessor:
     """Test suite for MeshDownloadProcessor"""
 
-    @patch('src.processor.os.getenv')
-    def test_processor_initialization_with_event_publisher(self, mock_getenv):
+    def test_processor_initialization_with_event_publisher(self):
         """Processor initializes and handshakes mesh client when EventPublisher configured"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
-
-        def getenv_side_effect(key, default=None):
-            return {
-                'PII_BUCKET': 'test-pii-bucket',
-                'MOCK_MESH_BUCKET': 'test-mock-bucket',
-                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
-                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
-                'ENVIRONMENT': 'development',
-                'DEPLOYMENT': 'dev-1'
-            }.get(key, default)
-
-        mock_getenv.side_effect = getenv_side_effect
+        config, log, event_publisher, document_store = setup_mocks()
 
         processor = MeshDownloadProcessor(
-            mesh_client=mesh_client,
+            config=config,
             log=log,
-            s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher,
-            download_metric=download_metric
+            event_publisher=event_publisher
         )
 
-        mesh_client.handshake.assert_called_once()
+        config.mesh_client.handshake.assert_called_once()
 
     @patch('src.processor.datetime')
-    @patch('src.processor.os.getenv')
-    def test_process_sqs_message_success(self, mock_getenv, mock_datetime):
+    def test_process_sqs_message_success(self, mock_datetime):
         """Successful end-to-end: validate, download, store via document_store, publish, acknowledge"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
+        config, log, event_publisher, document_store = setup_mocks()
 
         fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
         mock_datetime.now.return_value = fixed_time
-
-        def getenv_side_effect(key, default=None):
-            return {
-                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
-                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
-                'ENVIRONMENT': 'development',
-                'DEPLOYMENT': 'dev-1',
-                'PII_BUCKET': 'test-pii-bucket',
-                'MOCK_MESH_BUCKET': 'test-mock-bucket'
-            }.get(key, default)
-
-        mock_getenv.side_effect = getenv_side_effect
 
         document_store.store_document.return_value = 'document-reference/SENDER_001_ref_001'
 
         event_publisher.send_events.return_value = []
 
         processor = MeshDownloadProcessor(
-            mesh_client=mesh_client,
+            config=config,
             log=log,
-            s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher,
-            download_metric=download_metric
+            event_publisher=event_publisher
         )
 
         mesh_message = create_mesh_message()
-        mesh_client.retrieve_message.return_value = mesh_message
+        config.mesh_client.retrieve_message.return_value = mesh_message
 
         sqs_record = create_sqs_record()
 
         processor.process_sqs_message(sqs_record)
 
-        mesh_client.retrieve_message.assert_called_once_with('test_message_123')
+        config.mesh_client.retrieve_message.assert_called_once_with('test_message_123')
 
         mesh_message.read.assert_called_once()
 
@@ -169,36 +145,21 @@ class TestMeshDownloadProcessor:
 
         mesh_message.acknowledge.assert_called_once()
 
-        download_metric.record.assert_called_once_with(1)
+        config.download_metric.record.assert_called_once_with(1)
 
         event_publisher.send_events.assert_called_once()
 
-    @patch('src.processor.os.getenv')
-    def test_process_sqs_message_validation_failure(self, mock_getenv):
+    def test_process_sqs_message_validation_failure(self):
         """Malformed CloudEvents should be rejected by pydantic and not trigger downloads"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
-
-        def getenv_side_effect(key, default=None):
-            return {
-                'PII_BUCKET': 'test-pii-bucket',
-                'MOCK_MESH_BUCKET': 'test-mock-bucket',
-                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
-                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
-                'ENVIRONMENT': 'development',
-                'DEPLOYMENT': 'dev-1'
-            }.get(key, default)
-
-        mock_getenv.side_effect = getenv_side_effect
+        config, log, event_publisher, document_store = setup_mocks()
 
         processor = MeshDownloadProcessor(
-            mesh_client=mesh_client,
+            config=config,
             log=log,
-            s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher,
-            download_metric=download_metric
+            event_publisher=event_publisher
         )
 
         # Create broken cloud event
@@ -208,34 +169,19 @@ class TestMeshDownloadProcessor:
         with pytest.raises(ValidationError):
             processor.process_sqs_message(sqs_record)
 
-        mesh_client.retrieve_message.assert_not_called()
+        config.mesh_client.retrieve_message.assert_not_called()
 
-    @patch('src.processor.os.getenv')
-    def test_process_sqs_message_missing_mesh_message_id(self, mock_getenv):
+    def test_process_sqs_message_missing_mesh_message_id(self):
         """Event missing meshMessageId should not be processed"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
-
-        def getenv_side_effect(key, default=None):
-            return {
-                'PII_BUCKET': 'test-pii-bucket',
-                'MOCK_MESH_BUCKET': 'test-mock-bucket',
-                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
-                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
-                'ENVIRONMENT': 'development',
-                'DEPLOYMENT': 'dev-1'
-            }.get(key, default)
-
-        mock_getenv.side_effect = getenv_side_effect
+        config, log, event_publisher, document_store = setup_mocks()
 
         processor = MeshDownloadProcessor(
-            mesh_client=mesh_client,
+            config=config,
             log=log,
-            s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher,
-            download_metric=download_metric
+            event_publisher=event_publisher
         )
 
         event = create_valid_cloud_event()
@@ -246,75 +192,45 @@ class TestMeshDownloadProcessor:
         with pytest.raises(ValidationError, match="meshMessageId"):
             processor.process_sqs_message(sqs_record)
 
-        mesh_client.retrieve_message.assert_not_called()
+        config.mesh_client.retrieve_message.assert_not_called()
 
-    @patch('src.processor.os.getenv')
-    def test_download_and_store_message_not_found(self, mock_getenv):
+    def test_download_and_store_message_not_found(self):
         """If MESH returns None, nothing is stored or published"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
-
-        def getenv_side_effect(key, default=None):
-            return {
-                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
-                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
-                'ENVIRONMENT': 'development',
-                'DEPLOYMENT': 'dev-1',
-                'PII_BUCKET': 'test-pii-bucket',
-                'MOCK_MESH_BUCKET': 'test-mock-bucket'
-            }.get(key, default)
-
-        mock_getenv.side_effect = getenv_side_effect
+        config, log, event_publisher, document_store = setup_mocks()
 
         processor = MeshDownloadProcessor(
-            mesh_client=mesh_client,
+            config=config,
             log=log,
-            s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher,
-            download_metric=download_metric
+            event_publisher=event_publisher
         )
 
-        mesh_client.retrieve_message.return_value = None
+        config.mesh_client.retrieve_message.return_value = None
         sqs_record = create_sqs_record()
         processor.process_sqs_message(sqs_record)
 
         document_store.store_document.assert_not_called()
         event_publisher.send_events.assert_not_called()
 
-    @patch('src.processor.os.getenv')
-    def test_document_store_failure_prevents_ack_and_raises(self, mock_getenv):
+    def test_document_store_failure_prevents_ack_and_raises(self):
         """If storing fails the processor should raise and not acknowledge the MESH message"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
-
-        def getenv_side_effect(key, default=None):
-            return {
-                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
-                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
-                'ENVIRONMENT': 'development',
-                'DEPLOYMENT': 'dev-1',
-                'PII_BUCKET': 'test-pii-bucket',
-                'MOCK_MESH_BUCKET': 'test-mock-bucket'
-            }.get(key, default)
-
-        mock_getenv.side_effect = getenv_side_effect
+        config, log, event_publisher, document_store = setup_mocks()
 
         document_store.store_document.side_effect = Exception("document store failure")
 
         processor = MeshDownloadProcessor(
-            mesh_client=mesh_client,
+            config=config,
             log=log,
-            s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher,
-            download_metric=download_metric
+            event_publisher=event_publisher
         )
 
         mesh_message = create_mesh_message()
-        mesh_client.retrieve_message.return_value = mesh_message
+        config.mesh_client.retrieve_message.return_value = mesh_message
         sqs_record = create_sqs_record()
 
         with pytest.raises(Exception, match="document store failure"):
@@ -324,48 +240,35 @@ class TestMeshDownloadProcessor:
         mesh_message.acknowledge.assert_not_called()
 
     @patch('src.processor.datetime')
-    @patch('src.processor.os.getenv')
-    def test_bucket_selection_with_mesh_mock_enabled(self, mock_getenv, mock_datetime):
-        """When USE_MESH_MOCK=true, processor uses MOCK_MESH_BUCKET for storage"""
+    def test_bucket_selection_with_mesh_mock_enabled(self, mock_datetime):
+        """When use_mesh_mock=True, processor uses mock bucket for storage"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
+        config, log, event_publisher, document_store = setup_mocks()
+        # Configure for mock mesh
+        config.use_mesh_mock = True
+        config.transactional_data_bucket = 'test-mock-bucket'
 
         fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
         mock_datetime.now.return_value = fixed_time
-
-        def getenv_side_effect(key, default=''):
-            return {
-                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
-                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
-                'ENVIRONMENT': 'development',
-                'DEPLOYMENT': 'dev-1',
-                'PII_BUCKET': 'test-pii-bucket',
-                'MOCK_MESH_BUCKET': 'test-mock-bucket',
-                'USE_MESH_MOCK': 'true'  # Mock enabled
-            }.get(key, default)
-
-        mock_getenv.side_effect = getenv_side_effect
 
         document_store.store_document.return_value = 'document-reference/SENDER_001_ref_001'
         event_publisher.send_events.return_value = []
 
         processor = MeshDownloadProcessor(
-            mesh_client=mesh_client,
+            config=config,
             log=log,
-            s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher,
-            download_metric=download_metric
+            event_publisher=event_publisher
         )
 
         mesh_message = create_mesh_message()
-        mesh_client.retrieve_message.return_value = mesh_message
+        config.mesh_client.retrieve_message.return_value = mesh_message
         sqs_record = create_sqs_record()
 
         processor.process_sqs_message(sqs_record)
 
-        # Verify event was published with MOCK_MESH_BUCKET in URI
+        # Verify event was published with mock bucket in URI
         event_publisher.send_events.assert_called_once()
         published_events = event_publisher.send_events.call_args[0][0]
         assert len(published_events) == 1
@@ -373,43 +276,30 @@ class TestMeshDownloadProcessor:
         assert message_uri.startswith('s3://test-mock-bucket/')
 
     @patch('src.processor.datetime')
-    @patch('src.processor.os.getenv')
-    def test_bucket_selection_with_mesh_mock_disabled(self, mock_getenv, mock_datetime):
-        """When USE_MESH_MOCK=false, processor uses PII_BUCKET for storage"""
+    def test_bucket_selection_with_mesh_mock_disabled(self, mock_datetime):
+        """When use_mesh_mock=False, processor uses PII bucket for storage"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
+        config, log, event_publisher, document_store = setup_mocks()
+        # Configure for production (PII bucket)
+        config.use_mesh_mock = False
+        config.transactional_data_bucket = 'test-pii-bucket'
 
         fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
         mock_datetime.now.return_value = fixed_time
-
-        def getenv_side_effect(key, default=''):
-            return {
-                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
-                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
-                'ENVIRONMENT': 'development',
-                'DEPLOYMENT': 'dev-1',
-                'PII_BUCKET': 'test-pii-bucket',
-                'MOCK_MESH_BUCKET': 'test-mock-bucket',
-                'USE_MESH_MOCK': 'false'  # Mock disabled
-            }.get(key, default)
-
-        mock_getenv.side_effect = getenv_side_effect
 
         document_store.store_document.return_value = 'document-reference/SENDER_001_ref_001'
         event_publisher.send_events.return_value = []
 
         processor = MeshDownloadProcessor(
-            mesh_client=mesh_client,
+            config=config,
             log=log,
-            s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher,
-            download_metric=download_metric
+            event_publisher=event_publisher
         )
 
         mesh_message = create_mesh_message()
-        mesh_client.retrieve_message.return_value = mesh_message
+        config.mesh_client.retrieve_message.return_value = mesh_message
         sqs_record = create_sqs_record()
 
         processor.process_sqs_message(sqs_record)
@@ -420,37 +310,22 @@ class TestMeshDownloadProcessor:
         message_uri = published_events[0]['data']['messageUri']
         assert message_uri.startswith('s3://test-pii-bucket/')
 
-    @patch('src.processor.os.getenv')
-    def test_message_reference_mismatch_raises_error(self, mock_getenv):
+    def test_message_reference_mismatch_raises_error(self):
         """When messageReference from event doesn't match local_id from MESH, should raise ValueError"""
         from src.processor import MeshDownloadProcessor
 
-        mesh_client, log, s3_client, event_publisher, document_store, download_metric = setup_mocks()
-
-        def getenv_side_effect(key, default=None):
-            return {
-                'EVENT_PUBLISHER_EVENT_BUS_ARN': 'arn:aws:events:test',
-                'EVENT_PUBLISHER_DLQ_URL': 'https://sqs.test.com/dlq',
-                'ENVIRONMENT': 'development',
-                'DEPLOYMENT': 'dev-1',
-                'PII_BUCKET': 'test-pii-bucket',
-                'MOCK_MESH_BUCKET': 'test-mock-bucket'
-            }.get(key, default)
-
-        mock_getenv.side_effect = getenv_side_effect
+        config, log, event_publisher, document_store = setup_mocks()
 
         processor = MeshDownloadProcessor(
-            mesh_client=mesh_client,
+            config=config,
             log=log,
-            s3_client=s3_client,
             document_store=document_store,
-            event_publisher=event_publisher,
-            download_metric=download_metric
+            event_publisher=event_publisher
         )
 
         # Create MESH message with different local_id than event messageReference
         mesh_message = create_mesh_message(local_id='different_ref')
-        mesh_client.retrieve_message.return_value = mesh_message
+        config.mesh_client.retrieve_message.return_value = mesh_message
 
         sqs_record = create_sqs_record()
 

@@ -3,11 +3,9 @@ Module for processing MESH download requests from SQS
 """
 
 import json
-import os
 from datetime import datetime, timezone
 from uuid import uuid4
 
-import boto3
 from event_publisher import EventPublisher
 from event_publisher.models import MeshInboxMessageEvent, MeshDownloadMessageEvent
 from pydantic import ValidationError
@@ -22,63 +20,49 @@ class MeshDownloadProcessor:
     """
 
     def __init__(self, **kwargs):
-        self.__mesh_client = kwargs['mesh_client']
+        self.__config = kwargs['config']
         self.__log = kwargs['log']
-        self.__download_metric = kwargs['download_metric']
+        self.__mesh_client = self.__config.mesh_client
+        self.__download_metric = self.__config.download_metric
 
         # Allow s3_client to be injected for testing
         if 's3_client' in kwargs:
             self.__s3_client = kwargs['s3_client']
         else:
-            self.__s3_client = boto3.client('s3')
+            self.__s3_client = self.__config.s3_client
+
         self.__mesh_client.handshake()
 
-        environment = os.getenv('ENVIRONMENT', 'development')
         deployment = 'primary'
         plane = 'data-plane'
-        self.__cloud_event_source = f'/nhs/england/notify/{environment}/{deployment}/{plane}/digitalletters/mesh'
+        self.__cloud_event_source = f'/nhs/england/notify/{self.__config.environment}/{deployment}/{plane}/digitalletters/mesh'
 
-        class Config:
+        self.__storage_bucket = self.__config.transactional_data_bucket
+
+        # Create document store configuration
+        class DocumentStoreConfig:
             """Configuration holder for S3 client and bucket"""
             def __init__(self, s3_client, bucket):
                 self.s3_client = s3_client
                 self.transactional_data_bucket = bucket
 
-        # Select bucket based on whether using mesh mock
-        use_mesh_mock = os.getenv('USE_MESH_MOCK', 'false').lower() == 'true'
-        if use_mesh_mock:
-            bucket = os.getenv('MOCK_MESH_BUCKET')
-            if not bucket:
-                raise ValueError("MOCK_MESH_BUCKET environment variable not set")
-        else:
-            bucket = os.getenv('PII_BUCKET')
-            if not bucket:
-                raise ValueError("PII_BUCKET environment variable not set")
-
-        self.__storage_bucket = bucket
-        config = Config(self.__s3_client, bucket)
+        doc_store_config = DocumentStoreConfig(self.__s3_client, self.__storage_bucket)
 
         # Allow document_store to be injected for testing
         if 'document_store' in kwargs:
             self.__document_store = kwargs['document_store']
         else:
-            self.__document_store = DocumentStore(config)
+            self.__document_store = DocumentStore(doc_store_config)
 
         # Allow event_publisher to be injected for testing
         if 'event_publisher' in kwargs:
             self.__event_publisher = kwargs['event_publisher']
         else:
-            event_bus_arn = os.getenv('EVENT_PUBLISHER_EVENT_BUS_ARN')
-            dlq_url = os.getenv('EVENT_PUBLISHER_DLQ_URL', '')
-
-            if event_bus_arn and dlq_url:
-                self.__event_publisher = EventPublisher(
-                    event_bus_arn=event_bus_arn,
-                    dlq_url=dlq_url,
-                    logger=self.__log
-                )
-            else:
-                self.__event_publisher = None
+            self.__event_publisher = EventPublisher(
+                event_bus_arn=self.__config.event_publisher_event_bus_arn,
+                dlq_url=self.__config.event_publisher_dlq_url,
+                logger=self.__log
+            )
 
     def process_sqs_message(self, sqs_record):
         """
