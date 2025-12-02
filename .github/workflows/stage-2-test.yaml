@@ -48,13 +48,13 @@ jobs:
   check-generated-dependencies:
     name: "Check generated dependencies"
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      - name: "Repo setup"
-        run: |
-          npm ci
+      - name: "Setup dependencies and asdf with cache"
+        uses: ./.github/actions/setup-dependencies-asdf-with-cache
+
       - name: "Generate dependencies"
         run: |
           npm run generate-dependencies --workspaces --if-present
@@ -62,7 +62,7 @@ jobs:
   test-unit:
     name: "Unit tests"
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5

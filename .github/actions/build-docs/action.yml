@@ -9,20 +9,9 @@ runs:
   steps:
     - name: Checkout
       uses: actions/checkout@v5
-    - uses: actions/setup-node@v6
-      with:
-        node-version: 24
-    - name: Npm cli install
-      working-directory: ./docs
-      run: npm ci
-      shell: bash
-    - name: Setup Ruby
-      uses: ruby/setup-ruby@v1.267.0
-      with:
-        ruby-version: "3.4.7" # Not needed with a .ruby-version file
-        bundler-cache: false # runs 'bundle install' and caches installed gems automatically
-        #cache-version: 0 # Increment this number if you need to re-download cached gems
-        working-directory: "./docs"
+
+    - name: "Setup dependencies and asdf with cache"
+      uses: ./.github/actions/setup-dependencies-asdf-with-cache
     - name: Setup Pages
       id: pages
       uses: actions/configure-pages@v5
@@ -30,10 +19,11 @@ runs:
       working-directory: ./docs
       # Outputs to the './_site' directory by default
       shell: bash
-      run: make build-ci BASE_URL=${{ steps.pages.outputs.base_path }} VERSION=${{ inputs.version }}
-      #run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+      run: make build BASE_URL="${BASE_URL}" VERSION="${VERSION}"
       env:
         JEKYLL_ENV: production
+        BASE_URL: ${{ steps.pages.outputs.base_path }}
+        VERSION: ${{ inputs.version }}
     - name: Upload artifact
       # Automatically uploads an artifact from the './_site' directory by default
       uses: actions/upload-pages-artifact@v3
