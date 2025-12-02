@@ -9,8 +9,11 @@ include scripts/init.mk
 
 quick-start: config clean build serve-docs # Quick start target to setup, build and serve docs @Pipeline
 
-dependencies: # Install dependencies needed to build and test the project @Pipeline
-	# TODO: Implement installation of your project dependencies
+install:
+	./dependencies.sh --skip-system-deps
+
+dependencies:
+	./dependencies.sh
 
 build: # Build the project artefact @Pipeline
 	$(MAKE) -C docs build
