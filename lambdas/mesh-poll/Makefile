@@ -7,11 +7,20 @@ audit:
 install:
 	poetry install
 
+install-dev:
+	poetry install --with dev
+
 test:
 	poetry run pytest
 
-test-coverage:
-	poetry run pytest --cov --cov-report xml:target/coverage/@comms/mesh-poll-lambda/cobertura-coverage.xml
+coverage:
+	@cd ../.. && poetry -C lambdas/mesh-poll run pytest lambdas/mesh-poll/src/__tests__/ \
+		--cov=lambdas/mesh-poll/src \
+		--cov-config=lambdas/mesh-poll/pytest.ini \
+		--cov-report=html:lambdas/mesh-poll/htmlcov \
+		--cov-report=term-missing \
+		--cov-report=xml:lambdas/mesh-poll/coverage.xml \
+		--cov-branch
 
 lint:
 	poetry run pylint mesh_poll
@@ -25,4 +34,4 @@ package:
 clean:
 	rm -rf target
 
-.PHONY: install test test-coverage lint format package clean
+.PHONY: install install-dev test coverage lint format package clean

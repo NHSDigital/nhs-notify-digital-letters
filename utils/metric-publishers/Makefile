@@ -7,11 +7,20 @@ audit:
 install:
 	poetry install
 
+install-dev:
+	poetry install --with dev
+
 test:
 	poetry run pytest || echo
 
-test-coverage:
-	poetry run pytest --cov --cov-report xml:target/coverage/@comms/metric-publishers/cobertura-coverage.xml || echo
+coverage:
+	@cd ../.. && poetry -C utils/metric-publishers run pytest utils/metric-publishers/tests/ \
+		--cov=utils/metric-publishers/metric_publishers \
+		--cov-config=utils/metric-publishers/pytest.ini \
+		--cov-report=html:utils/metric-publishers/htmlcov \
+		--cov-report=term-missing \
+		--cov-report=xml:utils/metric-publishers/coverage.xml \
+		--cov-branch
 
 lint:
 	poetry run pylint metric_publishers
@@ -22,4 +31,4 @@ format:
 clean:
 	rm -rf target
 
-.PHONY: audit install test test-coverage lint format clean
+.PHONY: audit install install-dev test coverage lint format clean

@@ -1,5 +1,5 @@
 name: "Setup Python and Poetry"
-description: "Sets up Python environment and installs Poetry with dependencies"
+description: "Sets up Python environment and installs Poetry"
 inputs:
   python-version:
     description: "Python version to use"
@@ -19,8 +19,3 @@ runs:
         version: latest
         virtualenvs-create: true
         virtualenvs-in-project: true
-
-    - name: "Install Poetry dependencies"
-      shell: bash
-      run: |
-        cd lambdas/mesh-poll && poetry install
