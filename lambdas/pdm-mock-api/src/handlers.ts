@@ -133,7 +133,7 @@ const createEmptySuccessResponse = (): APIGatewayProxyResult => {
   };
 };
 
-const generateMockResource = (id: string): PdmResource => {
+const generateMockResourceForGet = (id: string): PdmResource => {
   return {
     resourceType: 'DocumentReference',
     id,
@@ -153,6 +153,32 @@ const generateMockResource = (id: string): PdmResource => {
         attachment: {
           contentType: 'application/pdf',
           data: 'XYZ',
+          title: 'Dummy PDF',
+        },
+      },
+    ],
+  };
+};
+
+const generateMockResourceForPost = (id: string): PdmResource => {
+  return {
+    resourceType: 'DocumentReference',
+    id,
+    meta: {
+      versionId: '1',
+      lastUpdated: new Date().toISOString(),
+    },
+    status: 'current',
+    subject: {
+      identifier: {
+        system: 'https://fhir.nhs.uk/Id/nhs-number',
+        value: '9912003071',
+      },
+    },
+    content: [
+      {
+        attachment: {
+          contentType: 'application/pdf',
           title: 'Dummy PDF',
         },
       },
@@ -224,7 +250,7 @@ export const createGetResourceHandler = (logger: Logger) => {
       return createEmptySuccessResponse();
     }
 
-    const resource = generateMockResource(resourceId);
+    const resource = generateMockResourceForGet(resourceId);
     logger.info('Returning mock resource', { resourceId, requestId });
     return createResourceResponse(resource);
   };
@@ -310,7 +336,7 @@ export const createCreateResourceHandler = (logger: Logger) => {
       return createEmptySuccessResponse();
     }
 
-    const resource = generateMockResource(resourceId);
+    const resource = generateMockResourceForPost(resourceId);
     logger.info('Created mock resource', { resourceId, requestId });
     return createResourceResponse(resource, 201);
   };
