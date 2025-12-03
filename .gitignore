@@ -12,6 +12,9 @@ version.json
 
 # Please, add your custom content below!
 
+# Don't track ephemeral local build files
+target/
+
 # dependencies
 node_modules
 .node-version
@@ -25,6 +28,7 @@ dist
 output
 /schemas
 .env
+**/__pycache__
 
 # Coverage reports
 htmlcov/
