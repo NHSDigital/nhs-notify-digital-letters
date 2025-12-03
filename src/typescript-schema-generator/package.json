@@ -6,7 +6,12 @@
   },
   "description": "Generate Typescript types and standalone validator functions for the application's event schemas.",
   "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/mock-fs": "^4.13.4",
+    "cross-env": "^10.1.0",
     "eslint": "^9.39.1",
+    "jest": "^29.7.0",
+    "mock-fs": "^5.5.0",
     "rimraf": "^5.0.10",
     "tsx": "^4.20.6"
   },
@@ -23,11 +28,11 @@
   "scripts": {
     "clean": "rimraf types validators",
     "generate-dependencies": "npm run generate-types && npm run generate-validators",
-    "generate-types": "tsx src/generate-types.ts",
-    "generate-validators": "tsx src/generate-validators.ts",
+    "generate-types": "tsx src/generate-types-cli.ts",
+    "generate-validators": "tsx src/generate-validators-cli.ts",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
-    "test:unit": "echo \"No unit tests configured\"",
+    "test:unit": "cross-env NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest",
     "typecheck": "tsc --noEmit"
   },
   "version": "0.0.1"

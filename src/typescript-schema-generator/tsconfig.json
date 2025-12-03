@@ -12,6 +12,7 @@
   "include": [
     "src/**/*",
     "validators/**/*",
-    "types/**/*"
+    "types/**/*",
+    "./jest.config.ts"
   ]
 }

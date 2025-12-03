@@ -10,10 +10,12 @@ import {
   writeTypesIndex,
 } from 'file-utils';
 
-const eventSchemaFilenames = listEventSchemas();
-const outputDir = createOutputDir('types');
+export async function generateTypes() {
+  const eventSchemaFilenames = listEventSchemas();
+  const outputDir = createOutputDir('types');
+  console.log(`Output directory created at ${outputDir}`);
 
-async function generateTypes() {
+  console.group('Writing type declaration files:');
   const indexLines: string[] = [];
   for (const eventSchemaFilename of eventSchemaFilenames) {
     const eventSchemaPath = path.join(eventSchemasDir, eventSchemaFilename);
@@ -25,16 +27,15 @@ async function generateTypes() {
     });
 
     // Write a .d.ts file named after the schema title or file.
-    writeFile(outputDir, `${typeName}.d.ts`, eventTs);
+    const typeDeclarationFilename = `${typeName}.d.ts`;
+    writeFile(outputDir, typeDeclarationFilename, eventTs);
+    console.log(typeDeclarationFilename);
 
     // Also create an export statement for this type.
     indexLines.push(`export * from './${typeName}';`);
   }
+  console.groupEnd();
 
   writeTypesIndex(outputDir, indexLines);
+  console.log('index.d.ts file written');
 }
-
-generateTypes().catch((error) => {
-  console.error('Error generating types:', error);
-  throw error;
-});
