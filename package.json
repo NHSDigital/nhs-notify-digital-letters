@@ -56,6 +56,7 @@
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
+    "lambdas/upload-to-pdm-lambda",
     "utils/utils",
     "src/cloudevents",
     "tests/playwright"
