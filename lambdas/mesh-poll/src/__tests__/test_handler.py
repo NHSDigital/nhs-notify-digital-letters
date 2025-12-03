@@ -77,6 +77,7 @@ class TestHandler:
         assert call_kwargs['mesh_client'] == mock_config.mesh_client
         assert call_kwargs['get_remaining_time_in_millis'] == mock_context.get_remaining_time_in_millis
         assert call_kwargs['polling_metric'] == mock_config.polling_metric
+        assert 'log' in call_kwargs
 
         # Verify process_messages was called
         mock_processor.process_messages.assert_called_once()
@@ -113,39 +114,3 @@ class TestHandler:
         call_args = mock_exit.call_args[0]
         assert call_args[0] == RuntimeError
         assert call_args[1] == test_exception
-
-    @patch('src.handler.Config')
-    @patch('src.handler.SenderLookup')
-    @patch('src.handler.MeshMessageProcessor')
-    @patch('src.handler.client')
-    def test_handler_passes_correct_parameters_to_processor(self, mock_boto_client, mock_processor_class, mock_sender_lookup_class, mock_config_class):
-        """Test that handler passes all required parameters to MeshMessageProcessor"""
-        from src.handler import handler
-
-        (mock_context, mock_config, mock_ssm,
-        mock_sender_lookup, mock_processor) = setup_mocks()
-
-        mock_remaining_time_func = Mock(return_value=250000)
-        mock_context.get_remaining_time_in_millis = mock_remaining_time_func
-        mock_mesh_client = Mock()
-        mock_polling_metric = Mock()
-        mock_config.mesh_client = mock_mesh_client
-        mock_config.polling_metric = mock_polling_metric
-
-        mock_config_class.return_value.__enter__.return_value = mock_config
-        mock_config_class.return_value.__exit__ = Mock(return_value=None)
-        mock_boto_client.return_value = mock_ssm
-        mock_sender_lookup_class.return_value = mock_sender_lookup
-        mock_processor_class.return_value = mock_processor
-
-        handler(None, mock_context)
-
-        mock_processor_class.assert_called_once()
-        call_kwargs = mock_processor_class.call_args[1]
-
-        assert call_kwargs['config'] == mock_config
-        assert call_kwargs['sender_lookup'] == mock_sender_lookup
-        assert call_kwargs['mesh_client'] == mock_mesh_client
-        assert call_kwargs['get_remaining_time_in_millis'] == mock_remaining_time_func
-        assert call_kwargs['polling_metric'] == mock_polling_metric
-        assert 'log' in call_kwargs

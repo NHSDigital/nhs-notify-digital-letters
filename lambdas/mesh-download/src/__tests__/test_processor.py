@@ -90,8 +90,8 @@ def create_mesh_message(message_id='test_123', sender='SENDER_001', local_id='re
 class TestMeshDownloadProcessor:
     """Test suite for MeshDownloadProcessor"""
 
-    def test_processor_initialization_with_event_publisher(self):
-        """Processor initializes and handshakes mesh client when EventPublisher configured"""
+    def test_processor_initialization_calls_mesh_handshake(self):
+        """Processor initializes and handshakes mesh client"""
         from src.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
@@ -99,6 +99,8 @@ class TestMeshDownloadProcessor:
         processor = MeshDownloadProcessor(
             config=config,
             log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -122,6 +124,8 @@ class TestMeshDownloadProcessor:
         processor = MeshDownloadProcessor(
             config=config,
             log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -149,6 +153,26 @@ class TestMeshDownloadProcessor:
 
         event_publisher.send_events.assert_called_once()
 
+        # Verify the published event content
+        published_events = event_publisher.send_events.call_args[0][0]
+        assert len(published_events) == 1
+
+        published_event = published_events[0]
+
+        # Verify CloudEvent envelope fields
+        assert published_event['type'] == 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1'
+        assert published_event['source'] == '/nhs/england/notify/development/primary/data-plane/digitalletters/mesh'
+        assert published_event['subject'] == 'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000'
+        assert published_event['time'] == '2025-11-19T15:30:45+00:00'
+        assert 'id' in published_event
+
+        # Verify CloudEvent data payload
+        event_data = published_event['data']
+        assert event_data['senderId'] == 'TEST_SENDER'
+        assert event_data['messageReference'] == 'ref_001'
+        assert event_data['messageUri'] == 's3://test-pii-bucket/document-reference/SENDER_001_ref_001'
+        assert set(event_data.keys()) == {'senderId', 'messageReference', 'messageUri'}
+
     def test_process_sqs_message_validation_failure(self):
         """Malformed CloudEvents should be rejected by pydantic and not trigger downloads"""
         from src.processor import MeshDownloadProcessor
@@ -158,6 +182,8 @@ class TestMeshDownloadProcessor:
         processor = MeshDownloadProcessor(
             config=config,
             log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -180,6 +206,8 @@ class TestMeshDownloadProcessor:
         processor = MeshDownloadProcessor(
             config=config,
             log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -203,6 +231,8 @@ class TestMeshDownloadProcessor:
         processor = MeshDownloadProcessor(
             config=config,
             log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -225,6 +255,8 @@ class TestMeshDownloadProcessor:
         processor = MeshDownloadProcessor(
             config=config,
             log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -258,6 +290,8 @@ class TestMeshDownloadProcessor:
         processor = MeshDownloadProcessor(
             config=config,
             log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -294,6 +328,8 @@ class TestMeshDownloadProcessor:
         processor = MeshDownloadProcessor(
             config=config,
             log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -319,6 +355,8 @@ class TestMeshDownloadProcessor:
         processor = MeshDownloadProcessor(
             config=config,
             log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )

@@ -1,8 +1,11 @@
 """lambda handler for mesh download"""
 
 import json
+from event_publisher import EventPublisher
+
 from .config import Config, log
 from .processor import MeshDownloadProcessor
+from .document_store import DocumentStore, DocumentStoreConfig
 
 
 def handler(event, context):
@@ -23,9 +26,25 @@ def handler(event, context):
 
     try:
         with Config() as config:
+            doc_store_config = DocumentStoreConfig(
+                s3_client=config.s3_client,
+                transactional_data_bucket=config.transactional_data_bucket
+            )
+            document_store = DocumentStore(doc_store_config)
+
+            event_publisher = EventPublisher(
+                event_bus_arn=config.event_publisher_event_bus_arn,
+                dlq_url=config.event_publisher_dlq_url,
+                logger=log
+            )
+
             processor = MeshDownloadProcessor(
                 config=config,
-                log=log
+                log=log,
+                mesh_client=config.mesh_client,
+                download_metric=config.download_metric,
+                document_store=document_store,
+                event_publisher=event_publisher
             )
 
             # Process each SQS record

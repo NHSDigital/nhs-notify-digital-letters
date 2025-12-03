@@ -5,6 +5,13 @@ class IntermediaryBodyStoreError(Exception):
     """Error to represent any failure to upload document to intermediate location"""
 
 
+class DocumentStoreConfig:
+    """Configuration holder for DocumentStore"""
+    def __init__(self, s3_client, transactional_data_bucket):
+        self.s3_client = s3_client
+        self.transactional_data_bucket = transactional_data_bucket
+
+
 class DocumentStore:  # pylint: disable=too-few-public-methods
     """Class for storing document references in S3"""
 

@@ -11,25 +11,19 @@ from event_publisher.models import MeshInboxMessageEvent, MeshDownloadMessageEve
 from pydantic import ValidationError
 
 from .errors import format_exception
-from .document_store import DocumentStore
 
 
 class MeshDownloadProcessor:
     """
     Class that processes MESH download requests from SQS messages
     """
-
     def __init__(self, **kwargs):
         self.__config = kwargs['config']
         self.__log = kwargs['log']
-        self.__mesh_client = self.__config.mesh_client
-        self.__download_metric = self.__config.download_metric
-
-        # Allow s3_client to be injected for testing
-        if 's3_client' in kwargs:
-            self.__s3_client = kwargs['s3_client']
-        else:
-            self.__s3_client = self.__config.s3_client
+        self.__mesh_client = kwargs['mesh_client']
+        self.__download_metric = kwargs['download_metric']
+        self.__document_store = kwargs['document_store']
+        self.__event_publisher = kwargs['event_publisher']
 
         self.__mesh_client.handshake()
 
@@ -38,31 +32,6 @@ class MeshDownloadProcessor:
         self.__cloud_event_source = f'/nhs/england/notify/{self.__config.environment}/{deployment}/{plane}/digitalletters/mesh'
 
         self.__storage_bucket = self.__config.transactional_data_bucket
-
-        # Create document store configuration
-        class DocumentStoreConfig:
-            """Configuration holder for S3 client and bucket"""
-            def __init__(self, s3_client, bucket):
-                self.s3_client = s3_client
-                self.transactional_data_bucket = bucket
-
-        doc_store_config = DocumentStoreConfig(self.__s3_client, self.__storage_bucket)
-
-        # Allow document_store to be injected for testing
-        if 'document_store' in kwargs:
-            self.__document_store = kwargs['document_store']
-        else:
-            self.__document_store = DocumentStore(doc_store_config)
-
-        # Allow event_publisher to be injected for testing
-        if 'event_publisher' in kwargs:
-            self.__event_publisher = kwargs['event_publisher']
-        else:
-            self.__event_publisher = EventPublisher(
-                event_bus_arn=self.__config.event_publisher_event_bus_arn,
-                dlq_url=self.__config.event_publisher_dlq_url,
-                logger=self.__log
-            )
 
     def process_sqs_message(self, sqs_record):
         """
@@ -87,10 +56,6 @@ class MeshDownloadProcessor:
             mesh_message_id = data.meshMessageId
             sender_id = data.senderId
             message_reference = data.messageReference
-
-            if not mesh_message_id:
-                self.__log.error("Missing meshMessageId in event data", sqs_record=sqs_record)
-                return
 
             logger = self.__log.bind(mesh_message_id=mesh_message_id)
             logger.info("Processing MESH download request")

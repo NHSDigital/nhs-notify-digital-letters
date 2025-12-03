@@ -223,3 +223,111 @@ class TestSenderLookup:
         logger.debug.assert_called_once()
         call_args = logger.debug.call_args[0][0]
         assert "0" in call_args  # Should log count of 0
+
+    def test_get_sender_id_returns_correct_sender_id(self):
+        """Test that get_sender_id returns correct sender ID for valid mailbox IDs"""
+        ssm, config, logger = setup_mocks()
+
+        ssm.get_parameters_by_path.return_value = {
+            "Parameters": [
+                create_sender_parameter("sender1", "MAILBOX_001"),
+                create_sender_parameter("sender2", "MAILBOX_002"),
+            ]
+        }
+
+        sender_lookup = SenderLookup(ssm, config, logger)
+
+        assert sender_lookup.get_sender_id("MAILBOX_001") == "sender1"
+        assert sender_lookup.get_sender_id("MAILBOX_002") == "sender2"
+
+    def test_get_sender_id_case_insensitive(self):
+        """Test that get_sender_id lookup is case-insensitive"""
+        ssm, config, logger = setup_mocks()
+
+        ssm.get_parameters_by_path.return_value = {
+            "Parameters": [
+                create_sender_parameter("sender1", "Mailbox_MixedCase"),
+            ]
+        }
+
+        sender_lookup = SenderLookup(ssm, config, logger)
+
+        assert sender_lookup.get_sender_id("Mailbox_MixedCase") == "sender1"
+        assert sender_lookup.get_sender_id("MAILBOX_MIXEDCASE") == "sender1"
+        assert sender_lookup.get_sender_id("mailbox_mixedcase") == "sender1"
+
+    def test_get_sender_id_returns_none_for_unknown_mailbox(self):
+        """Test that get_sender_id returns None for unknown mailbox IDs"""
+        ssm, config, logger = setup_mocks()
+
+        ssm.get_parameters_by_path.return_value = {
+            "Parameters": [
+                create_sender_parameter("sender1", "MAILBOX_001"),
+            ]
+        }
+
+        sender_lookup = SenderLookup(ssm, config, logger)
+
+        assert sender_lookup.get_sender_id("UNKNOWN_MAILBOX") is None
+
+    def test_get_sender_id_returns_none_for_empty_mailbox_id(self):
+        """Test that get_sender_id returns None for empty/None mailbox IDs"""
+        ssm, config, logger = setup_mocks()
+
+        ssm.get_parameters_by_path.return_value = {
+            "Parameters": [
+                create_sender_parameter("sender1", "MAILBOX_001"),
+            ]
+        }
+
+        sender_lookup = SenderLookup(ssm, config, logger)
+
+        assert sender_lookup.get_sender_id("") is None
+        assert sender_lookup.get_sender_id(None) is None
+
+    def test_load_valid_senders_skips_entries_with_missing_sender_id(self):
+        """Test that entries without senderId are skipped from validation and mapping"""
+        ssm, config, logger = setup_mocks()
+
+        ssm.get_parameters_by_path.return_value = {
+            "Parameters": [
+                create_sender_parameter("sender1", "MAILBOX_001"),
+                {
+                    "Name": "/dl/test/mesh/senders/incomplete",
+                    "Value": json.dumps({
+                        "meshMailboxSenderId": "MAILBOX_BAD",
+                        "name": "Incomplete"
+                        # Missing senderId
+                    })
+                },
+            ]
+        }
+
+        sender_lookup = SenderLookup(ssm, config, logger)
+
+        # Entry with missing senderId should not be valid or mapped
+        assert not sender_lookup.is_valid_sender("MAILBOX_BAD")
+        assert sender_lookup.get_sender_id("MAILBOX_BAD") is None
+
+        assert sender_lookup.is_valid_sender("MAILBOX_001")
+        assert sender_lookup.get_sender_id("MAILBOX_001") == "sender1"
+
+    def test_load_valid_senders_skips_entries_with_empty_sender_id(self):
+        """Test that entries with empty senderId are skipped from validation and mapping"""
+        ssm, config, logger = setup_mocks()
+
+        ssm.get_parameters_by_path.return_value = {
+            "Parameters": [
+                create_sender_parameter("sender1", "MAILBOX_001"),
+                create_sender_parameter("", "MAILBOX_002"),
+            ]
+        }
+
+        sender_lookup = SenderLookup(ssm, config, logger)
+
+        # Entry with empty senderId should not be valid or mapped
+        assert not sender_lookup.is_valid_sender("MAILBOX_002")
+        assert sender_lookup.get_sender_id("MAILBOX_002") is None
+
+        assert sender_lookup.is_valid_sender("MAILBOX_001")
+        assert sender_lookup.get_sender_id("MAILBOX_001") == "sender1"

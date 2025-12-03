@@ -94,6 +94,9 @@ class TestMeshMessageProcessor:
         (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
 
+        mock_event_publisher = Mock()
+        mock_event_publisher_class.return_value = mock_event_publisher
+
         processor = MeshMessageProcessor(
             config=config,
             sender_lookup=sender_lookup,
@@ -108,6 +111,7 @@ class TestMeshMessageProcessor:
         processor.process_messages()
 
         sender_lookup.is_valid_sender.assert_not_called()
+        mock_event_publisher.send_events.assert_not_called()  # No events published when timeout
         polling_metric.record.assert_called_once()
 
     def test_process_message_with_valid_sender(self, mock_event_publisher_class):
@@ -142,6 +146,12 @@ class TestMeshMessageProcessor:
         (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message = setup_message_data("1")
 
+        mock_event_publisher = Mock()
+        mock_event_publisher_class.return_value = mock_event_publisher
+
+        # Invalid sender
+        sender_lookup.is_valid_sender.return_value = False
+
         processor = MeshMessageProcessor(
             config=config,
             sender_lookup=sender_lookup,
@@ -151,13 +161,39 @@ class TestMeshMessageProcessor:
             polling_metric=polling_metric
         )
 
-        # Invalid sender
-        sender_lookup.is_valid_sender.return_value = False
-
         processor.process_message(message)
 
         sender_lookup.is_valid_sender.assert_called_once_with(message.sender)
         message.acknowledge.assert_called_once()
+        mock_event_publisher.send_events.assert_not_called()  # No event published for invalid sender
+
+    def test_process_message_logs_error_on_event_publish_failure(self, mock_event_publisher_class):
+        """Test that processor logs error when event publishing fails and does not acknowledge message"""
+        (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
+        message = setup_message_data("1")
+
+        mock_event_publisher = Mock()
+        mock_event_publisher.send_events.return_value = [{"id": "failed-event-1"}]
+        mock_event_publisher_class.return_value = mock_event_publisher
+
+        sender_lookup.is_valid_sender.return_value = True
+        sender_lookup.get_sender_id.return_value = "test_sender_id"
+
+        processor = MeshMessageProcessor(
+            config=config,
+            sender_lookup=sender_lookup,
+            mesh_client=mesh_client,
+            get_remaining_time_in_millis=get_remaining_time_in_millis,
+            log=log,
+            polling_metric=polling_metric
+        )
+
+        processor.process_message(message)
+
+        mock_event_publisher.send_events.assert_called_once()
+        message.acknowledge.assert_not_called()
+        # Verify error was logged
+        log.error.assert_called()
 
     def test_process_messages_across_multiple_iterations(self, mock_event_publisher_class):
         """Test that processor continues polling until no messages remain"""
@@ -165,6 +201,10 @@ class TestMeshMessageProcessor:
         message1 = setup_message_data("1")
         message2 = setup_message_data("2")
         message3 = setup_message_data("3")
+
+        mock_event_publisher = Mock()
+        mock_event_publisher.send_events.return_value = []  # No failed events
+        mock_event_publisher_class.return_value = mock_event_publisher
 
         processor = MeshMessageProcessor(
             config=config,
@@ -187,4 +227,5 @@ class TestMeshMessageProcessor:
         mesh_client.handshake.assert_called_once()
         assert mesh_client.iterate_all_messages.call_count == 3
         assert sender_lookup.is_valid_sender.call_count == 3
+        assert mock_event_publisher.send_events.call_count == 3  # Events published for all 3 messages
         polling_metric.record.assert_called_once()
