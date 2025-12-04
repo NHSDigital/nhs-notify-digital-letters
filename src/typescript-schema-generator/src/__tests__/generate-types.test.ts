@@ -36,9 +36,14 @@ describe('generate-types', () => {
 
     const typeDeclarationFiles = readdirSync(outputDir);
 
-    expect(typeDeclarationFiles.length).toBe(4); // 3 schemas + 1 index file
+    expect(typeDeclarationFiles.length).toBe(4);
     expect(typeDeclarationFiles).toEqual(
-      expect.arrayContaining(['One.d.ts', 'Two.d.ts', 'Three.d.ts']),
+      expect.arrayContaining([
+        'index.d.ts',
+        'One.d.ts',
+        'Two.d.ts',
+        'Three.d.ts',
+      ]),
     );
   });
 
