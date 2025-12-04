@@ -9,10 +9,13 @@ sequenceDiagram
   participant eb as Event Bridge
   participant sqs as SQS<br/>CreateTTLQueue
   participant createTTL as Lambda<br/>CreateTTL
+  participant ssm as SSM<br/>Parameter Store
   participant dynamo as DynamoDB
 
 
   eb ->> sqs: MESHInboxMessageDownloaded event
   sqs ->> createTTL:
-  createTTL ->> dynamo: Insert (24h TTL)
+  createTTL ->> ssm: Get FallbackWaitTime
+  ssm -->> createTTL:
+  createTTL ->> dynamo: Insert (FallbackWaitTime TTL)
 ```

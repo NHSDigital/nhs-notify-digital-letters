@@ -16,6 +16,7 @@ Cognito
 config
 Cyber
 datetime
+[Dd]equeued
 deduplication
 Dependabot
 dereference
@@ -24,6 +25,7 @@ dev
 draw.io
 drawio
 D'Roza
+[Ee]nqueued
 [Ee]num
 endcapture
 endfor
@@ -78,6 +80,7 @@ sample_service_markdown
 sanitization
 schemaDir
 sed
+senderId
 service_sorted
 setCachedSchema
 Someobject
@@ -90,5 +93,6 @@ toolchain
 Trufflehog
 updateReadme
 Uploader
+[Uu][Aa][Tt]
 uuid
 [Vv]alidator

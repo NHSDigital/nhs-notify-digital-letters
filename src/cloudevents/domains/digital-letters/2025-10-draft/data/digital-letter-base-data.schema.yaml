@@ -5,6 +5,6 @@ type: object
 additionalProperties: false
 properties:
   something:
-    $ref: ../defs/someobject.schema.yaml#/properties/something
+    $ref: ../defs/some.object.schema.yaml#/properties/something
 required:
   - something
