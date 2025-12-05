@@ -46,7 +46,6 @@ module "mesh_download" {
     DOWNLOAD_METRIC_NAME                = "mesh-download-successful-downloads"
     DOWNLOAD_METRIC_NAMESPACE           = "dl-mesh-download"
     USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"
-    MOCK_MESH_BUCKET                    = module.s3bucket_non_pii_data.bucket
   }
 
 }
@@ -88,23 +87,6 @@ data "aws_iam_policy_document" "mesh_download_lambda" {
 
       resources = [
         "${module.s3bucket_non_pii_data.arn}/mock-mesh/*"
-      ]
-    }
-  }
-
-  # Mock S3 PutObject for storing messages when mock enabled
-  dynamic "statement" {
-    for_each = var.enable_mock_mesh ? [1] : []
-    content {
-      sid    = "MockMeshPutObject"
-      effect = "Allow"
-
-      actions = [
-        "s3:PutObject"
-      ]
-
-      resources = [
-        "${module.s3bucket_non_pii_data.arn}/document-reference/*"
       ]
     }
   }

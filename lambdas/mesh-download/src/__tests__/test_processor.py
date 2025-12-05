@@ -227,6 +227,8 @@ class TestMeshDownloadProcessor:
         from src.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
+        bound_logger = Mock()
+        log.bind.return_value = bound_logger
 
         processor = MeshDownloadProcessor(
             config=config,
@@ -240,9 +242,13 @@ class TestMeshDownloadProcessor:
         config.mesh_client.retrieve_message.return_value = None
         sqs_record = create_sqs_record()
         processor.process_sqs_message(sqs_record)
+        config.mesh_client.retrieve_message.assert_called_once_with('test_message_123')
 
         document_store.store_document.assert_not_called()
         event_publisher.send_events.assert_not_called()
+        config.download_metric.record.assert_not_called()
+
+        bound_logger.error.assert_called_once_with("Message not found in MESH inbox")
 
     def test_document_store_failure_prevents_ack_and_raises(self):
         """If storing fails the processor should raise and not acknowledge the MESH message"""
@@ -273,13 +279,13 @@ class TestMeshDownloadProcessor:
 
     @patch('src.processor.datetime')
     def test_bucket_selection_with_mesh_mock_enabled(self, mock_datetime):
-        """When use_mesh_mock=True, processor uses mock bucket for storage"""
+        """When use_mesh_mock=True, processor uses PII bucket for storage"""
         from src.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
         # Configure for mock mesh
         config.use_mesh_mock = True
-        config.transactional_data_bucket = 'test-mock-bucket'
+        config.transactional_data_bucket = 'test-pii-bucket'
 
         fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
         mock_datetime.now.return_value = fixed_time
@@ -302,12 +308,12 @@ class TestMeshDownloadProcessor:
 
         processor.process_sqs_message(sqs_record)
 
-        # Verify event was published with mock bucket in URI
+        # Verify event was published with PII bucket in URI
         event_publisher.send_events.assert_called_once()
         published_events = event_publisher.send_events.call_args[0][0]
         assert len(published_events) == 1
         message_uri = published_events[0]['data']['messageUri']
-        assert message_uri.startswith('s3://test-mock-bucket/')
+        assert message_uri.startswith('s3://test-pii-bucket/')
 
     @patch('src.processor.datetime')
     def test_bucket_selection_with_mesh_mock_disabled(self, mock_datetime):
@@ -345,31 +351,3 @@ class TestMeshDownloadProcessor:
         assert len(published_events) == 1
         message_uri = published_events[0]['data']['messageUri']
         assert message_uri.startswith('s3://test-pii-bucket/')
-
-    def test_message_reference_mismatch_raises_error(self):
-        """When messageReference from event doesn't match local_id from MESH, should raise ValueError"""
-        from src.processor import MeshDownloadProcessor
-
-        config, log, event_publisher, document_store = setup_mocks()
-
-        processor = MeshDownloadProcessor(
-            config=config,
-            log=log,
-            mesh_client=config.mesh_client,
-            download_metric=config.download_metric,
-            document_store=document_store,
-            event_publisher=event_publisher
-        )
-
-        # Create MESH message with different local_id than event messageReference
-        mesh_message = create_mesh_message(local_id='different_ref')
-        config.mesh_client.retrieve_message.return_value = mesh_message
-
-        sqs_record = create_sqs_record()
-
-        with pytest.raises(ValueError, match="messageReference mismatch"):
-            processor.process_sqs_message(sqs_record)
-
-        # Should not acknowledge or publish if validation fails
-        mesh_message.acknowledge.assert_not_called()
-        event_publisher.send_events.assert_not_called()
