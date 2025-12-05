@@ -17,7 +17,7 @@ architecture-beta
     junction j1
 
 
-    itemDequeued:R -- L:printQueue
+    itemDequeued:R --> L:printQueue
     printQueue:R --> L:printLambda
     printLambda:B <-- T:docRefBucket
     printLambda:T --> B:digLtrsBucket

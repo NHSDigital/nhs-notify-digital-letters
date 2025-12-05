@@ -15,7 +15,7 @@ architecture-beta
     service meshAckLambda(logos:aws-lambda)[MeshAcknowledger] in meshAcknowledger
     service mesh(server)[MESH]
 
-    meshDownloaded:R -- L:meshAckQueue
+    meshDownloaded:R --> L:meshAckQueue
     meshAckQueue:R --> L:meshAckLambda
     meshAckLambda:B --> T:mesh
     meshAckLambda:R --> L:meshAcknowledged

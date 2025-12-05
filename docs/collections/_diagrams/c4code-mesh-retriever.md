@@ -17,7 +17,7 @@ architecture-beta
     service mesh(server)[MESH]
     service s3(logos:aws-s3)[DocumentReference] in meshRetriever
 
-    meshReceived:R -- L:meshDownloadQueue
+    meshReceived:R --> L:meshDownloadQueue
     meshDownloadQueue:R --> L:meshDownloadLambda
     meshDownloadLambda:T --> B:mesh
     meshDownloadLambda:B --> T:s3
