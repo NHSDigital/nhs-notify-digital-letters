@@ -17,13 +17,6 @@ class MeshDownloadProcessor:
 
         self.__mesh_client.handshake()
 
-        deployment = 'primary'
-        plane = 'data-plane'
-        self.__cloud_event_source = (
-            f'/nhs/england/notify/{self.__config.environment}/'
-            f'{deployment}/{plane}/digitalletters/mesh'
-        )
-
         self.__storage_bucket = self.__config.transactional_data_bucket
 
     def process_sqs_message(self, sqs_record):
@@ -86,9 +79,8 @@ class MeshDownloadProcessor:
         )
 
         self._publish_downloaded_event(
-            sender_id=data.senderId,
-            message_uri=uri,
-            message_reference=data.messageReference
+            incoming_event=event,
+            message_uri=uri
         )
 
         message.acknowledge()
@@ -110,16 +102,28 @@ class MeshDownloadProcessor:
 
         return message_uri
 
-    def _publish_downloaded_event(self, sender_id, message_uri, message_reference):
-        event_detail = {
-            "data": {
-                "senderId": sender_id,
-                "messageUri": message_uri,
-                "messageReference": message_reference,
+    def _publish_downloaded_event(self, incoming_event, message_uri):
+        """
+        Publishes a MESHInboxMessageDownloaded event.
+        """
+        now = datetime.now(timezone.utc).isoformat()
+
+        cloud_event = {
+            **incoming_event.model_dump(),
+            'id': str(uuid4()),
+            'time': now,
+            'recordedtime': now,
+            'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
+            'dataschema': (
+                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/'
+                'digital-letters-mesh-inbox-message-downloaded-data.schema.json'
+            ),
+            'data': {
+                'senderId': incoming_event.data.senderId,
+                'messageReference': incoming_event.data.messageReference,
+                'messageUri': message_uri,
             }
         }
-
-        cloud_event = self._build_download_event(event_detail)
 
         try:
             MeshDownloadMessageEvent(**cloud_event)
@@ -135,33 +139,7 @@ class MeshDownloadProcessor:
 
         self.__log.info(
             "Published MESHInboxMessageDownloaded event",
-            sender_id=sender_id,
+            sender_id=incoming_event.data.senderId,
             message_uri=message_uri,
-            message_reference=message_reference
+            message_reference=incoming_event.data.messageReference
         )
-
-    def _build_download_event(self, event_detail):
-        now = datetime.now(timezone.utc).isoformat()
-
-        return {
-            'profileversion': '1.0.0',
-            'profilepublished': '2025-10',
-            'id': str(uuid4()),
-            'specversion': '1.0',
-            'source': self.__cloud_event_source,
-            'subject': (
-                'customer/00000000-0000-0000-0000-000000000000/'
-                'recipient/00000000-0000-0000-0000-000000000000'
-            ),
-            'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
-            'time': now,
-            'recordedtime': now,
-            'severitynumber': 2,
-            'severitytext': 'INFO',
-            'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-            'dataschema':
-                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/'
-                'digital-letters-mesh-inbox-message-downloaded-data.schema.json',
-            'dataschemaversion': '1.0',
-            'data': event_detail.get('data', {}),
-        }
