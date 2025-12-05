@@ -17,6 +17,9 @@ module.exports = {
         target: 'ES2020',
         moduleResolution: 'node',
         noEmit: true
+      },
+      diagnostics: {
+        ignoreCodes: [1343]  // Ignore TS1343: import.meta errors
       }
     }]
   },

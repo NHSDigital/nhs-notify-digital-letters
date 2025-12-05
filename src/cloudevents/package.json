@@ -17,6 +17,7 @@
     "json-schema-static-docs": "^0.28.1",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.0.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.0.0"
   },
   "main": "tools/generator/example-generator/generate-example.ts",
@@ -34,8 +35,8 @@
     "lint": "echo 'no linting configured'",
     "lint:fix": "echo 'no linting configured'",
     "test": "jest",
-    "test:coverage": "jest --coverage; node -e \"const fs = require('fs'); fs.mkdirSync('.reports/unit/coverage', {recursive: true}); fs.copyFileSync('coverage/lcov.info', '.reports/unit/coverage/lcov.info');\"",
-    "test:unit": "jest --coverage; node -e \"const fs = require('fs'); fs.mkdirSync('.reports/unit/coverage', {recursive: true}); fs.copyFileSync('coverage/lcov.info', '.reports/unit/coverage/lcov.info');\"",
+    "test:coverage": "jest --coverage && node -e \"const fs = require('fs'); fs.mkdirSync('.reports/unit/coverage', {recursive: true}); fs.copyFileSync('coverage/lcov.info', '.reports/unit/coverage/lcov.info');\"",
+    "test:unit": "jest --coverage && node -e \"const fs = require('fs'); fs.mkdirSync('.reports/unit/coverage', {recursive: true}); fs.copyFileSync('coverage/lcov.info', '.reports/unit/coverage/lcov.info');\"",
     "test:watch": "jest --watch",
     "typecheck": "echo 'no typechecking configured'",
     "update-readme": "ts-node tools/generator/readme-generator/update-readme-cli.ts",
