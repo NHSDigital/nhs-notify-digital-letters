@@ -15,9 +15,9 @@ architecture-beta
    service manageTtlExpiry(logos:aws-lambda)[HandleTTLExpiry] in manageTTL
    service printTTLExpired(aws:res-amazon-eventbridge-event)[ItemDequeued Event]
 
-   pollEvent:R -- L:manageLambda
-   manageLambda:R -- L:manageDb
-   manageDb:R -- L:ttlStream
-   ttlStream:B -- T:manageTtlExpiry
-   manageTtlExpiry:R -- L:printTTLExpired
+   pollEvent:R --> L:manageLambda
+   manageLambda:R --> L:manageDb
+   manageDb:R --> L:ttlStream
+   ttlStream:B --> T:manageTtlExpiry
+   manageTtlExpiry:R --> L:printTTLExpired
 ```

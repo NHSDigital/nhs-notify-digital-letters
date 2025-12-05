@@ -6,5 +6,11 @@ additionalProperties: false
 properties:
   senderId:
     $ref: ../defs/requests.schema.yaml#/properties/senderId
+  reportPeriodStartTime:
+    $ref: ../defs/mesh.schema.yaml#/properties/reportPeriodStartTime
+  reportPeriodEndTime:
+    $ref: ../defs/mesh.schema.yaml#/properties/reportPeriodEndTime
 required:
   - senderId
+  - reportPeriodStartTime
+  - reportPeriodEndTime

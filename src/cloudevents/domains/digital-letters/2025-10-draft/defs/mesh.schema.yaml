@@ -12,6 +12,24 @@ properties:
   meshMailboxId:
     type: string
     minLength: 1
-    description: Id of the mailbox
+    description: Id of the mailbox used to submit letter requests and receive acknowledgements
     examples:
       - "MAILBOX01"
+  meshMailboxReportsId:
+    type: string
+    minLength: 1
+    description: Id of the mailbox used to receive daily reports
+    examples:
+      - "MAILBOX02"
+  reportPeriodStartTime:
+    type: string
+    format: date-time
+    description: Start time of the reporting period
+    examples:
+      - "2025-12-03T00:00:00Z"
+  reportPeriodEndTime:
+    type: string
+    format: date-time
+    description: End time of the reporting period
+    examples:
+      - "2025-12-04T23:59:59Z"
