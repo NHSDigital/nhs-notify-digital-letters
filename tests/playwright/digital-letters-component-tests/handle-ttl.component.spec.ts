@@ -61,7 +61,7 @@ test.describe('Digital Letters - Handle TTL', () => {
     await expectToPassEventually(async () => {
       const eventLogEntry = await getLogsFromCloudwatch(
         `/aws/lambda/nhs-${ENV}-dl-ttl-handle-expiry`,
-        `{ ($.messageUri = "${messageUri}") and ($.description = "ItemDequeued event not sent as item withdrawn") }`,
+        `{ ($.message.messageUri = "${messageUri}") && ($.message.description = "ItemDequeued event not sent as item withdrawn") }`,
       );
 
       expect(eventLogEntry.length).toEqual(1);
