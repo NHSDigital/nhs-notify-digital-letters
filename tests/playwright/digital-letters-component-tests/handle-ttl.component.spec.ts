@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import { ENV } from 'constants/backend-constants';
+import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import { deleteTtl, putTtl } from 'helpers/dynamodb-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { v4 as uuidv4 } from 'uuid';
@@ -57,7 +59,52 @@ test.describe('Digital Letters - Handle TTL', () => {
     expect(deleteResponseCode).toBe(200);
 
     await expectToPassEventually(async () => {
-      // Check lambda log for withdrawn messageReference.
+      const eventLogEntry = await getLogsFromCloudwatch(
+        `/aws/lambda/nhs-${ENV}-dl-ttl-handle-expiry`,
+        `{ ($.messageUri = "${messageUri}") and ($.description = "ItemDequeued event not sent as item withdrawn") }`
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    });
+  });
+
+  test('should handle expired item', async () => {
+    const letterId = uuidv4();
+    const messageUri = `https://example.com/ttl/resource/${letterId}`;
+
+    const event = {
+      ...baseEvent,
+      id: letterId,
+      data: {
+        ...baseEvent.data,
+        messageUri,
+        'digital-letter-id': letterId,
+      },
+    };
+
+    const ttlItem = {
+      PK: messageUri,
+      SK: 'TTL',
+      dateOfExpiry: '2023-12-31#0',
+      event,
+      ttl: Date.now() / 1000 + 3600,
+    };
+
+    const putResponseCode = await putTtl(ttlItem);
+    expect(putResponseCode).toBe(200);
+
+    const deleteResponseCode = await deleteTtl(messageUri);
+    expect(deleteResponseCode).toBe(200);
+
+    await expectToPassEventually(async () => {
+      await expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+          `{ ($.id = "${letterId}") }`
+        );
+
+        expect(eventLogEntry.length).toEqual(1);
+      });
     });
   });
 });
