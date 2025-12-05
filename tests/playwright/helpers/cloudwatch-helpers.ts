@@ -19,7 +19,7 @@ test.beforeEach(() => {
  */
 export async function getLogsFromCloudwatch(
   logGroupName: string,
-  pattern: string
+  pattern: string,
 ): Promise<unknown[]> {
   const filterEvents = new FilterLogEventsCommand({
     logGroupName,
@@ -31,6 +31,6 @@ export async function getLogsFromCloudwatch(
   const { events = [] } = await client.send(filterEvents);
 
   return events.flatMap(({ message }) =>
-    message ? [JSON.parse(message)] : []
+    message ? [JSON.parse(message)] : [],
   );
 }
