@@ -14,17 +14,17 @@ test.beforeEach(() => {
 });
 
 /**
- * @param logGroupName e.g. `/aws/lambda/nhs-main-dl-apim-key-generation`
- * @param pattern e.g. `{ $.id = ${JSON.stringify(letterId)} }`
+ * @param logGroupName e.g. '/aws/lambda/nhs-main-dl-apim-key-generation'
+ * @param patterns e.g. [ '$.id = "someId"', '$.message.messageUri = "messageUri"' ]
  */
 export async function getLogsFromCloudwatch(
   logGroupName: string,
-  pattern: string,
+  patterns: string[],
 ): Promise<unknown[]> {
   const filterEvents = new FilterLogEventsCommand({
     logGroupName,
     startTime: testStartTime.getTime() - 60 * 1000,
-    filterPattern: pattern,
+    filterPattern: `{${patterns.join(' && ')}}`,
     limit: 50,
   });
 

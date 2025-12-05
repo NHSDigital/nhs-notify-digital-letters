@@ -61,7 +61,10 @@ test.describe('Digital Letters - Handle TTL', () => {
     await expectToPassEventually(async () => {
       const eventLogEntry = await getLogsFromCloudwatch(
         `/aws/lambda/nhs-${ENV}-dl-ttl-handle-expiry`,
-        `{ ($.message.messageUri = "${messageUri}") && ($.message.description = "ItemDequeued event not sent as item withdrawn") }`,
+        [
+          `$.message.messageUri = "${messageUri}"`,
+          '$.message.description = "ItemDequeued event not sent as item withdrawn"',
+        ],
       );
 
       expect(eventLogEntry.length).toEqual(1);
@@ -100,7 +103,11 @@ test.describe('Digital Letters - Handle TTL', () => {
       await expectToPassEventually(async () => {
         const eventLogEntry = await getLogsFromCloudwatch(
           `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-          `{ ($.id = "${letterId}") }`,
+          [
+            '$.message_type = "EVENT_RECEIPT"',
+            '$.details.detail_type = "uk.nhs.notify.digital.letters.queue.item.dequeued.v1"',
+            `$.details.event_detail = "*\\"messageUri\\":\\"${messageUri}\\"*"`,
+          ],
         );
 
         expect(eventLogEntry.length).toEqual(1);
