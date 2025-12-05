@@ -20,7 +20,9 @@
   "name": "digital-letters-events",
   "scripts": {
     "clean": "rimraf types validators",
-    "test:unit": "echo \"No unit tests have been implemented for this package\"",
+    "lint": "echo \"No linter has been implemented for this package.\"",
+    "lint:fix": "echo \"No linter has been implemented for this package.\"",
+    "test:unit": "echo \"No unit tests have been implemented for this package.\"",
     "typecheck": "tsc --noEmit"
   },
   "version": "0.0.1"

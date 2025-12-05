@@ -1,6 +1,6 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
 
-import { eventSchemasDir } from 'file-utils';
+import { destinationPackageName, eventSchemasDir } from 'file-utils';
 import { generateTypes } from 'generate-types';
 import { compile } from 'json-schema-to-typescript';
 import mockFs from 'mock-fs';
@@ -10,7 +10,14 @@ import path from 'node:path';
 jest.mock('json-schema-to-typescript');
 
 describe('generate-types', () => {
-  const outputDir = path.resolve(__dirname, '..', '..', 'types');
+  const outputDir = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    destinationPackageName,
+    'types',
+  );
 
   beforeEach(() => {
     mockFs({

@@ -1,6 +1,6 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
 import standaloneCode from 'ajv/dist/standalone';
-import { eventSchemasDir } from 'file-utils';
+import { destinationPackageName, eventSchemasDir } from 'file-utils';
 import { generateValidators } from 'generate-validators';
 import mockFs from 'mock-fs';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -10,7 +10,14 @@ jest.mock('ajv/dist/2020');
 jest.mock('ajv/dist/standalone');
 
 describe('generate-validators', () => {
-  const outputDir = path.resolve(__dirname, '..', '..', 'validators');
+  const outputDir = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    destinationPackageName,
+    'validators',
+  );
 
   beforeEach(() => {
     mockFs({
@@ -50,13 +57,13 @@ describe('generate-validators', () => {
       'utf8',
     );
     expect(indexFileContents).toContain(
-      "declare module 'typescript-schema-generator/One.js';",
+      `declare module '${destinationPackageName}/One.js';`,
     );
     expect(indexFileContents).toContain(
-      "declare module 'typescript-schema-generator/Two.js';",
+      `declare module '${destinationPackageName}/Two.js';`,
     );
     expect(indexFileContents).toContain(
-      "declare module 'typescript-schema-generator/Three.js';",
+      `declare module '${destinationPackageName}/Three.js';`,
     );
   });
 });
