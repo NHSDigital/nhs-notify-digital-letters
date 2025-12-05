@@ -1,5 +1,6 @@
 export * from './dynamodb';
 export * from './lambda-utils';
+export * from './locations';
 export * from './logger';
 export * from './sqs-utils';
 export * from './ssm-utils';

@@ -33,6 +33,7 @@ data "aws_iam_policy_document" "kms" {
 
       identifiers = [
         "events.amazonaws.com",
+        "delivery.logs.amazonaws.com"
       ]
     }
 
