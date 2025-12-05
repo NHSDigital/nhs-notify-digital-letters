@@ -6,6 +6,6 @@
 
 npm ci
 
-npm run generate-dependencies --workspaces --if-present
+npm run generate-dependencies
 
 npm run lambda-build --workspaces --if-present

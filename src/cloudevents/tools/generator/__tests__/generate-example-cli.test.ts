@@ -57,7 +57,7 @@ describe('generate-example-cli', () => {
       await handleCli([]);
 
       const errorOutput = consoleErrorMock.mock.calls[0][0];
-      expect(errorOutput).toContain('Usage: ts-node generate-example.ts');
+      expect(errorOutput).toContain('Usage: tsx generate-example.ts');
       expect(errorOutput).toContain('--clear-cache');
       expect(errorOutput).toContain('--cache-info');
       expect(errorOutput).toContain('SCHEMA_CACHE_DIR');

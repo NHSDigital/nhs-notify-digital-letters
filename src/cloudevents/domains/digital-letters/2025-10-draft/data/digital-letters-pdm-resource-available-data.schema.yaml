@@ -1,6 +1,7 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 title: PDMResourceAvailable Data
 description: Base data of the PDMResourceAvailable event
+type: object
 additionalProperties: false
 properties:
   messageReference:

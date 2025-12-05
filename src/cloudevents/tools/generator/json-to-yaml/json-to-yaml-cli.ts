@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env tsx
 
 /**
  * CLI handler for json-to-yaml conversion
@@ -19,7 +19,7 @@ import { JsonToYamlConverter } from './json-to-yaml-converter.ts';
 export function handleCli(args: string[]): number {
   // Validate argument count
   if (args.length !== 2) {
-    console.error('Usage: ts-node json-to-yaml-cli.ts <input.json> <output.yaml>');
+    console.error('Usage: tsx json-to-yaml-cli.ts <input.json> <output.yaml>');
     return 1;
   }
 

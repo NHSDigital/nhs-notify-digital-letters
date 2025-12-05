@@ -524,7 +524,7 @@ describe('handleCli', () => {
     expect(handleCli(['arg1', 'arg2', 'arg3'])).toBe(1);
 
     expect(consoleSpy).toHaveBeenCalledWith(
-      'Usage: ts-node json-to-yaml-cli.ts <input.json> <output.yaml>'
+      'Usage: tsx json-to-yaml-cli.ts <input.json> <output.yaml>'
     );
 
     consoleSpy.mockRestore();

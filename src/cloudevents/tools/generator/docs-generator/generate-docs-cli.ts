@@ -75,8 +75,8 @@ export function ensureOutputDir(outputDir: string): { success: boolean; error?: 
  * Print CLI usage information
  */
 export function printUsage(): void {
-  console.error('Usage: ts-node generate-docs-cli.ts <input-dir> <output-dir>');
-  console.error('Example: ts-node generate-docs-cli.ts ./output ./docs');
+  console.error('Usage: tsx generate-docs-cli.ts <input-dir> <output-dir>');
+  console.error('Example: tsx generate-docs-cli.ts ./output ./docs');
 }
 
 /**
