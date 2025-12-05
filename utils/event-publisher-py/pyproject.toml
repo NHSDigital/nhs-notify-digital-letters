@@ -24,11 +24,3 @@ moto = "^5.0.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.coverage.run]
-source = ["event_publisher"]
-omit = [
-    "*/tests/*",
-    "*/test_*.py",
-    "*/__tests__/*",
-]
