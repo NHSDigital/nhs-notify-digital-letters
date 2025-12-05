@@ -49,7 +49,9 @@ export function loadSchema(schemaPath: string): any {
 export function createOutputDir(dirName: string): string {
   const outputDir = path.resolve(
     __dirname,
-    `../../${destinationPackageName}`,
+    '..',
+    '..',
+    destinationPackageName,
     dirName,
   );
   mkdirSync(outputDir, { recursive: true });
