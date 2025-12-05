@@ -199,16 +199,20 @@ export class ReadmeIndexGenerator {
       return this.metadata.schema_labels[baseName];
     }
 
-    if (category === "profile") return "Profile";
-    if (category === "definitions") return this.getSchemaName(filename);
-    if (category === "data") {
-      return this.getSchemaName(filename).replace(" Data", " Data");
-    }
-    if (category === "events") {
-      return this.getSchemaName(filename).replace(" Event", " Event");
+    let schemaType: string;
+
+    switch (category) {
+      case "profile":
+        schemaType = "Profile";
+        break;
+      case "events":
+        schemaType = this.getSchemaName(filename).toLowerCase();
+        break;
+      default:
+        schemaType = this.getSchemaName(filename);
     }
 
-    return this.getSchemaName(filename);
+    return schemaType;
   }
 
   /**
