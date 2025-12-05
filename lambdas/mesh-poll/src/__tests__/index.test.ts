@@ -1,6 +1,6 @@
 import type { Context } from 'aws-lambda';
 import { mockDeep } from 'jest-mock-extended';
-import { PDMResourceSubmitted } from 'typescript-schema-generator';
+import { PDMResourceSubmitted } from 'digital-letters-events';
 import { handler } from '..';
 
 const context = mockDeep<Context>();

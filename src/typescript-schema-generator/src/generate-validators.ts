@@ -7,6 +7,7 @@ import Ajv from 'ajv/dist/2020';
 import standaloneCode from 'ajv/dist/standalone';
 import {
   createOutputDir,
+  destinationPackageName,
   eventSchemasDir,
   listEventSchemas,
   loadSchema,
@@ -43,7 +44,7 @@ export function generateValidators() {
 
     // Also create a module declaration for this validator.
     moduleDeclarations.push(
-      `declare module 'typescript-schema-generator/${validatorFilename}';`,
+      `declare module '${destinationPackageName}/${validatorFilename}';`,
     );
   }
   console.groupEnd();

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src/",
+    "allowJs": true,
     "isolatedModules": true,
     "outDir": "dist"
   },
@@ -9,7 +9,7 @@
   ],
   "extends": "@tsconfig/node22/tsconfig.json",
   "include": [
-    "src/**/*",
-    "./jest.config.ts"
+    "validators/**/*",
+    "types/**/*"
   ]
 }

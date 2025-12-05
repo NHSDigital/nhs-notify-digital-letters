@@ -60,6 +60,7 @@
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",
+    "src/digital-letters-events",
     "src/typescript-schema-generator",
     "tests/playwright"
   ]

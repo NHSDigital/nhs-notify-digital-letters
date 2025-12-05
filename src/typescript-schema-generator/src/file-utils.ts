@@ -15,6 +15,8 @@ export const eventSchemasDir = path.resolve(
   'events',
 );
 
+export const destinationPackageName = 'digital-letters-events';
+
 /**
  * Lists all event schema filenames in the digital letters schemas directory.
  *
@@ -45,7 +47,11 @@ export function loadSchema(schemaPath: string): any {
  * @returns The resolved path to the created directory.
  */
 export function createOutputDir(dirName: string): string {
-  const outputDir = path.resolve(__dirname, '..', dirName);
+  const outputDir = path.resolve(
+    __dirname,
+    `../../${destinationPackageName}`,
+    dirName,
+  );
   mkdirSync(outputDir, { recursive: true });
   return outputDir;
 }

@@ -1,8 +1,8 @@
 /* eslint-disable no-console -- Allowing console logging as this is an example file. */
 // Replace me with the actual code for your Lambda function
 import { Handler } from 'aws-lambda';
-import { PDMResourceSubmitted } from 'typescript-schema-generator';
-import eventValidator from 'typescript-schema-generator/PDMResourceSubmitted.js';
+import { PDMResourceSubmitted } from 'digital-letters-events';
+import eventValidator from 'digital-letters-events/PDMResourceSubmitted.js';
 
 export const handler: Handler = async (event: PDMResourceSubmitted) => {
   console.log('Received event:', event);

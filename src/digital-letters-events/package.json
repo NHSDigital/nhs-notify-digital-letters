@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "description": "Generated Typescript types and standalone validator functions for the application's event schemas.",
+  "devDependencies": {
+    "rimraf": "^5.0.10",
+    "typescript": "^5.9.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts"
+    },
+    "./*.js": {
+      "default": "./validators/*.js",
+      "types": "./validators/index.d.ts"
+    }
+  },
+  "name": "digital-letters-events",
+  "scripts": {
+    "clean": "rimraf types validators",
+    "test:unit": "echo \"No unit tests have been implemented for this package\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "version": "0.0.1"
+}
