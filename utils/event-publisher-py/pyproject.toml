@@ -21,6 +21,17 @@ pytest-cov = "^6.0.0"
 pytest-mock = "^3.14.0"
 moto = "^5.0.0"
 
+[tool.coverage.run]
+relative_files = true
+omit = [
+    "*/__tests__/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+    "*/env/*"
+]
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
