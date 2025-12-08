@@ -4,9 +4,10 @@ import type {
   Callback,
   Context,
 } from 'aws-lambda';
+import { createContainer } from 'container';
 import { handler } from '..';
 
-jest.mock('../container', () => {
+jest.mock('container', () => {
   const mockAuthenticator = jest.fn();
   const mockGetResourceHandler = jest.fn();
   const mockCreateResourceHandler = jest.fn();
@@ -69,11 +70,9 @@ describe('Lambda Handler Integration', () => {
   let mockGetResourceHandler: jest.Mock;
   let mockCreateResourceHandler: jest.Mock;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     jest.clearAllMocks();
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { createContainer } = require('../container');
     const container = createContainer();
     mockAuthenticator = container.authenticator as jest.Mock;
     mockGetResourceHandler = container.getResourceHandler as jest.Mock;

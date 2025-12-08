@@ -1,5 +1,5 @@
-import { SSMClient } from '@aws-sdk/client-ssm';
 import { createContainer } from 'container';
+import { parameterStore } from 'utils';
 
 jest.mock('utils', () => {
   const actual = jest.requireActual('utils');
@@ -12,22 +12,29 @@ jest.mock('utils', () => {
       error: jest.fn(),
       child: jest.fn(),
     },
+    parameterStore: {
+      getParameter: jest.fn(),
+    },
   };
 });
 
-jest.mock('@aws-sdk/client-ssm');
-
 describe('Container', () => {
   let container: ReturnType<typeof createContainer>;
+  const originalEnv = process.env;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env = { ...originalEnv };
     process.env.MOCK_ACCESS_TOKEN = 'test-token';
     process.env.ACCESS_TOKEN_SSM_PATH = '/test/path';
     process.env.USE_NON_MOCK_TOKEN = 'false';
     process.env.LOG_LEVEL = 'INFO';
 
     container = createContainer();
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   it('should create a container with all required dependencies', () => {
@@ -94,24 +101,17 @@ describe('Container', () => {
   it('should wire getAccessToken to authenticator when using SSM token', async () => {
     const mockTokenValue = JSON.stringify({
       access_token: 'ssm-stored-token',
-      expires_at: 1765187843,
+      expires_at: 1_765_187_843,
       token_type: 'Bearer',
     });
 
-    const mockSend = jest.fn().mockResolvedValue({
-      Parameter: { Value: mockTokenValue },
+    (parameterStore.getParameter as jest.Mock).mockResolvedValue({
+      Value: mockTokenValue,
     });
 
     process.env.USE_NON_MOCK_TOKEN = 'true';
     process.env.ACCESS_TOKEN_SSM_PATH = '/test/token/path';
     process.env.MOCK_ACCESS_TOKEN = 'unused-mock-token';
-
-    (SSMClient as jest.MockedClass<typeof SSMClient>).mockImplementation(
-      () =>
-        ({
-          send: mockSend,
-        }) as any,
-    );
 
     const testContainer = createContainer();
 
@@ -120,23 +120,18 @@ describe('Container', () => {
     });
 
     expect(result.isValid).toBe(true);
-    expect(mockSend).toHaveBeenCalled();
+    expect(parameterStore.getParameter).toHaveBeenCalledWith(
+      '/test/token/path',
+    );
   });
 
   it('should handle invalid JSON format in SSM parameter', async () => {
-    const mockSend = jest.fn().mockResolvedValue({
-      Parameter: { Value: 'invalid-json' },
+    (parameterStore.getParameter as jest.Mock).mockResolvedValue({
+      Value: 'invalid-json',
     });
 
     process.env.USE_NON_MOCK_TOKEN = 'true';
     process.env.ACCESS_TOKEN_SSM_PATH = '/test/token/path';
-
-    (SSMClient as jest.MockedClass<typeof SSMClient>).mockImplementation(
-      () =>
-        ({
-          send: mockSend,
-        }) as any,
-    );
 
     const testContainer = createContainer();
 
@@ -145,5 +140,24 @@ describe('Container', () => {
         headers: { Authorization: 'Bearer any-token' },
       }),
     ).rejects.toThrow('Invalid access token format in SSM parameter');
+  });
+
+  it('should handle missing SSM parameter', async () => {
+    (parameterStore.getParameter as jest.Mock).mockResolvedValue({
+      Value: undefined,
+    });
+
+    process.env.USE_NON_MOCK_TOKEN = 'true';
+    process.env.ACCESS_TOKEN_SSM_PATH = '/test/token/path';
+
+    const testContainer = createContainer();
+
+    await expect(
+      testContainer.authenticator({
+        headers: { Authorization: 'Bearer any-token' },
+      }),
+    ).rejects.toThrow(
+      'Access token parameter "/test/token/path" not found in SSM',
+    );
   });
 });

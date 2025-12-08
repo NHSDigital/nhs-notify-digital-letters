@@ -29,7 +29,7 @@ export const handler: Handler<
     const authResult = await authenticator(event);
     if (!authResult.isValid) {
       logger.warn('Authentication failed', { requestId, httpMethod, path });
-      return authResult.error!;
+      return authResult.error;
     }
 
     if (

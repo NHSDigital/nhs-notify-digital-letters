@@ -1,5 +1,5 @@
-import { logger } from 'utils';
-import { ParameterStoreService, loadConfig } from 'config';
+import { logger, parameterStore } from 'utils';
+import { loadConfig } from 'config';
 import { createAuthenticator } from 'authenticator';
 import {
   createCreateResourceHandler,
@@ -15,19 +15,24 @@ export interface Container {
 
 export const createContainer = (): Container => {
   const config = loadConfig();
-  const parameterStore = new ParameterStoreService();
 
   const getAccessToken = async () => {
-    const ssmValue = await parameterStore.getParameter(
+    const parameter = await parameterStore.getParameter(
       config.accessTokenSsmPath,
     );
+    if (!parameter?.Value) {
+      throw new Error(
+        `Access token parameter "${config.accessTokenSsmPath}" not found in SSM`,
+      );
+    }
+
     try {
-      const parsed = JSON.parse(ssmValue);
+      const parsed = JSON.parse(parameter.Value);
       return parsed.access_token;
     } catch (error) {
       logger.error('Failed to parse access token from SSM', {
         error,
-        ssmValue,
+        value: parameter.Value,
       });
       throw new Error('Invalid access token format in SSM parameter');
     }

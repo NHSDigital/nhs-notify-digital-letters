@@ -101,7 +101,7 @@ const createErrorResponse = (
           severity: 'error',
           code: 'unknown',
           details: {
-            coding: [{ code }],
+            text: code,
           },
           diagnostics: message,
         },
@@ -133,34 +133,23 @@ const createEmptySuccessResponse = (): APIGatewayProxyResult => {
   };
 };
 
-const generateMockResourceForGet = (id: string): PdmResource => {
-  return {
-    resourceType: 'DocumentReference',
-    id,
-    meta: {
-      versionId: '1',
-      lastUpdated: new Date().toISOString(),
-    },
-    status: 'current',
-    subject: {
-      identifier: {
-        system: 'https://fhir.nhs.uk/Id/nhs-number',
-        value: '9912003071',
-      },
-    },
-    content: [
-      {
-        attachment: {
-          contentType: 'application/pdf',
-          data: 'XYZ',
-          title: 'Dummy PDF',
-        },
-      },
-    ],
-  };
-};
+// Minimal base64-encoded PDF (valid PDF structure)
+const DUMMY_PDF_BASE64 =
+  'JVBERi0xLjQKJeLjz9MKMyAwIG9iago8PC9UeXBlIC9QYWdlCi9QYXJlbnQgMSAwIFIKL01lZGlhQm94IFswIDAgNjEyIDc5Ml0KL0NvbnRlbnRzIDIgMCBSCi9SZXNvdXJjZXMgPDwvUHJvY1NldCBbL1BERiAvVGV4dF0KL0ZvbnQgPDwvRjEgNCAwIFI+Pgo+Pgo+PgplbmRvYmoKNCAwIG9iago8PC9UeXBlIC9Gb250Ci9TdWJ0eXBlIC9UeXBlMQovQmFzZUZvbnQgL0hlbHZldGljYQo+PgplbmRvYmoKMiAwIG9iago8PC9MZW5ndGggNDQ+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKER1bW15IFBERikgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagoxIDAgb2JqCjw8L1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjUgMCBvYmoKPDwvVHlwZSAvQ2F0YWxvZwovUGFnZXMgMSAwIFIKPj4KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDI1MiAwMDAwMCBuIAowMDAwMDAwMTU3IDAwMDAwIG4gCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDEyNCAwMDAwMCBuIAowMDAwMDAwMzAxIDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA2Ci9Sb290IDUgMCBSCj4+CnN0YXJ0eHJlZgozNTAKJSVFT0Y=';
 
-const generateMockResourceForPost = (id: string): PdmResource => {
+const generateMockResource = (
+  id: string,
+  includeData: boolean,
+): PdmResource => {
+  const attachment: any = {
+    contentType: 'application/pdf',
+    title: 'Dummy PDF',
+  };
+
+  if (includeData) {
+    attachment.data = DUMMY_PDF_BASE64;
+  }
+
   return {
     resourceType: 'DocumentReference',
     id,
@@ -177,10 +166,7 @@ const generateMockResourceForPost = (id: string): PdmResource => {
     },
     content: [
       {
-        attachment: {
-          contentType: 'application/pdf',
-          title: 'Dummy PDF',
-        },
+        attachment,
       },
     ],
   };
@@ -250,7 +236,7 @@ export const createGetResourceHandler = (logger: Logger) => {
       return createEmptySuccessResponse();
     }
 
-    const resource = generateMockResourceForGet(resourceId);
+    const resource = generateMockResource(resourceId, true);
     logger.info('Returning mock resource', { resourceId, requestId });
     return createResourceResponse(resource);
   };
@@ -291,19 +277,6 @@ export const createCreateResourceHandler = (logger: Logger) => {
       };
     }
 
-    let requestBody: any;
-    try {
-      requestBody = event.body ? JSON.parse(event.body) : {};
-    } catch (error) {
-      logger.warn('Failed to parse request body', { error, body: event.body });
-      return createErrorResponse(
-        400,
-        'INVALID_REQUEST',
-        'Invalid JSON in request body',
-        logger,
-      );
-    }
-
     const resourceId = xRequestId;
 
     logger.info('Creating resource', {
@@ -311,32 +284,28 @@ export const createCreateResourceHandler = (logger: Logger) => {
       requestId,
     });
 
-    if (requestBody.triggerError) {
-      const errorScenario = ERROR_SCENARIOS.find(
-        (s) => s.id === requestBody.triggerError,
+    const errorScenario = ERROR_SCENARIOS.find((s) => s.id === resourceId);
+    if (errorScenario) {
+      logger.debug('Triggering error scenario', {
+        resourceId,
+        scenario: errorScenario,
+      });
+      return createErrorResponse(
+        errorScenario.statusCode,
+        errorScenario.code,
+        errorScenario.message,
+        logger,
       );
-      if (errorScenario) {
-        logger.debug('Triggering error scenario from request body', {
-          resourceId,
-          scenario: errorScenario,
-        });
-        return createErrorResponse(
-          errorScenario.statusCode,
-          errorScenario.code,
-          errorScenario.message,
-          logger,
-        );
-      }
     }
 
-    if (requestBody.emptyResponse) {
+    if (resourceId === 'empty-response') {
       logger.debug('Returning empty success response for create', {
         resourceId,
       });
       return createEmptySuccessResponse();
     }
 
-    const resource = generateMockResourceForPost(resourceId);
+    const resource = generateMockResource(resourceId, false);
     logger.info('Created mock resource', { resourceId, requestId });
     return createResourceResponse(resource, 201);
   };

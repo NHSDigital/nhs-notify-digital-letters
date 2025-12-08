@@ -7,10 +7,14 @@ export interface AuthConfig {
   getAccessToken: () => Promise<string>;
 }
 
+export type AuthResult =
+  | { isValid: true }
+  | { isValid: false; error: APIGatewayProxyResult };
+
 export const createAuthenticator = (authConfig: AuthConfig, logger: Logger) => {
   return async (
     event: Pick<APIGatewayProxyEvent, 'headers'>,
-  ): Promise<{ isValid: boolean; error?: APIGatewayProxyResult }> => {
+  ): Promise<AuthResult> => {
     const authHeader =
       event.headers?.Authorization || event.headers?.authorization;
 

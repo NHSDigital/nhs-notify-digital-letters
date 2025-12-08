@@ -78,7 +78,7 @@ curl https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentReference/te
 
 - `Authorization: Bearer <token>` - Required authentication token (default: `mock-pdm-token`)
 - `Content-Type: application/fhir+json` - Required content type
-- `X-Request-ID: <uuid>` - Used for request tracking and correlation.
+- `X-Request-ID: <uuid>` - Used for request tracking and correlation. This isn't part of the ID or response that gets returned.
 
 **Response (200 OK):**
 
@@ -134,7 +134,7 @@ Both GET and POST endpoints require the `X-Request-ID` header. If it's missing, 
 
 ### Error Scenarios
 
-The mock API supports triggering specific error responses for testing. Use these special resource IDs:
+The mock API supports triggering specific error responses for testing in both endpoints. Use these special resource IDs:
 
 | Resource ID              | Status Code | Error Code          | Description                     |
 | ------------------------ | ----------- | ------------------- | ------------------------------- |
@@ -179,7 +179,7 @@ The lambda is configured via environment variables:
 
 | Variable                | Description                              | Default                    |
 | ----------------------- | ---------------------------------------- | -------------------------- |
-| `MOCK_ACCESS_TOKEN`     | Token to use in local/dev environments   | `mock-token-for-local-dev` |
-| `ACCESS_TOKEN_SSM_PATH` | SSM parameter path for the access token  | `/mock/access-token`       |
+| `MOCK_ACCESS_TOKEN`     | Token to use in local/dev environments   | `mock-pdm-token`           |
+| `ACCESS_TOKEN_SSM_PATH` | SSM parameter path for the access token  | `/dl/main/apim/access_token`|
 | `USE_NON_MOCK_TOKEN`    | Use SSM token instead of mock token      | `false`                    |
 | `LOG_LEVEL`             | Logging level (DEBUG, INFO, WARN, ERROR) | `INFO`                     |

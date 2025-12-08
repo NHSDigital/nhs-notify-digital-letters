@@ -79,7 +79,8 @@ describe('GET Resource Handler', () => {
     );
     expect(body.subject.identifier.value).toBe('9912003071');
     expect(body.content[0].attachment.contentType).toBe('application/pdf');
-    expect(body.content[0].attachment.data).toBe('XYZ');
+    expect(body.content[0].attachment.data).toBeDefined();
+    expect(body.content[0].attachment.data).toMatch(/^[A-Za-z0-9+/=]+$/);
     expect(body.content[0].attachment.title).toBe('Dummy PDF');
   });
 
@@ -97,7 +98,7 @@ describe('GET Resource Handler', () => {
     expect(response.statusCode).toBe(400);
     const body = JSON.parse(response.body);
     expect(body.resourceType).toBe('OperationOutcome');
-    expect(body.issue[0].details.coding[0].code).toBe('INVALID_REQUEST');
+    expect(body.issue[0].details.text).toBe('INVALID_REQUEST');
   });
 
   it('should return empty response for empty-response scenario', async () => {
@@ -116,7 +117,7 @@ describe('GET Resource Handler', () => {
   });
 
   describe('error scenarios', () => {
-    const errorCases = [
+    it.each([
       {
         id: 'error-400-invalid',
         expectedStatus: 400,
@@ -152,10 +153,9 @@ describe('GET Resource Handler', () => {
         expectedStatus: 503,
         expectedCode: 'SERVICE_UNAVAILABLE',
       },
-    ];
-
-    for (const { expectedCode, expectedStatus, id } of errorCases) {
-      it(`should return ${expectedStatus} error for ${id}`, async () => {
+    ])(
+      'should return $expectedStatus error for $id',
+      async ({ expectedCode, expectedStatus, id }) => {
         const handler = createGetResourceHandler(mockLogger);
         const event = createMockEvent({
           pathParameters: { id },
@@ -169,9 +169,9 @@ describe('GET Resource Handler', () => {
         expect(response.statusCode).toBe(expectedStatus);
         const body = JSON.parse(response.body);
         expect(body.resourceType).toBe('OperationOutcome');
-        expect(body.issue[0].details.coding[0].code).toBe(expectedCode);
-      });
-    }
+        expect(body.issue[0].details.text).toBe(expectedCode);
+      },
+    );
   });
 
   it('should return 400 error when X-Request-ID header is missing', async () => {
@@ -274,31 +274,13 @@ describe('POST Create Resource Handler', () => {
     expect(body.id).toBe(xRequestId);
   });
 
-  it('should return 400 error for invalid JSON', async () => {
+  it('should return empty response when X-Request-ID is empty-response', async () => {
     const handler = createCreateResourceHandler(mockLogger);
     const event = createMockEvent({
       httpMethod: 'POST',
-      body: 'invalid-json{',
+      body: JSON.stringify({}),
       headers: {
-        'X-Request-ID': 'invalid-json-test-1234-5678-9abc-def012345678',
-      },
-    });
-
-    const response = await handler(event);
-
-    expect(response.statusCode).toBe(400);
-    const body = JSON.parse(response.body);
-    expect(body.resourceType).toBe('OperationOutcome');
-    expect(body.issue[0].details.coding[0].code).toBe('INVALID_REQUEST');
-  });
-
-  it('should return empty response when emptyResponse flag is set', async () => {
-    const handler = createCreateResourceHandler(mockLogger);
-    const event = createMockEvent({
-      httpMethod: 'POST',
-      body: JSON.stringify({ emptyResponse: true }),
-      headers: {
-        'X-Request-ID': 'empty-test-1234-5678-9abc-def012345678',
+        'X-Request-ID': 'empty-response',
       },
     });
 
@@ -308,13 +290,13 @@ describe('POST Create Resource Handler', () => {
     expect(response.body).toBe('{}');
   });
 
-  it('should trigger error scenarios via triggerError field', async () => {
+  it('should trigger error scenarios via X-Request-ID', async () => {
     const handler = createCreateResourceHandler(mockLogger);
     const event = createMockEvent({
       httpMethod: 'POST',
-      body: JSON.stringify({ triggerError: 'error-409-conflict' }),
+      body: JSON.stringify({}),
       headers: {
-        'X-Request-ID': 'error-test-1234-5678-9abc-def012345678',
+        'X-Request-ID': 'error-409-conflict',
       },
     });
 
@@ -322,6 +304,6 @@ describe('POST Create Resource Handler', () => {
 
     expect(response.statusCode).toBe(409);
     const body = JSON.parse(response.body);
-    expect(body.issue[0].details.coding[0].code).toBe('CONFLICT');
+    expect(body.issue[0].details.text).toBe('CONFLICT');
   });
 });
