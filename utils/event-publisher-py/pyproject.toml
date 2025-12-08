@@ -23,7 +23,6 @@ moto = "^5.0.0"
 
 [tool.coverage.run]
 relative_files = true
-source = ["utils/event-publisher-py/event_publisher"]
 omit = [
     "*/__tests__/*",
     "*/test_*.py",

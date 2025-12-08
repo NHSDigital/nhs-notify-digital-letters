@@ -30,7 +30,6 @@ pytest-cov = "^4.0.0"
 
 [tool.coverage.run]
 relative_files = true
-source = ["lambdas/mesh-download/src"]
 omit = ["*/__tests__/*"]
 
 [build-system]

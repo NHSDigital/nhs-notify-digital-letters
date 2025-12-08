@@ -24,7 +24,6 @@ jake = "^3.0.1"
 
 [tool.coverage.run]
 relative_files = true
-source = ["utils/metric-publishers/metric_publishers"]
 omit = ["*/tests/*"]
 
 [build-system]
