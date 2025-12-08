@@ -1,21 +1,21 @@
+import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { Dlq } from 'app/dlq';
 import type {
   DynamoDBBatchItemFailure,
   DynamoDBRecord,
   DynamoDBStreamEvent,
 } from 'aws-lambda';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
-import {
-  $TtlDynamodbRecord,
-  $TtlItemEvent,
-  EventPublisher,
-  Logger,
-} from 'utils';
+import type {
+  ItemDequeued,
+  MESHInboxMessageDownloaded,
+} from 'digital-letters-events';
+import eventValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import { randomUUID } from 'node:crypto';
-import { Dlq } from 'app/dlq';
+import { $TtlDynamodbRecord, EventPublisher, Logger } from 'utils';
 
 export type CreateHandlerDependencies = {
   dlq: Dlq;
-  eventPublisher: EventPublisher;
+  eventPublisher: EventPublisher<ItemDequeued>;
   logger: Logger;
 };
 
@@ -63,15 +63,10 @@ export const createHandler = ({
         return;
       }
 
-      const {
-        data: itemEvent,
-        error: eventParseError,
-        success: eventParseSuccess,
-      } = $TtlItemEvent.safeParse(item.event);
-
-      if (!eventParseSuccess) {
+      const isEventValid = eventValidator(item.event);
+      if (!isEventValid) {
         logger.warn({
-          err: eventParseError,
+          err: eventValidator.errors,
           description: 'Error parsing ttl item event',
         });
 
@@ -79,6 +74,8 @@ export const createHandler = ({
 
         return;
       }
+
+      const itemEvent: MESHInboxMessageDownloaded = item.event as any;
 
       if (item.withdrawn) {
         logger.info({
@@ -95,6 +92,8 @@ export const createHandler = ({
             time: new Date().toISOString(),
             recordedtime: new Date().toISOString(),
             type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+            dataschema:
+              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
           },
         ]);
       }

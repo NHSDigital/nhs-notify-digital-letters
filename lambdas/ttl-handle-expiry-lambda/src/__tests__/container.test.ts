@@ -1,6 +1,7 @@
 import { EventPublisher } from 'utils';
 import { loadConfig } from 'infra/config';
 import { createContainer } from 'container';
+import eventValidator from 'digital-letters-events/ItemDequeued.js';
 
 jest.mock('utils', () => ({
   EventPublisher: jest.fn(),
@@ -14,9 +15,7 @@ jest.mock('infra/config', () => ({
 }));
 
 const mockLoadConfig = loadConfig as jest.MockedFunction<typeof loadConfig>;
-const mockEventPublisher = EventPublisher as jest.MockedClass<
-  typeof EventPublisher
->;
+const mockEventPublisher = jest.mocked(EventPublisher);
 
 describe('createContainer', () => {
   beforeEach(() => {
@@ -49,6 +48,7 @@ describe('createContainer', () => {
       logger: expect.any(Object),
       sqsClient: expect.any(Object),
       eventBridgeClient: expect.any(Object),
+      validateEvent: eventValidator,
     });
 
     expect(container).toEqual({
