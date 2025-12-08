@@ -10,11 +10,11 @@ test:
 	poetry run pytest event_publisher/__tests__/ -v
 
 coverage:
-	cd ../.. && poetry -C utils/event-publisher-py run pytest utils/event-publisher-py/event_publisher/__tests__/ \
-		--cov=utils/event-publisher-py/event_publisher \
-		--cov-report=html:utils/event-publisher-py/htmlcov \
+	poetry run pytest event_publisher/__tests__/ \
+		--cov=event_publisher \
+		--cov-report=html:htmlcov \
 		--cov-report=term-missing \
-		--cov-report=xml:utils/event-publisher-py/coverage.xml \
+		--cov-report=xml:coverage.xml \
 		--cov-branch
 
 clean:
