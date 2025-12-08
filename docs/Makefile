@@ -43,7 +43,6 @@ build: clean build-schemas copy-schema-docs copy-schema-yaml-docs copy-schemas b
 
 build-ci: build-schemas-ci copy-schema-docs copy-schema-yaml-docs copy-schemas build-eventcatalog build-docs show-build-output
 
-
 build-eventcatalog:
 	$(MAKE) build-eventcatalog-prereq
 	make -C $(EVENT_CAT_ROOT_DIR) build BASE_URL=$(EVENT_CAT_URL)
