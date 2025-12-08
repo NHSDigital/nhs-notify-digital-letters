@@ -11,8 +11,6 @@ test.describe('Digital Letters - Create TTL', () => {
 
     await eventPublisher.sendEvents([
       {
-        profileversion: '1.0.0',
-        profilepublished: '2025-10',
         id: letterId,
         specversion: '1.0',
         source:
@@ -26,12 +24,10 @@ test.describe('Digital Letters - Create TTL', () => {
         traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
         datacontenttype: 'application/json',
         dataschema:
-          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
-        dataschemaversion: '1.0',
+          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
         severitytext: 'INFO',
         data: {
           messageUri,
-          'digital-letter-id': letterId,
           messageReference: 'ref1',
           senderId: 'sender1',
         },
