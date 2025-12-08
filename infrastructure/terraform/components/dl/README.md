@@ -26,9 +26,8 @@ No requirements.
 | <a name="input_log_retention_in_days"></a> [log\_retention\_in\_days](#input\_log\_retention\_in\_days) | The retention period in days for the Cloudwatch Logs events to be retained, default of 0 is indefinite | `number` | `0` | no |
 | <a name="input_mesh_poll_schedule"></a> [mesh\_poll\_schedule](#input\_mesh\_poll\_schedule) | Schedule to poll MESH for messages | `string` | `"cron(0,30 8-16 ? * MON-FRI *)"` | no |
 | <a name="input_parent_acct_environment"></a> [parent\_acct\_environment](#input\_parent\_acct\_environment) | Name of the environment responsible for the acct resources used, affects things like DNS zone. Useful for named dev environments | `string` | `"main"` | no |
-| <a name="input_pdm_access_token_ssm_path"></a> [pdm\_access\_token\_ssm\_path](#input\_pdm\_access\_token\_ssm\_path) | SSM Parameter path for the PDM API access token | `string` | `"/digital-letters/pdm/access-token"` | no |
 | <a name="input_pdm_mock_access_token"></a> [pdm\_mock\_access\_token](#input\_pdm\_mock\_access\_token) | Mock access token for PDM API authentication (used in local/dev environments) | `string` | `"mock-pdm-token"` | no |
-| <a name="input_pdm_use_non_mock_token"></a> [pdm\_use\_non\_mock\_token](#input\_pdm\_use\_non\_mock\_token) | Whether to use the SSM parameter token instead of the mock token | `bool` | `false` | no |
+| <a name="input_pdm_use_non_mock_token"></a> [pdm\_use\_non\_mock\_token](#input\_pdm\_use\_non\_mock\_token) | Whether to use the shared APIM access token from SSM (/component/environment/apim/access\_token) instead of the mock token | `bool` | `false` | no |
 | <a name="input_project"></a> [project](#input\_project) | The name of the tfscaffold project | `string` | n/a | yes |
 | <a name="input_queue_batch_size"></a> [queue\_batch\_size](#input\_queue\_batch\_size) | maximum number of queue items to process | `number` | `10` | no |
 | <a name="input_queue_batch_window_seconds"></a> [queue\_batch\_window\_seconds](#input\_queue\_batch\_window\_seconds) | maximum time in seconds between processing events | `number` | `10` | no |
@@ -43,7 +42,7 @@ No requirements.
 | <a name="module_lambda_apim_key_generation"></a> [lambda\_apim\_key\_generation](#module\_lambda\_apim\_key\_generation) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
 | <a name="module_lambda_lambda_apim_refresh_token"></a> [lambda\_lambda\_apim\_refresh\_token](#module\_lambda\_lambda\_apim\_refresh\_token) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
 | <a name="module_mesh_poll"></a> [mesh\_poll](#module\_mesh\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
-| <a name="module_pdm_mock_api"></a> [pdm\_mock\_api](#module\_pdm\_mock\_api) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
+| <a name="module_pdm_mock_lambda"></a> [pdm\_mock\_lambda](#module\_pdm\_mock\_lambda) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
 | <a name="module_s3bucket_cf_logs"></a> [s3bucket\_cf\_logs](#module\_s3bucket\_cf\_logs) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_letters"></a> [s3bucket\_letters](#module\_s3bucket\_letters) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_static_assets"></a> [s3bucket\_static\_assets](#module\_s3bucket\_static\_assets) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
@@ -58,8 +57,8 @@ No requirements.
 | Name | Description |
 |------|-------------|
 | <a name="output_deployment"></a> [deployment](#output\_deployment) | Deployment details used for post-deployment scripts |
-| <a name="output_pdm_mock_api_endpoint"></a> [pdm\_mock\_api\_endpoint](#output\_pdm\_mock\_api\_endpoint) | The base URL of the PDM Mock API |
-| <a name="output_pdm_mock_api_id"></a> [pdm\_mock\_api\_id](#output\_pdm\_mock\_api\_id) | The ID of the PDM Mock API Gateway |
+| <a name="output_pdm_mock_lambda_endpoint"></a> [pdm\_mock\_lambda\_endpoint](#output\_pdm\_mock\_lambda\_endpoint) | The base URL of the PDM Mock Lambda |
+| <a name="output_pdm_mock_lambda_id"></a> [pdm\_mock\_lambda\_id](#output\_pdm\_mock\_lambda\_id) | The ID of the PDM Mock Lambda API Gateway |
 <!-- vale on -->
 <!-- markdownlint-enable -->
 <!-- END_TF_DOCS -->

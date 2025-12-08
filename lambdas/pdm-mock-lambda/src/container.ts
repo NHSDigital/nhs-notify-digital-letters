@@ -18,7 +18,19 @@ export const createContainer = (): Container => {
   const parameterStore = new ParameterStoreService();
 
   const getAccessToken = async () => {
-    return parameterStore.getParameter(config.accessTokenSsmPath);
+    const ssmValue = await parameterStore.getParameter(
+      config.accessTokenSsmPath,
+    );
+    try {
+      const parsed = JSON.parse(ssmValue);
+      return parsed.access_token;
+    } catch (error) {
+      logger.error('Failed to parse access token from SSM', {
+        error,
+        ssmValue,
+      });
+      throw new Error('Invalid access token format in SSM parameter');
+    }
   };
 
   const authenticator = createAuthenticator(

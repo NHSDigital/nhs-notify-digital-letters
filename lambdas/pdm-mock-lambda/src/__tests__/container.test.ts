@@ -92,8 +92,14 @@ describe('Container', () => {
   });
 
   it('should wire getAccessToken to authenticator when using SSM token', async () => {
+    const mockTokenValue = JSON.stringify({
+      access_token: 'ssm-stored-token',
+      expires_at: 1765187843,
+      token_type: 'Bearer',
+    });
+
     const mockSend = jest.fn().mockResolvedValue({
-      Parameter: { Value: 'ssm-stored-token' },
+      Parameter: { Value: mockTokenValue },
     });
 
     process.env.USE_NON_MOCK_TOKEN = 'true';
@@ -115,5 +121,29 @@ describe('Container', () => {
 
     expect(result.isValid).toBe(true);
     expect(mockSend).toHaveBeenCalled();
+  });
+
+  it('should handle invalid JSON format in SSM parameter', async () => {
+    const mockSend = jest.fn().mockResolvedValue({
+      Parameter: { Value: 'invalid-json' },
+    });
+
+    process.env.USE_NON_MOCK_TOKEN = 'true';
+    process.env.ACCESS_TOKEN_SSM_PATH = '/test/token/path';
+
+    (SSMClient as jest.MockedClass<typeof SSMClient>).mockImplementation(
+      () =>
+        ({
+          send: mockSend,
+        }) as any,
+    );
+
+    const testContainer = createContainer();
+
+    await expect(
+      testContainer.authenticator({
+        headers: { Authorization: 'Bearer any-token' },
+      }),
+    ).rejects.toThrow('Invalid access token format in SSM parameter');
   });
 });

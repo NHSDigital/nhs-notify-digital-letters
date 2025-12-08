@@ -1,7 +1,7 @@
-module "pdm_mock_api" {
+module "pdm_mock_lambda" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
 
-  function_name = "pdm-mock-api"
+  function_name = "pdm-mock-lambda"
   description   = "A lambda function for mocking PDM (Patient Data Manager) API endpoints"
 
   aws_account_id = var.aws_account_id
@@ -15,12 +15,12 @@ module "pdm_mock_api" {
   kms_key_arn           = module.kms.key_arn
 
   iam_policy_document = {
-    body = data.aws_iam_policy_document.pdm_mock_api_lambda.json
+    body = data.aws_iam_policy_document.pdm_mock_lambda.json
   }
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
   function_code_base_path = local.aws_lambda_functions_dir_path
-  function_code_dir       = "pdm-mock-api/dist"
+  function_code_dir       = "pdm-mock-lambda/dist"
   function_include_common = true
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
@@ -37,12 +37,12 @@ module "pdm_mock_api" {
 
   lambda_env_vars = {
     MOCK_ACCESS_TOKEN     = var.pdm_mock_access_token
-    ACCESS_TOKEN_SSM_PATH = var.pdm_access_token_ssm_path
+    ACCESS_TOKEN_SSM_PATH = local.apim_access_token_ssm_parameter_name
     USE_NON_MOCK_TOKEN    = var.pdm_use_non_mock_token
   }
 }
 
-data "aws_iam_policy_document" "pdm_mock_api_lambda" {
+data "aws_iam_policy_document" "pdm_mock_lambda" {
   statement {
     sid    = "KMSPermissions"
     effect = "Allow"
@@ -67,7 +67,7 @@ data "aws_iam_policy_document" "pdm_mock_api_lambda" {
     ]
 
     resources = [
-      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${var.pdm_access_token_ssm_path}",
+      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.apim_access_token_ssm_parameter_name}",
     ]
   }
 }

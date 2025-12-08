@@ -1,10 +1,10 @@
-# PDM Mock API Lambda
+# PDM Mock Lambda
 
 This Lambda function provides a mock implementation of the PDM (Patient Data Manager) API for testing purposes. It allows the NHS Notify Digital Letters system to test integration with PDM without requiring access to the actual PDM service.
 
 ## Overview
 
-The PDM Mock API simulates two key PDM endpoints following the FHIR R4 DocumentReference structure:
+The PDM Mock Lambda simulates two key PDM endpoints following the FHIR R4 DocumentReference structure:
 
 - **POST /patient-data-manager/FHIR/R4/DocumentReference** - Create a new DocumentReference
 - **GET /patient-data-manager/FHIR/R4/DocumentReference/{id}** - Retrieve a specific DocumentReference
