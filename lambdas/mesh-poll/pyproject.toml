@@ -29,7 +29,9 @@ pytest-cov = "^4.0.0"
 jake = "^3.0.1"
 
 [tool.coverage.run]
-omit = ["src/__tests__/*"]
+relative_files = true
+source = ["lambdas/mesh-poll/src"]
+omit = ["*/__tests__/*"]
 
 [tool.pytest.ini_options]
 pythonpath = "."

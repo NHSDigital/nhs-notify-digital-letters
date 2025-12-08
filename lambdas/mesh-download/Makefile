@@ -14,11 +14,12 @@ test:
 	poetry run pytest
 
 coverage:
-	poetry run pytest src/__tests__/ \
-		--cov=src \
-		--cov-report=html:htmlcov \
+	cd ../.. && COVERAGE_RCFILE=lambdas/mesh-download/pyproject.toml \
+		poetry -C lambdas/mesh-download run pytest lambdas/mesh-download/src/__tests__/ \
+		--cov=lambdas/mesh-download/src \
+		--cov-report=html:lambdas/mesh-download/htmlcov \
 		--cov-report=term-missing \
-		--cov-report=xml:coverage.xml \
+		--cov-report=xml:lambdas/mesh-download/coverage.xml \
 		--cov-branch
 
 lint:

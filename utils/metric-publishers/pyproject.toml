@@ -23,7 +23,9 @@ autopep8 = "^2.0.2"
 jake = "^3.0.1"
 
 [tool.coverage.run]
-omit = ["tests/*"]
+relative_files = true
+source = ["utils/metric-publishers/metric_publishers"]
+omit = ["*/tests/*"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
