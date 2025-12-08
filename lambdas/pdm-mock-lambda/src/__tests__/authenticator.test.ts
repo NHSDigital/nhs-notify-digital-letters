@@ -33,7 +33,6 @@ describe('Authenticator', () => {
       });
 
       expect(result.isValid).toBe(true);
-      expect(result.error).toBeUndefined();
       expect(mockGetAccessToken).not.toHaveBeenCalled();
     });
 
@@ -50,10 +49,17 @@ describe('Authenticator', () => {
       const result = await authenticator({ headers: {} });
 
       expect(result.isValid).toBe(false);
-      expect(result.error).toBeDefined();
-      expect(result.error?.statusCode).toBe(401);
-      expect(result.error?.body).toContain('ACCESS_DENIED');
-      expect(result.error?.body).toContain('Missing Authentication Token');
+      expect(result).toHaveProperty('error');
+      expect((result as { isValid: false; error: any }).error).toBeDefined();
+      expect((result as { isValid: false; error: any }).error.statusCode).toBe(
+        401,
+      );
+      expect((result as { isValid: false; error: any }).error.body).toContain(
+        'ACCESS_DENIED',
+      );
+      expect((result as { isValid: false; error: any }).error.body).toContain(
+        'Missing Authentication Token',
+      );
     });
 
     it('should reject request with invalid token type', async () => {
@@ -71,8 +77,13 @@ describe('Authenticator', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.error?.statusCode).toBe(401);
-      expect(result.error?.body).toContain('Invalid Access Token');
+      expect(result).toHaveProperty('error');
+      expect((result as { isValid: false; error: any }).error.statusCode).toBe(
+        401,
+      );
+      expect((result as { isValid: false; error: any }).error.body).toContain(
+        'Invalid Access Token',
+      );
     });
 
     it('should reject request with invalid token value', async () => {
@@ -90,8 +101,13 @@ describe('Authenticator', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.error?.statusCode).toBe(401);
-      expect(result.error?.body).toContain('Invalid Access Token');
+      expect(result).toHaveProperty('error');
+      expect((result as { isValid: false; error: any }).error.statusCode).toBe(
+        401,
+      );
+      expect((result as { isValid: false; error: any }).error.body).toContain(
+        'Invalid Access Token',
+      );
     });
 
     it('should handle lowercase authorization header', async () => {
@@ -150,7 +166,10 @@ describe('Authenticator', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.error?.statusCode).toBe(401);
+      expect(result).toHaveProperty('error');
+      expect((result as { isValid: false; error: any }).error.statusCode).toBe(
+        401,
+      );
     });
 
     it('should handle SSM token retrieval errors gracefully', async () => {
