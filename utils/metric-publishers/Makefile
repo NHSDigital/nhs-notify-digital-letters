@@ -14,12 +14,11 @@ test:
 	poetry run pytest || echo
 
 coverage:
-	@cd ../.. && poetry -C utils/metric-publishers run pytest utils/metric-publishers/tests/ \
-		--cov=utils/metric-publishers/metric_publishers \
-		--cov-config=utils/metric-publishers/pytest.ini \
-		--cov-report=html:utils/metric-publishers/htmlcov \
+	poetry run pytest tests/ \
+		--cov=metric_publishers \
+		--cov-report=html:htmlcov \
 		--cov-report=term-missing \
-		--cov-report=xml:utils/metric-publishers/coverage.xml \
+		--cov-report=xml:coverage.xml \
 		--cov-branch
 
 lint:
