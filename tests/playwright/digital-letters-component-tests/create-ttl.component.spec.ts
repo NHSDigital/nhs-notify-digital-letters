@@ -14,7 +14,7 @@ test.describe('Digital Letters - Create TTL', () => {
         id: letterId,
         specversion: '1.0',
         source:
-          '/nhs/england/notify/production/primary/data-plane/digital-letters',
+          '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
         subject:
           'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
         type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
