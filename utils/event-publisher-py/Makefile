@@ -7,10 +7,10 @@ install-dev: install
 	pip install -r requirements-dev.txt
 
 test:
-	cd ../.. && pytest utils/event-publisher-py/event_publisher/__tests__/ -v
+	cd ../.. && PYTHONPATH=utils/event-publisher-py:$$PYTHONPATH pytest utils/event-publisher-py/event_publisher/__tests__/ -v
 
 coverage:
-	cd ../.. && pytest utils/event-publisher-py/event_publisher/__tests__/ \
+	cd ../.. && PYTHONPATH=utils/event-publisher-py:$$PYTHONPATH pytest utils/event-publisher-py/event_publisher/__tests__/ \
 		--cov=utils/event-publisher-py/event_publisher \
 		--cov-config=utils/event-publisher-py/pytest.ini \
 		--cov-report=html:utils/event-publisher-py/htmlcov \
