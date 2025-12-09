@@ -2,30 +2,31 @@ PACKAGE=mesh_download
 VERSION=0.1.0
 
 audit:
-	poetry run python -m jake.app ddt -t POETRY -f poetry.lock
+	cd ../.. && python -m jake.app ddt -t POETRY -f lambdas/mesh-download/poetry.lock
 
 install:
-	poetry install
+	pip install -r requirements.txt
 
-install-dev:
-	poetry install --with dev
+install-dev: install
+	pip install -r requirements-dev.txt
 
 test:
-	poetry run pytest
+	cd ../.. && PYTHONPATH=lambdas/mesh-download:$$PYTHONPATH pytest lambdas/mesh-download/src/__tests__/ -v
 
 coverage:
-	poetry run pytest src/__tests__/ \
-		--cov=src \
-		--cov-report=html:htmlcov \
+	cd ../.. && PYTHONPATH=lambdas/mesh-download:$$PYTHONPATH pytest lambdas/mesh-download/src/__tests__/ \
+		--cov=lambdas/mesh-download/src \
+		--cov-config=lambdas/mesh-download/pytest.ini \
+		--cov-report=html:lambdas/mesh-download/htmlcov \
 		--cov-report=term-missing \
-		--cov-report=xml:coverage.xml \
+		--cov-report=xml:lambdas/mesh-download/coverage.xml \
 		--cov-branch
 
 lint:
-	poetry run pylint src
+	pylint src
 
 format:
-	poetry run autopep8 -ri .
+	autopep8 -ri .
 
 package:
 	./package_python_lambda.sh meshdownloadlambda

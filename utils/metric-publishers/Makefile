@@ -2,30 +2,31 @@ PACKAGE=metric_publishers
 VERSION=1.0.0
 
 audit:
-	poetry run python -m jake.app ddt -t POETRY -f poetry.lock
+	cd ../.. && python -m jake.app ddt -t POETRY -f utils/metric-publishers/poetry.lock
 
 install:
-	poetry install
+	pip install -r requirements.txt
 
-install-dev:
-	poetry install --with dev
+install-dev: install
+	pip install -r requirements-dev.txt
 
 test:
-	poetry run pytest || echo
+	cd ../.. && PYTHONPATH=utils/metric-publishers:$$PYTHONPATH pytest utils/metric-publishers/tests/ -v
 
 coverage:
-	poetry run pytest tests/ \
-		--cov=metric_publishers \
-		--cov-report=html:htmlcov \
+	cd ../.. && PYTHONPATH=utils/metric-publishers:$$PYTHONPATH pytest utils/metric-publishers/tests/ \
+		--cov=utils/metric-publishers/metric_publishers \
+		--cov-config=utils/metric-publishers/pytest.ini \
+		--cov-report=html:utils/metric-publishers/htmlcov \
 		--cov-report=term-missing \
-		--cov-report=xml:coverage.xml \
+		--cov-report=xml:utils/metric-publishers/coverage.xml \
 		--cov-branch
 
 lint:
-	poetry run pylint metric_publishers
+	pylint metric_publishers
 
 format:
-	poetry run autopep8 -ri .
+	autopep8 -ri .
 
 clean:
 	rm -rf target

@@ -1,5 +1,0 @@
-[installer]
-max-workers = 1
-
-[virtualenvs]
-in-project = true

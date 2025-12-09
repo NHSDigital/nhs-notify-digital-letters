@@ -2,30 +2,31 @@ PACKAGE=mesh_poll
 VERSION=0.1.0
 
 audit:
-	poetry run python -m jake.app ddt -t POETRY -f poetry.lock
+	cd ../.. && python -m jake.app ddt -t POETRY -f lambdas/mesh-poll/poetry.lock
 
 install:
-	poetry install
+	pip install -r requirements.txt
 
-install-dev:
-	poetry install --with dev
+install-dev: install
+	pip install -r requirements-dev.txt
 
 test:
-	poetry run pytest
+	cd ../.. && PYTHONPATH=lambdas/mesh-poll:$$PYTHONPATH pytest lambdas/mesh-poll/src/__tests__/ -v
 
 coverage:
-	poetry run pytest src/__tests__/ \
-		--cov=src \
-		--cov-report=html:htmlcov \
+	cd ../.. && PYTHONPATH=lambdas/mesh-poll:$$PYTHONPATH pytest lambdas/mesh-poll/src/__tests__/ \
+		--cov=lambdas/mesh-poll/src \
+		--cov-config=lambdas/mesh-poll/pytest.ini \
+		--cov-report=html:lambdas/mesh-poll/htmlcov \
 		--cov-report=term-missing \
-		--cov-report=xml:coverage.xml \
+		--cov-report=xml:lambdas/mesh-poll/coverage.xml \
 		--cov-branch
 
 lint:
-	poetry run pylint mesh_poll
+	pylint mesh_poll
 
 format:
-	poetry run autopep8 -ri .
+	autopep8 -ri .
 
 package:
 	./package_python_lambda.sh meshpolllambda
