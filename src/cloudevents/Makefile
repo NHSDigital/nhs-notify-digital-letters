@@ -140,5 +140,5 @@ asdf-install-test:
 	@echo "asdf installation complete"
 
 deploy-ci:
-#	npm ci
+	npm ci
 	make deploy
