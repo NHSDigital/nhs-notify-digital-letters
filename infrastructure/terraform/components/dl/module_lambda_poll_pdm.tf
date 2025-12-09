@@ -25,7 +25,7 @@ module "poll_pdm" {
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
   memory                  = 128
-  timeout                 = 360
+  timeout                 = 60
   log_level               = var.log_level
 
   force_lambda_code_deploy = var.force_lambda_code_deploy
@@ -68,6 +68,21 @@ data "aws_iam_policy_document" "poll_pdm_lambda" {
 
     resources = [
       module.sqs_event_publisher_errors.sqs_queue_arn,
+    ]
+  }
+  statement {
+    sid    = "SQSPermissionsPollPdmQueue"
+    effect = "Allow"
+
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:GetQueueUrl",
+    ]
+
+    resources = [
+      module.sqs_poll_pdm.sqs_queue_arn,
     ]
   }
 }
