@@ -1,26 +1,24 @@
-.PHONY: install install-dev test coverage clean build
+.PHONY: install install-dev test coverage clean
 
 install:
-	poetry install
+	pip install -r requirements.txt
 
-install-dev:
-	poetry install --with dev
+install-dev: install
+	pip install -r requirements-dev.txt
 
 test:
-	poetry run pytest event_publisher/__tests__/ -v
+	cd ../.. && pytest utils/event-publisher-py/event_publisher/__tests__/ -v
 
 coverage:
-	poetry run pytest event_publisher/__tests__/ \
-		--cov=event_publisher \
-		--cov-report=html:htmlcov \
+	cd ../.. && pytest utils/event-publisher-py/event_publisher/__tests__/ \
+		--cov=utils/event-publisher-py/event_publisher \
+		--cov-config=utils/event-publisher-py/pytest.ini \
+		--cov-report=html:utils/event-publisher-py/htmlcov \
 		--cov-report=term-missing \
-		--cov-report=xml:coverage.xml \
+		--cov-report=xml:utils/event-publisher-py/coverage.xml \
 		--cov-branch
 
 clean:
 	rm -rf dist/ .coverage htmlcov/ .pytest_cache/ coverage.xml
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name '*.pyc' -delete
-
-build:
-	poetry build
