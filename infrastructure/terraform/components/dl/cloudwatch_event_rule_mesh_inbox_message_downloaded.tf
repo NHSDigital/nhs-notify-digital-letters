@@ -8,9 +8,6 @@ resource "aws_cloudwatch_event_rule" "mesh_inbox_message_downloaded" {
       "type" : [
         "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"
       ],
-      "dataschemaversion" : [{
-        "prefix" : "1."
-      }]
     }
   })
 }
