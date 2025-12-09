@@ -140,43 +140,5 @@ asdf-install-test:
 	@echo "asdf installation complete"
 
 deploy-ci:
-	echo "=== Setting up environment for CI unit tests ===" && \
-	curl -LO https://github.com/asdf-vm/asdf/releases/download/v0.18.0/asdf-v0.18.0-linux-amd64.tar.gz && \
-	tar -xvzf asdf-v0.18.0-linux-amd64.tar.gz -C /usr/local/bin && \
-	chmod +x /usr/local/bin/asdf && \
-	pwd && \
-	ls -la
-	@echo "from manual test tools versions file contains:"
-	cat .tool-versions || echo "  -> .tool-versions file not found in this directory"
-	/usr/local/bin/asdf --version
-	@echo "Setting up asdf environment and adding plugins"
-	export ASDF_DATA_DIR=$$HOME/.asdf && \
-	export PATH=$$ASDF_DATA_DIR/shims:$$ASDF_DATA_DIR/bin:/usr/local/bin:$$PATH && \
-	echo "Adding plugins from .tool-versions" && \
-	while IFS=' ' read -r plugin version || [ -n "$$plugin" ]; do \
-		plugin=$$(echo "$$plugin" | xargs); \
-		first_char=$$(echo "$$plugin" | cut -c1); \
-		if [ -n "$$plugin" ] && [ "$$first_char" != "#" ]; then \
-			echo "Adding plugin: $$plugin (version: $$version)" && \
-			/usr/local/bin/asdf plugin add "$$plugin" 2>&1 || echo "  -> Plugin $$plugin already added or failed"; \
-		fi \
-	done < .tool-versions && \
-	echo "Listing available plugins:" && \
-	/usr/local/bin/asdf plugin list && \
-	echo "Installing asdf versions" && \
-	/usr/local/bin/asdf install -v && \
-	echo "Installed versions:" && \
-	/usr/local/bin/asdf list && \
-	echo "Node is at:" && \
-	whereis node && \
-	echo "Chosen one is at:" && \
-	which node && \
-	echo "Node version is:" && \
-	node --version && \
-	npm install && \
-	echo "=== Finished installing dependencies ===" && \
-	asdf info && \
-	asdf current && \
-	node --version && \
-	npm --version && \
+#	npm ci
 	make deploy
