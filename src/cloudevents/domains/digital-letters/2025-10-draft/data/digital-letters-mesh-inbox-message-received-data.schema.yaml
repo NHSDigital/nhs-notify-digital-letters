@@ -6,5 +6,11 @@ additionalProperties: false
 properties:
   meshMessageId:
     $ref: ../defs/mesh.schema.yaml#/properties/meshMessageId
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
 required:
   - meshMessageId
+  - senderId
+  - messageReference

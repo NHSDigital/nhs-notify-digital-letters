@@ -33,7 +33,7 @@ Clone the repository
 ```shell
 git clone https://github.com/NHSDigital/nhs-notify-digital-letters.git
 cd nhs-notify-digital-letters
-code protject.code-workspace
+code project.code-workspace
 ```
 
 Reopen with container
@@ -75,6 +75,10 @@ Installation and configuration of the toolchain dependencies
 ```shell
 make config
 ```
+
+Note that the `make config` command will also build the flattened event schemas and auto-generate a Typescript
+type and JS validator code for each event. See the [typescript-schema-generator](src/typescript-schema-generator/)
+package for more details.
 
 ## Usage
 
