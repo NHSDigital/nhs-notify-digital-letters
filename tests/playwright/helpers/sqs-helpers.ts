@@ -27,9 +27,7 @@ export async function expectMessageContainingString(
     const result = await sqsClient.send(new ReceiveMessageCommand(input));
     const polledMessages = result.Messages || [];
 
-    expect(
-      polledMessages.find((m) => (m.Body ?? '').includes(searchTerm)),
-    ).toBeDefined();
+    expect(polledMessages.some((m) => m.Body?.includes(searchTerm))).toBe(true);
   });
 }
 
