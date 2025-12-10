@@ -21,13 +21,12 @@ const mockLogger: Logger = {
 
 type TestEvent = { id: string; source: string; type: string };
 
-const testConfig: EventPublisherDependencies<TestEvent> = {
+const testConfig: EventPublisherDependencies = {
   eventBusArn: 'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
   dlqUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/test-dlq',
   logger: mockLogger,
   sqsClient: sqsMock as unknown as SQSClient,
   eventBridgeClient: eventBridgeMock as unknown as EventBridgeClient,
-  validateEvent: () => true,
 };
 
 const event: TestEvent = {
@@ -53,7 +52,7 @@ describe('Event Publishing', () => {
 
   test('should return empty array when no events provided', async () => {
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents([]);
+    const result = await publisher.sendEvents([], () => true);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(0);
@@ -67,7 +66,7 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(events);
+    const result = await publisher.sendEvents(events, () => true);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(1);
@@ -101,11 +100,8 @@ describe('Event Publishing', () => {
       ],
     });
 
-    const publisher = new EventPublisher({
-      ...testConfig,
-      validateEvent: () => false,
-    });
-    const result = await publisher.sendEvents(events);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(events, () => false);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(0);
@@ -138,7 +134,7 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(events);
+    const result = await publisher.sendEvents(events, () => true);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(1);
@@ -167,7 +163,7 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(events);
+    const result = await publisher.sendEvents(events, () => true);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(1);
@@ -189,11 +185,8 @@ describe('Event Publishing', () => {
       });
     });
 
-    const publisher = new EventPublisher({
-      ...testConfig,
-      validateEvent: () => false,
-    });
-    const result = await publisher.sendEvents(events);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(events, () => false);
 
     expect(result).toEqual([event]);
     expect(eventBridgeMock.calls()).toHaveLength(0);
@@ -203,11 +196,8 @@ describe('Event Publishing', () => {
   test('should handle DLQ send error and return all events as failed', async () => {
     sqsMock.on(SendMessageBatchCommand).rejects(new Error('DLQ error'));
 
-    const publisher = new EventPublisher({
-      ...testConfig,
-      validateEvent: () => false,
-    });
-    const result = await publisher.sendEvents(events);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(events, () => false);
 
     expect(result).toEqual(events);
     expect(eventBridgeMock.calls()).toHaveLength(0);
@@ -228,7 +218,7 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(largeEventArray);
+    const result = await publisher.sendEvents(largeEventArray, () => true);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(3);
@@ -252,11 +242,8 @@ describe('Event Publishing', () => {
         id: randomUUID(),
       }));
 
-    const publisher = new EventPublisher({
-      ...testConfig,
-      validateEvent: () => false,
-    });
-    const result = await publisher.sendEvents(largeEventArray);
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(largeEventArray, () => false);
 
     expect(result).toEqual(largeEventArray);
     expect(sqsMock.calls()).toHaveLength(3);
@@ -371,15 +358,15 @@ describe('Event Publishing', () => {
       });
     });
 
-    const publisher = new EventPublisher({
-      ...testConfig,
-      validateEvent: (e) =>
+    const publisher = new EventPublisher(testConfig);
+    const result = await publisher.sendEvents(
+      allEvents,
+      (e) =>
         !(
           e.id.includes('22222222-2222-2222-2222') ||
           e.id.includes('33333333-3333-3333-3333')
         ),
-    });
-    const result = await publisher.sendEvents(allEvents);
+    );
 
     expect(result).toHaveLength(
       invalidAndDlqError.length + eventBridgeAndDlqError.length,
@@ -510,11 +497,11 @@ describe('EventPublisher Class', () => {
     const publisher = new EventPublisher(testConfig);
 
     // First call
-    const result1 = await publisher.sendEvents([event]);
+    const result1 = await publisher.sendEvents([event], () => true);
     expect(result1).toEqual([]);
 
     // Second call with same publisher instance
-    const result2 = await publisher.sendEvents([event2]);
+    const result2 = await publisher.sendEvents([event2], () => true);
     expect(result2).toEqual([]);
 
     expect(eventBridgeMock.calls()).toHaveLength(2);

@@ -6,7 +6,8 @@ import type {
 import { randomUUID } from 'node:crypto';
 import type { CreateTtl, CreateTtlOutcome } from 'app/create-ttl';
 import { EventPublisher, Logger } from 'utils';
-import eventValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
+import itemEnqueuedValidator from 'digital-letters-events/ItemEnqueued.js';
+import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import {
   ItemEnqueued,
   MESHInboxMessageDownloaded,
@@ -19,7 +20,7 @@ interface ProcessingResult {
 
 interface CreateHandlerDependencies {
   createTtl: CreateTtl;
-  eventPublisher: EventPublisher<ItemEnqueued>;
+  eventPublisher: EventPublisher;
   logger: Logger;
 }
 
@@ -37,10 +38,10 @@ export const createHandler = ({
           const sqsEventBody = JSON.parse(body);
           const sqsEventDetail = sqsEventBody.detail;
 
-          const isEventValid = eventValidator(sqsEventDetail);
+          const isEventValid = messageDownloadedValidator(sqsEventDetail);
           if (!isEventValid) {
             logger.error({
-              err: eventValidator.errors,
+              err: messageDownloadedValidator.errors,
               description: 'Error parsing ttl queue entry',
             });
             batchItemFailures.push({ itemIdentifier: messageId });
@@ -96,7 +97,7 @@ export const createHandler = ({
 
     if (successfulEvents.length > 0) {
       try {
-        const failedEvents = await eventPublisher.sendEvents(
+        const failedEvents = await eventPublisher.sendEvents<ItemEnqueued>(
           successfulEvents.map((event) => ({
             ...event,
             id: randomUUID(),
@@ -106,6 +107,7 @@ export const createHandler = ({
             dataschema:
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.json',
           })),
+          itemEnqueuedValidator,
         );
         if (failedEvents.length > 0) {
           logger.warn({

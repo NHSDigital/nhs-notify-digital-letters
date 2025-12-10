@@ -9,13 +9,14 @@ import type {
   ItemDequeued,
   MESHInboxMessageDownloaded,
 } from 'digital-letters-events';
-import eventValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
+import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
+import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import { randomUUID } from 'node:crypto';
 import { $TtlDynamodbRecord, EventPublisher, Logger } from 'utils';
 
 export type CreateHandlerDependencies = {
   dlq: Dlq;
-  eventPublisher: EventPublisher<ItemDequeued>;
+  eventPublisher: EventPublisher;
   logger: Logger;
 };
 
@@ -63,10 +64,10 @@ export const createHandler = ({
         return;
       }
 
-      const isEventValid = eventValidator(item.event);
+      const isEventValid = messageDownloadedValidator(item.event);
       if (!isEventValid) {
         logger.warn({
-          err: eventValidator.errors,
+          err: messageDownloadedValidator.errors,
           description: 'Error parsing ttl item event',
         });
 
@@ -85,17 +86,20 @@ export const createHandler = ({
           senderId: itemEvent.data.senderId,
         });
       } else {
-        await eventPublisher.sendEvents([
-          {
-            ...itemEvent,
-            id: randomUUID(),
-            time: new Date().toISOString(),
-            recordedtime: new Date().toISOString(),
-            type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
-            dataschema:
-              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
-          },
-        ]);
+        await eventPublisher.sendEvents<ItemDequeued>(
+          [
+            {
+              ...itemEvent,
+              id: randomUUID(),
+              time: new Date().toISOString(),
+              recordedtime: new Date().toISOString(),
+              type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+              dataschema:
+                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
+            },
+          ],
+          itemDequeuedValidator,
+        );
       }
     } catch (error) {
       logger.warn({

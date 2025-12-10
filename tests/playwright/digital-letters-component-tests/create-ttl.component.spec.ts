@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import { MESHInboxMessageDownloaded } from 'digital-letters-events';
+import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import getTtl from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
@@ -9,30 +11,34 @@ test.describe('Digital Letters - Create TTL', () => {
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
 
-    await eventPublisher.sendEvents([
-      {
-        id: letterId,
-        specversion: '1.0',
-        source:
-          '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
-        subject:
-          'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-        type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
-        time: '2023-06-20T12:00:00Z',
-        recordedtime: '2023-06-20T12:00:00.250Z',
-        severitynumber: 2,
-        traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-        datacontenttype: 'application/json',
-        dataschema:
-          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
-        severitytext: 'INFO',
-        data: {
-          messageUri,
-          messageReference: 'ref1',
-          senderId: 'sender1',
+    await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
+      [
+        {
+          id: letterId,
+          specversion: '1.0',
+          source:
+            '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
+          subject:
+            'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+          type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
+          time: '2023-06-20T12:00:00Z',
+          recordedtime: '2023-06-20T12:00:00.250Z',
+          severitynumber: 2,
+          traceparent:
+            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+          datacontenttype: 'application/json',
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
+          severitytext: 'INFO',
+          data: {
+            messageUri,
+            messageReference: 'ref1',
+            senderId: 'sender1',
+          },
         },
-      },
-    ]);
+      ],
+      messageDownloadedValidator,
+    );
 
     await expectToPassEventually(async () => {
       const ttl = await getTtl(messageUri);

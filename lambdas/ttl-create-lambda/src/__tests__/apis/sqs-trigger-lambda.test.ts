@@ -4,6 +4,7 @@ import {
   ItemEnqueued,
   MESHInboxMessageDownloaded,
 } from 'digital-letters-events';
+import itemEnqueuedValidator from 'digital-letters-events/ItemEnqueued.js';
 import { randomUUID } from 'node:crypto';
 
 jest.mock('node:crypto', () => ({
@@ -75,7 +76,10 @@ describe('createHandler', () => {
 
     expect(res.batchItemFailures).toEqual([]);
     expect(createTtl.send).toHaveBeenCalledWith(messageDownloadedEvent);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([itemEnqueuedEvent]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [itemEnqueuedEvent],
+      itemEnqueuedValidator,
+    );
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 0,
@@ -185,11 +189,10 @@ describe('createHandler', () => {
 
     expect(res.batchItemFailures).toEqual([]);
     expect(createTtl.send).toHaveBeenCalledTimes(3);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      itemEnqueuedEvent,
-      itemEnqueuedEvent,
-      itemEnqueuedEvent,
-    ]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [itemEnqueuedEvent, itemEnqueuedEvent, itemEnqueuedEvent],
+      itemEnqueuedValidator,
+    );
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 0,
@@ -213,10 +216,10 @@ describe('createHandler', () => {
     const res = await handler(event);
 
     expect(res.batchItemFailures).toEqual([]);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      itemEnqueuedEvent,
-      itemEnqueuedEvent,
-    ]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [itemEnqueuedEvent, itemEnqueuedEvent],
+      itemEnqueuedValidator,
+    );
     expect(logger.warn).toHaveBeenCalledWith({
       description: 'Some events failed to publish',
       failedCount: 1,
@@ -236,7 +239,10 @@ describe('createHandler', () => {
     const res = await handler(event);
 
     expect(res.batchItemFailures).toEqual([]);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([itemEnqueuedEvent]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [itemEnqueuedEvent],
+      itemEnqueuedValidator,
+    );
     expect(logger.warn).toHaveBeenCalledWith({
       err: publishError,
       description: 'Failed to send events to EventBridge',
@@ -282,7 +288,10 @@ describe('createHandler', () => {
       { itemIdentifier: 'msg2' },
       { itemIdentifier: 'msg3' },
     ]);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([itemEnqueuedEvent]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [itemEnqueuedEvent],
+      itemEnqueuedValidator,
+    );
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 2,

@@ -10,31 +10,28 @@ type DlqReason = 'INVALID_EVENT' | 'EVENTBRIDGE_FAILURE';
 
 const MAX_BATCH_SIZE = 10;
 
-export interface EventPublisherDependencies<T> {
+export interface EventPublisherDependencies {
   eventBusArn: string;
   dlqUrl: string;
   logger: Logger;
   sqsClient: SQSClient;
   eventBridgeClient: EventBridgeClient;
-  validateEvent: EventValidationFunction<T>;
 }
 
 type PublishableEvent = { id: string; source: string; type: string };
 
 type EventValidationFunction<T> = { (event: T): boolean; errors?: any[] };
 
-export class EventPublisher<T extends PublishableEvent> {
+export class EventPublisher {
   private readonly eventBridge: EventBridgeClient;
 
   private readonly sqs: SQSClient;
 
-  private readonly config: EventPublisherDependencies<T>;
+  private readonly config: EventPublisherDependencies;
 
   private readonly logger: Logger;
 
-  private readonly validateEvent: EventValidationFunction<T>;
-
-  constructor(config: EventPublisherDependencies<T>) {
+  constructor(config: EventPublisherDependencies) {
     if (!config.eventBusArn) {
       throw new Error('eventBusArn has not been specified');
     }
@@ -50,18 +47,16 @@ export class EventPublisher<T extends PublishableEvent> {
     if (!config.eventBridgeClient) {
       throw new Error('eventBridgeClient has not been provided');
     }
-    if (!config.validateEvent) {
-      throw new Error('validateEvent has not been provided');
-    }
 
     this.config = config;
     this.logger = config.logger;
     this.eventBridge = config.eventBridgeClient;
     this.sqs = config.sqsClient;
-    this.validateEvent = config.validateEvent;
   }
 
-  private async sendToEventBridge(events: T[]): Promise<T[]> {
+  private async sendToEventBridge<T extends PublishableEvent>(
+    events: T[],
+  ): Promise<T[]> {
     const failedEvents: T[] = [];
     this.logger.info({
       description: `Sending ${events.length} events to EventBridge`,
@@ -122,7 +117,10 @@ export class EventPublisher<T extends PublishableEvent> {
     return failedEvents;
   }
 
-  private async sendToDLQ(events: T[], reason: DlqReason): Promise<T[]> {
+  private async sendToDLQ<T extends PublishableEvent>(
+    events: T[],
+    reason: DlqReason,
+  ): Promise<T[]> {
     const failedDlqs: T[] = [];
 
     this.logger.warn({
@@ -195,7 +193,10 @@ export class EventPublisher<T extends PublishableEvent> {
     return failedDlqs;
   }
 
-  public async sendEvents(events: T[]): Promise<T[]> {
+  public async sendEvents<T extends PublishableEvent>(
+    events: T[],
+    eventValidator: EventValidationFunction<T>,
+  ): Promise<T[]> {
     if (events.length === 0) {
       this.logger.info({ description: 'No events to send' });
       return [];
@@ -205,7 +206,7 @@ export class EventPublisher<T extends PublishableEvent> {
     const invalidEvents: T[] = [];
 
     for (const event of events) {
-      const isEventValid = this.validateEvent(event);
+      const isEventValid = eventValidator(event);
       if (isEventValid) {
         validEvents.push(event);
       } else {
@@ -213,7 +214,7 @@ export class EventPublisher<T extends PublishableEvent> {
 
         this.logger.info({
           description: 'Error parsing event',
-          error: this.validateEvent.errors,
+          error: eventValidator.errors,
         });
       }
     }

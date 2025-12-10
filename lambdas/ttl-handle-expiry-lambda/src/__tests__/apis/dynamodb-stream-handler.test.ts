@@ -3,10 +3,10 @@ import { EventPublisher, Logger } from 'utils';
 import { mock } from 'jest-mock-extended';
 import { createHandler } from 'apis/dynamodb-stream-handler';
 import { Dlq } from 'app/dlq';
-import { ItemDequeued } from 'digital-letters-events';
+import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
 
 const logger = mock<Logger>();
-const eventPublisher = mock<EventPublisher<ItemDequeued>>();
+const eventPublisher = mock<EventPublisher>();
 const dlq = mock<Dlq>();
 const futureTimestamp = Date.now() + 1_000_000;
 
@@ -103,24 +103,27 @@ describe('createHandler', () => {
 
     expect(eventPublisher.sendEvents).toHaveBeenCalledTimes(1);
 
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      expect.objectContaining({
-        specversion: '1.0',
-        source:
-          '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
-        subject:
-          'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-        type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
-        datacontenttype: 'application/json',
-        dataschema:
-          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
-        data: expect.objectContaining({
-          messageReference: 'ref1',
-          messageUri: 'https://example.com/ttl/resource',
-          senderId: 'sender1',
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          specversion: '1.0',
+          source:
+            '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
+          subject:
+            'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+          type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+          datacontenttype: 'application/json',
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
+          data: expect.objectContaining({
+            messageReference: 'ref1',
+            messageUri: 'https://example.com/ttl/resource',
+            senderId: 'sender1',
+          }),
         }),
-      }),
-    ]);
+      ],
+      itemDequeuedValidator,
+    );
 
     expect(result).toEqual({});
   });
@@ -377,16 +380,19 @@ describe('createHandler', () => {
     const result = await handler(mockNotWithdrawnEvent);
 
     expect(eventPublisher.sendEvents).toHaveBeenCalledTimes(1);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      expect.objectContaining({
-        type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
-        data: expect.objectContaining({
-          messageReference: 'ref1',
-          messageUri: 'https://example.com/ttl/resource',
-          senderId: 'sender1',
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+          data: expect.objectContaining({
+            messageReference: 'ref1',
+            messageUri: 'https://example.com/ttl/resource',
+            senderId: 'sender1',
+          }),
         }),
-      }),
-    ]);
+      ],
+      itemDequeuedValidator,
+    );
     expect(result).toEqual({});
   });
 });
