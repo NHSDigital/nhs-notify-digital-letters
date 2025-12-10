@@ -1,13 +1,15 @@
 import { expect, test } from '@playwright/test';
+import { ENV } from 'constants/backend-constants';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
+import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import { getTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Create TTL', () => {
-  test('should create TTL following downloaded message event', async () => {
+  test('should create TTL and publish item enqueued event following message downloaded event', async () => {
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
 
@@ -40,10 +42,25 @@ test.describe('Digital Letters - Create TTL', () => {
       messageDownloadedValidator,
     );
 
+    // Verify TTL created
     await expectToPassEventually(async () => {
       const ttl = await getTtl(messageUri);
 
       expect(ttl.length).toBe(1);
+    });
+
+    // Verify item enqueued event published
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.queue.item.enqueued.v1"',
+          `$.details.event_detail = "*\\"messageUri\\":\\"${messageUri}\\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
     });
   });
 });
