@@ -106,6 +106,7 @@ export const createHandler = ({
             type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
             dataschema:
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.json',
+            source: event.source.replace(/\/mesh$/, '/queue'),
           })),
           itemEnqueuedValidator,
         );

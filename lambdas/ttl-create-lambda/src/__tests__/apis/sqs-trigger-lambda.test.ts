@@ -52,9 +52,11 @@ describe('createHandler', () => {
   const itemEnqueuedEvent: ItemEnqueued = {
     ...messageDownloadedEvent,
     id: '550e8400-e29b-41d4-a716-446655440001',
+    source:
+      '/nhs/england/notify/production/primary/data-plane/digitalletters/queue',
+    type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
     time: '2023-06-20T12:00:00.250Z',
     recordedtime: '2023-06-20T12:00:00.250Z',
-    type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.json',
   };
@@ -80,6 +82,11 @@ describe('createHandler', () => {
       [itemEnqueuedEvent],
       itemEnqueuedValidator,
     );
+
+    const publishedEvent = eventPublisher.sendEvents.mock.lastCall?.[0];
+    expect(publishedEvent).toHaveLength(1);
+    expect(itemEnqueuedValidator(publishedEvent?.[0])).toBeTruthy();
+
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 0,
