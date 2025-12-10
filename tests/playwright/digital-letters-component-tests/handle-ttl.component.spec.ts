@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { ENV } from 'constants/backend-constants';
+import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import { deleteTtl, putTtl } from 'helpers/dynamodb-helpers';
 import expectToPassEventually from 'helpers/expectations';
@@ -13,11 +14,11 @@ test.describe('Digital Letters - Handle TTL', () => {
     await purgeQueue(handleTtlDlqName);
   });
 
-  const baseEvent = {
-    profileversion: '1.0.0',
-    profilepublished: '2025-10',
+  const baseEvent: MESHInboxMessageDownloaded = {
+    id: 'sample-id',
     specversion: '1.0',
-    source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
+    source:
+      '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
     subject:
       'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
     type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
@@ -27,12 +28,12 @@ test.describe('Digital Letters - Handle TTL', () => {
     traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
     datacontenttype: 'application/json',
     dataschema:
-      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
-    dataschemaversion: '1.0',
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
     severitytext: 'INFO',
     data: {
       messageReference: 'ref1',
       senderId: 'sender1',
+      messageUri: 'https://example.com/ttl/resource/sample',
     },
   };
 
@@ -46,9 +47,8 @@ test.describe('Digital Letters - Handle TTL', () => {
       data: {
         ...baseEvent.data,
         messageUri,
-        'digital-letter-id': letterId,
       },
-    };
+    } satisfies MESHInboxMessageDownloaded;
 
     const ttlItem = {
       PK: messageUri,
@@ -88,9 +88,8 @@ test.describe('Digital Letters - Handle TTL', () => {
       data: {
         ...baseEvent.data,
         messageUri,
-        'digital-letter-id': letterId,
       },
-    };
+    } satisfies MESHInboxMessageDownloaded;
 
     const ttlItem = {
       PK: messageUri,
