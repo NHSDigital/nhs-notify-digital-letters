@@ -107,18 +107,16 @@ test.describe('Digital Letters - Handle TTL', () => {
     expect(deleteResponseCode).toBe(200);
 
     await expectToPassEventually(async () => {
-      await expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-          [
-            '$.message_type = "EVENT_RECEIPT"',
-            '$.details.detail_type = "uk.nhs.notify.digital.letters.queue.item.dequeued.v1"',
-            `$.details.event_detail = "*\\"messageUri\\":\\"${messageUri}\\"*"`,
-          ],
-        );
+      const eventLogEntry = await getLogsFromCloudwatch(
+        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.queue.item.dequeued.v1"',
+          `$.details.event_detail = "*\\"messageUri\\":\\"${messageUri}\\"*"`,
+        ],
+      );
 
-        expect(eventLogEntry.length).toEqual(1);
-      });
+      expect(eventLogEntry.length).toEqual(1);
     });
   });
 
