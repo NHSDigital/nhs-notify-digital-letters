@@ -1,4 +1,4 @@
-module "sqs_poll_pdm" {
+module "sqs_pdm_poll" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip"
 
   aws_account_id             = var.aws_account_id
@@ -6,15 +6,15 @@ module "sqs_poll_pdm" {
   environment                = var.environment
   project                    = var.project
   region                     = var.region
-  name                       = "poll-pdm"
+  name                       = "pdm-poll"
   sqs_kms_key_arn            = module.kms.key_arn
   visibility_timeout_seconds = 60
   delay_seconds              = 5
   create_dlq                 = true
-  sqs_policy_overload        = data.aws_iam_policy_document.sqs_poll_pdm.json
+  sqs_policy_overload        = data.aws_iam_policy_document.sqs_pdm_poll.json
 }
 
-data "aws_iam_policy_document" "sqs_poll_pdm" {
+data "aws_iam_policy_document" "sqs_pdm_poll" {
   statement {
     sid    = "AllowEventBridgeToSendMessage"
     effect = "Allow"
@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "sqs_poll_pdm" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-poll-pdm-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-pdm-poll-queue"
     ]
   }
 }

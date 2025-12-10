@@ -14,7 +14,7 @@ resource "aws_cloudwatch_event_rule" "pdm_resource_submitted" {
 
 resource "aws_cloudwatch_event_target" "pdm_resource_submitted" {
   rule           = aws_cloudwatch_event_rule.pdm_resource_submitted.name
-  arn            = module.sqs_poll_pdm.sqs_queue_arn
+  arn            = module.sqs_pdm_poll.sqs_queue_arn
   target_id      = "pdm-resource-submitted-target"
   event_bus_name = aws_cloudwatch_event_bus.main.name
 }

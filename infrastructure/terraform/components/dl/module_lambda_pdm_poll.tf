@@ -1,7 +1,7 @@
-module "poll_pdm" {
+module "pdm_poll" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
 
-  function_name = "poll-pdm"
+  function_name = "pdm-poll"
   description   = "A function for polling PDM document status"
 
   aws_account_id = var.aws_account_id
@@ -15,12 +15,12 @@ module "poll_pdm" {
   kms_key_arn           = module.kms.key_arn
 
   iam_policy_document = {
-    body = data.aws_iam_policy_document.poll_pdm_lambda.json
+    body = data.aws_iam_policy_document.pdm_poll_lambda.json
   }
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
   function_code_base_path = local.aws_lambda_functions_dir_path
-  function_code_dir       = "poll-pdm-lambda/dist"
+  function_code_dir       = "pdm-poll-lambda/dist"
   function_include_common = true
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
@@ -43,7 +43,7 @@ module "poll_pdm" {
   }
 }
 
-data "aws_iam_policy_document" "poll_pdm_lambda" {
+data "aws_iam_policy_document" "pdm_poll_lambda" {
   statement {
     sid    = "PutEvents"
     effect = "Allow"
@@ -82,7 +82,7 @@ data "aws_iam_policy_document" "poll_pdm_lambda" {
     ]
 
     resources = [
-      module.sqs_poll_pdm.sqs_queue_arn,
+      module.sqs_pdm_poll.sqs_queue_arn,
     ]
   }
 }
