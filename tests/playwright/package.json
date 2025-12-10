@@ -6,6 +6,7 @@
     "@aws-sdk/client-s3": "^3.844.0",
     "@aws-sdk/client-sqs": "^3.844.0",
     "@aws-sdk/lib-dynamodb": "3.844.0",
+    "@aws-sdk/util-dynamodb": "^3.933.0",
     "@faker-js/faker": "^9.6.0",
     "@playwright/test": "^1.51.1",
     "digital-letters-events": "^0.0.1",
