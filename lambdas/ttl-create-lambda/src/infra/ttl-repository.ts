@@ -1,5 +1,6 @@
 import { PutCommand, PutCommandOutput } from '@aws-sdk/lib-dynamodb';
-import { Logger, TtlItemEvent } from 'utils';
+import { MESHInboxMessageDownloaded } from 'digital-letters-events';
+import { Logger } from 'utils';
 
 interface IDynamoCaller {
   send: (updateCommand: PutCommand) => Promise<PutCommandOutput>;
@@ -18,7 +19,7 @@ export class TtlRepository {
     this.ttlWaitTimeSeconds = ttlWaitTimeHours * 60 * 60;
   }
 
-  public async insertTtlRecord(item: TtlItemEvent) {
+  public async insertTtlRecord(item: MESHInboxMessageDownloaded) {
     const ttlTime = Math.round(Date.now() / 1000) + this.ttlWaitTimeSeconds;
 
     this.logger.info({
@@ -38,7 +39,10 @@ export class TtlRepository {
     }
   }
 
-  private async putTtlRecord(ttlItemEvent: TtlItemEvent, ttlTime: number) {
+  private async putTtlRecord(
+    event: MESHInboxMessageDownloaded,
+    ttlTime: number,
+  ) {
     // GSI PK utilising write sharding YYYY-MM-DD#<RANDOM_INT_BETWEEN_0_AND_[shardCount]>
     const ttlGsiPk = `${
       new Date(ttlTime * 1000).toISOString().split('T')[0]
@@ -48,11 +52,11 @@ export class TtlRepository {
       new PutCommand({
         TableName: this.tableName,
         Item: {
-          PK: ttlItemEvent.data.messageUri,
+          PK: event.data.messageUri,
           SK: 'TTL',
           ttl: ttlTime,
           dateOfExpiry: ttlGsiPk,
-          event: ttlItemEvent,
+          event,
         },
       }),
     );

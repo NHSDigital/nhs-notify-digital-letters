@@ -42,7 +42,8 @@
     "react": "^19.0.0"
   },
   "scripts": {
-    "generate-dependencies": "npm run generate-dependencies --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present",
+    "generate-dependencies": "make -C src/cloudevents/domains/digital-letters build-no-bundle publish-bundled-json && npm run generate-dependencies --workspaces --if-present",
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",
     "start": "npm run start --workspace frontend",
@@ -57,7 +58,10 @@
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
     "utils/utils",
+    "utils/sender-management",
     "src/cloudevents",
+    "src/digital-letters-events",
+    "src/typescript-schema-generator",
     "tests/playwright"
   ]
 }

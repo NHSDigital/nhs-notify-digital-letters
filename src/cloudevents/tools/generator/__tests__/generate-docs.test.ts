@@ -68,14 +68,14 @@ describe('generate-docs TypeScript', () => {
       const result = await runGenerateDocs([]);
 
       expect(result.exitCode).toBe(1);
-      expect(result.stderr).toContain('Usage: ts-node generate-docs-cli.ts <input-dir> <output-dir>');
+      expect(result.stderr).toContain('Usage: tsx generate-docs-cli.ts <input-dir> <output-dir>');
     });
 
     it('should fail when only one argument is provided', async () => {
       const result = await runGenerateDocs([INPUT_DIR]);
 
       expect(result.exitCode).toBe(1);
-      expect(result.stderr).toContain('Usage: ts-node generate-docs-cli.ts <input-dir> <output-dir>');
+      expect(result.stderr).toContain('Usage: tsx generate-docs-cli.ts <input-dir> <output-dir>');
     });
 
     it('should fail when input directory does not exist', async () => {

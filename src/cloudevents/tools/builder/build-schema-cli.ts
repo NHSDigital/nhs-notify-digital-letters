@@ -353,11 +353,11 @@ export function handleCli(args: string[]): CliResult {
 
   if (!sourceSchemaPath || !outputDir) {
     const errorMsg = [
-      "Usage: ts-node build-schema.ts [--root-dir <path>] [--strip-prefix <prefix>] <source-schema.json|yaml> <output-dir> [base-url]",
-      "Example: ts-node build-schema.ts src/common/2025-10/nhs-notify-profile.schema.yaml output/common/2025-10",
-      "With URL: ts-node build-schema.ts src/common/2025-10/nhs-notify-profile.schema.yaml output/common/2025-10 https://schema.notify.nhs.uk",
-      "With root: ts-node build-schema.ts --root-dir /path/to/repo src/common/2025-10/nhs-notify-profile.schema.yaml output/common/2025-10",
-      "With strip prefix: ts-node build-schema.ts --strip-prefix cloudevents/domains src/common/2025-10/nhs-notify-profile.schema.yaml output/common/2025-10 https://schema.notify.nhs.uk"
+      "Usage: tsx build-schema.ts [--root-dir <path>] [--strip-prefix <prefix>] <source-schema.json|yaml> <output-dir> [base-url]",
+      "Example: tsx build-schema.ts src/common/2025-10/nhs-notify-profile.schema.yaml output/common/2025-10",
+      "With URL: tsx build-schema.ts src/common/2025-10/nhs-notify-profile.schema.yaml output/common/2025-10 https://schema.notify.nhs.uk",
+      "With root: tsx build-schema.ts --root-dir /path/to/repo src/common/2025-10/nhs-notify-profile.schema.yaml output/common/2025-10",
+      "With strip prefix: tsx build-schema.ts --strip-prefix cloudevents/domains src/common/2025-10/nhs-notify-profile.schema.yaml output/common/2025-10 https://schema.notify.nhs.uk"
     ].join("\n");
 
     console.error(errorMsg);

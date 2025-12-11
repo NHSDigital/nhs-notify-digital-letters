@@ -17,9 +17,9 @@ const TEST_DIR = path.join(__dirname, 'temp-validate-test');
 function runValidator(schemaPath: string, dataPath: string, baseDir?: string): { success: boolean; output: string; error: string } {
   try {
     const args = baseDir ? ['--base', baseDir, schemaPath, dataPath] : [schemaPath, dataPath];
-    const result = spawnSync('npx', ['ts-node', SCRIPT_PATH, ...args], {
+    const result = spawnSync('npx', ['tsx', SCRIPT_PATH, ...args], {
       encoding: 'utf-8',
-      timeout: 10000 // Increased timeout for ts-node
+      timeout: 10000 // Increased timeout for tsx
     });
 
     return {
@@ -53,7 +53,7 @@ describe('validate.ts', () => {
 
   describe('command line arguments', () => {
     it('should exit with error when no arguments provided', () => {
-      const result = spawnSync('npx', ['ts-node', SCRIPT_PATH], { encoding: 'utf-8', timeout: 10000 });
+      const result = spawnSync('npx', ['tsx', SCRIPT_PATH], { encoding: 'utf-8', timeout: 10000 });
       expect(result.status).not.toBe(0);
       expect(result.stderr).toContain('Usage:');
     });
@@ -62,7 +62,7 @@ describe('validate.ts', () => {
       const schemaFile = path.join(TEST_DIR, 'schema.json');
       fs.writeFileSync(schemaFile, JSON.stringify({ type: 'object' }));
 
-      const result = spawnSync('node', [SCRIPT_PATH, schemaFile], { encoding: 'utf-8' });
+      const result = spawnSync('npx', ['tsx', SCRIPT_PATH, schemaFile], { encoding: 'utf-8', timeout: 10000 });
       expect(result.status).not.toBe(0);
       expect(result.stderr).toContain('Usage:');
     });

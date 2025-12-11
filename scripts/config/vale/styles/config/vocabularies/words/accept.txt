@@ -80,6 +80,7 @@ sample_service_markdown
 sanitization
 schemaDir
 sed
+senderId
 service_sorted
 setCachedSchema
 Someobject
@@ -92,5 +93,6 @@ toolchain
 Trufflehog
 updateReadme
 Uploader
+[Uu][Aa][Tt]
 uuid
 [Vv]alidator
