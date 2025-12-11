@@ -20,6 +20,10 @@ export type CreateHandlerDependencies = {
   logger: Logger;
 };
 
+const eventValidator = messageDownloadedValidator as (
+  d: unknown,
+) => d is MESHInboxMessageDownloaded;
+
 export const createHandler = ({
   dlq,
   eventPublisher,
@@ -64,8 +68,10 @@ export const createHandler = ({
         return;
       }
 
-      const isEventValid = messageDownloadedValidator(item.event);
-      if (!isEventValid) {
+      let itemEvent: MESHInboxMessageDownloaded;
+      if (eventValidator(item.event)) {
+        itemEvent = item.event;
+      } else {
         logger.warn({
           err: messageDownloadedValidator.errors,
           description: 'Error parsing ttl item event',
@@ -75,8 +81,6 @@ export const createHandler = ({
 
         return;
       }
-
-      const itemEvent: MESHInboxMessageDownloaded = item.event as any;
 
       if (item.withdrawn) {
         logger.info({
