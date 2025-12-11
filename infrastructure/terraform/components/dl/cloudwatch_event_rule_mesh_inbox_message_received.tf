@@ -19,6 +19,6 @@ resource "aws_cloudwatch_event_rule" "mesh_inbox_message_received" {
 resource "aws_cloudwatch_event_target" "mesh_download_sqs" {
   rule           = aws_cloudwatch_event_rule.mesh_inbox_message_received.name
   target_id      = "mesh-inbox-message-received-sqs-target"
-  arn            = module.sqs_mesh_download.queue_arn
+  arn            = module.sqs_mesh_download.sqs_queue_arn
   event_bus_name = aws_cloudwatch_event_bus.main.name
 }
