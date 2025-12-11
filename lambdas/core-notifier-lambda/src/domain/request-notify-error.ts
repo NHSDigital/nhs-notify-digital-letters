@@ -1,0 +1,19 @@
+/**
+ * To represent an HTTP status not 2xx returned from Notify API when sending a Single Message Request.
+ * Note that 429 and 422 are handled separately in the Notify API client.
+ */
+export class RequestNotifyError extends Error {
+  readonly cause: Error;
+
+  readonly correlationId: string;
+
+  readonly errorCode: string;
+
+  constructor(cause: Error, correlationId: string, errorCode: string) {
+    super('The request has already been received.');
+
+    this.cause = cause;
+    this.correlationId = correlationId;
+    this.errorCode = errorCode;
+  }
+}

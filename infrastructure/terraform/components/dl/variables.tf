@@ -169,3 +169,15 @@ variable "enable_pdm_mock" {
   description = "Flag indicating whether to deploy PDM mock API (should be false in production environments)"
   default     = true
 }
+
+variable "use_core_nofiy_sandbox" {
+  type        = bool
+  description = "Flag indicating whether to use Core Notify sandbox or not (should be false in production environments)"
+  default     = true
+}
+
+variable "core_notify_sandbox_base_url" {
+  type        = string
+  description = "The URL used to send requests to Notify sandbox environment (should not be used in production environment)"
+  default     = "https://sandbox.api.service.nhs.uk"
+}

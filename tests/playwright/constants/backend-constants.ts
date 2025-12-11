@@ -11,12 +11,14 @@ export const CSI = `nhs-${ENV}-dl`;
 export const MESH_POLL_LAMBDA_NAME = `${CSI}-mesh-poll`;
 export const TTL_CREATE_LAMBDA_NAME = `${CSI}-ttl-create`;
 export const TTL_POLL_LAMBDA_NAME = `${CSI}-ttl-poll`;
+export const CORE_NOTIFIER_LAMBDA_NAME = `${CSI}-core-notifier`;
 
 // Queue Names
 export const TTL_QUEUE_NAME = `${CSI}-ttl-queue`;
 export const TTL_DLQ_NAME = `${CSI}-ttl-dlq`;
 export const PDM_UPLOADER_DLQ_NAME = `${CSI}-pdm-uploader-dlq`;
 export const PDM_POLL_DLQ_NAME = `${CSI}-pdm-poll-dlq`;
+export const CORE_NOTIFIER_DLQ_NAME = `${CSI}-core-notifier-dlq`;
 
 // Queue Url Prefix
 export const SQS_URL_PREFIX = `https://sqs.${REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/`;
@@ -35,3 +37,4 @@ export const LETTERS_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGIO
 // Cloudwatch
 export const PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-uploader`;
 export const PDM_POLL_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-poll`;
+export const CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-core-notifier`;
