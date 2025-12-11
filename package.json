@@ -63,6 +63,7 @@
     "lambdas/ttl-poll-lambda",
     "lambdas/pdm-uploader-lambda",
     "lambdas/core-notifier-lambda",
+    "lambdas/file-scanner-move-scanned-files-lambda",
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",
