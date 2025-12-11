@@ -1,7 +1,7 @@
 import { createHandler } from 'apis/sqs-trigger-lambda';
+import { randomUUID } from 'node:crypto';
 import type { SQSEvent } from 'aws-lambda';
 import { $TtlItemBusEvent, TtlItemBusEvent } from 'utils';
-import { randomUUID } from 'node:crypto';
 
 jest.mock('node:crypto', () => ({
   randomUUID: jest.fn(),

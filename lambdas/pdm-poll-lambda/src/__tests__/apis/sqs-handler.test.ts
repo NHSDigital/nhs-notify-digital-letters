@@ -1,36 +1,30 @@
-import { createHandler } from 'apis/sqs-handler';
-import { Logger } from 'utils';
-import { SQSEvent, SQSRecord } from 'aws-lambda';
 import { mock } from 'jest-mock-extended';
+import { randomUUID } from 'node:crypto';
+import { createHandler } from 'apis/sqs-handler';
+import { EventPublisher, Logger } from 'utils';
+import { Pdm } from 'app/pdm';
+import {
+  pdmResourceSubmittedEvent,
+  pdmResourceUnavailableEvent,
+  recordEvent,
+} from '__tests__/test-data';
 
 const logger = mock<Logger>();
+const eventPublisher = mock<EventPublisher>();
+const pdm = mock<Pdm>();
 
-const event = {
-  sourceEventId: 'test-event-id',
-};
+jest.mock('node:crypto', () => ({
+  randomUUID: jest.fn(),
+}));
 
-const sqsRecord1: SQSRecord = {
-  messageId: '1',
-  receiptHandle: 'abc',
-  body: JSON.stringify(event),
-  attributes: {
-    ApproximateReceiveCount: '1',
-    SentTimestamp: '2025-07-03T14:23:30Z',
-    SenderId: 'sender-id',
-    ApproximateFirstReceiveTimestamp: '2025-07-03T14:23:30Z',
-  },
-  messageAttributes: {},
-  md5OfBody: '',
-  eventSource: 'aws:sqs',
-  eventSourceARN: '',
-  awsRegion: '',
-};
-
-const singleRecordEvent: SQSEvent = {
-  Records: [sqsRecord1],
-};
+const mockRandomUUID = randomUUID as jest.MockedFunction<typeof randomUUID>;
+const mockDate = jest.spyOn(Date.prototype, 'toISOString');
+mockRandomUUID.mockReturnValue('550e8400-e29b-41d4-a716-446655440001');
+mockDate.mockReturnValue('2023-06-20T12:00:00.250Z');
 
 const handler = createHandler({
+  eventPublisher,
+  pdm,
   logger,
 });
 
@@ -39,35 +33,169 @@ describe('SQS Handler', () => {
     jest.clearAllMocks();
   });
 
-  it('processes a single record', async () => {
-    const response = await handler(singleRecordEvent);
+  describe('pdm.resource.submitted', () => {
+    it('should send pdm.resource.available event when the document is ready', async () => {
+      pdm.poll.mockResolvedValueOnce('available');
 
-    expect(logger.info).toHaveBeenCalledWith(
-      'Received SQS Event of 1 record(s)',
-    );
-    expect(logger.info).toHaveBeenCalledWith(
-      '1 of 1 records processed successfully',
-    );
-    expect(response).toEqual({ batchItemFailures: [] });
-  });
+      const response = await handler(recordEvent([pdmResourceSubmittedEvent]));
 
-  it('should return failed items to the queue if an error occurs while processing them', async () => {
-    singleRecordEvent.Records[0].body = 'not-json';
-
-    const result = await handler(singleRecordEvent);
-
-    expect(logger.warn).toHaveBeenCalledWith({
-      error: `Unexpected token 'o', "not-json" is not valid JSON`,
-      description: 'Failed processing message',
-      messageId: '1',
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+        {
+          ...pdmResourceSubmittedEvent,
+          id: '550e8400-e29b-41d4-a716-446655440001',
+          time: '2023-06-20T12:00:00.250Z',
+          recordedtime: '2023-06-20T12:00:00.250Z',
+          type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+        },
+      ]);
+      expect(logger.info).toHaveBeenCalledWith(
+        'Received SQS Event of 1 record(s)',
+      );
+      expect(logger.info).toHaveBeenCalledWith(
+        '1 of 1 records processed successfully',
+      );
+      expect(response).toEqual({ batchItemFailures: [] });
     });
 
-    expect(logger.info).toHaveBeenCalledWith(
-      '0 of 1 records processed successfully',
-    );
+    it('should send pdm.resource.unavailable event when the document is not ready', async () => {
+      pdm.poll.mockResolvedValueOnce('unavailable');
 
-    expect(result).toEqual({
-      batchItemFailures: [{ itemIdentifier: '1' }],
+      const response = await handler(recordEvent([pdmResourceSubmittedEvent]));
+
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+        {
+          ...pdmResourceSubmittedEvent,
+          id: '550e8400-e29b-41d4-a716-446655440001',
+          time: '2023-06-20T12:00:00.250Z',
+          recordedtime: '2023-06-20T12:00:00.250Z',
+          type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
+          data: {
+            ...pdmResourceSubmittedEvent.data,
+            retryCount: 1,
+          },
+        },
+      ]);
+      expect(logger.info).toHaveBeenCalledWith(
+        'Received SQS Event of 1 record(s)',
+      );
+      expect(logger.info).toHaveBeenCalledWith(
+        '1 of 1 records processed successfully',
+      );
+      expect(response).toEqual({ batchItemFailures: [] });
+    });
+  });
+
+  describe('pdm.resource.unavailable', () => {
+    it('should send pdm.resource.available event when the document is ready', async () => {
+      pdm.poll.mockResolvedValueOnce('available');
+
+      const response = await handler(
+        recordEvent([pdmResourceUnavailableEvent]),
+      );
+
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+        {
+          ...pdmResourceUnavailableEvent,
+          id: '550e8400-e29b-41d4-a716-446655440001',
+          time: '2023-06-20T12:00:00.250Z',
+          recordedtime: '2023-06-20T12:00:00.250Z',
+          type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+        },
+      ]);
+      expect(logger.info).toHaveBeenCalledWith(
+        'Received SQS Event of 1 record(s)',
+      );
+      expect(logger.info).toHaveBeenCalledWith(
+        '1 of 1 records processed successfully',
+      );
+      expect(response).toEqual({ batchItemFailures: [] });
+    });
+
+    it('should send pdm.resource.unavailable event when the document is not ready', async () => {
+      pdm.poll.mockResolvedValueOnce('unavailable');
+
+      const response = await handler(
+        recordEvent([pdmResourceUnavailableEvent]),
+      );
+
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+        {
+          ...pdmResourceUnavailableEvent,
+          id: '550e8400-e29b-41d4-a716-446655440001',
+          time: '2023-06-20T12:00:00.250Z',
+          recordedtime: '2023-06-20T12:00:00.250Z',
+          type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
+          data: {
+            ...pdmResourceSubmittedEvent.data,
+            retryCount: 2,
+          },
+        },
+      ]);
+      expect(logger.info).toHaveBeenCalledWith(
+        'Received SQS Event of 1 record(s)',
+      );
+      expect(logger.info).toHaveBeenCalledWith(
+        '1 of 1 records processed successfully',
+      );
+      expect(response).toEqual({ batchItemFailures: [] });
+    });
+
+    it('should send pdm.resource.retries.exceeded event when the document is not ready after 10 retries', async () => {
+      pdm.poll.mockResolvedValueOnce('unavailable');
+
+      const testEvent = {
+        ...pdmResourceUnavailableEvent,
+        data: {
+          ...pdmResourceUnavailableEvent.data,
+          retryCount: 9,
+        },
+      };
+
+      const response = await handler(recordEvent([testEvent]));
+
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
+        {
+          ...pdmResourceUnavailableEvent,
+          id: '550e8400-e29b-41d4-a716-446655440001',
+          time: '2023-06-20T12:00:00.250Z',
+          recordedtime: '2023-06-20T12:00:00.250Z',
+          type: 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
+          data: {
+            ...pdmResourceSubmittedEvent.data,
+            retryCount: 10,
+          },
+        },
+      ]);
+      expect(logger.info).toHaveBeenCalledWith(
+        'Received SQS Event of 1 record(s)',
+      );
+      expect(logger.info).toHaveBeenCalledWith(
+        '1 of 1 records processed successfully',
+      );
+      expect(response).toEqual({ batchItemFailures: [] });
+    });
+  });
+
+  describe('errors', () => {
+    it('should return failed items to the queue if an error occurs while processing them', async () => {
+      const event = recordEvent([pdmResourceSubmittedEvent]);
+      event.Records[0].body = 'not-json';
+
+      const result = await handler(event);
+
+      expect(logger.warn).toHaveBeenCalledWith({
+        error: `Unexpected token 'o', "not-json" is not valid JSON`,
+        description: 'Failed processing message',
+        messageId: '1',
+      });
+
+      expect(logger.info).toHaveBeenCalledWith(
+        '0 of 1 records processed successfully',
+      );
+
+      expect(result).toEqual({
+        batchItemFailures: [{ itemIdentifier: '1' }],
+      });
     });
   });
 });

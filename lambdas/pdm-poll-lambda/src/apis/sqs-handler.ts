@@ -1,16 +1,24 @@
+import { Pdm } from 'app/pdm';
 import type {
   SQSBatchItemFailure,
   SQSBatchResponse,
   SQSEvent,
   SQSRecord,
 } from 'aws-lambda';
-import { Logger } from 'utils';
+import { randomUUID } from 'node:crypto';
+import { EventPublisher, Logger } from 'utils';
 
 export interface HandlerDependencies {
+  eventPublisher: EventPublisher;
   logger: Logger;
+  pdm: Pdm;
 }
 
-export const createHandler = ({ logger }: HandlerDependencies) =>
+export const createHandler = ({
+  eventPublisher,
+  logger,
+  pdm,
+}: HandlerDependencies) =>
   async function handler(sqsEvent: SQSEvent): Promise<SQSBatchResponse> {
     const receivedItemCount = sqsEvent.Records.length;
 
@@ -21,9 +29,36 @@ export const createHandler = ({ logger }: HandlerDependencies) =>
     await Promise.all(
       sqsEvent.Records.map(async (sqsRecord: SQSRecord) => {
         try {
-          logger.info({
-            event: JSON.parse(sqsRecord.body),
-          });
+          const event = JSON.parse(sqsRecord.body); // Note: Add event validation when that ticket is completed.
+          const eventDetail = event.detail;
+
+          const result = await pdm.poll(eventDetail);
+
+          const retries = (eventDetail.data?.retryCount ?? 0) + 1;
+          const eventTime = new Date().toISOString();
+          let eventType =
+            'uk.nhs.notify.digital.letters.pdm.resource.available.v1';
+
+          if (result === 'unavailable') {
+            eventType =
+              retries >= 10
+                ? 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1'
+                : 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1';
+          }
+
+          await eventPublisher.sendEvents([
+            {
+              ...eventDetail,
+              id: randomUUID(),
+              time: eventTime,
+              recordedtime: eventTime,
+              type: eventType,
+              data: {
+                ...eventDetail.data,
+                ...(result === 'available' ? {} : { retryCount: retries }),
+              },
+            },
+          ]);
         } catch (error: any) {
           logger.warn({
             error: error.message,
