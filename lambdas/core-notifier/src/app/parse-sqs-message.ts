@@ -1,23 +1,32 @@
 import { SQSRecord } from 'aws-lambda';
 import { Logger } from 'utils';
-import { NudgeCommand } from 'domain/nudge-command';
-import { $NudgeCommand } from 'app/nudge-command-validator';
+import { PDMResourceAvailable } from 'digital-letters-events';
+import { InvalidPdmResourceAvailableEvent } from 'domain/invalid-pdm-resource-available-event';
+import { messageDownloadedValidator } from 'digital-letters-events/PDMResourceAvailable.js';
 
 export const parseSqsRecord = (
   sqsRecord: SQSRecord,
   logger: Logger,
-): NudgeCommand => {
+): PDMResourceAvailable => {
   logger.info('Parsing SQS Record', {
     messageId: sqsRecord.messageId,
   });
+  const sqsEventBody = JSON.parse(sqsRecord.body);
+  const sqsEventDetail = sqsEventBody.detail;
+  const isEventValid = messageDownloadedValidator(sqsEventDetail);
+  if (!isEventValid) {
+    logger.error({
+      err: messageDownloadedValidator.errors,
+      description:
+        'The SQS message does not contain a valid PDMResourceAvailable event',
+      messageId: sqsRecord.messageId,
+    });
+    throw new InvalidPdmResourceAvailableEvent(sqsRecord.messageId);
+  }
 
-  const jsonParsed = JSON.parse(sqsRecord.body) as NudgeCommand;
-  const zodParsed = $NudgeCommand.parse(jsonParsed);
-
-  logger.info('Parsed SQS Record as Nudge Command Event', {
+  logger.info('Parsed valid PDMResourceAvailable Event', {
     messageId: sqsRecord.messageId,
-    sourceEventId: zodParsed.sourceEventId,
   });
 
-  return zodParsed;
+  return sqsEventDetail as PDMResourceAvailable;
 };

@@ -4,24 +4,24 @@ import type {
   SQSEvent,
   SQSRecord,
 } from 'aws-lambda';
-import { Logger } from 'utils';
-// import { SenderManagement } from 'sender-management';
+import { Logger, Sender } from 'utils';
+import { PDMResourceAvailable } from 'digital-letters-events';
 import { mapQueueToRequest } from 'domain/mapper';
 import { parseSqsRecord } from 'app/parse-sqs-message';
 
 import type { NotifyMessageProcessor } from 'app/notify-message-processor';
-import { SenderRepository } from 'sender-management/src/infra/sender-repository/repository';
+import { SenderManagement } from 'sender-management';
 
 export interface SqsHandlerDependencies {
   notifyMessageProcessor: NotifyMessageProcessor;
   logger: Logger;
-  senderRepository: SenderRepository;
+  senderManagement: SenderManagement;
 }
 
 export const createHandler = ({
-  notifyMessageProcessor,
   logger,
-  senderRepository,
+  notifyMessageProcessor,
+  senderManagement,
 }: SqsHandlerDependencies) =>
   async function handler(sqsEvent: SQSEvent): Promise<SQSBatchResponse> {
     const receivedItemCount = sqsEvent.Records.length;
@@ -33,8 +33,15 @@ export const createHandler = ({
     await Promise.all(
       sqsEvent.Records.map(async (sqsRecord: SQSRecord) => {
         try {
-          const incoming = parseSqsRecord(sqsRecord, logger);
-          const request = mapQueueToRequest(incoming, senderRepository);
+          const incoming: PDMResourceAvailable = parseSqsRecord(
+            sqsRecord,
+            logger,
+          );
+          const sender: Sender = senderManagement.getSender(
+            incoming.data.senderId,
+          );
+
+          const request = mapQueueToRequest(incoming, senderManagement);
           await notifyMessageProcessor.process(request);
         } catch (error: any) {
           logger.warn({
