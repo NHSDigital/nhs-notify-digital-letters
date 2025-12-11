@@ -3,6 +3,7 @@
     "@aws-sdk/client-sqs": "^3.914.0",
     "@aws-sdk/util-dynamodb": "^3.928.0",
     "aws-lambda": "^1.0.7",
+    "digital-letters-events": "^0.0.1",
     "utils": "^0.0.1"
   },
   "devDependencies": {
