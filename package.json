@@ -57,6 +57,7 @@
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
+    "lambdas/core-notifier",
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",
