@@ -41,7 +41,7 @@ module "mesh_poll" {
     MAXIMUM_RUNTIME_MILLISECONDS        = "240000"  # 4 minutes (Lambda has 5 min timeout)
     ENVIRONMENT                         = var.environment
     EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
-    EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_dlq.queue_url
+    EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_errors.sqs_queue_url
     CERTIFICATE_EXPIRY_METRIC_NAME      = "mesh-poll-client-certificate-near-expiry"
     CERTIFICATE_EXPIRY_METRIC_NAMESPACE = "dl-mesh-poll"
     POLLING_METRIC_NAME                 = "mesh-poll-successful-polls"
@@ -117,6 +117,20 @@ data "aws_iam_policy_document" "mesh_poll_lambda" {
 
     resources = [
       aws_cloudwatch_event_bus.main.arn,
+    ]
+  }
+
+  statement {
+    sid    = "DLQPermissions"
+    effect = "Allow"
+
+    actions = [
+      "sqs:SendMessage",
+      "sqs:SendMessageBatch",
+    ]
+
+    resources = [
+      module.sqs_event_publisher_errors.sqs_queue_arn,
     ]
   }
 }
