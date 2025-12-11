@@ -1,9 +1,6 @@
 PACKAGE=mesh_download
 VERSION=0.1.0
 
-audit:
-	cd ../.. && python -m jake.app ddt -t POETRY -f lambdas/mesh-download/poetry.lock
-
 install:
 	pip install -r requirements.txt
 

@@ -1,8 +1,5 @@
 PACKAGE=py_mock_mesh
-VERSION=1.0.0
-
-audit:
-	cd ../.. && python -m jake.app ddt -t POETRY -f utils/py-mock-mesh/poetry.lock
+VERSION=0.1.0
 
 install:
 	pip install -r requirements.txt
