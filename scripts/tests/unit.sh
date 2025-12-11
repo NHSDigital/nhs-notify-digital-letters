@@ -37,6 +37,7 @@ make -C ./src/eventcatalogasyncapiimporter coverage  # Run with coverage to gene
 # TypeScript/JavaScript projects (npm workspace)
 # Note: src/cloudevents is included in workspaces, so it will be tested here
 npm ci
+npm run generate-dependencies
 npm run test:unit --workspaces
 
 # merge coverage reports

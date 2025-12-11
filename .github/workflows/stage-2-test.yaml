@@ -52,6 +52,9 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.10.0
       - name: "Repo setup"
         run: |
           npm ci
@@ -66,12 +69,12 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      - name: "Repo setup"
-        run: |
-          npm ci
-      - name: "Generate dependencies"
-        run: |
-          npm run generate-dependencies
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.10.0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
       - name: "Run unit test suite"
         run: |
           make test-unit
@@ -99,12 +102,9 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      - name: "Repo setup"
-        run: |
-          npm ci
-      - name: "Generate dependencies"
-        run: |
-          npm run generate-dependencies
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.10.0
       - name: "Run linting"
         run: |
           make test-lint
@@ -115,12 +115,9 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      - name: "Repo setup"
-        run: |
-          npm ci
-      - name: "Generate dependencies"
-        run: |
-          npm run generate-dependencies
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.10.0
       - name: "Run typecheck"
         run: |
           make test-typecheck
