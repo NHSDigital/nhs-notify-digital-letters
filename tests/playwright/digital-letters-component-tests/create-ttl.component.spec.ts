@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import getTtl from 'helpers/dynamodb-helpers';
+import { getTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { v4 as uuidv4 } from 'uuid';

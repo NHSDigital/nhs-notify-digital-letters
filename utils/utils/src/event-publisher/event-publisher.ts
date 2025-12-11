@@ -55,7 +55,6 @@ export class EventPublisher {
     const failedEvents: CloudEvent[] = [];
     this.logger.info({
       description: `Sending ${events.length} events to EventBridge`,
-      eventBusArn: this.config.eventBusArn,
       eventCount: events.length,
     });
 
@@ -63,7 +62,6 @@ export class EventPublisher {
       const batch = events.slice(i, i + MAX_BATCH_SIZE);
       this.logger.info({
         description: `Sending batch of ${batch.length} events to EventBridge`,
-        eventBusArn: this.config.eventBusArn,
         batchSize: batch.length,
       });
 
@@ -120,7 +118,6 @@ export class EventPublisher {
 
     this.logger.warn({
       description: 'Sending failed events to DLQ',
-      dlqUrl: this.config.dlqUrl,
       eventCount: events.length,
       reason,
     });
@@ -170,7 +167,6 @@ export class EventPublisher {
         this.logger.warn({
           description: 'DLQ send error',
           err: error,
-          dlqUrl: this.config.dlqUrl,
           batchSize: batch.length,
         });
         failedDlqs.push(...batch);
@@ -181,7 +177,6 @@ export class EventPublisher {
       this.logger.error({
         description: 'Failed to send events to DLQ',
         failedEventCount: failedDlqs.length,
-        dlqUrl: this.config.dlqUrl,
       });
     }
 
