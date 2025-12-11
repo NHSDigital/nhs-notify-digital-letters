@@ -1,0 +1,13 @@
+certifi>=2023.07.22
+mesh-client>=3.2.3
+structlog>=21.5.0
+orjson>=3.9.15
+boto3>=1.28.62
+urllib3>=1.26.19,<2.0.0
+idna>=3.7
+requests>=2.32.0
+pyopenssl>=24.2.1
+setuptools>=78.1.1
+-e ../../utils/metric-publishers
+-e ../../utils/event-publisher-py
+-e ../../utils/py-mock-mesh
