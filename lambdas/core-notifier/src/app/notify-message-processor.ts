@@ -10,6 +10,7 @@ type Dependencies = {
 
 export class NotifyMessageProcessor {
   private readonly logger: Logger;
+
   private readonly nhsNotifyClient: NotifyClient;
 
   constructor({ logger, nhsNotifyClient }: Dependencies) {

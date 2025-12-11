@@ -1,20 +1,14 @@
-import {
-  ParameterStoreCache,
-  createGetApimAccessToken,
-  logger,
-} from 'utils';
+import { ParameterStoreCache, createGetApimAccessToken, logger } from 'utils';
 import { NotifyClient } from 'app/notify-api-client';
 import { NotifyMessageProcessor } from 'app/notify-message-processor';
 import type { SqsHandlerDependencies } from 'apis/sqs-handler';
 import { loadConfig } from 'infra/config';
-import { SenderRepository } from 'sender-management/src/infra/sender-repository';
+import { SenderManagement } from '@sender-management';
 
 export async function createContainer(): Promise<SqsHandlerDependencies> {
   const parameterStore = new ParameterStoreCache();
   const config = loadConfig();
-  const senderRepository = new SenderRepository({
-    config,
-    logger,
+  const senderManagement = new SenderManagement({
     parameterStore,
   });
 
@@ -38,8 +32,8 @@ export async function createContainer(): Promise<SqsHandlerDependencies> {
   });
 
   return {
-    notifyMessageProcessor: notifyMessageProcessor,
+    notifyMessageProcessor,
     logger,
-    senderRepository
+    senderManagement,
   };
 }
