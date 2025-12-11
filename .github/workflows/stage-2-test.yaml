@@ -95,7 +95,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-coverage-reports
-          path: "src/**/coverage.xml"
+          path: |
+            src/**/coverage.xml
+            utils/**/coverage.xml
+            lambdas/**/coverage.xml
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
