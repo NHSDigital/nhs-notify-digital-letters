@@ -69,6 +69,7 @@ Podman
 producedby
 projectRoot
 Protobuf
+Pydantic
 pylint
 Python
 quotingType
