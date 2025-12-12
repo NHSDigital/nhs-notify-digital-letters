@@ -1,5 +1,6 @@
-import { Logger, TtlItemEvent } from 'utils';
+import { Logger } from 'utils';
 import { TtlRepository } from 'infra/ttl-repository';
+import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 
 export type CreateTtlOutcome = 'sent' | 'failed';
 
@@ -9,7 +10,7 @@ export class CreateTtl {
     private readonly logger: Logger,
   ) {}
 
-  async send(item: TtlItemEvent): Promise<CreateTtlOutcome> {
+  async send(item: MESHInboxMessageDownloaded): Promise<CreateTtlOutcome> {
     try {
       await this.ttlDatabaseRepository.insertTtlRecord(item);
     } catch (error) {

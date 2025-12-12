@@ -3,6 +3,7 @@ import { EventPublisher, Logger } from 'utils';
 import { mock } from 'jest-mock-extended';
 import { createHandler } from 'apis/dynamodb-stream-handler';
 import { Dlq } from 'app/dlq';
+import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
 
 const logger = mock<Logger>();
 const eventPublisher = mock<EventPublisher>();
@@ -29,12 +30,10 @@ const mockEvent: DynamoDBStreamEvent = {
           dateOfExpiry: { S: 'dateOfExpiry' },
           event: {
             M: {
-              profileversion: { S: '1.0.0' },
-              profilepublished: { S: '2025-10' },
               id: { S: '550e8400-e29b-41d4-a716-446655440001' },
               specversion: { S: '1.0' },
               source: {
-                S: '/nhs/england/notify/production/primary/data-plane/digital-letters',
+                S: '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
               },
               subject: {
                 S: 'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
@@ -50,16 +49,12 @@ const mockEvent: DynamoDBStreamEvent = {
               },
               datacontenttype: { S: 'application/json' },
               dataschema: {
-                S: 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
+                S: 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
               },
-              dataschemaversion: { S: '1.0' },
               severitytext: { S: 'INFO' },
               data: {
                 M: {
                   messageUri: { S: 'https://example.com/ttl/resource' },
-                  'digital-letter-id': {
-                    S: '123e4567-e89b-12d3-a456-426614174000',
-                  },
                   messageReference: { S: 'ref1' },
                   senderId: { S: 'sender1' },
                 },
@@ -108,29 +103,31 @@ describe('createHandler', () => {
 
     expect(eventPublisher.sendEvents).toHaveBeenCalledTimes(1);
 
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      expect.objectContaining({
-        profileversion: '1.0.0',
-        profilepublished: '2025-10',
-        specversion: '1.0',
-        source:
-          '/nhs/england/notify/production/primary/data-plane/digital-letters',
-        subject:
-          'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-        type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
-        datacontenttype: 'application/json',
-        dataschema:
-          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
-        data: expect.objectContaining({
-          'digital-letter-id': expect.stringMatching(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
-          ),
-          messageReference: 'ref1',
-          messageUri: 'https://example.com/ttl/resource',
-          senderId: 'sender1',
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          specversion: '1.0',
+          source:
+            '/nhs/england/notify/production/primary/data-plane/digitalletters/queue',
+          subject:
+            'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+          type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+          datacontenttype: 'application/json',
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
+          data: expect.objectContaining({
+            messageReference: 'ref1',
+            messageUri: 'https://example.com/ttl/resource',
+            senderId: 'sender1',
+          }),
         }),
-      }),
-    ]);
+      ],
+      itemDequeuedValidator,
+    );
+
+    const publishedEvent = eventPublisher.sendEvents.mock.lastCall?.[0];
+    expect(publishedEvent).toHaveLength(1);
+    expect(itemDequeuedValidator(publishedEvent?.[0])).toBeTruthy();
 
     expect(result).toEqual({});
   });
@@ -387,16 +384,19 @@ describe('createHandler', () => {
     const result = await handler(mockNotWithdrawnEvent);
 
     expect(eventPublisher.sendEvents).toHaveBeenCalledTimes(1);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      expect.objectContaining({
-        type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
-        data: expect.objectContaining({
-          messageReference: 'ref1',
-          messageUri: 'https://example.com/ttl/resource',
-          senderId: 'sender1',
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+          data: expect.objectContaining({
+            messageReference: 'ref1',
+            messageUri: 'https://example.com/ttl/resource',
+            senderId: 'sender1',
+          }),
         }),
-      }),
-    ]);
+      ],
+      itemDequeuedValidator,
+    );
     expect(result).toEqual({});
   });
 });

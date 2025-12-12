@@ -1,23 +1,28 @@
+import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { Dlq } from 'app/dlq';
 import type {
   DynamoDBBatchItemFailure,
   DynamoDBRecord,
   DynamoDBStreamEvent,
 } from 'aws-lambda';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
-import {
-  $TtlDynamodbRecord,
-  $TtlItemEvent,
-  EventPublisher,
-  Logger,
-} from 'utils';
+import type {
+  ItemDequeued,
+  MESHInboxMessageDownloaded,
+} from 'digital-letters-events';
+import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
+import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import { randomUUID } from 'node:crypto';
-import { Dlq } from 'app/dlq';
+import { $TtlDynamodbRecord, EventPublisher, Logger } from 'utils';
 
 export type CreateHandlerDependencies = {
   dlq: Dlq;
   eventPublisher: EventPublisher;
   logger: Logger;
 };
+
+const eventValidator = messageDownloadedValidator as (
+  d: unknown,
+) => d is MESHInboxMessageDownloaded;
 
 export const createHandler = ({
   dlq,
@@ -63,15 +68,12 @@ export const createHandler = ({
         return;
       }
 
-      const {
-        data: itemEvent,
-        error: eventParseError,
-        success: eventParseSuccess,
-      } = $TtlItemEvent.safeParse(item.event);
-
-      if (!eventParseSuccess) {
+      let itemEvent: MESHInboxMessageDownloaded;
+      if (eventValidator(item.event)) {
+        itemEvent = item.event;
+      } else {
         logger.warn({
-          err: eventParseError,
+          err: messageDownloadedValidator.errors,
           description: 'Error parsing ttl item event',
         });
 
@@ -88,15 +90,21 @@ export const createHandler = ({
           senderId: itemEvent.data.senderId,
         });
       } else {
-        await eventPublisher.sendEvents([
-          {
-            ...itemEvent,
-            id: randomUUID(),
-            time: new Date().toISOString(),
-            recordedtime: new Date().toISOString(),
-            type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
-          },
-        ]);
+        await eventPublisher.sendEvents<ItemDequeued>(
+          [
+            {
+              ...itemEvent,
+              id: randomUUID(),
+              time: new Date().toISOString(),
+              recordedtime: new Date().toISOString(),
+              type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+              dataschema:
+                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
+              source: itemEvent.source.replace(/\/mesh$/, '/queue'),
+            },
+          ],
+          itemDequeuedValidator,
+        );
       }
     } catch (error) {
       logger.warn({
