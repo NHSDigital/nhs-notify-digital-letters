@@ -2,6 +2,7 @@
   "dependencies": {
     "@aws-sdk/lib-dynamodb": "^3.908.0",
     "axios": "^1.13.2",
+    "digital-letters-events": "^0.0.1",
     "utils": "^0.0.1",
     "zod": "^4.1.12"
   },

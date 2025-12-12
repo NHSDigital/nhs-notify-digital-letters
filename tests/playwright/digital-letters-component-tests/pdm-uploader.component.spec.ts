@@ -3,6 +3,7 @@ import {
   LETTERS_S3_BUCKET_NAME,
   PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
+import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
@@ -67,12 +68,17 @@ test.describe('Digital Letters - Upload to PDM', () => {
           senderId,
         },
       },
-    ]);
+    ],
+      messageDownloadedValidator,
+    );
 
     await expectToPassEventually(async () => {
       const filteredLogs = await getLogsFromCloudwatch(
         PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME,
-        `{ $.message.description  = "Successfully sent request to PDM" && $.message.eventId = "${eventId}" }`,
+        [
+          '$.message.description  = "Successfully sent request to PDM"',
+          `$.message.eventId = "${eventId}"`
+        ],
       );
 
       expect(filteredLogs.length).toBeGreaterThan(0);

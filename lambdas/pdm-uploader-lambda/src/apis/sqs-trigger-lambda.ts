@@ -9,17 +9,15 @@ import type {
   UploadToPdmOutcome,
   UploadToPdmResult,
 } from 'app/upload-to-pdm';
-import {
-  $TtlItemBusEvent,
-  EventPublisher,
-  Logger,
-  PdmResourceRejectedEvent,
-  PdmResourceSubmittedEvent,
-} from 'utils';
+import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
+import pdmResourceSubmittedValidator from 'digital-letters-events/PDMResourceSubmitted.js';
+import pdmResourceSubmissionRejectedValidator from 'digital-letters-events/PDMResourceSubmissionRejected.js';
+import { MESHInboxMessageDownloaded } from 'digital-letters-events';
+import { EventPublisher, Logger } from 'utils';
 
 interface ProcessingResult {
   result: UploadToPdmResult;
-  item?: PdmResourceSubmittedEvent | PdmResourceRejectedEvent;
+  item?: MESHInboxMessageDownloaded;
 }
 
 interface CreateHandlerDependencies {
@@ -35,29 +33,29 @@ async function processRecord(
   batchItemFailures: SQSBatchItemFailure[],
 ): Promise<ProcessingResult> {
   try {
-    const {
-      data: item,
-      error: parseError,
-      success: parseSuccess,
-    } = $TtlItemBusEvent.safeParse(JSON.parse(body));
+    const sqsEventBody = JSON.parse(body);
+    const sqsEventDetail = sqsEventBody.detail;
 
-    if (!parseSuccess) {
+    const isEventValid = messageDownloadedValidator(sqsEventDetail);
+    if (!isEventValid) {
       logger.error({
-        err: parseError,
+        err: messageDownloadedValidator.errors,
         description: 'Error parsing queue entry',
       });
       batchItemFailures.push({ itemIdentifier: messageId });
-      return { result: { outcome: 'failed' } };
+      return { result: { outcome: 'failed' }, item: sqsEventDetail };
     }
 
-    const result = await uploadToPdm.send(item.detail);
+    const messageDownloadedEvent: MESHInboxMessageDownloaded = sqsEventDetail;
+
+    const result = await uploadToPdm.send(messageDownloadedEvent);
 
     if (result.outcome === 'failed') {
       batchItemFailures.push({ itemIdentifier: messageId });
-      return { result: { outcome: 'failed' }, item: item.detail };
+      return { result: { outcome: 'failed' }, item: sqsEventDetail };
     }
 
-    return { result, item: item.detail };
+    return { result, item: sqsEventDetail };
   } catch (error) {
     logger.error({
       err: error,
@@ -68,17 +66,27 @@ async function processRecord(
   }
 }
 
+interface CategorizedResults {
+  processed: Record<UploadToPdmOutcome | 'retrieved', number>;
+  successfulItems: { event: MESHInboxMessageDownloaded; resourceId: string }[];
+  failedItems: MESHInboxMessageDownloaded[];
+}
+
 function categorizeResults(
   results: PromiseSettledResult<ProcessingResult>[],
-  successfulEvents: PdmResourceSubmittedEvent[],
-  failedEvents: PdmResourceRejectedEvent[],
   logger: Logger,
-): Record<UploadToPdmOutcome | 'retrieved', number> {
+): CategorizedResults {
   const processed: Record<UploadToPdmOutcome | 'retrieved', number> = {
     retrieved: results.length,
     sent: 0,
     failed: 0,
   };
+
+  const successfulItems: {
+    event: MESHInboxMessageDownloaded;
+    resourceId: string;
+  }[] = [];
+  const failedItems: MESHInboxMessageDownloaded[] = [];
 
   for (const result of results) {
     if (result.status === 'fulfilled') {
@@ -87,25 +95,12 @@ function categorizeResults(
 
       if (item) {
         if (itemResult.outcome === 'sent' && itemResult.resourceId) {
-          successfulEvents.push({
-            ...item,
-            data: {
-              'digital-letter-id': item.data['digital-letter-id'],
-              messageReference: item.data.messageReference,
-              senderId: item.data.senderId,
-              resourceId: itemResult.resourceId,
-              retryCount: 0,
-            },
+          successfulItems.push({
+            event: item,
+            resourceId: itemResult.resourceId,
           });
         } else {
-          failedEvents.push({
-            ...item,
-            data: {
-              'digital-letter-id': item.data['digital-letter-id'],
-              messageReference: item.data.messageReference,
-              senderId: item.data.senderId,
-            },
-          });
+          failedItems.push(item);
         }
       }
     } else {
@@ -114,71 +109,89 @@ function categorizeResults(
     }
   }
 
-  return processed;
+  return { processed, successfulItems, failedItems };
 }
 
 async function publishSuccessfulEvents(
-  successfulEvents: PdmResourceSubmittedEvent[],
+  successfulItems: { event: MESHInboxMessageDownloaded; resourceId: string }[],
   eventPublisher: EventPublisher,
   logger: Logger,
 ): Promise<void> {
-  if (successfulEvents.length === 0) return;
+  if (successfulItems.length === 0) return;
 
   try {
     const submittedFailedEvents = await eventPublisher.sendEvents(
-      successfulEvents.map((event) => ({
+      successfulItems.map(({ event, resourceId }) => ({
         ...event,
         id: randomUUID(),
         time: new Date().toISOString(),
         recordedtime: new Date().toISOString(),
         type: 'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
+        dataschema:
+          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.json',
+        source: event.source.replace(/\/mesh$/, '/pdm'),
+        data: {
+          messageReference: event.data.messageReference,
+          senderId: event.data.senderId,
+          resourceId,
+          retryCount: -1, // Setting to -1 until this field is removed from pdm.resource.submitted.
+        },
       })),
+      pdmResourceSubmittedValidator,
     );
     if (submittedFailedEvents.length > 0) {
       logger.warn({
         description: 'Some successful events failed to publish',
         failedCount: submittedFailedEvents.length,
-        totalAttempted: successfulEvents.length,
+        totalAttempted: successfulItems.length,
       });
     }
   } catch (error) {
     logger.warn({
       err: error,
       description: 'Failed to send successful events to EventBridge',
-      eventCount: successfulEvents.length,
+      eventCount: successfulItems.length,
     });
   }
 }
 
 async function publishFailedEvents(
-  failedEvents: PdmResourceRejectedEvent[],
+  failedItems: MESHInboxMessageDownloaded[],
   eventPublisher: EventPublisher,
   logger: Logger,
 ): Promise<void> {
-  if (failedEvents.length === 0) return;
+  if (failedItems.length === 0) return;
 
   try {
     const rejectedFailedEvents = await eventPublisher.sendEvents(
-      failedEvents.map((event) => ({
+      failedItems.map((event) => ({
         ...event,
         id: randomUUID(),
         time: new Date().toISOString(),
         recordedtime: new Date().toISOString(),
         type: 'uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1',
+        dataschema:
+          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submission-rejected-data.schema.json',
+        source: event.source.replace(/\/mesh$/, '/pdm'),
+        data: {
+          messageReference: event.data.messageReference,
+          senderId: event.data.senderId,
+        },
       })),
+      pdmResourceSubmissionRejectedValidator,
     );
     if (rejectedFailedEvents.length > 0) {
       logger.warn({
         description: 'Some failed events failed to publish',
         failedCount: rejectedFailedEvents.length,
-        totalAttempted: failedEvents.length,
+        totalAttempted: failedItems.length,
       });
     }
   } catch (error) {
     logger.warn({
       err: error,
       description: 'Failed to send failed events to EventBridge',
-      eventCount: failedEvents.length,
+      eventCount: failedItems.length,
     });
   }
 }
@@ -190,23 +203,19 @@ export const createHandler = ({
 }: CreateHandlerDependencies) =>
   async function handler(sqsEvent: SQSEvent): Promise<SQSBatchResponse> {
     const batchItemFailures: SQSBatchItemFailure[] = [];
-    const successfulEvents: PdmResourceSubmittedEvent[] = [];
-    const failedEvents: PdmResourceRejectedEvent[] = [];
 
     const promises = sqsEvent.Records.map((record) =>
       processRecord(record, uploadToPdm, logger, batchItemFailures),
     );
 
     const results = await Promise.allSettled(promises);
-    const processed = categorizeResults(
+    const { failedItems, processed, successfulItems } = categorizeResults(
       results,
-      successfulEvents,
-      failedEvents,
       logger,
     );
 
-    await publishSuccessfulEvents(successfulEvents, eventPublisher, logger);
-    await publishFailedEvents(failedEvents, eventPublisher, logger);
+    await publishSuccessfulEvents(successfulItems, eventPublisher, logger);
+    await publishFailedEvents(failedItems, eventPublisher, logger);
 
     logger.info({
       description: 'Processed SQS Event.',

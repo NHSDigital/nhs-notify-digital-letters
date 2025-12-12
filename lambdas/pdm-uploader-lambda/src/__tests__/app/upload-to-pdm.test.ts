@@ -1,6 +1,7 @@
-import { Logger, TtlItemEvent, getS3ObjectFromUri } from 'utils';
 import { UploadToPdm } from 'app/upload-to-pdm';
+import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import { IPdmClient } from 'infra/pdm-api-client';
+import { Logger, getS3ObjectFromUri } from 'utils';
 
 jest.mock('utils', () => ({
   ...jest.requireActual('utils'),
@@ -12,9 +13,7 @@ describe('UploadToPdm', () => {
   let mockLogger: jest.Mocked<Logger>;
   let uploadToPdm: UploadToPdm;
 
-  const mockEvent: TtlItemEvent = {
-    profileversion: '1.0.0',
-    profilepublished: '2025-10',
+  const mockEvent: MESHInboxMessageDownloaded = {
     id: 'test-event-id',
     specversion: '1.0',
     source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
@@ -27,11 +26,9 @@ describe('UploadToPdm', () => {
     traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
     datacontenttype: 'application/json',
     dataschema:
-      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
-    dataschemaversion: '1.0',
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
     severitytext: 'INFO',
     data: {
-      'digital-letter-id': 'test-letter-id',
       messageReference: 'test-message-reference',
       senderId: 'test-sender-id',
       messageUri: 's3://bucket/key',

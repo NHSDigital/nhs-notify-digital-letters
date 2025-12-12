@@ -14,12 +14,10 @@ const createValidSQSEvent = (overrides?: Partial<SQSEvent>): SQSEvent => ({
       messageId: 'msg-1',
       body: JSON.stringify({
         detail: {
-          profileversion: '1.0.0',
-          profilepublished: '2025-10',
           id: 'a449d419-e683-4ab4-9291-a0451b5cef8e',
           specversion: '1.0',
           source:
-            '/nhs/england/notify/production/primary/data-plane/digital-letters',
+            '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
           subject:
             'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
           type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
@@ -30,11 +28,9 @@ const createValidSQSEvent = (overrides?: Partial<SQSEvent>): SQSEvent => ({
             '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
           datacontenttype: 'application/json',
           dataschema:
-            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
-          dataschemaversion: '1.0',
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
           severitytext: 'INFO',
           data: {
-            'digital-letter-id': 'eb4c9442-6f74-437d-8548-76697868c807',
             messageReference: 'test-message-reference',
             senderId: 'test-sender-id',
             messageUri: 's3://bucket/key',
@@ -101,6 +97,7 @@ describe('sqs-trigger-lambda', () => {
             id: '3a2e9238-11f9-41ed-98e4-e519eafb1167',
           }),
         ]),
+        expect.anything(),
       );
       expect(mockLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -163,6 +160,7 @@ describe('sqs-trigger-lambda', () => {
             type: 'uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1',
           }),
         ]),
+        expect.anything(),
       );
       expect(mockLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -214,6 +212,45 @@ describe('sqs-trigger-lambda', () => {
         expect.objectContaining({
           description: 'Error during SQS trigger handler',
           err: expect.any(Error),
+        }),
+      );
+    });
+
+    it('should handle unhandled promise rejection in processing', async () => {
+      // It's an unlikely scenario due to the try/catch in processRecord, but added for 100% coverage.
+      // Mock logger.error to throw an error, which will cause processRecord to reject
+      const loggerErrorSpy = jest.spyOn(mockLogger, 'error');
+      let callCount = 0;
+      loggerErrorSpy.mockImplementation((() => {
+        callCount += 1;
+        if (callCount === 1) {
+          // First call from processRecord's catch block - throw to cause rejection
+          throw new Error('Logger error causing unhandled rejection');
+        }
+        return mockLogger;
+      }) as any);
+
+      mockUploadToPdm.send.mockRejectedValue(new Error('Upload error'));
+      const handler = createHandler({
+        uploadToPdm: mockUploadToPdm,
+        eventPublisher: mockEventPublisher,
+        logger: mockLogger,
+      });
+      const sqsEvent = createValidSQSEvent();
+
+      const result = await handler(sqsEvent);
+
+      expect(result.batchItemFailures).toEqual([]);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          err: expect.any(Error),
+        }),
+      );
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.objectContaining({
+          retrieved: 1,
+          sent: 0,
+          failed: 1,
         }),
       );
     });

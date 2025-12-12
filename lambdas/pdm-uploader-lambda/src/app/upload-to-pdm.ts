@@ -1,5 +1,6 @@
-import { Logger, TtlItemEvent, getS3ObjectFromUri } from 'utils';
+import { Logger, getS3ObjectFromUri } from 'utils';
 import { IPdmClient } from 'infra/pdm-api-client';
+import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 
 export type UploadToPdmOutcome = 'sent' | 'failed';
 
@@ -14,7 +15,7 @@ export class UploadToPdm {
     private readonly logger: Logger,
   ) {}
 
-  async send(event: TtlItemEvent): Promise<UploadToPdmResult> {
+  async send(event: MESHInboxMessageDownloaded): Promise<UploadToPdmResult> {
     try {
       const fhirRequest = await getS3ObjectFromUri(event.data.messageUri);
       const requestId = crypto.randomUUID();
