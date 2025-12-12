@@ -1,16 +1,22 @@
 # digital-letters-events
 
+<!-- vale Vale.Terms = NO -->
 This package contains the automatically-generated code that the
-[typescript-schema-generator](../typescript-schema-generator/) tool produces.
+[typescript-schema-generator](../typescript-schema-generator/) and the
+[pydantic-model-generator](../pydantic-model-generator/) tools produce.
+<!-- vale Vale.Terms = YES -->
 
 The source files in this package should not be edited directly. If changes are
 required, update the schemas in the
 [src/cloudevents/domains](../cloudevents/domains) directory and use the
-`typescript-schema-generator` tool to regenerate them.
+`typescript-schema-generator` and `pydantic-model-generator` tools to regenerate
+them.
 
 ## Using this Package
 
-### Using Event Types
+### TypeScript
+
+#### Using Event Types
 
 The event types can be used by simply installing the
 `digital-letters-events` package as a dependency and then importing
@@ -51,7 +57,7 @@ const pdmResourceSubmittedEvent: PDMResourceSubmitted = {
   };
 ```
 
-### Using Event Validator Functions
+#### Using Event Validator Functions
 
 Validator functions for an event can be used by importing the default export
 from the relevant JS file in
@@ -74,3 +80,38 @@ if (isEventValid) {
 Note: You will need to make sure the
 [`allowJs`](https://www.typescriptlang.org/tsconfig/#allowJs) option is set in
 your package's `tsconfig.json` in order to import the JS files.
+
+### Python
+
+#### Using Event Models
+
+The Pydantic models can be used by installing the `digital-letters-events` package and importing the desired model:
+
+```python
+from digital_letters_events import PDMResourceSubmitted
+
+try:
+    # Validate and parse an event
+    event_data = {
+        "type": "uk.nhs.notify.digital.letters.pdm.resource.submitted.v1",
+        "source": "/nhs/england/notify/staging/dev-647563337/data-plane/digitalletters/pdm",
+        "dataschema": "https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.json",
+        "specversion": "1.0",
+        "id": "0249e529-f947-4012-819e-b634eb71be79",
+        "subject": "pdm-resource-123",
+        "time": "2025-12-11T10:00:00Z",
+        "data": {
+            "something": "example value"
+        }
+    }
+
+    # Create and validate the event
+    event = PDMResourceSubmitted(**event_data)
+
+    # Access validated fields
+    print(event.id)
+    print(event.type)
+    print(event.data.something)
+except Exception as e:
+    print(e)
+```

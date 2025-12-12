@@ -29,7 +29,7 @@ This will:
 
 - Read all JSON event schemas from `schemas/digital-letters/2025-10-draft/events/`
 - Generate Pydantic v2 models using `datamodel-code-generator`
-- Output the models to `../digital-letters-events-python/models/`
+- Output the models to `../digital-letters-events/models/`
 
 ### Configuration
 
@@ -44,12 +44,12 @@ The generator can be configured through:
 <!-- vale Vale.Terms = NO -->
 <!-- vale Vale.Avoid = NO -->
 Generated models are placed in the
-[digital-letters-events-python](../digital-letters-events-python/) package:
+[digital-letters-events](../digital-letters-events/) package:
 <!-- vale Vale.Terms = YES -->
 <!-- vale Vale.Avoid = YES -->
 
-- `../digital-letters-events-python/models/` - Individual Pydantic model files
-- `../digital-letters-events-python/models/__init__.py` - Combined index for easy imports
+- `../digital-letters-events/models/` - Individual Pydantic model files
+- `../digital-letters-events/models/__init__.py` - Combined index for easy imports
 
 ## Testing
 

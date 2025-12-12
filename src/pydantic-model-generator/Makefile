@@ -1,6 +1,6 @@
 # Variables
 SCHEMA_SRC_DIR := ../../schemas/digital-letters/2025-10-draft/events
-OUTPUT_DIR := ../digital-letters-events-python/models
+OUTPUT_DIR := ../digital-letters-events/models
 SCRIPTS_DIR := scripts
 
 # Default target
