@@ -1,0 +1,19 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: PrintStatusChanged Data
+description: Base data of the PrintStatusChanged event
+type: object
+additionalProperties: false
+properties:
+  subject:
+    $ref: ../defs/print.schema.yaml#/properties/subject
+  status:
+    $ref: ../defs/print.schema.yaml#/properties/status
+  supplierId:
+    $ref: ../defs/print.schema.yaml#/properties/supplierId
+  time:
+    $ref: ../defs/print.schema.yaml#/properties/time
+required:
+  - subject
+  - status
+  - supplierId
+  - time

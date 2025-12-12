@@ -19,7 +19,7 @@ architecture-beta
 
     meshReceived:R --> L:meshDownloadQueue
     meshDownloadQueue:R --> L:meshDownloadLambda
-    meshDownloadLambda:T --> B:mesh
-    meshDownloadLambda:B --> T:s3
+    meshDownloadLambda:T --> B:s3
+    meshDownloadLambda:B --> T:mesh
     meshDownloadLambda:R --> L:meshDownloaded
 ```
