@@ -1,15 +1,17 @@
 # digital-letters-events
 
+<!-- vale Vale.Avoid = NO -->
 <!-- vale Vale.Terms = NO -->
 This package contains the automatically-generated code that the
 [typescript-schema-generator](../typescript-schema-generator/) and the
-[pydantic-model-generator](../pydantic-model-generator/) tools produce.
+[python-schema-generator](../python-schema-generator/) tools produce.
+<!-- vale Vale.Avoid = YES -->
 <!-- vale Vale.Terms = YES -->
 
 The source files in this package should not be edited directly. If changes are
 required, update the schemas in the
 [src/cloudevents/domains](../cloudevents/domains) directory and use the
-`typescript-schema-generator` and `pydantic-model-generator` tools to regenerate
+`typescript-schema-generator` and `python-schema-generator` tools to regenerate
 them.
 
 ## Using this Package

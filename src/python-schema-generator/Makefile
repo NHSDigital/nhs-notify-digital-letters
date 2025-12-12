@@ -32,17 +32,17 @@ generate: install
 # Run tests
 test: install-dev
 	@echo "Running tests..."
-	@cd ../.. && pytest src/pydantic-model-generator/tests/
+	@pytest tests/
 
 # Generate coverage report
 coverage: install-dev
 	@echo "Generating coverage report..."
-	@cd ../.. && pytest src/pydantic-model-generator/tests/ \
-		--cov=src/pydantic-model-generator \
-		--cov-config=src/pydantic-model-generator/pytest.ini \
-		--cov-report=html:src/pydantic-model-generator/htmlcov \
+	@pytest tests/ \
+		--cov=. \
+		--cov-config=pytest.ini \
+		--cov-report=html:htmlcov \
 		--cov-report=term-missing \
-		--cov-report=xml:src/pydantic-model-generator/coverage.xml \
+		--cov-report=xml:coverage.xml \
 		--cov-branch
 	@echo "Coverage report generated in htmlcov/"
 

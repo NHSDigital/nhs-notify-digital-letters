@@ -34,10 +34,10 @@ echo "Setting up and running eventcatalogasyncapiimporter tests..."
 make -C ./src/eventcatalogasyncapiimporter install-dev
 make -C ./src/eventcatalogasyncapiimporter coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
-# Python projects - pydantic-model-generator
-echo "Setting up and running pydantic-model-generator tests..."
-make -C ./src/pydantic-model-generator install-dev
-make -C ./src/pydantic-model-generator coverage  # Run with coverage to generate coverage.xml for SonarCloud
+# Python projects - python-schema-generator
+echo "Setting up and running python-schema-generator tests..."
+make -C ./src/python-schema-generator install-dev
+make -C ./src/python-schema-generator coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
 # TypeScript/JavaScript projects (npm workspace)
 # Note: src/cloudevents is included in workspaces, so it will be tested here

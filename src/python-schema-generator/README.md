@@ -1,5 +1,7 @@
+<!-- vale Vale.Avoid = NO -->
 <!-- vale Vale.Terms = NO -->
-# pydantic-model-generator
+# python-schema-generator
+<!-- vale Vale.Avoid = YES -->
 <!-- vale Vale.Terms = YES -->
 
 This package provides a tool that generates Pydantic v2 models for the events
