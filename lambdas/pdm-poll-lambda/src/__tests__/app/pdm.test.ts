@@ -1,13 +1,39 @@
 import { mock } from 'jest-mock-extended';
-import { Logger } from 'utils';
+import { IPdmClient, Logger } from 'utils';
 import { Pdm, PdmDependencies } from 'app/pdm';
 import { pdmResourceSubmittedEvent } from '__tests__/test-data';
 
 const logger = mock<Logger>();
+const pdmClient = mock<IPdmClient>();
 const validConfig = (): PdmDependencies => ({
-  pdmUrl: 'https://example.com/pdm',
+  pdmClient,
   logger,
 });
+
+const availableResponse = {
+  resourceType: 'DocumentReference',
+  id: '4c5af7c3-ca21-31b8-924b-fa526db5379b',
+  meta: {
+    versionId: '1',
+    lastUpdated: '2025-12-10T09:00:47.068021Z'
+  },
+  status: 'current',
+  subject: {
+    identifier: {
+      system: 'https://fhir.nhs.uk/Id/nhs-number',
+      value: '9912003071'
+    }
+  },
+  content: [
+    {
+      attachment: {
+        contentType: 'application/pdf',
+        data: 'base64-encoded-pdf',
+        title: 'Dummy PDF'
+      }
+    }
+  ]
+}
 
 describe('Pdm', () => {
   describe('constructor', () => {
@@ -16,18 +42,18 @@ describe('Pdm', () => {
       expect(() => new Pdm(cfg)).not.toThrow();
     });
 
-    it('throws if pdmUrl is not provided', () => {
+    it('throws if pdmClient is not provided', () => {
       const cfg = {
         logger,
       } as unknown as PdmDependencies;
 
-      expect(() => new Pdm(cfg)).toThrow('pdmUrl has not been specified');
+      expect(() => new Pdm(cfg)).toThrow('pdmClient has not been specified');
     });
 
     it('throws if logger is not provided', () => {
       const cfg = {
-        pdmUrl: 'https://example.com/pdm',
-      } as PdmDependencies;
+        pdmClient,
+      } as unknown as PdmDependencies;
 
       expect(() => new Pdm(cfg)).toThrow('logger has not been provided');
     });
@@ -36,6 +62,8 @@ describe('Pdm', () => {
   describe('poll', () => {
     it('returns available when the document is ready', async () => {
       const cfg = validConfig();
+      pdmClient.getDocumentReference.mockResolvedValue(availableResponse);
+
       const pdm = new Pdm(cfg);
 
       const result = await pdm.poll(pdmResourceSubmittedEvent);
@@ -45,21 +73,28 @@ describe('Pdm', () => {
 
     it('returns unavailable when the document is not ready', async () => {
       const cfg = validConfig();
-      const pdm = new Pdm(cfg);
+      const unavailableResponse = {
+        ...availableResponse,
+        content: [{
+          attachment: {
+            contentType: 'application/pdf',
+            title: 'Dummy PDF'
+          }
+        }]
+      };
+      pdmClient.getDocumentReference.mockResolvedValue(unavailableResponse);
 
-      pdmResourceSubmittedEvent.data.messageReference = 'ref2';
+      const pdm = new Pdm(cfg);
 
       const result = await pdm.poll(pdmResourceSubmittedEvent);
 
       expect(result).toBe('unavailable');
     });
 
-    it('returns failed and logs error when logger.info throws', async () => {
+    it('logs and throws error when error from PDM', async () => {
       const cfg = validConfig();
-      const thrown = new Error('logger failure');
-      cfg.logger.info = jest.fn(() => {
-        throw thrown;
-      });
+      const thrown = new Error('pdm failure');
+      pdmClient.getDocumentReference.mockRejectedValueOnce(thrown)
 
       const pdm = new Pdm(cfg);
 
@@ -69,7 +104,7 @@ describe('Pdm', () => {
       expect(logger.error).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Error getting document resource from PDM',
-          err: thrown,
+          err: new Error('pdm failure'),
         }),
       );
     });

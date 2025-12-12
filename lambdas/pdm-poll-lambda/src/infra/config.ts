@@ -2,6 +2,7 @@ import { defaultConfigReader } from 'utils';
 
 export type PdmCreateConfig = {
   apimBaseUrl: string;
+  pollMaxRetries: number;
   apimAccessTokenSsmParameterName: string;
   eventPublisherEventBusArn: string;
   eventPublisherDlqUrl: string;
@@ -10,6 +11,7 @@ export type PdmCreateConfig = {
 export function loadConfig(): PdmCreateConfig {
   return {
     apimBaseUrl: defaultConfigReader.getValue('APIM_BASE_URL'),
+    pollMaxRetries: defaultConfigReader.getInt('POLL_MAX_RETRIES'),
     apimAccessTokenSsmParameterName: defaultConfigReader.getValue(
       'APIM_ACCESS_TOKEN_SSM_PARAMETER_NAME',
     ),

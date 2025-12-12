@@ -12,12 +12,14 @@ export interface HandlerDependencies {
   eventPublisher: EventPublisher;
   logger: Logger;
   pdm: Pdm;
+  pollMaxRetries: number;
 }
 
 export const createHandler = ({
   eventPublisher,
   logger,
   pdm,
+  pollMaxRetries,
 }: HandlerDependencies) =>
   async function handler(sqsEvent: SQSEvent): Promise<SQSBatchResponse> {
     const receivedItemCount = sqsEvent.Records.length;
@@ -34,14 +36,14 @@ export const createHandler = ({
 
           const result = await pdm.poll(eventDetail);
 
-          const retries = (eventDetail.data?.retryCount ?? 0) + 1;
+          const retries = (eventDetail.data?.retryCount ?? -1) + 1;
           const eventTime = new Date().toISOString();
           let eventType =
             'uk.nhs.notify.digital.letters.pdm.resource.available.v1';
 
           if (result === 'unavailable') {
             eventType =
-              retries >= 10
+              retries >= pollMaxRetries
                 ? 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1'
                 : 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1';
           }

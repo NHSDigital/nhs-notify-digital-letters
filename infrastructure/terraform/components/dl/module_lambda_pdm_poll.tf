@@ -40,10 +40,25 @@ module "pdm_poll" {
     "APIM_ACCESS_TOKEN_SSM_PARAMETER_NAME" = local.apim_access_token_ssm_parameter_name
     "EVENT_PUBLISHER_EVENT_BUS_ARN"        = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"              = module.sqs_event_publisher_errors.sqs_queue_url
+    "POLL_MAX_RETRIES"                     = 10
   }
 }
 
 data "aws_iam_policy_document" "pdm_poll_lambda" {
+  statement {
+    sid    = "AllowSSMParam"
+    effect = "Allow"
+
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:GetParametersByPath"
+    ]
+
+    resources = [
+      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter/${var.component}/${var.environment}/apim/*"
+    ]
+  }
   statement {
     sid    = "PutEvents"
     effect = "Allow"

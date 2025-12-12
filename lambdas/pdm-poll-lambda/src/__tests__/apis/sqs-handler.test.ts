@@ -24,8 +24,9 @@ mockDate.mockReturnValue('2023-06-20T12:00:00.250Z');
 
 const handler = createHandler({
   eventPublisher,
-  pdm,
   logger,
+  pdm,
+  pollMaxRetries: 10,
 });
 
 describe('SQS Handler', () => {
@@ -71,7 +72,7 @@ describe('SQS Handler', () => {
           type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
           data: {
             ...pdmResourceSubmittedEvent.data,
-            retryCount: 1,
+            retryCount: 0,
           },
         },
       ]);

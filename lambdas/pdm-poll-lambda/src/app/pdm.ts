@@ -1,33 +1,44 @@
-import { Logger } from 'utils';
+import { IPdmClient, Logger } from 'utils';
 
 export type PdmOutcome = 'available' | 'unavailable';
 
 export interface PdmDependencies {
-  pdmUrl: string;
+  pdmClient: IPdmClient;
   logger: Logger;
 }
 
 export class Pdm {
-  private readonly pdmUrl: string;
+  private readonly pdmClient: IPdmClient;
 
   private readonly logger: Logger;
 
   constructor(config: PdmDependencies) {
-    if (!config.pdmUrl) {
-      throw new Error('pdmUrl has not been specified');
+    if (!config.pdmClient) {
+      throw new Error('pdmClient has not been specified');
     }
     if (!config.logger) {
       throw new Error('logger has not been provided');
     }
 
-    this.pdmUrl = config.pdmUrl;
+    this.pdmClient = config.pdmClient;
     this.logger = config.logger;
   }
 
   async poll(item: any): Promise<PdmOutcome> {
     try {
       this.logger.info(item);
-      if (item.data.messageReference === 'ref1') {
+
+      const requestId = crypto.randomUUID();
+
+      const response = await this.pdmClient.getDocumentReference(
+        item.data.resourceId,
+        requestId,
+        item.id,
+      );
+
+      this.logger.info(response);
+
+      if (response.content[0].attachment.data) {
         return 'available';
       }
       return 'unavailable';
