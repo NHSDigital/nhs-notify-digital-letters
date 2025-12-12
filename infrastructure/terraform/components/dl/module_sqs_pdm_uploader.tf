@@ -1,4 +1,4 @@
-module "sqs_upload_to_pdm" {
+module "sqs_pdm_uploader" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip"
 
   aws_account_id = var.aws_account_id
@@ -6,7 +6,7 @@ module "sqs_upload_to_pdm" {
   environment    = var.environment
   project        = var.project
   region         = var.region
-  name           = "upload-to-pdm"
+  name           = "pdm-uploader"
 
   sqs_kms_key_arn = module.kms.key_arn
 
@@ -14,10 +14,10 @@ module "sqs_upload_to_pdm" {
 
   create_dlq = true
 
-  sqs_policy_overload = data.aws_iam_policy_document.sqs_upload_to_pdm.json
+  sqs_policy_overload = data.aws_iam_policy_document.sqs_pdm_uploader.json
 }
 
-data "aws_iam_policy_document" "sqs_upload_to_pdm" {
+data "aws_iam_policy_document" "sqs_pdm_uploader" {
   statement {
     sid    = "AllowEventBridgeToSendMessage"
     effect = "Allow"
@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "sqs_upload_to_pdm" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-upload-to-pdm-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-pdm-uploader-queue"
     ]
   }
 }

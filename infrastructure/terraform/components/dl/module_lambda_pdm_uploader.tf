@@ -1,7 +1,7 @@
-module "upload_to_pdm" {
+module "pdm_uploader" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
 
-  function_name = "upload-to-pdm"
+  function_name = "pdm-uploader"
   description   = "A function to upload documents to PDM"
 
   aws_account_id = var.aws_account_id
@@ -15,12 +15,12 @@ module "upload_to_pdm" {
   kms_key_arn           = module.kms.key_arn
 
   iam_policy_document = {
-    body = data.aws_iam_policy_document.upload_to_pdm_lambda.json
+    body = data.aws_iam_policy_document.pdm_uploader_lambda.json
   }
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
   function_code_base_path = local.aws_lambda_functions_dir_path
-  function_code_dir       = "upload-to-pdm-lambda/dist"
+  function_code_dir       = "pdm-uploader-lambda/dist"
   function_include_common = true
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
@@ -43,7 +43,7 @@ module "upload_to_pdm" {
   }
 }
 
-data "aws_iam_policy_document" "upload_to_pdm_lambda" {
+data "aws_iam_policy_document" "pdm_uploader_lambda" {
   statement {
     sid    = "AllowSSMParam"
     effect = "Allow"
@@ -98,7 +98,7 @@ data "aws_iam_policy_document" "upload_to_pdm_lambda" {
     ]
 
     resources = [
-      module.sqs_upload_to_pdm.sqs_queue_arn,
+      module.sqs_pdm_uploader.sqs_queue_arn,
     ]
   }
 

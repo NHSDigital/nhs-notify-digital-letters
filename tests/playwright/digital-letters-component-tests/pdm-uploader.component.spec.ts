@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
   LETTERS_S3_BUCKET_NAME,
-  UPLOAD_TO_PDM_LAMBDA_LOG_GROUP_NAME,
+  PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
@@ -71,7 +71,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
 
     await expectToPassEventually(async () => {
       const filteredLogs = await getLogsFromCloudwatch(
-        UPLOAD_TO_PDM_LAMBDA_LOG_GROUP_NAME,
+        PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME,
         `{ $.message.description  = "Successfully sent request to PDM" && $.message.eventId = "${eventId}" }`,
       );
 

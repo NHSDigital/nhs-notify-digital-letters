@@ -57,7 +57,7 @@
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
-    "lambdas/upload-to-pdm-lambda",
+    "lambdas/pdm-uploader-lambda",
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",
