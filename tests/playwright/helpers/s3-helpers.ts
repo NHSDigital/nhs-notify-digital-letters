@@ -1,4 +1,8 @@
-import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  ListBucketsCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION || 'eu-west-2',
@@ -18,4 +22,18 @@ async function listBuckets(substring: string): Promise<string[]> {
     );
 }
 
-export default listBuckets;
+async function uploadToS3(
+  content: string,
+  bucket: string,
+  key: string,
+): Promise<void> {
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: content,
+    }),
+  );
+}
+
+export { listBuckets, uploadToS3 };

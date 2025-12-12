@@ -83,3 +83,13 @@ export async function getS3Object(
     );
   }
 }
+
+export async function getS3ObjectFromUri(uri: string): Promise<string> {
+  const regex = /^s3:\/\/([^/]+)\/(.+)$/;
+  const match = regex.exec(uri);
+  if (!match) {
+    throw new Error(`Invalid S3 URI format: ${uri}`);
+  }
+  const [, Bucket, Key] = match;
+  return getS3Object({ Bucket, Key });
+}

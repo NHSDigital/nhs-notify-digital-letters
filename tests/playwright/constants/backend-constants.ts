@@ -25,3 +25,9 @@ export const EVENT_BUS_DLQ_URL = `${SQS_URL_PREFIX}${CSI}-event-publisher-errors
 
 // DynamoDB
 export const TTL_TABLE_NAME = `${CSI}-ttl`;
+
+// S3
+export const LETTERS_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-letters`;
+
+// Cloudwatch
+export const PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-uploader`;
