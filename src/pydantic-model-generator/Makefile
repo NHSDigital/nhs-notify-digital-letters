@@ -3,33 +3,28 @@ SCHEMA_SRC_DIR := ../../schemas/digital-letters/2025-10-draft/events
 OUTPUT_DIR := ../digital-letters-events-python/models
 SCRIPTS_DIR := scripts
 
-# Python settings
-VENV_DIR := ../../.venv
-VENV_PYTHON := $(VENV_DIR)/bin/python
-VENV_PIP := $(VENV_DIR)/bin/pip
-
 # Default target
 .PHONY: all clean generate install install-dev test coverage help
 
 all: generate
 
-# Install production dependencies (uses repo-level venv)
+# Install production dependencies
 install:
 	@echo "Installing production dependencies..."
-	@$(VENV_PIP) install -r requirements.txt
+	@pip install -r requirements.txt
 	@echo "Production dependencies installed!"
 
-# Install development dependencies (uses repo-level venv)
+# Install development dependencies
 install-dev:
 	@echo "Installing development dependencies..."
-	@$(VENV_PIP) install -r requirements-dev.txt
+	@pip install -r requirements-dev.txt
 	@echo "Development dependencies installed!"
 
 # Generate Pydantic models from JSON schemas
 generate: install
 	@echo "Generating Pydantic models from JSON schemas..."
 	@mkdir -p $(OUTPUT_DIR)
-	@$(VENV_PYTHON) $(SCRIPTS_DIR)/generate_models.py \
+	@python $(SCRIPTS_DIR)/generate_models.py \
 		--input-dir $(SCHEMA_SRC_DIR) \
 		--output-dir $(OUTPUT_DIR)
 	@echo "Pydantic models generated in $(OUTPUT_DIR)/"
