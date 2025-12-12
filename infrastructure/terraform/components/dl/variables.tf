@@ -157,3 +157,9 @@ variable "force_destroy" {
   description = "Flag to force deletion of S3 buckets"
   default     = false
 }
+
+variable "enable_pdm_mock" {
+  type        = bool
+  description = "Flag indicating whether to deploy PDM mock API (should be false in production environments)"
+  default     = true
+}

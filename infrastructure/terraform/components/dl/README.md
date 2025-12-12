@@ -17,6 +17,7 @@ No requirements.
 | <a name="input_component"></a> [component](#input\_component) | The variable encapsulating the name of this component | `string` | `"dl"` | no |
 | <a name="input_default_tags"></a> [default\_tags](#input\_default\_tags) | A map of default tags to apply to all taggable resources within the component | `map(string)` | `{}` | no |
 | <a name="input_enable_dynamodb_delete_protection"></a> [enable\_dynamodb\_delete\_protection](#input\_enable\_dynamodb\_delete\_protection) | Enable DynamoDB Delete Protection on all Tables | `bool` | `true` | no |
+| <a name="input_enable_pdm_mock"></a> [enable\_pdm\_mock](#input\_enable\_pdm\_mock) | Flag indicating whether to deploy PDM mock API (should be false in production environments) | `bool` | `true` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | The name of the tfscaffold environment | `string` | n/a | yes |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Flag to force deletion of S3 buckets | `bool` | `false` | no |
 | <a name="input_force_lambda_code_deploy"></a> [force\_lambda\_code\_deploy](#input\_force\_lambda\_code\_deploy) | If the lambda package in s3 has the same commit id tag as the terraform build branch, the lambda will not update automatically. Set to True if making changes to Lambda code from on the same commit for example during development | `bool` | `false` | no |
@@ -57,8 +58,8 @@ No requirements.
 | Name | Description |
 |------|-------------|
 | <a name="output_deployment"></a> [deployment](#output\_deployment) | Deployment details used for post-deployment scripts |
-| <a name="output_pdm_mock_lambda_endpoint"></a> [pdm\_mock\_lambda\_endpoint](#output\_pdm\_mock\_lambda\_endpoint) | The base URL of the PDM Mock Lambda |
-| <a name="output_pdm_mock_lambda_id"></a> [pdm\_mock\_lambda\_id](#output\_pdm\_mock\_lambda\_id) | The ID of the PDM Mock Lambda API Gateway |
+| <a name="output_pdm_mock_lambda_endpoint"></a> [pdm\_mock\_lambda\_endpoint](#output\_pdm\_mock\_lambda\_endpoint) | The base URL of the PDM Mock Lambda (null when not deployed) |
+| <a name="output_pdm_mock_lambda_id"></a> [pdm\_mock\_lambda\_id](#output\_pdm\_mock\_lambda\_id) | The ID of the PDM Mock Lambda API Gateway (null when not deployed) |
 <!-- vale on -->
 <!-- markdownlint-enable -->
 <!-- END_TF_DOCS -->

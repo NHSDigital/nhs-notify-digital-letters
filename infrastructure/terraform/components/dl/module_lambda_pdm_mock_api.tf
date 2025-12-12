@@ -1,4 +1,5 @@
 module "pdm_mock_lambda" {
+  count  = local.deploy_pdm_mock ? 1 : 0
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
 
   function_name = "pdm-mock-lambda"
@@ -15,7 +16,7 @@ module "pdm_mock_lambda" {
   kms_key_arn           = module.kms.key_arn
 
   iam_policy_document = {
-    body = data.aws_iam_policy_document.pdm_mock_lambda.json
+    body = data.aws_iam_policy_document.pdm_mock_lambda[0].json
   }
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
@@ -43,6 +44,8 @@ module "pdm_mock_lambda" {
 }
 
 data "aws_iam_policy_document" "pdm_mock_lambda" {
+  count = local.deploy_pdm_mock ? 1 : 0
+
   statement {
     sid    = "KMSPermissions"
     effect = "Allow"
