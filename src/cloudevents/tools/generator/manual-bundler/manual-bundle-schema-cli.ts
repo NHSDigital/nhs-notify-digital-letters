@@ -64,9 +64,9 @@ export async function handleCli(args: string[]): Promise<CliResult> {
   // Validate arguments
   if (!entry || !outFile) {
     const errorMsg = [
-      'Usage: ts-node manual-bundle-schema.ts [--flatten] [--root-dir <path>] [--base-url <url>] <entry-schema> <output-file>',
-      '       ts-node manual-bundle-schema.ts --clear-cache',
-      '       ts-node manual-bundle-schema.ts --cache-info',
+      'Usage: tsx manual-bundle-schema.ts [--flatten] [--root-dir <path>] [--base-url <url>] <entry-schema> <output-file>',
+      '       tsx manual-bundle-schema.ts --clear-cache',
+      '       tsx manual-bundle-schema.ts --cache-info',
       '',
       'Environment variables:',
       '  SCHEMA_CACHE_DIR - Custom cache directory (default: system tmp)'

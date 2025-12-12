@@ -1,0 +1,16 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: MESHInboxMessageAcknowledged Data
+description: Data payload of the MESHInboxMessageAcknowledged event
+type: object
+additionalProperties: false
+properties:
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  meshMailboxId:
+    $ref: ../defs/mesh.schema.yaml#/properties/meshMailboxId
+required:
+  - messageReference
+  - senderId
+  - meshMailboxId

@@ -14,9 +14,7 @@ jest.mock('infra/config', () => ({
 }));
 
 const mockLoadConfig = loadConfig as jest.MockedFunction<typeof loadConfig>;
-const mockEventPublisher = EventPublisher as jest.MockedClass<
-  typeof EventPublisher
->;
+const mockEventPublisher = jest.mocked(EventPublisher);
 
 describe('createContainer', () => {
   beforeEach(() => {

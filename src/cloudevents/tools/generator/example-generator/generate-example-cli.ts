@@ -40,9 +40,9 @@ export async function handleCli(args: string[]): Promise<CliResult> {
   const [schemaPathRaw, outputPath] = args;
   if (!schemaPathRaw || !outputPath) {
     const errorMsg = [
-      "Usage: ts-node generate-example.ts <schema.json|yaml> <output.json>",
-      "       ts-node generate-example.ts --clear-cache",
-      "       ts-node generate-example.ts --cache-info",
+      "Usage: tsx generate-example.ts <schema.json|yaml> <output.json>",
+      "       tsx generate-example.ts --clear-cache",
+      "       tsx generate-example.ts --cache-info",
       "",
       "Environment variables:",
       "  SCHEMA_CACHE_DIR - Custom cache directory (default: system tmp)"

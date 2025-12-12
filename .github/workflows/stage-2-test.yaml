@@ -57,7 +57,7 @@ jobs:
           npm ci
       - name: "Generate dependencies"
         run: |
-          npm run generate-dependencies --workspaces --if-present
+          npm run generate-dependencies
           git diff --exit-code
   test-unit:
     name: "Unit tests"
@@ -71,7 +71,7 @@ jobs:
           npm ci
       - name: "Generate dependencies"
         run: |
-          npm run generate-dependencies --workspaces --if-present
+          npm run generate-dependencies
       - name: "Run unit test suite"
         run: |
           make test-unit
@@ -104,7 +104,7 @@ jobs:
           npm ci
       - name: "Generate dependencies"
         run: |
-          npm run generate-dependencies --workspaces --if-present
+          npm run generate-dependencies
       - name: "Run linting"
         run: |
           make test-lint
@@ -120,7 +120,7 @@ jobs:
           npm ci
       - name: "Generate dependencies"
         run: |
-          npm run generate-dependencies --workspaces --if-present
+          npm run generate-dependencies
       - name: "Run typecheck"
         run: |
           make test-typecheck

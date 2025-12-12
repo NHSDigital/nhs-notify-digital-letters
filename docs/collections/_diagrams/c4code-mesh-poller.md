@@ -13,7 +13,7 @@ architecture-beta
     service clientConfig(aws:res-aws-systems-manager-parameter-store)[Client Configuration] in meshPoller
     service mesh(server)[MESH]
 
-    meshDownloaded:R -- L:meshPollLambda
+    meshDownloaded:R --> L:meshPollLambda
     clientConfig:B --> T:meshPollLambda
     meshPollLambda:B --> T:mesh
     meshPollLambda:R --> L:pdmSaved

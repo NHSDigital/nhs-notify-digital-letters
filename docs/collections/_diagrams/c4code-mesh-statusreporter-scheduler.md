@@ -24,7 +24,7 @@ architecture-beta
     junction j2
     junction j3
 
-    scheduledEvent:R -- L:reportSchedulerLambda
+    scheduledEvent:R --> L:reportSchedulerLambda
     clientConfig:B --> T:reportSchedulerLambda
     reportSchedulerLambda:R -- L:j1
     j1:T -- B:j2
