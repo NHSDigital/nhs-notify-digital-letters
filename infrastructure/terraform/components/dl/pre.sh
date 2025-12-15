@@ -11,5 +11,7 @@ npm run generate-dependencies
 npm run lambda-build --workspaces --if-present
 
 # Build Python lambdas
-make -C lambdas/mesh-poll package
-make -C lambdas/mesh-download package
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+
+make -C "$ROOT/lambdas/mesh-poll" package
+make -C "$ROOT/lambdas/mesh-download" package
