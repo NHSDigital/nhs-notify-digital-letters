@@ -73,7 +73,8 @@ def model_name_to_module_name(model_name: str) -> str:
         return ""
 
     # Handle acronym boundaries like "JSONSchema" -> "JSON_Schema"
-    step1 = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", model_name)
+    # Limited to acronyms of up to 10 letters to avoid catastrophic backtracking issues.
+    step1 = re.sub(r"([A-Z]{1,10})([A-Z][a-z])", r"\1_\2", model_name)
 
     # Insert underscores between lowercase/digit followed by uppercase: "fooBar" -> "foo_Bar"
     step2 = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", step1)

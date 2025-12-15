@@ -76,7 +76,7 @@ def main() -> int:
             print(f"  ✓ {output_filename}")
 
         write_init_file(args.output_dir, generated_models)
-        print(f"  ✓ __init__.py")
+        print("  ✓ __init__.py")
 
         print(f"\nGeneration complete! Created {len(generated_models)} models ")
         return 0

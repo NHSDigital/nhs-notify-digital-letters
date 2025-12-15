@@ -20,7 +20,7 @@ def extract_model_name(schema: dict[str, Any]) -> str:
         raise ValueError("Schema does not contain a 'title' field")
 
     # Sanitize model name by removing spaces and special characters
-    sanitized_name = re.sub(r'[^a-zA-Z0-9_]', '', title)
+    sanitized_name = re.sub(r'\W', '', title)
 
     return sanitized_name
 
