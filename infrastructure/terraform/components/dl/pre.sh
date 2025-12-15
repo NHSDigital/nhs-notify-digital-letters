@@ -9,3 +9,7 @@ npm ci
 npm run generate-dependencies
 
 npm run lambda-build --workspaces --if-present
+
+# Build Python lambdas
+make -C lambdas/mesh-poll package
+make -C lambdas/mesh-download package
