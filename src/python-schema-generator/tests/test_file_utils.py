@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from scripts.file_utils import (
+from src.file_utils import (
     list_json_schemas,
     load_json_schema,
     write_init_file,

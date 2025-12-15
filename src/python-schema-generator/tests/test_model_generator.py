@@ -4,13 +4,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from scripts.model_generator import generate_pydantic_model
+from src.model_generator import generate_pydantic_model
 
 
 class TestGeneratePydanticModel:
     """Tests for generate_pydantic_model function."""
 
-    @patch("scripts.model_generator.subprocess.run")
+    @patch("src.model_generator.subprocess.run")
     def test_calls_datamodel_codegen_with_expected_arguments(self, mock_run):
         """Test successful model generation."""
         # Arrange
@@ -32,7 +32,7 @@ class TestGeneratePydanticModel:
         assert "--class-name" in cmd_args[5]
         assert "TestModel" in cmd_args[6]
 
-    @patch("scripts.model_generator.subprocess.run")
+    @patch("src.model_generator.subprocess.run")
     def test_raises_error_on_generation_failure(self, mock_run):
         """Test that it raises error when generation fails."""
         schema_path = "test_model.json"

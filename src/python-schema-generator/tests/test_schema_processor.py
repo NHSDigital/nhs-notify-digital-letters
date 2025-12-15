@@ -2,7 +2,7 @@
 
 import pytest
 
-from scripts.schema_processor import (
+from src.schema_processor import (
     extract_event_type,
     extract_model_name,
 )

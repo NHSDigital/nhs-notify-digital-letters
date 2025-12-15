@@ -104,7 +104,7 @@ if event_data.type == "uk.nhs.notify.digital.letters.letter.available.v1":
 
 The generator consists of:
 
-- `scripts/generate_models.py` - Main CLI script
-- `scripts/schema_processor.py` - Schema loading and processing
-- `scripts/model_generator.py` - Pydantic model generation logic
-- `scripts/file_utils.py` - File system utilities
+- `src/generate_models.py` - Main CLI script
+- `src/schema_processor.py` - Schema loading and processing
+- `src/model_generator.py` - Pydantic model generation logic
+- `src/file_utils.py` - File system utilities

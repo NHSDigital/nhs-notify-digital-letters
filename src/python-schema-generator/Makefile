@@ -1,7 +1,8 @@
 # Variables
 SCHEMA_SRC_DIR := ../../schemas/digital-letters/2025-10-draft/events
 OUTPUT_DIR := ../digital-letters-events/digital_letters_events/models
-SCRIPTS_DIR := scripts
+SRC_DIR := src
+SCHEMAS_DIR := $(SRC_DIR)/schemas
 
 # Default target
 .PHONY: all clean generate install install-dev test coverage help
@@ -10,9 +11,12 @@ all: generate
 
 # Install production dependencies
 install:
-	@echo "Installing production dependencies..."
+	@echo "Installing Python production dependencies..."
 	@pip install -r requirements.txt
 	@echo "Production dependencies installed!"
+	@echo "Installing Node production dependencies..."
+	@npm install
+	@echo "Node production dependencies installed!"
 
 # Install development dependencies
 install-dev:
@@ -24,8 +28,9 @@ install-dev:
 generate: install
 	@echo "Generating Pydantic models from JSON schemas..."
 	@mkdir -p $(OUTPUT_DIR)
-	@python $(SCRIPTS_DIR)/generate_models.py \
-		--input-dir $(SCHEMA_SRC_DIR) \
+	@npm run merge
+	@python $(SRC_DIR)/generate_models.py \
+		--input-dir $(SCHEMAS_DIR) \
 		--output-dir $(OUTPUT_DIR)
 	@echo "Pydantic models generated in $(OUTPUT_DIR)/"
 
@@ -50,6 +55,7 @@ coverage: install-dev
 clean:
 	@echo "Cleaning generated models..."
 	@rm -rf $(OUTPUT_DIR) htmlcov .pytest_cache coverage.xml
+	@rm -rf $(SCHEMAS_DIR)
 	@echo "Clean complete!"
 
 # Show help
