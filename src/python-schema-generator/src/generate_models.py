@@ -13,6 +13,7 @@ from pathlib import Path
 from file_utils import (
     list_json_schemas,
     load_json_schema,
+    parse_json_schema,
     model_name_to_module_name,
     write_init_file,
 )
@@ -62,14 +63,15 @@ def main() -> int:
         generated_models = []
         for schema_filename in schema_filenames:
             schema_path = str(Path(args.input_dir) / schema_filename)
-            schema = load_json_schema(schema_path)
+            string_schema = load_json_schema(schema_path)
+            schema = parse_json_schema(string_schema)
 
             model_name = extract_model_name(schema)
             output_filename = model_name_to_module_name(model_name) + ".py"
-            output_file_path = str(Path(args.output_dir) / output_filename)
+            output_file_path = Path(args.output_dir) / output_filename
 
             generate_pydantic_model(
-                schema_path, output_file_path, model_name
+                string_schema, output_file_path, model_name
             )
 
             generated_models.append(model_name)

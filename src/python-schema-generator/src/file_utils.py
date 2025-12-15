@@ -24,17 +24,29 @@ def list_json_schemas(schema_dir: str) -> list[str]:
     return [f.name for f in flattened_schema_files]
 
 
-def load_json_schema(schema_path: str) -> dict[str, Any]:
-    """Load a JSON schema from file.
+def load_json_schema(schema_path: str) -> str:
+    """Load a JSON schema from file as a string.
 
     Args:
         schema_path: Path to the JSON schema file
 
     Returns:
-        Loaded schema as dictionary
+        Loaded schema as string
     """
     with open(schema_path, encoding="utf-8") as f:
-        return json.load(f)
+        return f.read()
+
+
+def parse_json_schema(schema: str) -> dict[str, Any]:
+    """Parse a JSON schema from a string.
+
+    Args:
+        schema: JSON schema as a string
+
+    Returns:
+        Schema as dictionary
+    """
+    return json.loads(schema)
 
 
 def write_init_file(output_dir: str, model_names: list[str]) -> None:

@@ -7,6 +7,7 @@ import pytest
 from src.file_utils import (
     list_json_schemas,
     load_json_schema,
+    parse_json_schema,
     write_init_file,
     model_name_to_module_name
 )
@@ -51,21 +52,31 @@ class TestLoadJsonSchema:
     def test_loads_valid_json_schema(self, tmp_path):
         """Test loading a valid JSON schema."""
         schema_file = tmp_path / "test.schema.json"
-        schema_content = {"title": "TestSchema", "type": "object"}
-        schema_file.write_text(json.dumps(schema_content))
+        schema_content = json.dumps({"title": "TestSchema", "type": "object"})
+        schema_file.write_text(schema_content)
 
         result = load_json_schema(str(schema_file))
 
         assert result == schema_content
 
-    def test_raises_error_for_invalid_json(self, tmp_path):
+
+class TestParseJsonSchema:
+    """Tests for parse_json_schema function."""
+
+    def test_parses_valid_json_schema(self):
+        """Test loading a valid JSON schema."""
+        schema_content = { "title": "TestSchema", "type": "object" }
+
+        result = parse_json_schema(json.dumps(schema_content))
+
+        assert result == schema_content
+
+    def test_raises_error_for_invalid_json(self):
         """Test that it raises error for invalid JSON."""
-        schema_file = tmp_path / "invalid.json"
-        schema_file.write_text("not valid json")
+        invalid_json = "not valid json"
 
         with pytest.raises(json.JSONDecodeError):
-            load_json_schema(str(schema_file))
-
+            parse_json_schema(invalid_json)
 
 class TestWriteInitFile:
     """Tests for write_init_file function."""
