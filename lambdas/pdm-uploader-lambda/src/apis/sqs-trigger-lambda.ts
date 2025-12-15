@@ -134,7 +134,6 @@ async function publishSuccessfulEvents(
           messageReference: event.data.messageReference,
           senderId: event.data.senderId,
           resourceId,
-          retryCount: -1, // Setting to -1 until this field is removed from pdm.resource.submitted.
         },
       })),
       pdmResourceSubmittedValidator,

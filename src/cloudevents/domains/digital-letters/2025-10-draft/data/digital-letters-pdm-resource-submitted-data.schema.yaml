@@ -10,10 +10,7 @@ properties:
     $ref: ../defs/requests.schema.yaml#/properties/senderId
   resourceId:
     $ref: ../defs/pdm.schema.yaml#/properties/resourceId
-  retryCount:
-    $ref: ../defs/pdm.schema.yaml#/properties/retryCount
 required:
   - messageReference
   - senderId
   - resourceId
-  - retryCount
