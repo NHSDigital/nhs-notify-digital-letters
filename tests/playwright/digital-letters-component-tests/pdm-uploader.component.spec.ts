@@ -49,7 +49,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
           id: eventId,
           specversion: '1.0',
           source:
-            '/nhs/england/notify/production/primary/data-plane/digital-letters',
+            '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
           subject:
             'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
           type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
@@ -60,12 +60,11 @@ test.describe('Digital Letters - Upload to PDM', () => {
             '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
           datacontenttype: 'application/json',
           dataschema:
-            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
           dataschemaversion: '1.0',
           severitytext: 'INFO',
           data: {
             messageUri,
-            'digital-letter-id': letterId,
             messageReference,
             senderId,
           },
