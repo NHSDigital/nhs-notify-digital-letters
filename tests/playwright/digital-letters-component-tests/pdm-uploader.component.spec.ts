@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import {
+  EVENT_BUS_LOG_GROUP_NAME,
   LETTERS_S3_BUCKET_NAME,
   PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
@@ -82,7 +83,20 @@ test.describe('Digital Letters - Upload to PDM', () => {
         ],
       );
 
-      expect(filteredLogs.length).toBeGreaterThan(0);
+      expect(filteredLogs.length).toEqual(1);
     }, 120);
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        EVENT_BUS_LOG_GROUP_NAME,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.submitted.v1"',
+          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    });
   });
 });
