@@ -5,15 +5,13 @@ import path from 'node:path';
 import Ajv from 'ajv/dist/2020';
 
 import standaloneCode from 'ajv/dist/standalone';
+import { createOutputDir, writeFile, writeTypesIndex } from 'file-utils';
 import {
-  createOutputDir,
   destinationPackageName,
   eventSchemasDir,
   listEventSchemas,
   loadSchema,
-  writeFile,
-  writeTypesIndex,
-} from 'file-utils';
+} from 'utils';
 
 export function generateValidators() {
   const ajv = new Ajv({

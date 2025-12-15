@@ -1,6 +1,6 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
 
-import { eventSchemasDir } from 'file-utils';
+import { eventSchemasDir } from 'utils';
 import { mergeAllOfInSchemas } from 'merge-allof';
 import mockFs from 'mock-fs';
 import { readdirSync } from 'node:fs';

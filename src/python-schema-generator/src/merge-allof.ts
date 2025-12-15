@@ -1,13 +1,8 @@
 /* eslint-disable no-console */
-import {
-  createOutputDir,
-  eventSchemasDir,
-  listEventSchemas,
-  loadSchema,
-  writeFile,
-} from 'file-utils';
+import { createOutputDir, writeFile } from 'file-utils';
 import mergeAllOf from 'json-schema-merge-allof';
 import path from 'node:path';
+import { eventSchemasDir, listEventSchemas, loadSchema } from 'utils';
 
 export function mergeAllOfInSchemas(): void {
   const eventSchemaFilenames = listEventSchemas();

@@ -1,10 +1,10 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
 import standaloneCode from 'ajv/dist/standalone';
-import { destinationPackageName, eventSchemasDir } from 'file-utils';
 import { generateValidators } from 'generate-validators';
 import mockFs from 'mock-fs';
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import { destinationPackageName, eventSchemasDir } from 'utils';
 
 jest.mock('ajv/dist/2020');
 jest.mock('ajv/dist/standalone');

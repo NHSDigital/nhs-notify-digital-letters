@@ -13,3 +13,4 @@ export * from './types';
 export * from './event-publisher';
 export * from './event-bridge-utils';
 export * from './key-generation-utils';
+export * from './schema-utils';
