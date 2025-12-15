@@ -10,6 +10,7 @@ import type { Logger } from 'utils';
 import { mockRequest1, mockResponse } from '__tests__/constants';
 import { IAccessTokenRepository, NotifyClient } from 'app/notify-api-client';
 import { RequestAlreadyReceivedError } from 'domain/request-already-received-error';
+import { RequestNotifyError } from 'domain/request-notify-error';
 
 jest.mock('utils');
 jest.mock('node:crypto');
@@ -214,7 +215,28 @@ describe('sendRequest', () => {
 
       const error = {
         isAxiosError: true,
-        response: { status },
+        response: {
+          status,
+          data: {
+            errors: [
+              {
+                id: 'rrt-1931948104716186917-c-geu2-10664-3111479-3.0',
+                code: 'CM_MISSING_ROUTING_PLAN_TEMPLATE',
+                links: {
+                  about:
+                    'https://digital.nhs.uk/developer/api-catalogue/nhs-notify',
+                },
+                status,
+                title: 'Templates missing',
+                detail:
+                  'The templates required to use the routing plan were not found.',
+                source: {
+                  pointer: '/data/attributes/routingPlanId',
+                },
+              },
+            ],
+          },
+        },
       };
 
       mocks.axiosInstance.post.mockRejectedValue(error);
@@ -224,7 +246,10 @@ describe('sendRequest', () => {
           mockRequest1,
           mockRequest1.data.attributes.messageReference,
         ),
-      ).rejects.toEqual(error);
+      ).rejects.toMatchObject({
+        errorCode: 'CM_MISSING_ROUTING_PLAN_TEMPLATE',
+        correlationId: 'request-item-id_request-item-plan-id',
+      });
     },
   );
 

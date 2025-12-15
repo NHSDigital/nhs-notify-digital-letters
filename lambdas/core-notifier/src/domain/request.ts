@@ -40,3 +40,12 @@ export type SingleMessageResponse = {
     };
   };
 };
+
+export type SingleMessageErrorResponse = {
+  errors: [
+    {
+      id: string;
+      code: string;
+    },
+  ];
+};

@@ -24,7 +24,9 @@ describe('NotifyMessageProcessor', () => {
   it('completes when the API client succeeds', async () => {
     mockClient.sendRequest.mockResolvedValueOnce(mockResponse);
 
-    expect(await notifyMessageProcessor.process(mockRequest1)).toBeUndefined();
+    expect(await notifyMessageProcessor.process(mockRequest1)).toEqual(
+      mockResponse.data.id,
+    );
 
     expect(mockClient.sendRequest).toHaveBeenCalledTimes(1);
     expect(mockClient.sendRequest).toHaveBeenCalledWith(

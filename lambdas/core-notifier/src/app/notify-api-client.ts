@@ -1,13 +1,16 @@
-import axios, { AxiosInstance, isAxiosError } from 'axios';
+import axios, { Axios, AxiosInstance, isAxiosError } from 'axios';
+import type { AxiosError } from 'axios';
 import type { Readable } from 'node:stream';
 import { constants as HTTP2_CONSTANTS } from 'node:http2';
 import type {
+  SingleMessageErrorResponse,
   SingleMessageRequest,
   SingleMessageResponse,
 } from 'domain/request';
 import { RequestAlreadyReceivedError } from 'domain/request-already-received-error';
 import { IAccessibleService, RetryConfig, conditionalRetry } from 'utils';
 import type { Logger } from 'utils';
+import { RequestNotifyError } from 'domain/request-notify-error';
 
 export interface IAccessTokenRepository {
   getAccessToken(): Promise<string>;
@@ -92,12 +95,22 @@ export class NotifyClient implements INotifyClient, IAccessibleService {
         err: error,
       });
 
-      if (
-        isAxiosError(error) &&
-        error.response?.status ===
+      if (isAxiosError(error)) {
+        const axiosError: AxiosError = error;
+        if (
+          axiosError.response?.status ===
           HTTP2_CONSTANTS.HTTP_STATUS_UNPROCESSABLE_ENTITY
-      ) {
-        throw new RequestAlreadyReceivedError(error, correlationId);
+        ) {
+          throw new RequestAlreadyReceivedError(error, correlationId);
+        } else {
+          const errorBody: SingleMessageErrorResponse = axiosError.response
+            ?.data as SingleMessageErrorResponse;
+          throw new RequestNotifyError(
+            error,
+            correlationId,
+            errorBody?.errors[0].code,
+          );
+        }
       }
 
       throw error;
