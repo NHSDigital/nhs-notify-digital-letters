@@ -8,7 +8,6 @@ export function mergeAllOfInSchemas(): void {
   const eventSchemaFilenames = listEventSchemas();
 
   const outputDir = createOutputDir('schemas');
-
   console.log(`Output directory created at ${outputDir}`);
 
   console.group('Merging allOf entries in schemas:');

@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "json-schema-merge-allof": "^0.8.1",
+    "tsx": "^4.21.0",
     "utils": "^0.0.1"
   },
   "description": "A tool to generate Python classes for the application's event schemas.",
@@ -11,7 +12,8 @@
     "@types/node": "^25.0.2",
     "eslint": "^9.39.2",
     "jest": "^29.7.0",
-    "mock-fs": "^5.5.0"
+    "mock-fs": "^5.5.0",
+    "typescript": "^5.9.3"
   },
   "name": "python-schema-generator",
   "private": true,

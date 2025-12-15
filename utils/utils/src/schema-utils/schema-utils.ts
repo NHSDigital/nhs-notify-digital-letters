@@ -16,8 +16,6 @@ export const eventSchemasDir = path.resolve(
   'events',
 );
 
-export const destinationPackageName = 'digital-letters-events';
-
 /**
  * Lists all event schema filenames in the digital letters schemas directory.
  *

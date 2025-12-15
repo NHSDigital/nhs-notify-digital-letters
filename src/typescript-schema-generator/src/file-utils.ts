@@ -3,7 +3,8 @@
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { destinationPackageName } from 'utils';
+
+export const destinationPackageName = 'digital-letters-events';
 
 /**
  * Creates the specified output directory if it doesn't exist.
