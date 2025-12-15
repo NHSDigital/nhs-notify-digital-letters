@@ -15,7 +15,7 @@ function getQueueUrl(queueName: string) {
 export async function expectMessageContainingString(
   queueName: string,
   searchTerm: string,
-  timeout: number = 30,
+  timeout = 30,
 ) {
   const input: ReceiveMessageCommandInput = {
     QueueUrl: getQueueUrl(queueName),

@@ -45,14 +45,13 @@ const baseEvent = {
   time: '2023-06-20T12:00:00Z',
   recordedtime: '2023-06-20T12:00:00.250Z',
   severitynumber: 2,
-  traceparent:
-    '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+  traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
   datacontenttype: 'application/json',
   dataschema:
     'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
   dataschemaversion: '1.0',
   severitytext: 'INFO',
-}
+};
 
 test.describe('Digital Letters - Upload to PDM', () => {
   test.beforeAll(async () => {
