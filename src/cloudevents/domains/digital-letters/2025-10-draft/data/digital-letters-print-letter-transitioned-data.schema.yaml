@@ -1,6 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: PrintStatusChanged Data
-description: Base data of the PrintStatusChanged event
+title: PrintLetterTransitioned Data
+description: Base data of the PrintLetterTransitioned event
 type: object
 additionalProperties: false
 properties:

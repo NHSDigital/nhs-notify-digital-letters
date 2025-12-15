@@ -9,7 +9,7 @@ last_modified_date: 2025-12-12
 owner: Ross Buggins
 author: Tom D'Roza
 diagrams: [c4code-printer-statushandler]
-events-raised: [print-status-changed]
+events-raised: [print-letter-transitioned]
 events-consumed: [external-supplier-api-letter-printed]
 c4type: code
 ---

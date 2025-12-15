@@ -17,7 +17,7 @@ title: c4code-printer-statushandler
     service letterFailedEvent(aws:res-amazon-eventbridge-event)[letterFAILED event]
     service letterReturnedEvent(aws:res-amazon-eventbridge-event)[letterRETURNED event]
 
-    service printStatusEvent(aws:res-amazon-eventbridge-event) [PrintStatusChanged event]
+    service printStatusEvent(aws:res-amazon-eventbridge-event) [PrintLetterTransitioned event]
 
     junction j1
     junction j2
