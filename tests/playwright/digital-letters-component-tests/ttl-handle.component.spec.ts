@@ -126,7 +126,10 @@ test.describe('Digital Letters - Handle TTL', () => {
     const eventWithNoMessageUri = {
       ...baseEvent,
       id: letterId,
-      unexpectedField: 'I should not be here',
+      data: {
+        ...baseEvent.data,
+        unexpectedField: 'I should not be here',
+      },
     };
 
     const ttlItem = {
