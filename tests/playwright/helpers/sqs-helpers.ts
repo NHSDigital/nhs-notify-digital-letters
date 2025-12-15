@@ -15,6 +15,7 @@ function getQueueUrl(queueName: string) {
 export async function expectMessageContainingString(
   queueName: string,
   searchTerm: string,
+  timeout: number = 30,
 ) {
   const input: ReceiveMessageCommandInput = {
     QueueUrl: getQueueUrl(queueName),
@@ -28,7 +29,7 @@ export async function expectMessageContainingString(
     const polledMessages = result.Messages || [];
 
     expect(polledMessages.some((m) => m.Body?.includes(searchTerm))).toBe(true);
-  });
+  }, timeout);
 }
 
 export async function purgeQueue(queueName: string) {

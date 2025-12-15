@@ -15,6 +15,7 @@ export const TTL_POLL_LAMBDA_NAME = `${CSI}-ttl-poll`;
 // Queue Names
 export const TTL_QUEUE_NAME = `${CSI}-ttl-queue`;
 export const TTL_DLQ_NAME = `${CSI}-ttl-dlq`;
+export const PDM_UPLOADER_DLQ_NAME = `${CSI}-pdm-uploader-dlq`;
 
 // Queue Url Prefix
 export const SQS_URL_PREFIX = `https://sqs.${REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/`;

@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import {
   EVENT_BUS_LOG_GROUP_NAME,
   LETTERS_S3_BUCKET_NAME,
+  PDM_UPLOADER_DLQ_NAME,
   PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
@@ -9,6 +10,7 @@ import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { uploadToS3 } from 'helpers/s3-helpers';
+import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 const pdmRequest = {
@@ -31,7 +33,32 @@ const pdmRequest = {
   ],
 };
 
+const baseEvent = {
+  profileversion: '1.0.0',
+  profilepublished: '2025-10',
+  specversion: '1.0',
+  source:
+    '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
+  subject:
+    'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+  type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
+  time: '2023-06-20T12:00:00Z',
+  recordedtime: '2023-06-20T12:00:00.250Z',
+  severitynumber: 2,
+  traceparent:
+    '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+  datacontenttype: 'application/json',
+  dataschema:
+    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
+  dataschemaversion: '1.0',
+  severitytext: 'INFO',
+}
+
 test.describe('Digital Letters - Upload to PDM', () => {
+  test.beforeAll(async () => {
+    await purgeQueue(PDM_UPLOADER_DLQ_NAME);
+  });
+
   test('should send to PDM following downloaded message event', async () => {
     const eventId = uuidv4();
     const letterId = uuidv4();
@@ -45,25 +72,8 @@ test.describe('Digital Letters - Upload to PDM', () => {
     await eventPublisher.sendEvents(
       [
         {
-          profileversion: '1.0.0',
-          profilepublished: '2025-10',
+          ...baseEvent,
           id: eventId,
-          specversion: '1.0',
-          source:
-            '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
-          subject:
-            'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-          type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
-          time: '2023-06-20T12:00:00Z',
-          recordedtime: '2023-06-20T12:00:00.250Z',
-          severitynumber: 2,
-          traceparent:
-            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-          datacontenttype: 'application/json',
-          dataschema:
-            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
-          dataschemaversion: '1.0',
-          severitytext: 'INFO',
           data: {
             messageUri,
             messageReference,
@@ -98,5 +108,45 @@ test.describe('Digital Letters - Upload to PDM', () => {
 
       expect(eventLogEntry.length).toEqual(1);
     });
+  });
+
+  test('should send invalid event to dlq', async () => {
+    // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
+    test.setTimeout(360_000);
+
+    const eventId = uuidv4();
+    const messageUri = `not-a-valid-s3-uri`;
+    const messageReference = uuidv4();
+    const senderId = uuidv4();
+
+    await eventPublisher.sendEvents(
+      [
+        {
+          ...baseEvent,
+          id: eventId,
+          data: {
+            messageUri,
+            messageReference,
+            senderId,
+          },
+        },
+      ],
+      messageDownloadedValidator,
+    );
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        EVENT_BUS_LOG_GROUP_NAME,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1"',
+          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    });
+
+    await expectMessageContainingString(PDM_UPLOADER_DLQ_NAME, eventId, 300);
   });
 });
