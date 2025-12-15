@@ -31,6 +31,7 @@ __pycache__/
 .Python
 .venv/
 venv/
+*.egg-info/
 
 # Testing
 .pytest_cache/

@@ -33,11 +33,6 @@ def generate_pydantic_model(
         "--output-model-type",
         "pydantic_v2.BaseModel",
         "--use-schema-description",
-        "--field-constraints",
-        "--strict-nullable",
-        "--snake-case-field",
-        "--target-python-version",
-        "3.13",
         "--custom-file-header",
         '''"""Generated Pydantic model for NHS Notify Digital Letters events.
 
