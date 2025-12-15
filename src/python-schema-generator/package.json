@@ -16,8 +16,8 @@
   "name": "python-schema-generator",
   "private": true,
   "scripts": {
-    "lint": "eslint scripts",
-    "lint:fix": "eslint scripts --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "merge": "tsx src/merge-allof-cli.ts",
     "test:unit": "jest",
     "typecheck": "tsc --noEmit"
