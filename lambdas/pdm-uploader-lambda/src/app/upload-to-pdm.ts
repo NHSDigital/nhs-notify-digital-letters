@@ -28,9 +28,10 @@ export class UploadToPdm {
 
       this.logger.info({
         description: 'Successfully sent request to PDM',
-        resourceId: response.id,
-        requestId,
         eventId: event.id,
+        messageReference: event.data.messageReference,
+        requestId,
+        resourceId: response.id,
       });
 
       return { outcome: 'sent', resourceId: response.id };

@@ -87,6 +87,14 @@ describe('UploadToPdm', () => {
         outcome: 'sent',
         resourceId: 'test-resource-id',
       });
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Successfully sent request to PDM',
+          eventId: 'test-event-id',
+          messageReference: 'test-message-reference',
+          resourceId: 'test-resource-id',
+        }),
+      );
       expect(mockLogger.error).not.toHaveBeenCalled();
     });
 
