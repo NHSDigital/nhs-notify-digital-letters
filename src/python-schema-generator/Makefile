@@ -14,9 +14,6 @@ install:
 	@echo "Installing Python production dependencies..."
 	@pip install -r requirements.txt
 	@echo "Production dependencies installed!"
-	@echo "Installing Node production dependencies..."
-	@npm install
-	@echo "Node production dependencies installed!"
 
 # Install development dependencies
 install-dev:

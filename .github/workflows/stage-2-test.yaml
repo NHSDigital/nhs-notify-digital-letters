@@ -58,6 +58,7 @@ jobs:
       - name: "Generate dependencies"
         run: |
           npm run generate-dependencies
+          git diff --exit-code
   test-unit:
     name: "Unit tests"
     runs-on: ubuntu-latest
