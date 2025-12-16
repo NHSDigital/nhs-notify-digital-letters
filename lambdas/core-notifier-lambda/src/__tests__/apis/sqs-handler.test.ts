@@ -34,23 +34,25 @@ describe('createHandler', () => {
   const mockSender: Sender = {
     senderId,
     routingConfigId,
-    displayName: 'Test Sender',
-    clientId: 'client-123',
-    campaignId: 'campaign-123',
+    senderName: 'Test Sender',
+    meshMailboxSenderId: 'meshMailBoxSender-123',
+    meshMailboxReportsId: 'meshMailBoxReports-123',
+    fallbackWaitTimeSeconds: 100,
   };
 
   const mockPdmEvent: PDMResourceAvailable = {
     id: 'event-id-123',
     source: 'urn:nhs:names:services:notify:pdm',
     specversion: '1.0',
-    type: 'uk.nhs.notify.pdm.resource.available',
+    type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
     time: '2025-12-15T10:00:00Z',
     datacontenttype: 'application/json',
     data: {
       senderId,
       messageReference,
-      resourceType: 'letter',
-      resourceLocation: 's3://bucket/key',
+      resourceId: 'ResourceId-123',
+      nhsNumber: '9991234566',
+      odsCode: 'A12345',
     },
   };
 

@@ -39,13 +39,14 @@ describe('EventPublisherFacade', () => {
         id: 'event-id-123',
         source: 'urn:nhs:names:services:notify:core-notifier',
         specversion: '1.0',
-        type: 'uk.nhs.notify.message-request.submitted',
+        type: 'uk.nhs.notify.digital.letters.messages.request.submitted.v1',
         time: '2025-12-15T10:00:00Z',
         datacontenttype: 'application/json',
         data: {
           senderId: 'sender-123',
           messageReference: 'msg-ref-123',
-          notifyMessageId: 'notify-id-123',
+          notifyId: 'notify-id-123',
+          messageUri: 's3://dlbucket/document.pdf',
         },
       };
 
@@ -66,13 +67,14 @@ describe('EventPublisherFacade', () => {
         id: 'event-id-456',
         source: 'urn:nhs:names:services:notify:core-notifier',
         specversion: '1.0',
-        type: 'uk.nhs.notify.message-request.rejected',
+        type: 'uk.nhs.notify.digital.letters.messages.request.rejected.v1',
         time: '2025-12-15T10:00:00Z',
         datacontenttype: 'application/json',
         data: {
           senderId: 'sender-456',
           messageReference: 'msg-ref-456',
-          errorCode: 'VALIDATION_ERROR',
+          failureCode: 'VALIDATION_ERROR',
+          messageUri: 's3://dlbucket/document.pdf',
         },
       };
 
@@ -93,13 +95,12 @@ describe('EventPublisherFacade', () => {
         id: 'event-id-789',
         source: 'urn:nhs:names:services:notify:core-notifier',
         specversion: '1.0',
-        type: 'uk.nhs.notify.message-request.skipped',
+        type: 'uk.nhs.notify.digital.letters.messages.request.skipped.v1',
         time: '2025-12-15T10:00:00Z',
         datacontenttype: 'application/json',
         data: {
           senderId: 'sender-789',
           messageReference: 'msg-ref-789',
-          reason: 'No routing configuration',
         },
       };
 

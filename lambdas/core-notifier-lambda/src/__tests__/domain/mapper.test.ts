@@ -48,7 +48,7 @@ describe('mapper', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRandomUUID.mockReturnValue('mock-uuid-123');
+    mockRandomUUID.mockReturnValue('45e7d942-0d33-46d1-a678-ada01e5de9fe');
   });
 
   describe('mapPdmEventToSingleMessageRequest', () => {
@@ -99,7 +99,7 @@ describe('mapper', () => {
 
       expect(result).toEqual({
         ...mockPdmEvent,
-        id: 'mock-uuid-123',
+        id: '45e7d942-0d33-46d1-a678-ada01e5de9fe',
         time: '2024-01-15T12:00:00.000Z',
         recordedtime: '2024-01-15T12:00:00.000Z',
         type: 'uk.nhs.notify.digital.letters.messages.request.submitted.v1',
@@ -130,7 +130,7 @@ describe('mapper', () => {
 
       expect(result).toEqual({
         ...mockPdmEvent,
-        id: 'mock-uuid-123',
+        id: '45e7d942-0d33-46d1-a678-ada01e5de9fe',
         time: '2024-01-15T12:00:00.000Z',
         recordedtime: '2024-01-15T12:00:00.000Z',
         type: 'uk.nhs.notify.digital.letters.messages.request.skipped.v1',
@@ -218,7 +218,7 @@ describe('mapper', () => {
 
       expect(result).toEqual({
         ...mockPdmEvent,
-        id: 'mock-uuid-123',
+        id: '45e7d942-0d33-46d1-a678-ada01e5de9fe',
         time: '2024-01-15T12:00:00.000Z',
         recordedtime: '2024-01-15T12:00:00.000Z',
         type: 'uk.nhs.notify.digital.letters.messages.request.rejected.v1',

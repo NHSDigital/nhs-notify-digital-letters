@@ -22,7 +22,7 @@ import { RequestNotifyError } from 'domain/request-notify-error';
 export interface SqsHandlerDependencies {
   notifyMessageProcessor: NotifyMessageProcessor;
   logger: Logger;
-  senderManagement: SenderManagement;
+  senderManagement: typeof SenderManagement;
   eventPublisherFacade: EventPublisherFacade;
 }
 
