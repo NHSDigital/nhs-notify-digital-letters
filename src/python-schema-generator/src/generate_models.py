@@ -46,14 +46,12 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> int:
+def main(args) -> int:
     """Main entry point for the generator.
 
     Returns:
         Exit code (0 for success, 1 for failure)
     """
-    args = parse_args()
-
     try:
         print(f"Generating models in: {args.output_dir}")
 
@@ -89,4 +87,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    args = parse_args()
+    sys.exit(main(args))

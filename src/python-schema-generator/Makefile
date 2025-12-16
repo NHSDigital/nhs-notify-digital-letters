@@ -34,12 +34,12 @@ generate: install
 # Run tests
 test: install-dev
 	@echo "Running tests..."
-	@pytest tests/
+	@cd ../.. && PYTHONPATH=src/python-schema-generator/src:$$PYTHONPATH pytest src/python-schema-generator/tests/
 
 # Generate coverage report
 coverage: install-dev
 	@echo "Generating coverage report..."
-	@cd ../.. && pytest src/python-schema-generator/tests/ \
+	@cd ../.. && PYTHONPATH=src/python-schema-generator/src:$$PYTHONPATH pytest src/python-schema-generator/tests/ \
 		--cov=src/python-schema-generator \
 		--cov-config=src/python-schema-generator/pytest.ini \
 		--cov-report=html:src/python-schema-generator/htmlcov \
