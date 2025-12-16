@@ -58,7 +58,8 @@ export function mapPdmEventToMessageRequestSubmitted(
     time: new Date().toISOString(),
     recordedtime: new Date().toISOString(),
     type: 'uk.nhs.notify.digital.letters.messages.request.submitted.v1',
-    dataschema: 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-message-request-submitted-data.schema.json',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-message-request-submitted-data.schema.json',
     source: pdmResourceAvailable.source.replace(/\/pdm$/, '/messages'),
     data: {
       messageReference,

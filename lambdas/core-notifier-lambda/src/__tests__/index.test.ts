@@ -8,43 +8,43 @@ import { mock } from 'jest-mock-extended';
 jest.mock('container');
 jest.mock('apis/sqs-handler');
 
+const createSqsEvent = (recordCount: number): SQSEvent => ({
+  Records: Array.from(
+    { length: recordCount },
+    (_, i): SQSRecord => ({
+      messageId: `message-id-${i + 1}`,
+      receiptHandle: `receipt-handle-${i + 1}`,
+      body: JSON.stringify({
+        detail: {
+          id: `event-id-${i + 1}`,
+          source: 'test',
+          specversion: '1.0',
+          type: 'test.event',
+          time: '2025-12-16T10:00:00Z',
+          datacontenttype: 'application/json',
+          data: {},
+        },
+      }),
+      attributes: {
+        ApproximateReceiveCount: '1',
+        SentTimestamp: '1234567890',
+        SenderId: 'sender-id',
+        ApproximateFirstReceiveTimestamp: '1234567890',
+      },
+      messageAttributes: {},
+      md5OfBody: 'md5',
+      eventSource: 'aws:sqs',
+      eventSourceARN: 'arn:aws:sqs:region:account:queue',
+      awsRegion: 'eu-west-2',
+    }),
+  ),
+});
+
 describe('Lambda handler', () => {
   const mockContainer = mock<SqsHandlerDependencies>();
   const mockSqsHandler = jest.fn();
   const mockCreateContainer = jest.mocked(createContainer);
   const mockCreateSqsHandler = jest.mocked(createSqsHandler);
-
-  const createSqsEvent = (recordCount: number): SQSEvent => ({
-    Records: Array.from(
-      { length: recordCount },
-      (_, i): SQSRecord => ({
-        messageId: `message-id-${i + 1}`,
-        receiptHandle: `receipt-handle-${i + 1}`,
-        body: JSON.stringify({
-          detail: {
-            id: `event-id-${i + 1}`,
-            source: 'test',
-            specversion: '1.0',
-            type: 'test.event',
-            time: '2025-12-16T10:00:00Z',
-            datacontenttype: 'application/json',
-            data: {},
-          },
-        }),
-        attributes: {
-          ApproximateReceiveCount: '1',
-          SentTimestamp: '1234567890',
-          SenderId: 'sender-id',
-          ApproximateFirstReceiveTimestamp: '1234567890',
-        },
-        messageAttributes: {},
-        md5OfBody: 'md5',
-        eventSource: 'aws:sqs',
-        eventSourceARN: 'arn:aws:sqs:region:account:queue',
-        awsRegion: 'eu-west-2',
-      }),
-    ),
-  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -53,33 +53,18 @@ describe('Lambda handler', () => {
     mockSqsHandler.mockResolvedValue({ batchItemFailures: [] });
   });
 
-  it('creates a container', async () => {
-    const sqsEvent = createSqsEvent(1);
-
-    await handler(sqsEvent);
-
-    expect(mockCreateContainer).toHaveBeenCalledTimes(1);
-  });
-
-  it('creates an SQS handler with the container dependencies', async () => {
+  it('creates an SQS handler with the container dependencies and handler being invoked', async () => {
     const sqsEvent = createSqsEvent(1);
 
     await handler(sqsEvent);
 
     expect(mockCreateSqsHandler).toHaveBeenCalledTimes(1);
     expect(mockCreateSqsHandler).toHaveBeenCalledWith(mockContainer);
-  });
-
-  it('invokes the SQS handler with the event', async () => {
-    const sqsEvent = createSqsEvent(2);
-
-    await handler(sqsEvent);
-
     expect(mockSqsHandler).toHaveBeenCalledTimes(1);
     expect(mockSqsHandler).toHaveBeenCalledWith(sqsEvent);
   });
 
-  it('returns the result from the SQS handler', async () => {
+  it('when fails to process a message it returns the id of the failed message', async () => {
     const sqsEvent = createSqsEvent(1);
     const expectedResult = {
       batchItemFailures: [{ itemIdentifier: 'message-id-1' }],

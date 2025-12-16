@@ -3,7 +3,6 @@ import type { NotifyClient } from 'app/notify-api-client';
 import type { SingleMessageRequest } from 'domain/request';
 import { RequestAlreadyReceivedError } from 'domain/request-already-received-error';
 import { EventPublisherFacade } from 'infra/event-publisher-facade';
-import { RequestNotifyError } from 'domain/request-notify-error';
 
 type Dependencies = {
   nhsNotifyClient: NotifyClient;
@@ -42,7 +41,7 @@ export class NotifyMessageProcessor {
         this.logger.info('Request has already been received by Notify', {
           messageReference,
         });
-        return;
+        return undefined;
       }
 
       this.logger.error('Failed processing request', {

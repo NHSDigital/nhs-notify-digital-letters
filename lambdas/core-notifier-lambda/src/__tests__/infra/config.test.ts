@@ -1,4 +1,4 @@
-import { loadConfig, NotifySendMessageConfig } from 'infra/config';
+import { NotifySendMessageConfig, loadConfig } from 'infra/config';
 import { defaultConfigReader } from 'utils';
 
 jest.mock('utils', () => ({
@@ -40,10 +40,7 @@ describe('loadConfig', () => {
       1,
       'EVENT_PUBLISHER_EVENT_BUS_ARN',
     );
-    expect(mockGetValue).toHaveBeenNthCalledWith(
-      2,
-      'EVENT_PUBLISHER_DLQ_URL',
-    );
+    expect(mockGetValue).toHaveBeenNthCalledWith(2, 'EVENT_PUBLISHER_DLQ_URL');
     expect(mockGetValue).toHaveBeenNthCalledWith(
       3,
       'APIM_ACCESS_TOKEN_SSM_PARAMETER_NAME',

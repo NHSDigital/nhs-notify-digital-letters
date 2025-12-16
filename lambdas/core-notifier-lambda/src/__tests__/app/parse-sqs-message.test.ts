@@ -5,14 +5,14 @@ import { parseSqsRecord } from 'app/parse-sqs-message';
 import { InvalidPdmResourceAvailableEvent } from 'domain/invalid-pdm-resource-available-event';
 import { PDMResourceAvailable } from 'digital-letters-events';
 
+// Import the mocked validator after the mock setup
+import { messageDownloadedValidator } from 'digital-letters-events/PDMResourceAvailable.js';
+
 jest.mock('digital-letters-events/PDMResourceAvailable.js', () => ({
   messageDownloadedValidator: jest.fn(),
 }));
 
 const mockLogger = mock<Logger>();
-
-// Import the mocked validator after the mock setup
-const { messageDownloadedValidator } = require('digital-letters-events/PDMResourceAvailable.js');
 
 describe('parseSqsRecord', () => {
   const messageId = 'test-message-id-123';
@@ -89,7 +89,7 @@ describe('parseSqsRecord', () => {
         },
       ];
       (messageDownloadedValidator as jest.Mock).mockReturnValueOnce(false);
-      (messageDownloadedValidator as any).errors = validationErrors;
+      messageDownloadedValidator.errors = validationErrors;
 
       expect(() => parseSqsRecord(sqsRecord, mockLogger)).toThrow(
         InvalidPdmResourceAvailableEvent,

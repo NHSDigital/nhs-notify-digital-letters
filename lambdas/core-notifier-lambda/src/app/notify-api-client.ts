@@ -1,4 +1,4 @@
-import axios, { Axios, AxiosInstance, isAxiosError } from 'axios';
+import axios, { AxiosInstance, isAxiosError } from 'axios';
 import type { AxiosError } from 'axios';
 import type { Readable } from 'node:stream';
 import { constants as HTTP2_CONSTANTS } from 'node:http2';

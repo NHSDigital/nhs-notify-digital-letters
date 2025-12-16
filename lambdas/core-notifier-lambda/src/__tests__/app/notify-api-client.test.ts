@@ -10,7 +10,6 @@ import type { Logger } from 'utils';
 import { mockRequest1, mockResponse } from '__tests__/constants';
 import { IAccessTokenRepository, NotifyClient } from 'app/notify-api-client';
 import { RequestAlreadyReceivedError } from 'domain/request-already-received-error';
-import { RequestNotifyError } from 'domain/request-notify-error';
 
 jest.mock('utils');
 jest.mock('node:crypto');

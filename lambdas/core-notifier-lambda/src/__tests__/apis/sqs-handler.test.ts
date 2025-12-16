@@ -5,7 +5,7 @@ import { PDMResourceAvailable } from 'digital-letters-events';
 import { NotifyMessageProcessor } from 'app/notify-message-processor';
 import { SenderManagement } from 'sender-management';
 import { EventPublisherFacade } from 'infra/event-publisher-facade';
-import { createHandler, SqsHandlerDependencies } from 'apis/sqs-handler';
+import { SqsHandlerDependencies, createHandler } from 'apis/sqs-handler';
 import { parseSqsRecord } from 'app/parse-sqs-message';
 import { InvalidPdmResourceAvailableEvent } from 'domain/invalid-pdm-resource-available-event';
 import { RequestNotifyError } from 'domain/request-notify-error';
@@ -165,7 +165,7 @@ describe('createHandler', () => {
     it('marks the message as failed for retry', async () => {
       const sqsEvent = createSqsEvent(1);
       const handler = createHandler(dependencies);
-      const messageId = sqsEvent.Records[0].messageId;
+      const { messageId } = sqsEvent.Records[0];
 
       mockParseSqsRecord.mockImplementationOnce(() => {
         throw new InvalidPdmResourceAvailableEvent(messageId);
@@ -191,7 +191,7 @@ describe('createHandler', () => {
     it('marks the message as failed for retry since error lacks messageReference', async () => {
       const sqsEvent = createSqsEvent(1);
       const handler = createHandler(dependencies);
-      const messageId = sqsEvent.Records[0].messageId;
+      const { messageId } = sqsEvent.Records[0];
       const errorCode = 'VALIDATION_ERROR';
       const correlationId = 'corr-123';
       const error = new RequestNotifyError(
@@ -224,7 +224,7 @@ describe('createHandler', () => {
     it('publishes rejected event when error has messageReference property', async () => {
       const sqsEvent = createSqsEvent(1);
       const handler = createHandler(dependencies);
-      const messageId = sqsEvent.Records[0].messageId;
+      const { messageId } = sqsEvent.Records[0];
       const errorCode = 'VALIDATION_ERROR';
       const correlationId = 'corr-123';
       const error = new RequestNotifyError(
@@ -269,7 +269,7 @@ describe('createHandler', () => {
     it('marks the message as failed for retry', async () => {
       const sqsEvent = createSqsEvent(1);
       const handler = createHandler(dependencies);
-      const messageId = sqsEvent.Records[0].messageId;
+      const { messageId } = sqsEvent.Records[0];
       const error = new Error('Unexpected error');
 
       mockParseSqsRecord.mockReturnValueOnce(mockPdmEvent);
@@ -325,7 +325,7 @@ describe('createHandler', () => {
 
       mockParseSqsRecord.mockReturnValueOnce(mockPdmEvent);
       mockSenderManagement.getSender.mockReturnValueOnce(mockSender);
-      mockNotifyMessageProcessor.process.mockResolvedValueOnce(undefined);
+      mockNotifyMessageProcessor.process.mockResolvedValueOnce();
 
       const result = await handler(sqsEvent);
 
