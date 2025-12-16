@@ -59,6 +59,7 @@ export function mapPdmEventToMessageRequestSubmitted(
     recordedtime: new Date().toISOString(),
     type: 'uk.nhs.notify.digital.letters.messages.request.submitted.v1',
     dataschema: 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-message-request-submitted-data.schema.json',
+    source: pdmResourceAvailable.source.replace(/\/pdm$/, '/messages'),
     data: {
       messageReference,
       senderId: sender.senderId,
@@ -83,6 +84,7 @@ export function mapPdmEventToMessageRequestSkipped(
     type: 'uk.nhs.notify.digital.letters.messages.request.skipped.v1',
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-message-request-skipped-data.schema.json',
+    source: pdmResourceAvailable.source.replace(/\/pdm$/, '/messages'),
     data: {
       messageReference,
       senderId: sender.senderId,
@@ -106,6 +108,7 @@ export function mapPdmEventToMessageRequestRejected(
     type: 'uk.nhs.notify.digital.letters.messages.request.rejected.v1',
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-message-request-rejected-data.schema.json',
+    source: pdmResourceAvailable.source.replace(/\/pdm$/, '/messages'),
     data: {
       messageReference,
       senderId: sender.senderId,
