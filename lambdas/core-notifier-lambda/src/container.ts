@@ -3,7 +3,7 @@ import { NotifyClient } from 'app/notify-api-client';
 import { NotifyMessageProcessor } from 'app/notify-message-processor';
 import type { SqsHandlerDependencies } from 'apis/sqs-handler';
 import { loadConfig } from 'infra/config';
-import { SenderManagement } from '@sender-management';
+import { SenderManagement } from 'sender-management';
 
 export async function createContainer(): Promise<SqsHandlerDependencies> {
   const parameterStore = new ParameterStoreCache();

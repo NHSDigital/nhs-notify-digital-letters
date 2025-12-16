@@ -220,6 +220,49 @@ describe('createHandler', () => {
         mockEventPublisherFacade.publishMessageRequestRejected,
       ).not.toHaveBeenCalled();
     });
+
+    it('publishes rejected event when error has messageReference property', async () => {
+      const sqsEvent = createSqsEvent(1);
+      const handler = createHandler(dependencies);
+      const messageId = sqsEvent.Records[0].messageId;
+      const errorCode = 'VALIDATION_ERROR';
+      const correlationId = 'corr-123';
+      const error = new RequestNotifyError(
+        new Error('Validation failed'),
+        correlationId,
+        errorCode,
+      );
+      // Add messageReference property dynamically to trigger the terminal error path
+      (error as any).messageReference = messageReference;
+
+      mockParseSqsRecord.mockReturnValueOnce(mockPdmEvent);
+      mockSenderManagement.getSender.mockReturnValueOnce(mockSender);
+      mockNotifyMessageProcessor.process.mockRejectedValueOnce(error);
+
+      const result = await handler(sqsEvent);
+
+      // With messageReference property, it's treated as terminal error and not retried
+      expect(result).toEqual({ batchItemFailures: [] });
+      expect(mockLogger.warn).toHaveBeenCalledWith({
+        error: error.message,
+        description: 'Failed processing message',
+        messageId,
+      });
+      expect(
+        mockEventPublisherFacade.publishMessageRequestRejected,
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockEventPublisherFacade.publishMessageRequestRejected,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            senderId,
+            messageReference,
+            failureCode: errorCode,
+          }),
+        }),
+      );
+    });
   });
 
   describe('when processing throws a generic error', () => {
