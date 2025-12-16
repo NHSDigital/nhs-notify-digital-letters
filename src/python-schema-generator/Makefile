@@ -39,8 +39,8 @@ test: install-dev
 # Generate coverage report
 coverage: install-dev
 	@echo "Generating coverage report..."
-	@cd ../.. && PYTHONPATH=src/python-schema-generator:$$PYTHONPATH pytest src/python-schema-generator/tests/ \
-		--cov=src/python-schema-generator/src \
+	@cd ../.. && pytest src/python-schema-generator/tests/ \
+		--cov=src/python-schema-generator \
 		--cov-config=src/python-schema-generator/pytest.ini \
 		--cov-report=html:src/python-schema-generator/htmlcov \
 		--cov-report=term-missing \
