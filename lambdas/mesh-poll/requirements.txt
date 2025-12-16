@@ -1,0 +1,2 @@
+setuptools>=78.1.1
+-e ../../src/digital-letters-events
