@@ -40,7 +40,7 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      # - name: "Build docs"
-      #   uses: ./.github/actions/build-docs
-      #   with:
-      #     version: "${{ inputs.version }}"
+      - name: "Build docs"
+        uses: ./.github/actions/build-docs
+        with:
+          version: "${{ inputs.version }}"
