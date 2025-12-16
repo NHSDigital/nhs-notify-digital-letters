@@ -1,7 +1,7 @@
 resource "aws_api_gateway_rest_api" "pdm_mock" {
   count = local.deploy_pdm_mock ? 1 : 0
 
-  name        = "${var.project}-${var.environment}-pdm-mock-lambda"
+  name        = "${var.project}-${var.environment}-pdm-mock"
   description = "PDM Mock API for testing integration with Patient Data Manager"
 
   endpoint_configuration {
@@ -9,7 +9,7 @@ resource "aws_api_gateway_rest_api" "pdm_mock" {
   }
 
   tags = {
-    Name        = "${var.project}-${var.environment}-pdm-mock-lambda"
+    Name        = "${var.project}-${var.environment}-pdm-mock"
     Project     = var.project
     Environment = var.environment
     Component   = local.component
@@ -74,7 +74,7 @@ resource "aws_api_gateway_integration" "create_document_reference" {
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = module.pdm_mock_lambda[0].function_invoke_arn
+  uri                     = module.pdm_mock[0].function_invoke_arn
 }
 
 resource "aws_api_gateway_method" "get_document_reference" {
@@ -95,15 +95,15 @@ resource "aws_api_gateway_integration" "get_document_reference" {
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = module.pdm_mock_lambda[0].function_invoke_arn
+  uri                     = module.pdm_mock[0].function_invoke_arn
 }
 
-resource "aws_lambda_permission" "pdm_mock_lambda_gateway" {
+resource "aws_lambda_permission" "pdm_mock_gateway" {
   count = local.deploy_pdm_mock ? 1 : 0
 
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = module.pdm_mock_lambda[0].function_name
+  function_name = module.pdm_mock[0].function_name
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.pdm_mock[0].execution_arn}/*/*"
@@ -147,7 +147,7 @@ resource "aws_api_gateway_stage" "pdm_mock" {
   xray_tracing_enabled = true
 
   access_log_settings {
-    destination_arn = aws_cloudwatch_log_group.pdm_mock_lambda_gateway[0].arn
+    destination_arn = aws_cloudwatch_log_group.pdm_mock_gateway[0].arn
     format = jsonencode({
       requestId      = "$context.requestId"
       ip             = "$context.identity.sourceIp"
@@ -163,34 +163,34 @@ resource "aws_api_gateway_stage" "pdm_mock" {
   }
 
   tags = {
-    Name        = "${var.project}-${var.environment}-pdm-mock-lambda-stage"
+    Name        = "${var.project}-${var.environment}-pdm-mock-stage"
     Project     = var.project
     Environment = var.environment
     Component   = local.component
   }
 }
 
-resource "aws_cloudwatch_log_group" "pdm_mock_lambda_gateway" {
+resource "aws_cloudwatch_log_group" "pdm_mock_gateway" {
   count = local.deploy_pdm_mock ? 1 : 0
 
-  name              = "/aws/apigateway/${var.project}-${var.environment}-pdm-mock-lambda"
+  name              = "/aws/apigateway/${var.project}-${var.environment}-pdm-mock"
   retention_in_days = var.log_retention_in_days
   kms_key_id        = module.kms.key_arn
 
   tags = {
-    Name        = "${var.project}-${var.environment}-pdm-mock-lambda-logs"
+    Name        = "${var.project}-${var.environment}-pdm-mock-logs"
     Project     = var.project
     Environment = var.environment
     Component   = local.component
   }
 }
 
-output "pdm_mock_lambda_endpoint" {
-  description = "The base URL of the PDM Mock Lambda (null when not deployed)"
+output "pdm_mock_endpoint" {
+  description = "The base URL of the PDM Mock (null when not deployed)"
   value       = local.deploy_pdm_mock ? aws_api_gateway_stage.pdm_mock[0].invoke_url : null
 }
 
-output "pdm_mock_lambda_id" {
-  description = "The ID of the PDM Mock Lambda API Gateway (null when not deployed)"
+output "pdm_mock_id" {
+  description = "The ID of the PDM Mock API Gateway (null when not deployed)"
   value       = local.deploy_pdm_mock ? aws_api_gateway_rest_api.pdm_mock[0].id : null
 }

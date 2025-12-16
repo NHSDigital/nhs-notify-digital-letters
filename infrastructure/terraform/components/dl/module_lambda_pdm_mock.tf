@@ -1,8 +1,8 @@
-module "pdm_mock_lambda" {
+module "pdm_mock" {
   count  = local.deploy_pdm_mock ? 1 : 0
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
 
-  function_name = "pdm-mock-lambda"
+  function_name = "pdm-mock"
   description   = "A lambda function for mocking PDM (Patient Data Manager) API endpoints"
 
   aws_account_id = var.aws_account_id
@@ -16,7 +16,7 @@ module "pdm_mock_lambda" {
   kms_key_arn           = module.kms.key_arn
 
   iam_policy_document = {
-    body = data.aws_iam_policy_document.pdm_mock_lambda[0].json
+    body = data.aws_iam_policy_document.pdm_mock[0].json
   }
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
@@ -43,7 +43,7 @@ module "pdm_mock_lambda" {
   }
 }
 
-data "aws_iam_policy_document" "pdm_mock_lambda" {
+data "aws_iam_policy_document" "pdm_mock" {
   count = local.deploy_pdm_mock ? 1 : 0
 
   statement {

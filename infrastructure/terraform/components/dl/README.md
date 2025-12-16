@@ -43,7 +43,7 @@ No requirements.
 | <a name="module_lambda_apim_key_generation"></a> [lambda\_apim\_key\_generation](#module\_lambda\_apim\_key\_generation) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
 | <a name="module_lambda_lambda_apim_refresh_token"></a> [lambda\_lambda\_apim\_refresh\_token](#module\_lambda\_lambda\_apim\_refresh\_token) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
 | <a name="module_mesh_poll"></a> [mesh\_poll](#module\_mesh\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
-| <a name="module_pdm_mock_lambda"></a> [pdm\_mock\_lambda](#module\_pdm\_mock\_lambda) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
+| <a name="module_pdm_mock"></a> [pdm\_mock](#module\_pdm\_mock) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
 | <a name="module_s3bucket_cf_logs"></a> [s3bucket\_cf\_logs](#module\_s3bucket\_cf\_logs) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_letters"></a> [s3bucket\_letters](#module\_s3bucket\_letters) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_static_assets"></a> [s3bucket\_static\_assets](#module\_s3bucket\_static\_assets) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
@@ -58,8 +58,8 @@ No requirements.
 | Name | Description |
 |------|-------------|
 | <a name="output_deployment"></a> [deployment](#output\_deployment) | Deployment details used for post-deployment scripts |
-| <a name="output_pdm_mock_lambda_endpoint"></a> [pdm\_mock\_lambda\_endpoint](#output\_pdm\_mock\_lambda\_endpoint) | The base URL of the PDM Mock Lambda (null when not deployed) |
-| <a name="output_pdm_mock_lambda_id"></a> [pdm\_mock\_lambda\_id](#output\_pdm\_mock\_lambda\_id) | The ID of the PDM Mock Lambda API Gateway (null when not deployed) |
+| <a name="output_pdm_mock_endpoint"></a> [pdm\_mock\_endpoint](#output\_pdm\_mock\_endpoint) | The base URL of the PDM Mock (null when not deployed) |
+| <a name="output_pdm_mock_id"></a> [pdm\_mock\_id](#output\_pdm\_mock\_id) | The ID of the PDM Mock API Gateway (null when not deployed) |
 <!-- vale on -->
 <!-- markdownlint-enable -->
 <!-- END_TF_DOCS -->

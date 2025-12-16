@@ -1,4 +1,4 @@
-# PDM Mock Lambda
+# PDM Mock
 
 This Lambda function provides a mock implementation of the PDM (Patient Data Manager) API for testing purposes. It allows the NHS Notify Digital Letters system to test integration with PDM without requiring access to the actual PDM service.
 
