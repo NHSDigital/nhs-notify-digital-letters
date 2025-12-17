@@ -12,7 +12,7 @@ properties:
     type: string
     description: Identifier that the sender provided during onboarding. Provided in the body of each FHIR resource submitted by the sender.
     examples:
-      - ""
+      - "Trust-12345"
   messageUri:
     type: string
     format: uri

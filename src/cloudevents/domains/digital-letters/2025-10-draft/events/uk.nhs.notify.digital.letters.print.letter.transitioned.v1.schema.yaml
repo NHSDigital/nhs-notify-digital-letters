@@ -15,9 +15,9 @@ properties:
 
   dataschema:
     type: string
-    const: ../data/digital-letters-pdm-resource-unavailable-data.schema.yaml
+    const: ../data/digital-letters-print-letter-transitioned-data.schema.yaml
     description: Canonical URI of the event's data schema.
     examples:
-      - digital-letters-pdm-resource-unavailable-data.schema.yaml
+      - digital-letters-print-letter-transitioned-data.schema.yaml
   data:
-    $ref: ../data/digital-letters-pdm-resource-unavailable-data.schema.yaml
+    $ref: ../data/digital-letters-print-letter-transitioned-data.schema.yaml

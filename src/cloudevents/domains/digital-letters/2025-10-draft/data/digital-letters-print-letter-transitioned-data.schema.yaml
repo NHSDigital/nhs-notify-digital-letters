@@ -4,16 +4,19 @@ description: Base data of the PrintLetterTransitioned event
 type: object
 additionalProperties: false
 properties:
-  subject:
-    $ref: ../defs/print.schema.yaml#/properties/subject
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
   status:
     $ref: ../defs/print.schema.yaml#/properties/status
   supplierId:
     $ref: ../defs/print.schema.yaml#/properties/supplierId
   time:
-    $ref: ../defs/print.schema.yaml#/properties/time
+    $ref: ../defs/core.schema.yaml#/properties/time
 required:
-  - subject
+  - senderId
+  - messageReference
   - status
   - supplierId
   - time
