@@ -2,7 +2,7 @@
 
 ## Overview
 
-The py-mock-mesh library provides a mock implementation of the NHS Notify MESH API using AWS S3, allowing developers to simulate interactions with the MESH service for testing and development purposes.
+The py-mock-mesh library provides a mock implementation of the Digital Letters MESH API using AWS S3, allowing developers to simulate interactions with the MESH service for testing and development purposes.
 
 This library does the following:
 
