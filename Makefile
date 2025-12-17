@@ -48,6 +48,7 @@ clean:: # Clean-up project resources (main) @Operations
 	$(MAKE) -C utils/metric-publishers clean
 	$(MAKE) -C utils/event-publisher-py clean
 	$(MAKE) -C utils/py-mock-mesh clean
+	$(MAKE) -C src/python-schema-generator clean
 	rm -f .version
 	npm run clean
 

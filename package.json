@@ -42,8 +42,10 @@
     "react": "^19.0.0"
   },
   "scripts": {
+    "build-schemas": "make -C src/cloudevents/domains/digital-letters build-no-bundle publish-bundled-json",
     "clean": "npm run clean --workspaces --if-present",
-    "generate-dependencies": "make -C src/cloudevents/domains/digital-letters build-no-bundle publish-bundled-json && npm run generate-dependencies --workspaces --if-present",
+    "generate-dependencies": "npm run build-schemas && npm run generate-dependencies --workspaces --if-present && npm run generate-python-dependencies",
+    "generate-python-dependencies": "make -C src/python-schema-generator generate",
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",
     "start": "npm run start --workspace frontend",
@@ -61,6 +63,7 @@
     "utils/sender-management",
     "src/cloudevents",
     "src/digital-letters-events",
+    "src/python-schema-generator",
     "src/typescript-schema-generator",
     "tests/playwright"
   ]

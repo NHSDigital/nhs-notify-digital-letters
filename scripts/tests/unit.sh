@@ -53,6 +53,10 @@ make -C ./lambdas/mesh-poll coverage  # Run with coverage to generate coverage.x
 echo "Setting up and running mesh-download tests..."
 make -C ./lambdas/mesh-download install-dev
 make -C ./lambdas/mesh-download coverage  # Run with coverage to generate coverage.xml for SonarCloud
+# Python projects - python-schema-generator
+echo "Setting up and running python-schema-generator tests..."
+make -C ./src/python-schema-generator install-dev
+make -C ./src/python-schema-generator coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
 # TypeScript/JavaScript projects (npm workspace)
 # Note: src/cloudevents is included in workspaces, so it will be tested here

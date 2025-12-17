@@ -8,12 +8,10 @@ import standaloneCode from 'ajv/dist/standalone';
 import {
   createOutputDir,
   destinationPackageName,
-  eventSchemasDir,
-  listEventSchemas,
-  loadSchema,
   writeFile,
   writeTypesIndex,
 } from 'file-utils';
+import { eventSchemasDir, listEventSchemas, loadSchema } from 'utils';
 
 export function generateValidators() {
   const ajv = new Ajv({

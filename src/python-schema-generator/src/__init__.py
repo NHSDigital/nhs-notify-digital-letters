@@ -1,0 +1,1 @@
+"""Pydantic model generator package."""

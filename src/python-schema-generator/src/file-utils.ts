@@ -4,8 +4,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-export const destinationPackageName = 'digital-letters-events';
-
 /**
  * Creates the specified output directory if it doesn't exist.
  *
@@ -13,13 +11,7 @@ export const destinationPackageName = 'digital-letters-events';
  * @returns The resolved path to the created directory.
  */
 export function createOutputDir(dirName: string): string {
-  const outputDir = path.resolve(
-    __dirname,
-    '..',
-    '..',
-    destinationPackageName,
-    dirName,
-  );
+  const outputDir = path.resolve(__dirname, dirName);
   mkdirSync(outputDir, { recursive: true });
   return outputDir;
 }
@@ -37,14 +29,4 @@ export function writeFile(
   content: string,
 ): void {
   writeFileSync(path.join(outputDir, fileName), content);
-}
-
-/**
- * Write an index.d.ts file containing all lines provided.
- *
- * @param outputDir The output directory where the index.d.ts file will be written.
- * @param lines The lines to write to the index.d.ts file.
- */
-export function writeTypesIndex(outputDir: string, lines: string[]): void {
-  writeFileSync(path.join(outputDir, 'index.d.ts'), `${lines.join('\n')}\n`);
 }
