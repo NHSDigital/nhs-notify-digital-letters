@@ -2,19 +2,27 @@ import type {
   SingleMessageRequest,
   SingleMessageResponse,
 } from 'domain/request';
+import { Sender } from 'utils';
 
-export const mockRoutingPlanId = 'routing-plan-id';
+import { PDMResourceAvailable } from 'digital-letters-events';
 
 export const mockRequest1: SingleMessageRequest = {
   data: {
     type: 'Message',
     attributes: {
-      routingPlanId: mockRoutingPlanId,
+      routingPlanId: 'routing-plan-id',
       messageReference: 'request-item-id_request-item-plan-id',
       billingReference:
         'test-client-id_test-campaign-id_test-billing-reference',
       recipient: {
         nhsNumber: '9999999786',
+      },
+      originator: {
+        odsCode: 'A12345',
+      },
+      personalisation: {
+        digitalLetterURL:
+          'https://www.nhsapp.service.nhs.uk/digital-letters?letterid=12345',
       },
     },
   },
@@ -48,4 +56,33 @@ export const mockResponse: SingleMessageResponse = {
       self: 'https://some.url/comms/v1/messages/30XcAOfwjq59r72AQTjxL4V7Heg',
     },
   },
+};
+
+export const validPdmEvent: PDMResourceAvailable = {
+  id: 'event-id-123',
+  source: 'urn:nhs:names:services:notify:pdm',
+  specversion: '1.0',
+  type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+  time: '2025-12-15T10:00:00Z',
+  datacontenttype: 'application/json',
+  subject: 'message-subject-123',
+  traceparent: '00-trace-parent',
+  recordedtime: '2025-12-15T10:00:00Z',
+  severitynumber: 2,
+  data: {
+    senderId: 'sender-123',
+    messageReference: 'msg-ref-123',
+    resourceId: 'ResourceId-123',
+    nhsNumber: '9991234566',
+    odsCode: 'A12345',
+  },
+};
+
+export const validSender: Sender = {
+  senderId: 'sender-123',
+  routingConfigId: 'routing-config-123',
+  senderName: 'Test Sender',
+  meshMailboxSenderId: 'meshMailBoxSender-123',
+  meshMailboxReportsId: 'meshMailBoxReports-123',
+  fallbackWaitTimeSeconds: 100,
 };

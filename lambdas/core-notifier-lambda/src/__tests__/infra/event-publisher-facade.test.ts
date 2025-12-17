@@ -42,6 +42,10 @@ describe('EventPublisherFacade', () => {
         type: 'uk.nhs.notify.digital.letters.messages.request.submitted.v1',
         time: '2025-12-15T10:00:00Z',
         datacontenttype: 'application/json',
+        subject: 'subject',
+        traceparent: 'traceparent',
+        recordedtime: '2025-12-15T10:00:00Z',
+        severitynumber: 2,
         data: {
           senderId: 'sender-123',
           messageReference: 'msg-ref-123',
@@ -70,6 +74,10 @@ describe('EventPublisherFacade', () => {
         type: 'uk.nhs.notify.digital.letters.messages.request.rejected.v1',
         time: '2025-12-15T10:00:00Z',
         datacontenttype: 'application/json',
+        subject: 'subject',
+        traceparent: 'traceparent',
+        recordedtime: '2025-12-15T10:00:00Z',
+        severitynumber: 2,
         data: {
           senderId: 'sender-456',
           messageReference: 'msg-ref-456',
@@ -98,6 +106,10 @@ describe('EventPublisherFacade', () => {
         type: 'uk.nhs.notify.digital.letters.messages.request.skipped.v1',
         time: '2025-12-15T10:00:00Z',
         datacontenttype: 'application/json',
+        subject: 'subject',
+        traceparent: 'traceparent',
+        recordedtime: '2025-12-15T10:00:00Z',
+        severitynumber: 2,
         data: {
           senderId: 'sender-789',
           messageReference: 'msg-ref-789',

@@ -3,7 +3,7 @@ import { mock } from 'jest-mock-extended';
 import { Logger } from 'utils';
 import { parseSqsRecord } from 'app/parse-sqs-message';
 import { InvalidPdmResourceAvailableEvent } from 'domain/invalid-pdm-resource-available-event';
-import { PDMResourceAvailable } from 'digital-letters-events';
+import { validPdmEvent } from '__tests__/constants';
 
 // Import the mocked validator after the mock setup
 import { messageDownloadedValidator } from 'digital-letters-events/PDMResourceAvailable.js';
@@ -16,21 +16,6 @@ const mockLogger = mock<Logger>();
 
 describe('parseSqsRecord', () => {
   const messageId = 'test-message-id-123';
-  const validPdmEvent: PDMResourceAvailable = {
-    id: 'event-id-123',
-    source: 'urn:nhs:names:services:notify:pdm',
-    specversion: '1.0',
-    type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
-    time: '2025-12-15T10:00:00Z',
-    datacontenttype: 'application/json',
-    data: {
-      senderId: 'sender-123',
-      messageReference: 'ref-123',
-      resourceId: 'ResourceId-123',
-      nhsNumber: '9991234566',
-      odsCode: 'A12345',
-    },
-  };
 
   const createSqsRecord = (detail: any): SQSRecord => ({
     messageId,

@@ -1,10 +1,11 @@
 import { mock } from 'jest-mock-extended';
-import { ParameterStoreCache, logger } from 'utils';
+import { EventPublisher, ParameterStoreCache, logger } from 'utils';
 import { NotifyClient } from 'app/notify-api-client';
 import { NotifyMessageProcessor } from 'app/notify-message-processor';
-import { SenderManagement } from 'sender-management';
+import { ISenderManagement, SenderManagement } from 'sender-management';
 import { createContainer } from 'container';
 import { loadConfig } from 'infra/config';
+import { EventPublisherFacade } from 'infra/event-publisher-facade';
 
 jest.mock('utils', () => ({
   ParameterStoreCache: jest.fn(),
@@ -15,12 +16,16 @@ jest.mock('utils', () => ({
     warn: jest.fn(),
     debug: jest.fn(),
   },
+  EventPublisher: jest.fn(),
+  eventBridgeClient: {},
+  sqsClient: {},
 }));
 
 jest.mock('app/notify-api-client');
 jest.mock('app/notify-message-processor');
 jest.mock('sender-management');
 jest.mock('infra/config');
+jest.mock('infra/event-publisher-facade');
 
 describe('createContainer', () => {
   const mockParameterStore = mock<ParameterStoreCache>();
@@ -34,9 +39,11 @@ describe('createContainer', () => {
     environment: 'test',
   };
 
-  const mockSenderManagement = mock<SenderManagement>();
+  const mockSenderManagement = mock<ISenderManagement>();
   const mockNotifyClient = mock<NotifyClient>();
   const mockNotifyMessageProcessor = mock<NotifyMessageProcessor>();
+  const mockEventPublisher = mock<EventPublisher>();
+  const mockEventPublisherFacade = mock<EventPublisherFacade>();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -52,6 +59,10 @@ describe('createContainer', () => {
     (NotifyMessageProcessor as jest.Mock).mockImplementation(
       () => mockNotifyMessageProcessor,
     );
+    (EventPublisher as jest.Mock).mockImplementation(() => mockEventPublisher);
+    (EventPublisherFacade as jest.Mock).mockImplementation(
+      () => mockEventPublisherFacade,
+    );
   });
 
   it('creates and returns a container with all dependencies', async () => {
@@ -61,6 +72,7 @@ describe('createContainer', () => {
       notifyMessageProcessor: mockNotifyMessageProcessor,
       logger,
       senderManagement: mockSenderManagement,
+      eventPublisherFacade: mockEventPublisherFacade,
     });
   });
 
@@ -109,6 +121,33 @@ describe('createContainer', () => {
     });
   });
 
+  it('creates EventPublisher instances with config', async () => {
+    await createContainer();
+
+    expect(EventPublisher).toHaveBeenCalledTimes(3);
+    expect(EventPublisher).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventBusArn: mockConfig.eventPublisherEventBusArn,
+        dlqUrl: mockConfig.eventPublisherDlqUrl,
+        logger,
+        sqsClient: expect.any(Object),
+        eventBridgeClient: expect.any(Object),
+      }),
+    );
+  });
+
+  it('creates EventPublisherFacade with event publishers and logger', async () => {
+    await createContainer();
+
+    expect(EventPublisherFacade).toHaveBeenCalledTimes(1);
+    expect(EventPublisherFacade).toHaveBeenCalledWith(
+      mockEventPublisher,
+      mockEventPublisher,
+      mockEventPublisher,
+      logger,
+    );
+  });
+
   it('creates all dependencies in the correct order', async () => {
     const callOrder: string[] = [];
 
@@ -137,6 +176,16 @@ describe('createContainer', () => {
       return mockNotifyMessageProcessor;
     });
 
+    (EventPublisher as jest.Mock).mockImplementation(() => {
+      callOrder.push('EventPublisher');
+      return mockEventPublisher;
+    });
+
+    (EventPublisherFacade as jest.Mock).mockImplementation(() => {
+      callOrder.push('EventPublisherFacade');
+      return mockEventPublisherFacade;
+    });
+
     await createContainer();
 
     expect(callOrder).toEqual([
@@ -145,6 +194,10 @@ describe('createContainer', () => {
       'SenderManagement',
       'NotifyClient',
       'NotifyMessageProcessor',
+      'EventPublisher',
+      'EventPublisher',
+      'EventPublisher',
+      'EventPublisherFacade',
     ]);
   });
 });

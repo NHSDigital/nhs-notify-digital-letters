@@ -15,15 +15,45 @@ import {
 import { parseSqsRecord } from 'app/parse-sqs-message';
 
 import type { NotifyMessageProcessor } from 'app/notify-message-processor';
-import { SenderManagement } from 'sender-management';
+import { ISenderManagement } from 'sender-management';
 import { EventPublisherFacade } from 'infra/event-publisher-facade';
 import { RequestNotifyError } from 'domain/request-notify-error';
 
 export interface SqsHandlerDependencies {
-  notifyMessageProcessor: NotifyMessageProcessor;
   logger: Logger;
-  senderManagement: typeof SenderManagement;
+  notifyMessageProcessor: NotifyMessageProcessor;
+  senderManagement: ISenderManagement;
   eventPublisherFacade: EventPublisherFacade;
+}
+
+async function handlePdmResourceAvailable(
+  eventPublisherFacade: EventPublisherFacade,
+  notifyMessageProcessor: NotifyMessageProcessor,
+  incoming: PDMResourceAvailable,
+  sender: Sender | null,
+): Promise<void> {
+  if (sender === null) {
+    throw new Error(`Sender not found for senderId: ${incoming.data.senderId}`);
+  }
+
+  if (sender.routingConfigId === undefined) {
+    const messageRequestSkipped = mapPdmEventToMessageRequestSkipped(
+      incoming,
+      sender,
+    );
+    eventPublisherFacade.publishMessageRequestSkipped(messageRequestSkipped);
+  } else {
+    const request = mapPdmEventToSingleMessageRequest(incoming, sender);
+    const notifyId = await notifyMessageProcessor.process(request);
+    const messageRequestSubmitted = mapPdmEventToMessageRequestSubmitted(
+      incoming,
+      sender,
+      notifyId,
+    );
+    eventPublisherFacade.publishMessageRequestSubmitted(
+      messageRequestSubmitted,
+    );
+  }
 }
 
 export const createHandler = ({
@@ -39,52 +69,33 @@ export const createHandler = ({
 
     const batchItemFailures: SQSBatchItemFailure[] = [];
     let incoming: PDMResourceAvailable;
-    let sender: Sender;
+    let sender: Sender | null;
 
     await Promise.all(
       sqsEvent.Records.map(async (sqsRecord: SQSRecord) => {
         try {
           incoming = parseSqsRecord(sqsRecord, logger);
-          sender = senderManagement.getSender(incoming.data.senderId);
-
-          if (sender.routingConfigId === undefined) {
-            logger.debug(
-              `No routing config for sender ${sender.senderId}, skipping message`,
-            );
-            eventPublisherFacade.publishMessageRequestSkipped(
-              mapPdmEventToMessageRequestSkipped(incoming, sender),
-            );
-          } else {
-            const request = mapPdmEventToSingleMessageRequest(
-              incoming,
-              senderManagement,
-            );
-            const notifyId = await notifyMessageProcessor.process(request);
-            if (notifyId !== undefined) {
-              eventPublisherFacade.publishMessageRequestSubmitted(
-                mapPdmEventToMessageRequestSubmitted(
-                  incoming,
-                  sender,
-                  notifyId,
-                ),
-              );
-            }
-          }
+          sender = await senderManagement.getSender({
+            senderId: incoming.data.senderId,
+          });
+          await handlePdmResourceAvailable(
+            eventPublisherFacade,
+            notifyMessageProcessor,
+            incoming,
+            sender,
+          );
         } catch (error: any) {
           logger.warn({
             error: error.message,
             description: 'Failed processing message',
             messageId: sqsRecord.messageId,
           });
-          if (
-            error instanceof RequestNotifyError &&
-            'messageReference' in error
-          ) {
+          if (error instanceof RequestNotifyError) {
             // terminal error so we don't retry the message
             eventPublisherFacade.publishMessageRequestRejected(
               mapPdmEventToMessageRequestRejected(
                 incoming,
-                sender,
+                sender!,
                 error.errorCode,
               ),
             );
