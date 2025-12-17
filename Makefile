@@ -32,6 +32,7 @@ clean:: # Clean-up project resources (main) @Operations
 	$(MAKE) -C src/cloudevents clean
 	$(MAKE) -C src/eventcatalogasyncapiimporter clean
 	$(MAKE) -C src/eventcatalogasyncapiimporter clean-output
+	$(MAKE) -C src/python-schema-generator clean
 	rm -f .version
 	npm run clean
 
