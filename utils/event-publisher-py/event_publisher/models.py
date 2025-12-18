@@ -4,14 +4,6 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class CloudEvent(BaseModel):
     # Required fields - NHS Notify CloudEvents profile
-    profileversion: Literal['1.0.0'] = Field(
-        default='1.0.0',
-        description='NHS Notify CloudEvents profile semantic version'
-    )
-    profilepublished: Literal['2025-10'] = Field(
-        default='2025-10',
-        description='NHS Notify CloudEvents profile publication date'
-    )
     specversion: Literal['1.0'] = Field(
         default='1.0',
         description='CloudEvents specification version'
@@ -50,23 +42,19 @@ class CloudEvent(BaseModel):
         ...,
         description='W3C Trace Context traceparent header value'
     )
-    dataschema: str = Field(
-        ...,
-        description='Canonical URI of the event data schema'
-    )
     data: dict[str, Any] = Field(
         ...,
         description='Digital letters payload'
     )
 
     # Optional fields
+    dataschema: Optional[str] = Field(
+        None,
+        description='Canonical URI of the event data schema'
+    )
     datacontenttype: Optional[Literal['application/json']] = Field(
         None,
         description='Media type for the data field'
-    )
-    dataschemaversion: Optional[str] = Field(
-        None,
-        description='Version of the data schema'
     )
     severitytext: Optional[Literal['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL']] = Field(
         None,
@@ -111,7 +99,7 @@ class CloudEvent(BaseModel):
             raise ValueError('Source cannot be empty')
         import re
         # Must match NHS Notify CloudEvents pattern
-        pattern = r'^/nhs/england/notify/(production|staging|development|uat)/(primary|secondary|dev-\d+)/(data-plane|control-plane)/digitalletters/mesh$'
+        pattern = r'^/nhs/england/notify/(production|staging|development|uat)/(primary|secondary|dev-\d+)/data-plane/digitalletters/mesh$'
 
         if not re.match(pattern, v):
             raise ValueError(

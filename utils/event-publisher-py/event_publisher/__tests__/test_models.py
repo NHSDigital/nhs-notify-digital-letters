@@ -9,8 +9,6 @@ class TestCloudEvent:
     @pytest.fixture
     def valid_event(self):
         return {
-            'profileversion': '1.0.0',
-            'profilepublished': '2025-10',
             'id': '550e8400-e29b-41d4-a716-446655440001',
             'specversion': '1.0',
             'source': '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
