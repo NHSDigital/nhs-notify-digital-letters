@@ -9,7 +9,7 @@
     "esbuild": "^0.25.11",
     "eslint": "^9.37.0",
     "eslint-config-airbnb-extended": "^2.3.2",
-    "eslint-config-next": "^15.3.2",
+    "eslint-config-next": "^16.0.10",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.2",
     "eslint-plugin-html": "^8.1.3",
