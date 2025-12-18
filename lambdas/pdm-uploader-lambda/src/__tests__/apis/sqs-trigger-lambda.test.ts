@@ -186,6 +186,34 @@ describe('sqs-trigger-lambda', () => {
       );
     });
 
+    it('should handle unexpected error in validateRecord', async () => {
+      const handler = createHandler({
+        uploadToPdm: mockUploadToPdm,
+        eventPublisher: mockEventPublisher,
+        logger: mockLogger,
+      });
+      const sqsEvent = createValidSQSEvent({
+        Records: [
+          {
+            ...createValidSQSEvent().Records[0],
+            body: 'I-am-not-json',
+          },
+        ],
+      });
+
+      const result = await handler(sqsEvent);
+
+      expect(result.batchItemFailures).toEqual([{ itemIdentifier: 'msg-1' }]);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Error parsing SQS record',
+          err: expect.objectContaining({
+            message: expect.stringContaining('Unexpected token'),
+          }),
+        }),
+      );
+    });
+
     it('should handle invalid message body', async () => {
       const handler = createHandler({
         uploadToPdm: mockUploadToPdm,

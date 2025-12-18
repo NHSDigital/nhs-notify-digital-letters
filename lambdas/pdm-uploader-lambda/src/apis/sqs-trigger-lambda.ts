@@ -12,7 +12,10 @@ import type {
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import pdmResourceSubmittedValidator from 'digital-letters-events/PDMResourceSubmitted.js';
 import pdmResourceSubmissionRejectedValidator from 'digital-letters-events/PDMResourceSubmissionRejected.js';
-import { MESHInboxMessageDownloaded, PDMResourceSubmitted } from 'digital-letters-events';
+import {
+  MESHInboxMessageDownloaded,
+  PDMResourceSubmitted,
+} from 'digital-letters-events';
 import { EventPublisher, Logger } from 'utils';
 
 interface ProcessingResult {
@@ -26,12 +29,15 @@ interface CreateHandlerDependencies {
   logger: Logger;
 }
 
-async function processRecord(
+interface ValidatedRecord {
+  messageId: string;
+  event: MESHInboxMessageDownloaded;
+}
+
+function validateRecord(
   { body, messageId }: { body: string; messageId: string },
-  uploadToPdm: UploadToPdm,
   logger: Logger,
-  batchItemFailures: SQSBatchItemFailure[],
-): Promise<ProcessingResult> {
+): ValidatedRecord | null {
   try {
     const sqsEventBody = JSON.parse(body);
     const sqsEventDetail = sqsEventBody.detail;
@@ -42,20 +48,34 @@ async function processRecord(
         err: messageDownloadedValidator.errors,
         description: 'Error parsing queue entry',
       });
-      batchItemFailures.push({ itemIdentifier: messageId });
-      return { result: { outcome: 'failed' }, item: sqsEventDetail };
+      return null;
     }
 
-    const messageDownloadedEvent: MESHInboxMessageDownloaded = sqsEventDetail;
+    return { messageId, event: sqsEventDetail };
+  } catch (error) {
+    logger.error({
+      err: error,
+      description: 'Error parsing SQS record',
+    });
+    return null;
+  }
+}
 
-    const result = await uploadToPdm.send(messageDownloadedEvent);
+async function processRecord(
+  { event, messageId }: ValidatedRecord,
+  uploadToPdm: UploadToPdm,
+  logger: Logger,
+  batchItemFailures: SQSBatchItemFailure[],
+): Promise<ProcessingResult> {
+  try {
+    const result = await uploadToPdm.send(event);
 
     if (result.outcome === 'failed') {
       batchItemFailures.push({ itemIdentifier: messageId });
-      return { result: { outcome: 'failed' }, item: sqsEventDetail };
+      return { result: { outcome: 'failed' }, item: event };
     }
 
-    return { result, item: sqsEventDetail };
+    return { result, item: event };
   } catch (error) {
     logger.error({
       err: error,
@@ -120,24 +140,25 @@ async function publishSuccessfulEvents(
   if (successfulItems.length === 0) return;
 
   try {
-    const submittedFailedEvents = await eventPublisher.sendEvents<PDMResourceSubmitted>(
-      successfulItems.map(({ event, resourceId }) => ({
-        ...event,
-        id: randomUUID(),
-        time: new Date().toISOString(),
-        recordedtime: new Date().toISOString(),
-        type: 'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
-        dataschema:
-          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.json',
-        source: event.source.replace(/\/mesh$/, '/pdm'),
-        data: {
-          messageReference: event.data.messageReference,
-          senderId: event.data.senderId,
-          resourceId,
-        },
-      })),
-      pdmResourceSubmittedValidator,
-    );
+    const submittedFailedEvents =
+      await eventPublisher.sendEvents<PDMResourceSubmitted>(
+        successfulItems.map(({ event, resourceId }) => ({
+          ...event,
+          id: randomUUID(),
+          time: new Date().toISOString(),
+          recordedtime: new Date().toISOString(),
+          type: 'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.json',
+          source: event.source.replace(/\/mesh$/, '/pdm'),
+          data: {
+            messageReference: event.data.messageReference,
+            senderId: event.data.senderId,
+            resourceId,
+          },
+        })),
+        pdmResourceSubmittedValidator,
+      );
     if (submittedFailedEvents.length > 0) {
       logger.warn({
         description: 'Some successful events failed to publish',
@@ -203,7 +224,17 @@ export const createHandler = ({
   async function handler(sqsEvent: SQSEvent): Promise<SQSBatchResponse> {
     const batchItemFailures: SQSBatchItemFailure[] = [];
 
-    const promises = sqsEvent.Records.map((record) =>
+    const validatedRecords: ValidatedRecord[] = [];
+    for (const record of sqsEvent.Records) {
+      const validated = validateRecord(record, logger);
+      if (validated) {
+        validatedRecords.push(validated);
+      } else {
+        batchItemFailures.push({ itemIdentifier: record.messageId });
+      }
+    }
+
+    const promises = validatedRecords.map((record) =>
       processRecord(record, uploadToPdm, logger, batchItemFailures),
     );
 

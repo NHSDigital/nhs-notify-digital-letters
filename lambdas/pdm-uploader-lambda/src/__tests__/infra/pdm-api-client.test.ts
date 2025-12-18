@@ -155,10 +155,7 @@ describe('PdmClient', () => {
       conditionalRetry.mockRejectedValue(mockError);
 
       await expect(
-        pdmClient.createDocumentReference(
-          mockFhirRequest,
-          mockRequestId,
-        ),
+        pdmClient.createDocumentReference(mockFhirRequest, mockRequestId),
       ).rejects.toThrow('Network error');
 
       expect(mockLogger.error).toHaveBeenCalledWith({

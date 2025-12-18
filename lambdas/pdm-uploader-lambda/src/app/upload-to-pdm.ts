@@ -18,7 +18,7 @@ export class UploadToPdm {
   async send(event: MESHInboxMessageDownloaded): Promise<UploadToPdmResult> {
     try {
       const fhirRequest = await getS3ObjectFromUri(event.data.messageUri);
-      const messageReference = event.data.messageReference;
+      const { messageReference } = event.data;
 
       const response = await this.pdmClient.createDocumentReference(
         fhirRequest,
