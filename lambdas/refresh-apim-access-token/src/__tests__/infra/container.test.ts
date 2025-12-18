@@ -2,7 +2,7 @@ import { createContainer } from 'infra/container';
 
 jest.mock('infra/config', () => ({
   loadConfig: jest.fn(() => ({
-    ssmPrivateKeyParameterName: 'test-parameter-name',
+    apimPrivateKeySsmParameterName: 'test-parameter-name',
   })),
 }));
 
