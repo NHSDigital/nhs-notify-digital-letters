@@ -8,6 +8,18 @@ import messageRequestSubmittedValidator from 'digital-letters-events/MessageRequ
 import messageRequestRejectedValidator from 'digital-letters-events/MessageRequestRejected.js';
 import messageRequestSkippedValidator from 'digital-letters-events/MessageRequestSkipped.js';
 
+const submittedEventValidator = messageRequestSubmittedValidator as (
+  d: unknown,
+) => d is MessageRequestSubmitted;
+
+const rejectedEventValidator = messageRequestRejectedValidator as (
+  d: unknown,
+) => d is MessageRequestRejected;
+
+const skippedEventValidator = messageRequestSkippedValidator as (
+  d: unknown,
+) => d is MessageRequestSkipped;
+
 export class EventPublisherFacade {
   constructor(
     private readonly messageRequestSubmittedEventPublisher: EventPublisher,
@@ -24,7 +36,7 @@ export class EventPublisherFacade {
     );
     this.messageRequestSubmittedEventPublisher.sendEvents<MessageRequestSubmitted>(
       [event],
-      messageRequestSubmittedValidator,
+      submittedEventValidator,
     );
   }
 
@@ -36,7 +48,7 @@ export class EventPublisherFacade {
     );
     this.messageRequestRejectedEventPublisher.sendEvents<MessageRequestRejected>(
       [event],
-      messageRequestRejectedValidator,
+      rejectedEventValidator,
     );
   }
 
@@ -48,7 +60,7 @@ export class EventPublisherFacade {
     );
     this.messageRequestSkippedEventPublisher.sendEvents<MessageRequestSkipped>(
       [event],
-      messageRequestSkippedValidator,
+      skippedEventValidator,
     );
   }
 }

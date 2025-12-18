@@ -6,10 +6,10 @@ import { InvalidPdmResourceAvailableEvent } from 'domain/invalid-pdm-resource-av
 import { validPdmEvent } from '__tests__/constants';
 
 // Import the mocked validator after the mock setup
-import { messageDownloadedValidator } from 'digital-letters-events/PDMResourceAvailable.js';
+import { messagePDMResourceAvailableValidator } from 'digital-letters-events/PDMResourceAvailable.js';
 
 jest.mock('digital-letters-events/PDMResourceAvailable.js', () => ({
-  messageDownloadedValidator: jest.fn(),
+  messagePDMResourceAvailableValidator: jest.fn(),
 }));
 
 const mockLogger = mock<Logger>();
@@ -43,7 +43,9 @@ describe('parseSqsRecord', () => {
   describe('when SQS record contains a valid PDMResourceAvailable event', () => {
     it('parses and returns the PDMResourceAvailable event', () => {
       const sqsRecord = createSqsRecord(validPdmEvent);
-      (messageDownloadedValidator as jest.Mock).mockReturnValueOnce(true);
+      (messagePDMResourceAvailableValidator as jest.Mock).mockReturnValueOnce(
+        true,
+      );
 
       const result = parseSqsRecord(sqsRecord, mockLogger);
 
@@ -57,7 +59,9 @@ describe('parseSqsRecord', () => {
           messageId,
         },
       );
-      expect(messageDownloadedValidator).toHaveBeenCalledWith(validPdmEvent);
+      expect(messagePDMResourceAvailableValidator).toHaveBeenCalledWith(
+        validPdmEvent,
+      );
     });
   });
 
@@ -74,8 +78,10 @@ describe('parseSqsRecord', () => {
           message: "must have required property 'senderId'",
         },
       ];
-      (messageDownloadedValidator as jest.Mock).mockReturnValueOnce(false);
-      messageDownloadedValidator.errors = validationErrors;
+      (messagePDMResourceAvailableValidator as jest.Mock).mockReturnValueOnce(
+        false,
+      );
+      messagePDMResourceAvailableValidator.errors = validationErrors;
 
       expect(() => parseSqsRecord(sqsRecord, mockLogger)).toThrow(
         InvalidPdmResourceAvailableEvent,
