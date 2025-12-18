@@ -35,8 +35,6 @@ def create_valid_cloud_event():
     Create a valid CloudEvent for testing
     """
     return {
-        'profileversion': '1.0.0',
-        'profilepublished': '2025-10',
         'id': str(uuid4()),
         'specversion': '1.0',
         'source': '/nhs/england/notify/development/primary/data-plane/digitalletters/mesh',
@@ -47,8 +45,7 @@ def create_valid_cloud_event():
         'severitynumber': 2,
         'severitytext': 'INFO',
         'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-        'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letters-mesh-inbox-message-received-data.schema.json',
-        'dataschemaversion': '1.0',
+        'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json',
         'data': {
             'meshMessageId': 'test_message_123',
             'senderId': 'TEST_SENDER',

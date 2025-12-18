@@ -4,7 +4,7 @@ VERSION=0.1.0
 install:
 	pip install -r requirements.txt
 
-install-dev: install
+install-dev:
 	pip install -r requirements-dev.txt
 
 test:

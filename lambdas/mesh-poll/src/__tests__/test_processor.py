@@ -15,9 +15,11 @@ def setup_mocks():
     config = Mock()
     config.maximum_runtime_milliseconds = "500"
     config.ssm_prefix = "/dl/test/mesh"
+    config.environment = "development"
 
     sender_lookup = Mock()
     sender_lookup.is_valid_sender.return_value = True  # Default to valid sender
+    sender_lookup.get_sender_id.return_value = "test-sender-id"
 
     mesh_client = Mock(spec=MeshClient)
 

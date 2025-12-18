@@ -115,7 +115,7 @@ class MeshDownloadProcessor:
             'recordedtime': now,
             'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
             'dataschema': (
-                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/'
+                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/'
                 'digital-letters-mesh-inbox-message-downloaded-data.schema.json'
             ),
             'data': {
