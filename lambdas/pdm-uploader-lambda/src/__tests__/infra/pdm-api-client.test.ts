@@ -197,43 +197,4 @@ describe('PdmClient', () => {
       });
     });
   });
-
-  describe('isAccessible', () => {
-    it('should return true when service is accessible', async () => {
-      mockAxiosInstance.head.mockResolvedValue({});
-
-      const result = await pdmClient.isAccessible();
-
-      expect(mockAccessTokenRepository.getAccessToken).toHaveBeenCalled();
-      expect(mockAxiosInstance.head).toHaveBeenCalledWith('/', {
-        headers: { Authorization: 'Bearer mock-access-token' },
-      });
-      expect(result).toBe(true);
-    });
-
-    it('should return false and log error when service is not accessible', async () => {
-      const mockError = new Error('Connection failed');
-      mockAxiosInstance.head.mockRejectedValue(mockError);
-
-      const result = await pdmClient.isAccessible();
-
-      expect(result).toBe(false);
-      expect(mockLogger.error).toHaveBeenCalledWith({
-        description: 'NHS API Unavailable',
-        err: mockError,
-      });
-    });
-
-    it('should handle empty access token in accessibility check', async () => {
-      mockAccessTokenRepository.getAccessToken.mockResolvedValue('');
-      mockAxiosInstance.head.mockResolvedValue({});
-
-      const result = await pdmClient.isAccessible();
-
-      expect(mockAxiosInstance.head).toHaveBeenCalledWith('/', {
-        headers: { Authorization: 'Bearer ' },
-      });
-      expect(result).toBe(true);
-    });
-  });
 });

@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, isAxiosError } from 'axios';
 import { constants as HTTP2_CONSTANTS } from 'node:http2';
 import {
-  IAccessibleService,
   Logger,
   PdmResponse,
   RetryConfig,
@@ -20,7 +19,7 @@ export interface IPdmClient {
   ): Promise<PdmResponse>;
 }
 
-export class PdmClient implements IPdmClient, IAccessibleService {
+export class PdmClient implements IPdmClient {
   private client: AxiosInstance;
 
   constructor(
@@ -91,22 +90,6 @@ export class PdmClient implements IPdmClient, IAccessibleService {
       });
 
       throw error;
-    }
-  }
-
-  public async isAccessible(): Promise<boolean> {
-    try {
-      const accessToken = await this.accessTokenRepository.getAccessToken();
-      await this.client.head('/', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      return true;
-    } catch (error: any) {
-      this.logger.error({
-        description: 'NHS API Unavailable',
-        err: error,
-      });
-      return false;
     }
   }
 }
