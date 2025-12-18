@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, isAxiosError } from 'axios';
-import type { Readable } from 'node:stream';
 import { constants as HTTP2_CONSTANTS } from 'node:http2';
 import {
   IAccessibleService,
@@ -12,10 +11,6 @@ import {
 export interface IAccessTokenRepository {
   getAccessToken(): Promise<string>;
 }
-
-export type Response = {
-  data: Readable;
-};
 
 export interface IPdmClient {
   createDocumentReference(
