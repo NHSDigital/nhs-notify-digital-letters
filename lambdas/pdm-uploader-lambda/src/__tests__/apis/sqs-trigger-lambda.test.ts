@@ -211,6 +211,7 @@ describe('sqs-trigger-lambda', () => {
       const result = await handler(sqsEvent);
 
       expect(result.batchItemFailures).toEqual([{ itemIdentifier: 'msg-1' }]);
+      expect(mockEventPublisher.sendEvents).not.toHaveBeenCalled();
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Error parsing SQS record',
@@ -239,6 +240,7 @@ describe('sqs-trigger-lambda', () => {
       const result = await handler(sqsEvent);
 
       expect(result.batchItemFailures).toEqual([{ itemIdentifier: 'msg-1' }]);
+      expect(mockEventPublisher.sendEvents).not.toHaveBeenCalled();
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Error parsing queue entry',
