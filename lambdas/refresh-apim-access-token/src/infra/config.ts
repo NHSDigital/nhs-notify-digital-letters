@@ -2,9 +2,7 @@ import { defaultConfigReader } from 'utils';
 
 export function loadConfig() {
   return {
-    apimAuthTokenUrl: defaultConfigReader.getValue(
-      'APIM_AUTH_TOKEN_URL',
-    ),
+    apimAuthTokenUrl: defaultConfigReader.getValue('APIM_AUTH_TOKEN_URL'),
     apimAccessTokenSsmParameterName: defaultConfigReader.getValue(
       'APIM_ACCESS_TOKEN_SSM_PARAMETER_NAME',
     ),
