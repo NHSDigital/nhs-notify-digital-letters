@@ -1,11 +1,15 @@
 ---
-layout: page
-title: PDM Saver - C4 Code
-parent:  PDM - C4 Component
+
+title: PDM Uploader
+parent:  PDM Services
 nav_order: 1
 has_children: true
 is_not_draft: false
-last_modified_date: 2024-05-28
+last_modified_date: 2025-10-24
 owner: Ross Buggins
-author: Ross Buggins
+author: Tom D'Roza
+diagrams: [c4code-pdm-upload, sequence-pdm-upload]
+events-raised: [pdm-resource-submitted]
+events-consumed: [mesh-inbox-message-downloaded]
+c4type: code
 ---

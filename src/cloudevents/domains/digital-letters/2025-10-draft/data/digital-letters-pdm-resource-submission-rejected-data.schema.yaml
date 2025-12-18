@@ -1,0 +1,12 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: PDMResourceSubmissionRejected Data
+description: Base data of the PDMResourceSubmissionRejected event
+additionalProperties: false
+properties:
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+required:
+  - messageReference
+  - senderId

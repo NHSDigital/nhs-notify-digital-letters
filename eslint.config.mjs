@@ -77,7 +77,6 @@ export default defineConfig([
       'import-x/resolver-next': [
         eslintImportResolverTypescript.createTypeScriptImportResolver({
           project: [
-            'frontend/tsconfig.json',
             'lambdas/*/tsconfig.json',
             'tests/test-team/tsconfig.json',
             'utils/*/tsconfig.json',
@@ -140,7 +139,7 @@ export default defineConfig([
 
   // prettier
   prettierRecommended,
-  { rules: { ...prettierConfigRules, 'prettier/prettier': 2 } },
+  { rules: { ...prettierConfigRules, 'prettier/prettier': ['error', { singleQuote: true }] } },
 
   // jsxA11y
   {
@@ -168,20 +167,6 @@ export default defineConfig([
     files: ['**/*.html'],
     plugins: { html },
   },
-
-  // Next.js
-  ...compat.config({
-    extends: ['next', 'next/core-web-vitals', 'next/typescript'],
-    settings: {
-      next: {
-        rootDir: 'frontend',
-      },
-    },
-    rules: {
-      // needed because next lint rules look for a pages directory
-      '@next/next/no-html-link-for-pages': 0,
-    },
-  }),
 
   // json
   {
@@ -244,6 +229,13 @@ export default defineConfig([
     },
   },
   {
+    files: ['utils/**', '**/jest.config.ts'],
+    rules: {
+      'no-relative-import-paths/no-relative-import-paths': 0,
+      'import-x/no-relative-packages': 0,
+    },
+  },
+  {
     files: ['scripts/**'],
     rules: {
       'import-x/no-extraneous-dependencies': [
@@ -261,6 +253,7 @@ export default defineConfig([
       'no-await-in-loop': 0,
       'no-plusplus': [2, { allowForLoopAfterthoughts: true }],
       'unicorn/prefer-top-level-await': 0, // top level await is not available in commonjs
+      'import-x/prefer-default-export': "off"
     },
   },
 ]);

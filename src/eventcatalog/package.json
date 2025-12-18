@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "@eventcatalog/core": "2.64.3"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "name": "digital-letters",
+  "private": true,
+  "scripts": {
+    "build": "npx eventcatalog build --",
+    "dev": "npx eventcatalog dev --",
+    "generate": "eventcatalog generate",
+    "preview": "eventcatalog preview",
+    "start": "eventcatalog start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "0.1.0"
+}

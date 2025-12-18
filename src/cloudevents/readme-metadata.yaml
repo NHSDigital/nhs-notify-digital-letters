@@ -1,0 +1,9 @@
+# README Metadata
+#
+# This file contains manually curated metadata for the README generation.
+# Edit this file to customize domain purposes and schema labels.
+
+# Domain purposes
+domains:
+  digital-letters:
+    purpose: "Production domain for digital letters events"

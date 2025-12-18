@@ -1,0 +1,16 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: MESHInboxMessageDownloaded Data
+description: Data payload of the MESHInboxMessageDownloaded event
+type: object
+additionalProperties: false
+properties:
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  messageUri:
+    $ref: ../defs/requests.schema.yaml#/properties/messageUri
+required:
+  - messageReference
+  - senderId
+  - messageUri

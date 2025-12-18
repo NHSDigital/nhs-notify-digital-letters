@@ -1,45 +1,10 @@
 {
   "folders": [
     {
-      "name": "NHS Notify Digital Letters",
+      "name": "Digital Letters",
       "path": "."
-    },
-    {
-      "name": "Application Source Code",
-      "path": "./src"
-    },
-    {
-      "name": "Schemas",
-      "path": "./schemas"
-    },
-    {
-      "name": "Docs",
-      "path": "./docs"
-    },
-    {
-      "name": "Tests",
-      "path": "./tests"
-    },
-    {
-      "name": "Infrastructure",
-      "path": "./infrastructure"
-    },
-    {
-      "name": "Scripts",
-      "path": "./scripts"
-    },
-    {
-      "name": "GitHub",
-      "path": ".github"
-    },
-    {
-      "name": "Git Hooks",
-      "path": "./.git/hooks"
-    },
-    {
-      "name": "Dev Container",
-      "path": ".devcontainer"
     }
+
   ],
   "settings": {
     "rubyLsp.formatter": "auto",
@@ -106,7 +71,13 @@
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "window.title": "${separator}${activeRepositoryName}${separator}${activeRepositoryBranchName}${separator}[${remoteName}]",
-    "window.titleSeparator": " : "
+    "window.titleSeparator": " : ",
+    "chat.instructionsFilesLocations": {
+      ".github": true,
+      ".github/copilot-instructions.md": true,
+      ".github/instructions": true
+    },
+    "terminal.integrated.scrollback": 10000
   },
   "extensions": {
     "recommendations": [

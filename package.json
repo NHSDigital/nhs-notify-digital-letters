@@ -1,11 +1,12 @@
 {
-  "//": "PLEASE UPDATE THE NAME AND WORKSPACES APPROPRIATELY.",
   "devDependencies": {
+    "@stylistic/eslint-plugin": "^3.1.0",
+    "@stylistic/eslint-plugin-ts": "^4.4.1",
     "@tsconfig/node22": "^22.0.2",
     "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.46.1",
-    "esbuild": "^0.25.10",
+    "esbuild": "^0.25.11",
     "eslint": "^9.37.0",
     "eslint-config-airbnb-extended": "^2.3.2",
     "eslint-config-next": "^15.3.2",
@@ -30,9 +31,10 @@
     "lcov-result-merger": "^5.0.1",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "typescript-eslint": "^8.46.1"
   },
-  "name": "nhs-notify-repository-template",
+  "name": "nhs-notify-digital-letters",
   "overrides": {
     "pretty-format": {
       "react-is": "19.0.0"
@@ -48,6 +50,14 @@
     "typecheck": "npm run typecheck --workspaces"
   },
   "workspaces": [
-    "lambdas/example-lambda"
+    "lambdas/key-generation",
+    "lambdas/refresh-apim-access-token",
+    "lambdas/mesh-poll",
+    "lambdas/ttl-create-lambda",
+    "lambdas/ttl-handle-expiry-lambda",
+    "lambdas/ttl-poll-lambda",
+    "utils/utils",
+    "src/cloudevents",
+    "tests/playwright"
   ]
 }

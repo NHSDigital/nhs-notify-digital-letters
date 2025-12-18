@@ -1,0 +1,11 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Request data
+description: Reusable types for NHS Notify payload schemas.
+type: object
+properties:
+  reportUri:
+    type: string
+    format: uri
+    description: Uri to the storage location of the generated status report
+    examples:
+      - "s3://my-bucket/path/to/my-report"

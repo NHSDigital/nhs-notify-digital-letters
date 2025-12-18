@@ -1,0 +1,12 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$defs:
+  messageStatus:
+    type: string
+    description: Current status of the message.
+    enum:
+      - queued
+      - processing
+      - sent
+      - failed
+    examples:
+      - sent

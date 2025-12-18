@@ -185,7 +185,7 @@ export function MermaidInit(addlinks = true) {
       name: "aws",
       loader: () =>
         fetch(
-          "../../../assets/aws-icons-mermaid.json"
+          "https://raw.githubusercontent.com/NHSDigital/nhs-notify-digital-letters/refs/heads/main/docs/assets/aws-icons-mermaid.json"
         ).then((res) => res.json()),
     },
   ]);

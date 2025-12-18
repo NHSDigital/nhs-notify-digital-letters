@@ -1,0 +1,19 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: MessageRequestRejected Data
+description: Data payload of the MessageRequestRejected event
+type: object
+additionalProperties: false
+properties:
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  messageUri:
+    $ref: ../defs/requests.schema.yaml#/properties/messageUri
+  failureCode:
+    $ref: ../defs/core.schema.yaml#/properties/failureCode
+required:
+  - messageReference
+  - senderId
+  - messageUri
+  - failureCode

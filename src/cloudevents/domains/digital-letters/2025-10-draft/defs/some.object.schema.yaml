@@ -1,0 +1,12 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Some Object
+description: Reusable types for NHS Notify payload schemas.
+type: object
+properties:
+  something:
+    type: string
+    description: Example reusable property definition
+    examples:
+      - "example value"
+required:
+  - something

@@ -1,0 +1,64 @@
+BASE_URL ?=
+EVENT_CAT_PATH ?= /events/
+
+# define fullpath =
+# $(if $(BASE_URL),$(BASE_URL)$(EVENT_CAT_PATH),$(EVENT_CAT_PATH))
+# endef
+
+fullpath = $(BASE_URL)
+
+define baseurlparam =
+-- --base=$(fullpath)
+endef
+
+
+
+rebuild-static: install-serve-static clean-static build-static serve-static
+
+install-serve-static:
+	npm install --save-dev http-server
+
+clean-static:
+	rm -rf .preview
+	rm -rf dist
+
+show-info-static:
+	@echo "Base path is: $(BASE_URL)"
+	@echo "Event cat path is: $(EVENT_CAT_PATH)"
+	@echo "Full path is: $(fullpath)"
+	@echo "Base param is: $(baseurlparam)"
+
+build-static: show-info-static
+	npx eventcatalog build $(baseurlparam)
+
+serve-static:
+	@echo "Setting up preview server structure..."
+	@mkdir -p .preview$(fullpath)
+	@cp -r dist/* .preview$(fullpath)/
+	@echo "Starting static server..."
+	@echo "Navigate to: http://localhost:8080$(fullpath)"
+	npx http-server .preview -p 8080 -o $(fullpath)
+
+
+
+
+
+
+build: clean
+	@echo "Base URL is: $(fullpath)"
+	@echo "Base param is: $(baseurlparam)"
+	ls -la
+	make -C ../asyncapigenerator generate
+	make -C ../eventcatalogasyncapiimporter import
+	npm install
+	npm run build $(baseurlparam)
+
+
+serve:
+	npm run dev
+
+clean:
+	rm -rf .eventcatalog-core
+	rm -rf dist
+	rm -rf node_modules
+	rm -rf .preview
