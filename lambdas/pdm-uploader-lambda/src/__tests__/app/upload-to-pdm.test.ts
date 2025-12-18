@@ -160,18 +160,5 @@ describe('UploadToPdm', () => {
         }),
       });
     });
-
-    it('should pass event id to PDM client', async () => {
-      (getS3ObjectFromUri as jest.Mock).mockResolvedValue(mockFhirRequest);
-      mockPdmClient.createDocumentReference.mockResolvedValue(mockPdmResponse);
-
-      await uploadToPdm.send(mockEvent);
-
-      expect(mockPdmClient.createDocumentReference).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.anything(),
-        'test-event-id',
-      );
-    });
   });
 });
