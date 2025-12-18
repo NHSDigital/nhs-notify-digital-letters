@@ -62,7 +62,6 @@ describe('PdmClient', () => {
       resourceType: 'DocumentReference',
     });
     const mockRequestId = 'req-123';
-    const mockCorrelationId = 'corr-456';
 
     it('should successfully create document reference', async () => {
       const mockResponse = { data: { id: 'doc-123' } };
@@ -89,7 +88,6 @@ describe('PdmClient', () => {
       expect(result).toEqual(mockResponse.data);
       expect(mockLogger.debug).toHaveBeenCalledWith({
         requestId: mockRequestId,
-        correlationId: mockCorrelationId,
         description: 'Sending request',
         attempt: 1,
       });
@@ -166,7 +164,6 @@ describe('PdmClient', () => {
       expect(mockLogger.error).toHaveBeenCalledWith({
         description: 'Failed sending PDM request',
         requestId: mockRequestId,
-        correlationId: mockCorrelationId,
         err: mockError,
       });
     });

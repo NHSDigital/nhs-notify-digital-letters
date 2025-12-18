@@ -80,8 +80,7 @@ describe('UploadToPdm', () => {
       expect(getS3ObjectFromUri).toHaveBeenCalledWith('s3://bucket/key');
       expect(mockPdmClient.createDocumentReference).toHaveBeenCalledWith(
         mockFhirRequest,
-        expect.any(String),
-        'test-event-id',
+        'test-message-reference',
       );
       expect(result).toEqual({
         outcome: 'sent',
@@ -96,17 +95,6 @@ describe('UploadToPdm', () => {
         }),
       );
       expect(mockLogger.error).not.toHaveBeenCalled();
-    });
-
-    it('should generate unique requestId for each call', async () => {
-      (getS3ObjectFromUri as jest.Mock).mockResolvedValue(mockFhirRequest);
-      mockPdmClient.createDocumentReference.mockResolvedValue(mockPdmResponse);
-
-      await uploadToPdm.send(mockEvent);
-      await uploadToPdm.send(mockEvent);
-
-      const { calls } = mockPdmClient.createDocumentReference.mock;
-      expect(calls[0][1]).not.toEqual(calls[1][1]);
     });
 
     it('should return failed outcome when getS3ObjectFromUri throws error', async () => {

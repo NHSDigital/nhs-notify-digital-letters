@@ -18,19 +18,17 @@ export class UploadToPdm {
   async send(event: MESHInboxMessageDownloaded): Promise<UploadToPdmResult> {
     try {
       const fhirRequest = await getS3ObjectFromUri(event.data.messageUri);
-      const requestId = crypto.randomUUID();
+      const messageReference = event.data.messageReference;
 
       const response = await this.pdmClient.createDocumentReference(
         fhirRequest,
-        requestId,
-        event.id,
+        messageReference,
       );
 
       this.logger.info({
         description: 'Successfully sent request to PDM',
         eventId: event.id,
-        messageReference: event.data.messageReference,
-        requestId,
+        messageReference,
         resourceId: response.id,
       });
 
