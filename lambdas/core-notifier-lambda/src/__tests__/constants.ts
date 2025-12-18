@@ -60,19 +60,20 @@ export const mockResponse: SingleMessageResponse = {
 
 export const validPdmEvent: PDMResourceAvailable = {
   id: 'event-id-123',
-  source: 'urn:nhs:names:services:notify:pdm',
+  source:
+    '/nhs/england/notify/development/dev-12345/data-plane/digitalletters/pdm',
   specversion: '1.0',
   type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
   time: '2025-12-15T10:00:00Z',
   datacontenttype: 'application/json',
   subject: 'message-subject-123',
-  traceparent: '00-trace-parent',
+  traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
   recordedtime: '2025-12-15T10:00:00Z',
   severitynumber: 2,
   data: {
     senderId: 'sender-123',
     messageReference: 'msg-ref-123',
-    resourceId: 'ResourceId-123',
+    resourceId: 'f5524783-e5d7-473e-b2a0-29582ff231da',
     nhsNumber: '9991234566',
     odsCode: 'A12345',
   },
