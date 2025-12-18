@@ -110,9 +110,16 @@ describe('sqs-trigger-lambda', () => {
     });
 
     it('should process multiple messages successfully', async () => {
-      mockRandomUUID.mockReturnValueOnce('11111111-1111-1111-1111-111111111111');
-      mockRandomUUID.mockReturnValueOnce('22222222-2222-2222-2222-222222222222');
-      mockUploadToPdm.send.mockResolvedValue({ outcome: 'sent', resourceId: 'resource-123' });
+      mockRandomUUID.mockReturnValueOnce(
+        '11111111-1111-1111-1111-111111111111',
+      );
+      mockRandomUUID.mockReturnValueOnce(
+        '22222222-2222-2222-2222-222222222222',
+      );
+      mockUploadToPdm.send.mockResolvedValue({
+        outcome: 'sent',
+        resourceId: 'resource-123',
+      });
       const handler = createHandler({
         uploadToPdm: mockUploadToPdm,
         eventPublisher: mockEventPublisher,
