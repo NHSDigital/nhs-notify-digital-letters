@@ -1,11 +1,6 @@
 import axios, { AxiosInstance, isAxiosError } from 'axios';
 import { constants as HTTP2_CONSTANTS } from 'node:http2';
-import {
-  Logger,
-  PdmResponse,
-  RetryConfig,
-  conditionalRetry,
-} from 'utils';
+import { Logger, PdmResponse, RetryConfig, conditionalRetry } from 'utils';
 
 export interface IAccessTokenRepository {
   getAccessToken(): Promise<string>;
@@ -15,7 +10,6 @@ export interface IPdmClient {
   createDocumentReference(
     fhirRequest: string,
     requestId: string,
-    correlationId?: string,
   ): Promise<PdmResponse>;
 }
 
@@ -41,7 +35,6 @@ export class PdmClient implements IPdmClient {
   public async createDocumentReference(
     fhirRequest: string,
     requestId: string,
-    correlationId?: string,
   ): Promise<PdmResponse> {
     try {
       return await conditionalRetry(
@@ -50,7 +43,6 @@ export class PdmClient implements IPdmClient {
 
           this.logger.debug({
             requestId,
-            correlationId,
             description: 'Sending request',
             attempt,
           });
@@ -58,7 +50,6 @@ export class PdmClient implements IPdmClient {
           const headers = {
             'Content-Type': 'application/json',
             'X-Request-ID': requestId,
-            'X-Correlation-ID': correlationId,
             ...(accessToken === ''
               ? {}
               : {
@@ -85,7 +76,6 @@ export class PdmClient implements IPdmClient {
       this.logger.error({
         description: 'Failed sending PDM request',
         requestId,
-        correlationId,
         err: error,
       });
 

@@ -72,7 +72,6 @@ describe('PdmClient', () => {
       const result = await pdmClient.createDocumentReference(
         mockFhirRequest,
         mockRequestId,
-        mockCorrelationId,
       );
 
       expect(mockAccessTokenRepository.getAccessToken).toHaveBeenCalled();
@@ -83,7 +82,6 @@ describe('PdmClient', () => {
           headers: {
             'Content-Type': 'application/json',
             'X-Request-ID': mockRequestId,
-            'X-Correlation-ID': mockCorrelationId,
             Authorization: 'Bearer mock-access-token',
           },
         },
@@ -95,27 +93,6 @@ describe('PdmClient', () => {
         description: 'Sending request',
         attempt: 1,
       });
-    });
-
-    it('should handle request without correlation ID', async () => {
-      const mockResponse = { data: { id: 'doc-123' } };
-      conditionalRetry.mockImplementation(async (fn: any) => fn(1));
-      mockAxiosInstance.post.mockResolvedValue(mockResponse);
-
-      await pdmClient.createDocumentReference(mockFhirRequest, mockRequestId);
-
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith(
-        '/patient-data-manager/FHIR/R4/DocumentReference',
-        mockFhirRequest,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Request-ID': mockRequestId,
-            'X-Correlation-ID': undefined,
-            Authorization: 'Bearer mock-access-token',
-          },
-        },
-      );
     });
 
     it('should handle empty access token', async () => {
@@ -133,7 +110,6 @@ describe('PdmClient', () => {
           headers: {
             'Content-Type': 'application/json',
             'X-Request-ID': mockRequestId,
-            'X-Correlation-ID': undefined,
           },
         },
       );
@@ -157,7 +133,6 @@ describe('PdmClient', () => {
       const result = await pdmClient.createDocumentReference(
         mockFhirRequest,
         mockRequestId,
-        mockCorrelationId,
       );
 
       expect(result).toEqual(mockResponse.data);
@@ -185,7 +160,6 @@ describe('PdmClient', () => {
         pdmClient.createDocumentReference(
           mockFhirRequest,
           mockRequestId,
-          mockCorrelationId,
         ),
       ).rejects.toThrow('Network error');
 
