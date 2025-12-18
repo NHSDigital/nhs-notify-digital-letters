@@ -6,7 +6,7 @@ module "sqs_core_notifier" {
   environment    = var.environment
   project        = var.project
   region         = var.region
-  name           = "core-notifier"
+  name           = "core"
 
   sqs_kms_key_arn = module.kms.key_arn
 

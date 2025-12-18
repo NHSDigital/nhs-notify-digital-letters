@@ -103,7 +103,7 @@ data "aws_iam_policy_document" "core_notifier_lambda" {
   }
 
   statement {
-    sid    = "SQSPermissionsEventPublisherDLQ"
+    sid    = "SQSPermissionsDLQ"
     effect = "Allow"
 
     actions = [
@@ -112,6 +112,7 @@ data "aws_iam_policy_document" "core_notifier_lambda" {
     ]
 
     resources = [
+      module.sqs_core_notifier_errors.sqs_queue_arn,
       module.sqs_event_publisher_errors.sqs_queue_arn,
     ]
   }
