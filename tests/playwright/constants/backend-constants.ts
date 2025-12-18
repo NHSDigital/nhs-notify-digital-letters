@@ -11,6 +11,7 @@ export const CSI = `nhs-${ENV}-dl`;
 export const MESH_POLL_LAMBDA_NAME = `${CSI}-mesh-poll`;
 export const TTL_CREATE_LAMBDA_NAME = `${CSI}-ttl-create`;
 export const TTL_POLL_LAMBDA_NAME = `${CSI}-ttl-poll`;
+export const CORE_NOTIFIER_LAMBDA_NAME = `${CSI}-core-notifier`;
 
 // Queue Names
 export const TTL_QUEUE_NAME = `${CSI}-ttl-queue`;

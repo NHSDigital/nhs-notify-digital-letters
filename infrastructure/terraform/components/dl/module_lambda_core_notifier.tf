@@ -1,8 +1,8 @@
-module "pdm_uploader" {
+module "core_notifier" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
 
   function_name = "core-notifier"
-  description   = "A function to upload documents to PDM"
+  description   = "A function to send messages to core Notify when a PDM resource is available"
 
   aws_account_id = var.aws_account_id
   component      = local.component
@@ -15,7 +15,7 @@ module "pdm_uploader" {
   kms_key_arn           = module.kms.key_arn
 
   iam_policy_document = {
-    body = data.aws_iam_policy_document.pdm_uploader_lambda.json
+    body = data.aws_iam_policy_document.core_notifier_lambda.json
   }
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
@@ -43,7 +43,7 @@ module "pdm_uploader" {
   }
 }
 
-data "aws_iam_policy_document" "pdm_uploader_lambda" {
+data "aws_iam_policy_document" "core_notifier_lambda" {
   statement {
     sid    = "AllowSSMParam"
     effect = "Allow"
@@ -56,19 +56,6 @@ data "aws_iam_policy_document" "pdm_uploader_lambda" {
 
     resources = [
       "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter/${var.component}/${var.environment}/apim/*"
-    ]
-  }
-
-  statement {
-    sid    = "AllowS3Get"
-    effect = "Allow"
-
-    actions = [
-      "s3:GetObject"
-    ]
-
-    resources = [
-      "${module.s3bucket_letters.arn}/*"
     ]
   }
 
@@ -87,7 +74,7 @@ data "aws_iam_policy_document" "pdm_uploader_lambda" {
   }
 
   statement {
-    sid    = "SQSPermissionsUploadToPdmQueue"
+    sid    = "SQSPermissionsUploadToCoreNotifierQueue"
     effect = "Allow"
 
     actions = [
