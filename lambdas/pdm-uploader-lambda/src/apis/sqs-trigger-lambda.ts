@@ -12,7 +12,7 @@ import type {
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import pdmResourceSubmittedValidator from 'digital-letters-events/PDMResourceSubmitted.js';
 import pdmResourceSubmissionRejectedValidator from 'digital-letters-events/PDMResourceSubmissionRejected.js';
-import { MESHInboxMessageDownloaded } from 'digital-letters-events';
+import { MESHInboxMessageDownloaded, PDMResourceSubmitted } from 'digital-letters-events';
 import { EventPublisher, Logger } from 'utils';
 
 interface ProcessingResult {
@@ -120,7 +120,7 @@ async function publishSuccessfulEvents(
   if (successfulItems.length === 0) return;
 
   try {
-    const submittedFailedEvents = await eventPublisher.sendEvents(
+    const submittedFailedEvents = await eventPublisher.sendEvents<PDMResourceSubmitted>(
       successfulItems.map(({ event, resourceId }) => ({
         ...event,
         id: randomUUID(),
