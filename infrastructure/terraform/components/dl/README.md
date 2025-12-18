@@ -58,8 +58,6 @@ No requirements.
 | Name | Description |
 |------|-------------|
 | <a name="output_deployment"></a> [deployment](#output\_deployment) | Deployment details used for post-deployment scripts |
-| <a name="output_pdm_mock_endpoint"></a> [pdm\_mock\_endpoint](#output\_pdm\_mock\_endpoint) | The base URL of the PDM Mock (null when not deployed) |
-| <a name="output_pdm_mock_id"></a> [pdm\_mock\_id](#output\_pdm\_mock\_id) | The ID of the PDM Mock API Gateway (null when not deployed) |
 <!-- vale on -->
 <!-- markdownlint-enable -->
 <!-- END_TF_DOCS -->
