@@ -111,7 +111,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
 
   test('should send invalid event to dlq', async () => {
     // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
-    test.setTimeout(480_000);
+    test.setTimeout(500_000);
 
     const eventId = uuidv4();
     const messageUri = `not-a-valid-s3-uri`;
@@ -144,7 +144,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    });
+    }, 60);
 
     await expectMessageContainingString(PDM_UPLOADER_DLQ_NAME, eventId, 420);
   });
