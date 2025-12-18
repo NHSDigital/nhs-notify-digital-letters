@@ -110,7 +110,9 @@ describe('sqs-trigger-lambda', () => {
     });
 
     it('should process multiple messages successfully', async () => {
-      mockUploadToPdm.send.mockResolvedValue({ outcome: 'sent' });
+      mockRandomUUID.mockReturnValueOnce('11111111-1111-1111-1111-111111111111');
+      mockRandomUUID.mockReturnValueOnce('22222222-2222-2222-2222-222222222222');
+      mockUploadToPdm.send.mockResolvedValue({ outcome: 'sent', resourceId: 'resource-123' });
       const handler = createHandler({
         uploadToPdm: mockUploadToPdm,
         eventPublisher: mockEventPublisher,
@@ -131,6 +133,19 @@ describe('sqs-trigger-lambda', () => {
       expect(result.batchItemFailures).toEqual([]);
       expect(mockUploadToPdm.send).toHaveBeenCalledTimes(2);
       expect(mockEventPublisher.sendEvents).toHaveBeenCalledTimes(1);
+      expect(mockEventPublisher.sendEvents).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: 'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
+            id: '11111111-1111-1111-1111-111111111111',
+          }),
+          expect.objectContaining({
+            type: 'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
+            id: '22222222-2222-2222-2222-222222222222',
+          }),
+        ]),
+        expect.anything(),
+      );
       expect(mockLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({
           retrieved: 2,
