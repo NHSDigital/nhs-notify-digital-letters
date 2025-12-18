@@ -222,6 +222,7 @@ describe('sqs-trigger-lambda', () => {
 
       const result = await handler(sqsEvent);
 
+      expect(mockEventPublisher.sendEvents).not.toHaveBeenCalled();
       expect(result.batchItemFailures).toEqual([{ itemIdentifier: 'msg-1' }]);
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
