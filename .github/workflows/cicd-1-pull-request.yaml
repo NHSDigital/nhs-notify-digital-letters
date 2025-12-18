@@ -134,23 +134,25 @@ jobs:
       version: "${{ needs.metadata.outputs.version }}"
     secrets: #inherit
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  build-stage: # Recommended maximum execution time is 3 minutes
-    name: "Build stage"
-    needs: [metadata, test-stage]
-    uses: ./.github/workflows/stage-3-build.yaml
-    if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened')) || (github.event_name == 'push' && github.ref == 'refs/heads/main')
-    with:
-      build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
-      build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
-      build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
-      nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
-      python_version: "${{ needs.metadata.outputs.python_version }}"
-      terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
-      version: "${{ needs.metadata.outputs.version }}"
+  # revert this change, only to speed up deployment whilst developing
+  # build-stage: # Recommended maximum execution time is 3 minutes
+  #   name: "Build stage"
+  #   needs: [metadata, test-stage]
+  #   uses: ./.github/workflows/stage-3-build.yaml
+  #   if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened')) || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+  #   with:
+  #     build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
+  #     build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
+  #     build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
+  #     nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
+  #     python_version: "${{ needs.metadata.outputs.python_version }}"
+  #     terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
+  #     version: "${{ needs.metadata.outputs.version }}"
   #    secrets: inherit
   pr-create-dynamic-environment:
     name: Trigger dynamic environment creation
-    needs: [metadata, build-stage]
+  #  needs: [metadata, build-stage]
+    needs: [metadata]
     runs-on: ubuntu-latest
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     steps:
@@ -185,7 +187,8 @@ jobs:
       APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
   publish-stage: # Recommended maximum execution time is 10 minutes
     name: "Publish stage"
-    needs: [metadata, build-stage]
+    #needs: [metadata, build-stage]
+    needs: [metadata]
     uses: ./.github/workflows/stage-5-publish.yaml
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
     with:
