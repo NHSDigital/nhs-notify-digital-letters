@@ -56,9 +56,10 @@ const baseEvent = {
 test.describe('Digital Letters - Upload to PDM', () => {
   test.beforeAll(async () => {
     await purgeQueue(PDM_UPLOADER_DLQ_NAME);
+    test.setTimeout(250_000);
   });
 
-  test('should send to PDM following downloaded message event', async () => {
+  test('should send a pdm.resource.submitted event following a successful upload to PDM', async () => {
     const eventId = uuidv4();
     const letterId = uuidv4();
     const resourceKey = `test/${letterId}`;
@@ -106,12 +107,68 @@ test.describe('Digital Letters - Upload to PDM', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    });
+    }, 120);
+  });
+
+  test('should send a pdm.resource.submission.rejected event following an error from PDM', async () => {
+    // Note: I suspect this will fail once we are using the PDM Mock and will need amending.
+    const eventId = uuidv4();
+    const letterId = uuidv4();
+    const resourceKey = `test/${letterId}`;
+    const messageUri = `s3://${LETTERS_S3_BUCKET_NAME}/${resourceKey}`;
+    const messageReference = uuidv4();
+    const senderId = uuidv4();
+    const invalidPdmRequest = {
+      ...pdmRequest,
+      unexpectedField: 'I should not be here',
+    }
+
+    uploadToS3(JSON.stringify(invalidPdmRequest), LETTERS_S3_BUCKET_NAME, resourceKey);
+
+    await eventPublisher.sendEvents(
+      [
+        {
+          ...baseEvent,
+          id: eventId,
+          data: {
+            messageUri,
+            messageReference,
+            senderId,
+          },
+        },
+      ],
+      messageDownloadedValidator,
+    );
+
+    await expectToPassEventually(async () => {
+      const filteredLogs = await getLogsFromCloudwatch(
+        PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME,
+        [
+          '$.message.description  = "Failed sending PDM request"',
+          `$.message.requestId = "${messageReference}"`,
+        ],
+      );
+
+      expect(filteredLogs.length).toEqual(1);
+    }, 120);
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        EVENT_BUS_LOG_GROUP_NAME,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1"',
+          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    }, 120);
   });
 
   test('should send invalid event to dlq', async () => {
     // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
-    test.setTimeout(500_000);
+    test.setTimeout(550_000);
 
     const eventId = uuidv4();
     const messageUri = `not-a-valid-s3-uri`;
@@ -144,7 +201,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    }, 60);
+    }, 120);
 
     await expectMessageContainingString(PDM_UPLOADER_DLQ_NAME, eventId, 420);
   });
