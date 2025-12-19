@@ -2,9 +2,8 @@
 Tests for SenderLookup
 """
 import json
-import pytest
 from unittest.mock import Mock, call
-from src.sender_lookup import SenderLookup
+from mesh_poll.sender_lookup import SenderLookup
 
 
 def setup_mocks():

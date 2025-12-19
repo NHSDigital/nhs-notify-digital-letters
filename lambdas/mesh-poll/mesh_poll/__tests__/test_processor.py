@@ -2,10 +2,9 @@
 Tests for mesh-poll MeshMessageProcessor
 Following the pattern from backend comms-mgr mesh-poll tests
 """
-import pytest
 from unittest.mock import Mock, call, patch
 from mesh_client import MeshClient
-from src.processor import MeshMessageProcessor
+from mesh_poll.processor import MeshMessageProcessor
 
 
 def setup_mocks():
@@ -62,7 +61,7 @@ def get_remaining_time_in_millis_near_timeout():
     return 100
 
 
-@patch('src.processor.EventPublisher')
+@patch('mesh_poll.processor.EventPublisher')
 class TestMeshMessageProcessor:
     """Test suite for MeshMessageProcessor"""
 

@@ -8,11 +8,11 @@ install-dev:
 	pip install -r requirements-dev.txt
 
 test:
-	cd ../.. && PYTHONPATH=lambdas/mesh-poll:$$PYTHONPATH pytest lambdas/mesh-poll/src/__tests__/ -v
+	cd ../.. && PYTHONPATH=lambdas/mesh-poll:$$PYTHONPATH pytest lambdas/mesh-poll/mesh_poll/__tests__/ -v
 
 coverage:
-	cd ../.. && PYTHONPATH=lambdas/mesh-poll:$$PYTHONPATH pytest lambdas/mesh-poll/src/__tests__/ \
-		--cov=lambdas/mesh-poll/src \
+	cd ../.. && PYTHONPATH=lambdas/mesh-poll:$$PYTHONPATH pytest lambdas/mesh-poll/mesh_poll/__tests__/ \
+		--cov=lambdas/mesh-poll/mesh_poll \
 		--cov-config=lambdas/mesh-poll/pytest.ini \
 		--cov-report=html:lambdas/mesh-poll/htmlcov \
 		--cov-report=term-missing \
