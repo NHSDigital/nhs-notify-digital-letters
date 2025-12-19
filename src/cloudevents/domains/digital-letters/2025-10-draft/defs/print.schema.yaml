@@ -1,0 +1,26 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Print data
+description: Reusable types for NHS Notify payload schemas.
+type: object
+properties:
+  status:
+    type: string
+    minimum: 1
+    description: Number of times that PDM has been polled while waiting for document processing to complete
+    enum: [
+      "ACCEPTED",
+      "REJECTED",
+      "PRINTED",
+      "DISPATCHED",
+      "FAILED",
+      "RETURNED"
+    ]
+    examples:
+      - ACCEPTED
+      - DISPATCHED
+      - PRINTED
+  supplierId:
+    type: string
+    description: Identifier of the print supplier handling the print job
+    examples:
+      - "supplier-12345"

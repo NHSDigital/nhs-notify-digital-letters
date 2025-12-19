@@ -1,12 +1,12 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: PrintStatusUpdated
+title: PrintLetterTransitioned
 type: object
 allOf:
   - $ref: ../digital-letters-print-profile.schema.yaml
 properties:
   type:
     type: string
-    const: uk.nhs.notify.digital.letters.print.printed.v1
+    const: uk.nhs.notify.digital.letters.print.letter.transitioned.v1
     description: Concrete versioned event type string for this event (.vN suffix).
   source:
     type: string
@@ -15,10 +15,9 @@ properties:
 
   dataschema:
     type: string
-    const: ../data/digital-letter-base-data.schema.yaml
+    const: ../data/digital-letters-print-letter-transitioned-data.schema.yaml
     description: Canonical URI of the event's data schema.
     examples:
-      - digital-letter-base-data.schema.yaml
+      - digital-letters-print-letter-transitioned-data.schema.yaml
   data:
-    $ref: ../data/digital-letter-base-data.schema.yaml
-    description: Example payload wrapper containing notify-payload.
+    $ref: ../data/digital-letters-print-letter-transitioned-data.schema.yaml
