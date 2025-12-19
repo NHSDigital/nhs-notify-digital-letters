@@ -25,13 +25,8 @@ pip install --platform manylinux2014_x86_64 --only-binary=:all: -r target/extern
 # Install internal dependencies (local packages)
 pip install -r target/internal_requirements.txt --target ${build_dir}
 
-mkdir -p "${build_dir}/mesh_poll"
-for item in mesh_poll/*; do
-    basename=$(basename "$item")
-    if [[ "$basename" != "__tests__" && "$basename" != "venv" && "$basename" != "__pycache__" ]]; then
-        cp -r "$item" "${build_dir}/mesh_poll/"
-    fi
-done
+# Bundle application code
+pip install . --no-deps --target ${build_dir}
 
 # Construct the build artefact
 cd ${build_dir} && zip -r "${dist_dir}/${VERSIONED_ZIP_NAME}" .
