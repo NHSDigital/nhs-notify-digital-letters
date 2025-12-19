@@ -592,10 +592,19 @@ describe('DocsGenerator', () => {
     });
 
     it('should process multiple schemas', async () => {
-      // Create multiple schema files
-      fs.writeFileSync(path.join(INPUT_DIR, 'schema1.schema.json'), JSON.stringify({ type: 'object' }));
-      fs.writeFileSync(path.join(INPUT_DIR, 'schema2.schema.json'), JSON.stringify({ type: 'string' }));
-      fs.writeFileSync(path.join(INPUT_DIR, 'schema3.schema.yml'), JSON.stringify({ type: 'number' }));
+      // Create multiple schema files with unique IDs
+      fs.writeFileSync(path.join(INPUT_DIR, 'schema1.schema.json'), JSON.stringify({
+        $id: 'schema1.json',
+        type: 'object'
+      }));
+      fs.writeFileSync(path.join(INPUT_DIR, 'schema2.schema.json'), JSON.stringify({
+        $id: 'schema2.json',
+        type: 'string'
+      }));
+      fs.writeFileSync(path.join(INPUT_DIR, 'schema3.schema.yml'), JSON.stringify({
+        $id: 'schema3.json',
+        type: 'number'
+      }));
 
       const config: DocsGeneratorConfig = {
         inputDir: INPUT_DIR,
@@ -606,6 +615,9 @@ describe('DocsGenerator', () => {
       const generator = new DocsGenerator(config);
       const result = await generator.generate();
 
+      if (!result.success) {
+        console.error('Generation failed:', result.error);
+      }
       expect(result.success).toBe(true);
       expect(result.schemasProcessed).toBe(3);
     });

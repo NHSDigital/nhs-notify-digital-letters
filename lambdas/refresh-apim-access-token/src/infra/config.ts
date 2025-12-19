@@ -2,17 +2,15 @@ import { defaultConfigReader } from 'utils';
 
 export function loadConfig() {
   return {
-    nhsAuthServerTokenEndpoint: defaultConfigReader.getValue(
-      'NHS_AUTH_SERVER_TOKEN_ENDPOINT',
+    apimAuthTokenUrl: defaultConfigReader.getValue('APIM_AUTH_TOKEN_URL'),
+    apimAccessTokenSsmParameterName: defaultConfigReader.getValue(
+      'APIM_ACCESS_TOKEN_SSM_PARAMETER_NAME',
     ),
-    ssmAccessTokenParameterName: defaultConfigReader.getValue(
-      'SSM_ACCESS_TOKEN_PARAMETER_NAME',
+    apimApiKeySsmParameterName: defaultConfigReader.getValue(
+      'APIM_API_KEY_SSM_PARAMETER_NAME',
     ),
-    ssmApimApiKeyParameterName: defaultConfigReader.getValue(
-      'SSM_API_KEY_PARAMETER_NAME',
-    ),
-    ssmPrivateKeyParameterName: defaultConfigReader.getValue(
-      'SSM_PRIVATE_KEY_PARAMETER_NAME',
+    apimPrivateKeySsmParameterName: defaultConfigReader.getValue(
+      'APIM_PRIVATE_KEY_SSM_PARAMETER_NAME',
     ),
   };
 }

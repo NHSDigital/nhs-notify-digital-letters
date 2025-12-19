@@ -7,8 +7,8 @@ import {
 import type { ApimAccessToken, Logger } from 'utils';
 
 export type Config = {
-  ssmAccessTokenParameterName: string;
-  ssmApimApiKeyParameterName: string;
+  apimAccessTokenSsmParameterName: string;
+  apimApiKeySsmParameterName: string;
 };
 
 type Key = {
@@ -54,7 +54,7 @@ export class SSMKeyStore {
     try {
       result = await this._client.send(
         new GetParameterCommand({
-          Name: this._config.ssmApimApiKeyParameterName,
+          Name: this._config.apimApiKeySsmParameterName,
           WithDecryption: true,
         }),
       );
@@ -93,7 +93,7 @@ export class SSMKeyStore {
     try {
       await this._client.send(
         new PutParameterCommand({
-          Name: this._config.ssmAccessTokenParameterName,
+          Name: this._config.apimAccessTokenSsmParameterName,
           Value: JSON.stringify(accessToken),
           Overwrite: true,
         }),

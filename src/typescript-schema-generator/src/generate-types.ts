@@ -1,14 +1,8 @@
 /* eslint-disable no-console */
+import { createOutputDir, writeFile, writeTypesIndex } from 'file-utils';
 import { compile } from 'json-schema-to-typescript';
 import path from 'node:path';
-import {
-  createOutputDir,
-  eventSchemasDir,
-  listEventSchemas,
-  loadSchema,
-  writeFile,
-  writeTypesIndex,
-} from 'file-utils';
+import { eventSchemasDir, listEventSchemas, loadSchema } from 'utils';
 
 export async function generateTypes() {
   const eventSchemaFilenames = listEventSchemas();

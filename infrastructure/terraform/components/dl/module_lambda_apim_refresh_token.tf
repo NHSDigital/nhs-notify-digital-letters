@@ -37,11 +37,11 @@ module "lambda_lambda_apim_refresh_token" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    NHS_AUTH_SERVER_TOKEN_ENDPOINT  = var.apim_auth_token_url
-    SSM_ACCESS_TOKEN_PARAMETER_NAME = local.apim_access_token_ssm_parameter_name
-    SSM_API_KEY_PARAMETER_NAME      = local.apim_api_key_ssm_parameter_name
-    SSM_PRIVATE_KEY_PARAMETER_NAME  = local.apim_private_key_ssm_parameter_name
-    ENVIRONMENT                     = var.environment
+    APIM_AUTH_TOKEN_URL                  = var.apim_auth_token_url
+    APIM_ACCESS_TOKEN_SSM_PARAMETER_NAME = local.apim_access_token_ssm_parameter_name
+    APIM_API_KEY_SSM_PARAMETER_NAME      = local.apim_api_key_ssm_parameter_name
+    APIM_PRIVATE_KEY_SSM_PARAMETER_NAME  = local.apim_private_key_ssm_parameter_name
+    ENVIRONMENT                          = var.environment
   }
 }
 
