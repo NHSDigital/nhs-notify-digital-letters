@@ -121,9 +121,13 @@ test.describe('Digital Letters - Upload to PDM', () => {
     const invalidPdmRequest = {
       ...pdmRequest,
       unexpectedField: 'I should not be here',
-    }
+    };
 
-    uploadToS3(JSON.stringify(invalidPdmRequest), LETTERS_S3_BUCKET_NAME, resourceKey);
+    uploadToS3(
+      JSON.stringify(invalidPdmRequest),
+      LETTERS_S3_BUCKET_NAME,
+      resourceKey,
+    );
 
     await eventPublisher.sendEvents(
       [
