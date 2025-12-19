@@ -81,7 +81,6 @@
     "shellcheck.run": "onSave",
     "jest.virtualFolders": [
       { "name": "key-generation", "rootPath": "lambdas/key-generation" },
-      { "name": "mesh-poll", "rootPath": "lambdas/mesh-poll" },
       { "name": "refresh-apim-access-token", "rootPath": "lambdas/refresh-apim-access-token" },
       { "name": "python-schema-generator", "rootPath": "src/python-schema-generator" },
       { "name": "ttl-create-lambda", "rootPath": "lambdas/ttl-create-lambda/" },

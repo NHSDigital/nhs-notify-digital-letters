@@ -72,9 +72,10 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24.10.0
-      - uses: actions/setup-python@v6
+      - name: "Setup Python"
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
+          python-version: ${{ inputs.python_version }}
       - name: "Run unit test suite"
         run: |
           make test-unit
@@ -94,7 +95,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-coverage-reports
-          path: "src/**/coverage.xml"
+          path: |
+            src/**/coverage.xml
+            utils/**/coverage.xml
+            lambdas/**/coverage.xml
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
@@ -102,6 +106,10 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
+      - name: "Setup Python"
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python_version }}
       - uses: actions/setup-node@v6
         with:
           node-version: 24.10.0
@@ -156,7 +164,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: python-coverage-reports
-          path: src/
+          path: .
       - name: "Perform static analysis"
         uses: ./.github/actions/perform-static-analysis
         with:
