@@ -128,7 +128,7 @@ test.describe('Digital Letters - Handle TTL', () => {
       id: letterId,
       data: {
         ...baseEvent.data,
-        'digital-letter-id': letterId,
+        unexpectedField: 'I should not be here',
       },
     };
 

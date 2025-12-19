@@ -12,8 +12,8 @@ function setup() {
   const getPrivateKey = jest.fn().mockResolvedValue(key);
 
   const config: Config = {
-    ssmAccessTokenParameterName: 'fake_access_token_parameter_name',
-    ssmApimApiKeyParameterName: 'fake_api_key_parameter_name',
+    apimAccessTokenSsmParameterName: 'fake_access_token_parameter_name',
+    apimApiKeySsmParameterName: 'fake_api_key_parameter_name',
   };
 
   // @ts-ignore

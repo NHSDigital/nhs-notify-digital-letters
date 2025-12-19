@@ -12,7 +12,7 @@ type RawAccessToken = {
 };
 
 type Config = {
-  nhsAuthServerTokenEndpoint: string;
+  apimAuthTokenUrl: string;
 };
 
 export class NHSAuthClient {
@@ -23,7 +23,7 @@ export class NHSAuthClient {
   ) {}
 
   get tokenEndpoint(): string {
-    return this._config.nhsAuthServerTokenEndpoint;
+    return this._config.apimAuthTokenUrl;
   }
 
   async getAccessToken(jwt: string): Promise<ApimAccessToken> {

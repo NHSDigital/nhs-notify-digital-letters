@@ -35,7 +35,6 @@ describe('event-logging Lambda', () => {
         messageReference: 'incididunt Ut aute laborum',
         senderId: 'officia voluptate culpa Ut dolor',
         resourceId: 'a2bcbb42-ab7e-42b6-88d6-74f8d3ca4a09',
-        retryCount: 97_903_257,
       },
     };
 

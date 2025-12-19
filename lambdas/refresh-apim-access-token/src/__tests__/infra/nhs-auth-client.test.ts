@@ -15,7 +15,7 @@ function setup() {
     },
   });
   const config = {
-    nhsAuthServerTokenEndpoint: 'fake_token_endpoint',
+    apimAuthTokenUrl: 'fake_token_url',
   };
 
   const mocks = { axios, config };
@@ -35,7 +35,7 @@ describe('NHSAuthClient', () => {
       expect(mocks.axios.post.mock.calls).toMatchInlineSnapshot(`
         [
           [
-            "fake_token_endpoint",
+            "fake_token_url",
             "grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=fake_jwt",
             {
               "headers": {
