@@ -34,9 +34,8 @@ architecture-beta
     j1:T -- B:j2
     j1:B -- T:j3
     j2:R --> L:quarantineBucket
-    quarantineBucket:R --> L:quarantinedLetter
     j3:R --> L:safeBucket
+    quarantineBucket:R --> L:quarantinedLetter
     safeBucket:R --> L:safeLetter
-
 
 ```

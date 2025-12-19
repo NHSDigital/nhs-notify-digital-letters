@@ -1,0 +1,22 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: PrintLetterAnalysed Data
+description: Data payload of the PrintLetterAnalysed event
+type: object
+additionalProperties: false
+properties:
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  messageUri:
+    $ref: ../defs/requests.schema.yaml#/properties/messageUri
+  pageCount:
+    $ref: ../defs/print.schema.yaml#/properties/pageCount
+  sha256Hash:
+    $ref: ../defs/print.schema.yaml#/properties/sha256Hash
+required:
+  - messageReference
+  - senderId
+  - messageUri
+  - pageCount
+  - sha256Hash
