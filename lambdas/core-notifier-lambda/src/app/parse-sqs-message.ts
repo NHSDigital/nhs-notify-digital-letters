@@ -2,11 +2,7 @@ import { SQSRecord } from 'aws-lambda';
 import { Logger } from 'utils';
 import { PDMResourceAvailable } from 'digital-letters-events';
 import { InvalidPdmResourceAvailableEvent } from 'domain/invalid-pdm-resource-available-event';
-import { messagePDMResourceAvailableValidator } from 'digital-letters-events/PDMResourceAvailable.js';
-
-const eventValidator = messagePDMResourceAvailableValidator as (
-  d: unknown,
-) => d is PDMResourceAvailable;
+import messagePDMResourceAvailableValidator from 'digital-letters-events/PDMResourceAvailable.js';
 
 export const parseSqsRecord = (
   sqsRecord: SQSRecord,
@@ -14,11 +10,12 @@ export const parseSqsRecord = (
 ): PDMResourceAvailable => {
   logger.info('Parsing SQS Record', {
     messageId: sqsRecord.messageId,
+    body: sqsRecord.body,
   });
+
   const sqsEventBody = JSON.parse(sqsRecord.body);
-  const sqsEventDetail = sqsEventBody.detail;
-  const isEventValid = eventValidator(sqsEventDetail);
-  if (!isEventValid) {
+
+  if (!messagePDMResourceAvailableValidator(sqsEventBody)) {
     logger.error({
       err: messagePDMResourceAvailableValidator.errors,
       description:
@@ -30,7 +27,10 @@ export const parseSqsRecord = (
 
   logger.info('Parsed valid PDMResourceAvailable Event', {
     messageId: sqsRecord.messageId,
+    messageReference: sqsEventBody.data.messageReference,
+    senderId: sqsEventBody.data.senderId,
+    resourceId: sqsEventBody.data.resourceId,
   });
 
-  return sqsEventDetail;
+  return sqsEventBody;
 };

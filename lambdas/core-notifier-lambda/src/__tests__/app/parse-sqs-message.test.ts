@@ -5,13 +5,6 @@ import { parseSqsRecord } from 'app/parse-sqs-message';
 import { InvalidPdmResourceAvailableEvent } from 'domain/invalid-pdm-resource-available-event';
 import { validPdmEvent } from '__tests__/constants';
 
-// Import the mocked validator after the mock setup
-import { messagePDMResourceAvailableValidator } from 'digital-letters-events/PDMResourceAvailable.js';
-
-jest.mock('digital-letters-events/PDMResourceAvailable.js', () => ({
-  messagePDMResourceAvailableValidator: jest.fn(),
-}));
-
 const mockLogger = mock<Logger>();
 
 describe('parseSqsRecord', () => {
@@ -20,9 +13,7 @@ describe('parseSqsRecord', () => {
   const createSqsRecord = (detail: any): SQSRecord => ({
     messageId,
     receiptHandle: 'receipt-handle',
-    body: JSON.stringify({
-      detail,
-    }),
+    body: JSON.stringify(detail),
     attributes: {
       ApproximateReceiveCount: '1',
       SentTimestamp: '1234567890',
@@ -43,24 +34,22 @@ describe('parseSqsRecord', () => {
   describe('when SQS record contains a valid PDMResourceAvailable event', () => {
     it('parses and returns the PDMResourceAvailable event', () => {
       const sqsRecord = createSqsRecord(validPdmEvent);
-      (messagePDMResourceAvailableValidator as jest.Mock).mockReturnValueOnce(
-        true,
-      );
 
       const result = parseSqsRecord(sqsRecord, mockLogger);
 
       expect(result).toEqual(validPdmEvent);
       expect(mockLogger.info).toHaveBeenCalledWith('Parsing SQS Record', {
         messageId,
+        body: sqsRecord.body,
       });
       expect(mockLogger.info).toHaveBeenCalledWith(
         'Parsed valid PDMResourceAvailable Event',
         {
           messageId,
+          messageReference: validPdmEvent.data.messageReference,
+          senderId: validPdmEvent.data.senderId,
+          resourceId: validPdmEvent.data.resourceId,
         },
-      );
-      expect(messagePDMResourceAvailableValidator).toHaveBeenCalledWith(
-        validPdmEvent,
       );
     });
   });
@@ -69,30 +58,19 @@ describe('parseSqsRecord', () => {
     it('logs error and throws InvalidPdmResourceAvailableEvent', () => {
       const invalidEvent = { ...validPdmEvent, data: {} };
       const sqsRecord = createSqsRecord(invalidEvent);
-      const validationErrors = [
-        {
-          instancePath: '/data',
-          schemaPath: '#/properties/data/required',
-          keyword: 'required',
-          params: { missingProperty: 'senderId' },
-          message: "must have required property 'senderId'",
-        },
-      ];
-      (messagePDMResourceAvailableValidator as jest.Mock).mockReturnValueOnce(
-        false,
-      );
-      messagePDMResourceAvailableValidator.errors = validationErrors;
 
       expect(() => parseSqsRecord(sqsRecord, mockLogger)).toThrow(
         InvalidPdmResourceAvailableEvent,
       );
 
-      expect(mockLogger.error).toHaveBeenCalledWith({
-        err: validationErrors,
-        description:
-          'The SQS message does not contain a valid PDMResourceAvailable event',
-        messageId,
-      });
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description:
+            'The SQS message does not contain a valid PDMResourceAvailable event',
+          messageId,
+          err: expect.any(Array),
+        }),
+      );
     });
   });
 
@@ -118,6 +96,7 @@ describe('parseSqsRecord', () => {
       expect(() => parseSqsRecord(sqsRecord, mockLogger)).toThrow(SyntaxError);
       expect(mockLogger.info).toHaveBeenCalledWith('Parsing SQS Record', {
         messageId,
+        body: sqsRecord.body,
       });
     });
   });
