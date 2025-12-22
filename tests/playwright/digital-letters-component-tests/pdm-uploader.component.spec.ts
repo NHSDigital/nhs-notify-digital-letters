@@ -34,8 +34,6 @@ const pdmRequest = {
 };
 
 const baseEvent = {
-  profileversion: '1.0.0',
-  profilepublished: '2025-10',
   specversion: '1.0',
   source:
     '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
@@ -49,7 +47,6 @@ const baseEvent = {
   datacontenttype: 'application/json',
   dataschema:
     'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
-  dataschemaversion: '1.0',
   severitytext: 'INFO',
 };
 
