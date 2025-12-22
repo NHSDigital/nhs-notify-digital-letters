@@ -14,7 +14,7 @@ export interface IPdmClient {
     requestId: string,
   ): Promise<PdmResponse>;
   getDocumentReference(
-    documentReferenceId: string,
+    documentResourceId: string,
     requestId: string,
   ): Promise<PdmResponse>;
 }
@@ -90,7 +90,7 @@ export class PdmClient implements IPdmClient {
   }
 
   public async getDocumentReference(
-    documentReferenceId: string,
+    documentResourceId: string,
     requestId: string,
   ): Promise<PdmResponse> {
     try {
@@ -113,7 +113,7 @@ export class PdmClient implements IPdmClient {
                 }),
           };
           const response = await this.client.get(
-            `/patient-data-manager/FHIR/R4/DocumentReference/${documentReferenceId}`,
+            `/patient-data-manager/FHIR/R4/DocumentReference/${documentResourceId}`,
             { headers },
           );
 

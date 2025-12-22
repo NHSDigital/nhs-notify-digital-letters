@@ -47,7 +47,14 @@ describe('SQS Handler', () => {
             id: '550e8400-e29b-41d4-a716-446655440001',
             time: '2023-06-20T12:00:00.250Z',
             recordedtime: '2023-06-20T12:00:00.250Z',
+            dataschema:
+              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+            data: {
+              ...pdmResourceSubmittedEvent.data,
+              nhsNumber: '9999999999',
+              odsCode: 'AB1234',
+            },
           },
         ],
         expect.any(Function),
@@ -73,6 +80,8 @@ describe('SQS Handler', () => {
             id: '550e8400-e29b-41d4-a716-446655440001',
             time: '2023-06-20T12:00:00.250Z',
             recordedtime: '2023-06-20T12:00:00.250Z',
+            dataschema:
+              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
             data: {
               ...pdmResourceSubmittedEvent.data,
@@ -107,7 +116,14 @@ describe('SQS Handler', () => {
             id: '550e8400-e29b-41d4-a716-446655440001',
             time: '2023-06-20T12:00:00.250Z',
             recordedtime: '2023-06-20T12:00:00.250Z',
+            dataschema:
+              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+            data: {
+              ...pdmResourceUnavailableEvent.data,
+              nhsNumber: '9999999999',
+              odsCode: 'AB1234',
+            },
           },
         ],
         expect.any(Function),

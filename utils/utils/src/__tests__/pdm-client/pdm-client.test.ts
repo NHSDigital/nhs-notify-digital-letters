@@ -16,6 +16,9 @@ describe('PdmClient', () => {
     head: jest.Mock;
     post: jest.Mock;
   };
+  const mockDocumentResourceId = 'doc-123';
+  const mockResponse = { data: { id: mockDocumentResourceId } };
+  const mockRequestId = 'req-123';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -61,10 +64,8 @@ describe('PdmClient', () => {
     const mockFhirRequest = JSON.stringify({
       resourceType: 'DocumentReference',
     });
-    const mockRequestId = 'req-123';
 
     it('should successfully create document reference', async () => {
-      const mockResponse = { data: { id: 'doc-123' } };
       mockAxiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await pdmClient.createDocumentReference(
@@ -94,7 +95,6 @@ describe('PdmClient', () => {
 
     it('should omit Authorization header when access token is empty', async () => {
       mockAccessTokenRepository.getAccessToken.mockResolvedValue('');
-      const mockResponse = { data: { id: 'doc-123' } };
       mockAxiosInstance.post.mockResolvedValue(mockResponse);
 
       await pdmClient.createDocumentReference(mockFhirRequest, mockRequestId);
@@ -116,7 +116,6 @@ describe('PdmClient', () => {
         isAxiosError: true,
         response: { status: HTTP2_CONSTANTS.HTTP_STATUS_TOO_MANY_REQUESTS },
       };
-      const mockResponse = { data: { id: 'doc-123' } };
 
       mockAxiosInstance.post
         .mockRejectedValueOnce(mockError)
@@ -205,22 +204,18 @@ describe('PdmClient', () => {
   });
 
   describe('getDocumentReference', () => {
-    const mockDocumentReferenceId = 'doc-123';
-    const mockResponse = { data: { id: mockDocumentReferenceId } };
-    const mockRequestId = 'req-123';
-
     it('should successfully fetch document reference', async () => {
       mockAxiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await pdmClient.getDocumentReference(
-        mockDocumentReferenceId,
+        mockDocumentResourceId,
         mockRequestId,
       );
 
       expect(result).toEqual(mockResponse.data);
       expect(mockAccessTokenRepository.getAccessToken).toHaveBeenCalledTimes(1);
       expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-        `/patient-data-manager/FHIR/R4/DocumentReference/${mockDocumentReferenceId}`,
+        `/patient-data-manager/FHIR/R4/DocumentReference/${mockDocumentResourceId}`,
         {
           headers: {
             'X-Request-ID': mockRequestId,
@@ -240,12 +235,12 @@ describe('PdmClient', () => {
       mockAxiosInstance.get.mockResolvedValue(mockResponse);
 
       await pdmClient.getDocumentReference(
-        mockDocumentReferenceId,
+        mockDocumentResourceId,
         mockRequestId,
       );
 
       expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-        `/patient-data-manager/FHIR/R4/DocumentReference/${mockDocumentReferenceId}`,
+        `/patient-data-manager/FHIR/R4/DocumentReference/${mockDocumentResourceId}`,
         {
           headers: {
             'X-Request-ID': mockRequestId,
@@ -266,7 +261,7 @@ describe('PdmClient', () => {
         .mockResolvedValueOnce(mockResponse);
 
       const result = await pdmClient.getDocumentReference(
-        mockDocumentReferenceId,
+        mockDocumentResourceId,
         mockRequestId,
       );
 
@@ -293,7 +288,7 @@ describe('PdmClient', () => {
       mockAxiosInstance.get.mockRejectedValue(mockError);
 
       await expect(
-        pdmClient.getDocumentReference(mockDocumentReferenceId, mockRequestId),
+        pdmClient.getDocumentReference(mockDocumentResourceId, mockRequestId),
       ).rejects.toEqual(mockError);
 
       expect(mockAxiosInstance.get).toHaveBeenCalledTimes(1);
@@ -309,7 +304,7 @@ describe('PdmClient', () => {
       mockAxiosInstance.get.mockRejectedValue(mockError);
 
       await expect(
-        pdmClient.getDocumentReference(mockDocumentReferenceId, mockRequestId),
+        pdmClient.getDocumentReference(mockDocumentResourceId, mockRequestId),
       ).rejects.toThrow('Network error');
 
       expect(mockAxiosInstance.get).toHaveBeenCalledTimes(1);
@@ -336,7 +331,7 @@ describe('PdmClient', () => {
 
       await expect(
         pdmClientWithCustomRetry.getDocumentReference(
-          mockDocumentReferenceId,
+          mockDocumentResourceId,
           mockRequestId,
         ),
       ).rejects.toEqual(mockError);

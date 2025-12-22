@@ -116,6 +116,8 @@ export const createHandler = ({
                   id: randomUUID(),
                   time: eventTime,
                   recordedtime: eventTime,
+                  dataschema:
+                    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
                   type: eventType,
                   data: {
                     ...event.data,
@@ -133,9 +135,13 @@ export const createHandler = ({
                   id: randomUUID(),
                   time: eventTime,
                   recordedtime: eventTime,
+                  dataschema:
+                    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
                   type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
                   data: {
                     ...event.data,
+                    nhsNumber: '9999999999',
+                    odsCode: 'AB1234',
                   },
                 },
               ],
