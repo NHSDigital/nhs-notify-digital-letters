@@ -1,0 +1,6 @@
+# Remove after resolution as part of https://nhsd-jira.digital.nhs.uk/browse/CCM-13690
+CVE-2021-4279 # https://avd.aquasec.com/nvd/cve-2021-4279
+CVE-2024-49761 # https://avd.aquasec.com/nvd/cve-2024-49761
+CVE-2024-47220 # https://avd.aquasec.com/nvd/cve-2024-47220
+CVE-2024-7254 # https://avd.aquasec.com/nvd/cve-2024-7254
+
