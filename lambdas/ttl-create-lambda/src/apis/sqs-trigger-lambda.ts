@@ -5,11 +5,17 @@ import type {
 } from 'aws-lambda';
 import { randomUUID } from 'node:crypto';
 import type { CreateTtl, CreateTtlOutcome } from 'app/create-ttl';
-import { $TtlItemBusEvent, EventPublisher, Logger, TtlItemEvent } from 'utils';
+import { EventPublisher, Logger } from 'utils';
+import itemEnqueuedValidator from 'digital-letters-events/ItemEnqueued.js';
+import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
+import {
+  ItemEnqueued,
+  MESHInboxMessageDownloaded,
+} from 'digital-letters-events';
 
 interface ProcessingResult {
   result: CreateTtlOutcome;
-  item?: TtlItemEvent;
+  item?: MESHInboxMessageDownloaded;
 }
 
 interface CreateHandlerDependencies {
@@ -25,34 +31,33 @@ export const createHandler = ({
 }: CreateHandlerDependencies) =>
   async function handler(sqsEvent: SQSEvent): Promise<SQSBatchResponse> {
     const batchItemFailures: SQSBatchItemFailure[] = [];
-    const successfulEvents: TtlItemEvent[] = [];
 
     const promises = sqsEvent.Records.map(
       async ({ body, messageId }): Promise<ProcessingResult> => {
         try {
-          const {
-            data: item,
-            error: parseError,
-            success: parseSuccess,
-          } = $TtlItemBusEvent.safeParse(JSON.parse(body));
+          const sqsEventBody = JSON.parse(body);
+          const sqsEventDetail = sqsEventBody.detail;
 
-          if (!parseSuccess) {
+          const isEventValid = messageDownloadedValidator(sqsEventDetail);
+          if (!isEventValid) {
             logger.error({
-              err: parseError,
+              err: messageDownloadedValidator.errors,
               description: 'Error parsing ttl queue entry',
             });
             batchItemFailures.push({ itemIdentifier: messageId });
             return { result: 'failed' };
           }
+          const messageDownloadedEvent: MESHInboxMessageDownloaded =
+            sqsEventDetail;
 
-          const result = await createTtl.send(item.detail);
+          const result = await createTtl.send(messageDownloadedEvent);
 
           if (result === 'failed') {
             batchItemFailures.push({ itemIdentifier: messageId });
             return { result: 'failed' };
           }
 
-          return { result, item: item.detail };
+          return { result, item: messageDownloadedEvent };
         } catch (error) {
           logger.error({
             err: error,
@@ -74,6 +79,8 @@ export const createHandler = ({
       failed: 0,
     };
 
+    const successfulEvents: MESHInboxMessageDownloaded[] = [];
+
     for (const result of results) {
       if (result.status === 'fulfilled') {
         const { item, result: outcome } = result.value;
@@ -90,14 +97,18 @@ export const createHandler = ({
 
     if (successfulEvents.length > 0) {
       try {
-        const failedEvents = await eventPublisher.sendEvents(
+        const failedEvents = await eventPublisher.sendEvents<ItemEnqueued>(
           successfulEvents.map((event) => ({
             ...event,
             id: randomUUID(),
             time: new Date().toISOString(),
             recordedtime: new Date().toISOString(),
             type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+            dataschema:
+              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.json',
+            source: event.source.replace(/\/mesh$/, '/queue'),
           })),
+          itemEnqueuedValidator,
         );
         if (failedEvents.length > 0) {
           logger.warn({

@@ -15,25 +15,25 @@ const availableResponse = {
   id: '4c5af7c3-ca21-31b8-924b-fa526db5379b',
   meta: {
     versionId: '1',
-    lastUpdated: '2025-12-10T09:00:47.068021Z'
+    lastUpdated: '2025-12-10T09:00:47.068021Z',
   },
   status: 'current',
   subject: {
     identifier: {
       system: 'https://fhir.nhs.uk/Id/nhs-number',
-      value: '9912003071'
-    }
+      value: '9912003071',
+    },
   },
   content: [
     {
       attachment: {
         contentType: 'application/pdf',
         data: 'base64-encoded-pdf',
-        title: 'Dummy PDF'
-      }
-    }
-  ]
-}
+        title: 'Dummy PDF',
+      },
+    },
+  ],
+};
 
 describe('Pdm', () => {
   describe('constructor', () => {
@@ -75,12 +75,14 @@ describe('Pdm', () => {
       const cfg = validConfig();
       const unavailableResponse = {
         ...availableResponse,
-        content: [{
-          attachment: {
-            contentType: 'application/pdf',
-            title: 'Dummy PDF'
-          }
-        }]
+        content: [
+          {
+            attachment: {
+              contentType: 'application/pdf',
+              title: 'Dummy PDF',
+            },
+          },
+        ],
       };
       pdmClient.getDocumentReference.mockResolvedValue(unavailableResponse);
 
@@ -94,7 +96,7 @@ describe('Pdm', () => {
     it('logs and throws error when error from PDM', async () => {
       const cfg = validConfig();
       const thrown = new Error('pdm failure');
-      pdmClient.getDocumentReference.mockRejectedValueOnce(thrown)
+      pdmClient.getDocumentReference.mockRejectedValueOnce(thrown);
 
       const pdm = new Pdm(cfg);
 

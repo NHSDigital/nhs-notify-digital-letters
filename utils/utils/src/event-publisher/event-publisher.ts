@@ -4,7 +4,6 @@ import {
 } from '@aws-sdk/client-eventbridge';
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { randomUUID } from 'node:crypto';
-import { $CloudEvent, CloudEvent } from '../types/cloud-event';
 import { Logger } from '../logger';
 
 type DlqReason = 'INVALID_EVENT' | 'EVENTBRIDGE_FAILURE';
@@ -18,6 +17,10 @@ export interface EventPublisherDependencies {
   sqsClient: SQSClient;
   eventBridgeClient: EventBridgeClient;
 }
+
+type PublishableEvent = { id: string; source: string; type: string };
+
+type EventValidationFunction<T> = { (event: T): boolean; errors?: any[] };
 
 export class EventPublisher {
   private readonly eventBridge: EventBridgeClient;
@@ -51,8 +54,10 @@ export class EventPublisher {
     this.sqs = config.sqsClient;
   }
 
-  private async sendToEventBridge(events: CloudEvent[]): Promise<CloudEvent[]> {
-    const failedEvents: CloudEvent[] = [];
+  private async sendToEventBridge<T extends PublishableEvent>(
+    events: T[],
+  ): Promise<T[]> {
+    const failedEvents: T[] = [];
     this.logger.info({
       description: `Sending ${events.length} events to EventBridge`,
       eventCount: events.length,
@@ -110,11 +115,11 @@ export class EventPublisher {
     return failedEvents;
   }
 
-  private async sendToDLQ(
-    events: CloudEvent[],
+  private async sendToDLQ<T extends PublishableEvent>(
+    events: T[],
     reason: DlqReason,
-  ): Promise<CloudEvent[]> {
-    const failedDlqs: CloudEvent[] = [];
+  ): Promise<T[]> {
+    const failedDlqs: T[] = [];
 
     this.logger.warn({
       description: 'Sending failed events to DLQ',
@@ -124,7 +129,7 @@ export class EventPublisher {
 
     for (let i = 0; i < events.length; i += MAX_BATCH_SIZE) {
       const batch = events.slice(i, i + MAX_BATCH_SIZE);
-      const idToEventMap = new Map<string, CloudEvent>();
+      const idToEventMap = new Map<string, T>();
 
       const entries = batch.map((event) => {
         const id = randomUUID();
@@ -183,26 +188,28 @@ export class EventPublisher {
     return failedDlqs;
   }
 
-  public async sendEvents(events: CloudEvent[]): Promise<CloudEvent[]> {
+  public async sendEvents<T extends PublishableEvent>(
+    events: T[],
+    eventValidator: EventValidationFunction<T>,
+  ): Promise<T[]> {
     if (events.length === 0) {
       this.logger.info({ description: 'No events to send' });
       return [];
     }
 
-    const validEvents: CloudEvent[] = [];
-    const invalidEvents: CloudEvent[] = [];
+    const validEvents: T[] = [];
+    const invalidEvents: T[] = [];
 
     for (const event of events) {
-      // NOTE: CCM-12896 created to apply specific event validation.
-      const { error, success } = $CloudEvent.safeParse(event);
-      if (success) {
+      const isEventValid = eventValidator(event);
+      if (isEventValid) {
         validEvents.push(event);
       } else {
         invalidEvents.push(event);
 
         this.logger.info({
           description: 'Error parsing event',
-          error,
+          error: eventValidator.errors,
         });
       }
     }
@@ -214,7 +221,7 @@ export class EventPublisher {
       totalEventCount: events.length,
     });
 
-    const totalFailedEvents: CloudEvent[] = [];
+    const totalFailedEvents: T[] = [];
 
     if (invalidEvents.length > 0) {
       const failedDlqSends = await this.sendToDLQ(

@@ -26,6 +26,19 @@ output
 /schemas
 .env
 
+# Python
+__pycache__/
+.Python
+.venv/
+venv/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
 # Coverage reports
 htmlcov/
 .coverage

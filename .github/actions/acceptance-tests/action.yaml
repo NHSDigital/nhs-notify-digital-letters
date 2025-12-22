@@ -30,6 +30,11 @@ runs:
       run: |
         npm ci
 
+    - name: "Generate dependencies"
+      shell: bash
+      run: |
+        npm run generate-dependencies
+
     - name: Run test - ${{ inputs.testType }}
       shell: bash
       run: |

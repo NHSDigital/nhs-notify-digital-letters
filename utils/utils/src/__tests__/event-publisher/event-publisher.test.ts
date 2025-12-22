@@ -6,7 +6,6 @@ import {
 } from '@aws-sdk/client-eventbridge';
 import { randomInt, randomUUID } from 'node:crypto';
 import { mockClient } from 'aws-sdk-client-mock';
-import { CloudEvent } from 'types';
 import { Logger } from 'logger';
 import { EventPublisher, EventPublisherDependencies } from 'event-publisher';
 
@@ -20,6 +19,8 @@ const mockLogger: Logger = {
   debug: jest.fn(),
 } as any;
 
+type TestEvent = { id: string; source: string; type: string };
+
 const testConfig: EventPublisherDependencies = {
   eventBusArn: 'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
   dlqUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/test-dlq',
@@ -28,50 +29,19 @@ const testConfig: EventPublisherDependencies = {
   eventBridgeClient: eventBridgeMock as unknown as EventBridgeClient,
 };
 
-const validCloudEvent: CloudEvent = {
-  profileversion: '1.0.0',
-  profilepublished: '2025-10',
+const event: TestEvent = {
   id: '550e8400-e29b-41d4-a716-446655440001',
-  specversion: '1.0',
   source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
-  subject:
-    'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
   type: 'uk.nhs.notify.digital.letters.sent.v1',
-  time: '2023-06-20T12:00:00Z',
-  recordedtime: '2023-06-20T12:00:00.250Z',
-  severitynumber: 2,
-  traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-  datacontenttype: 'application/json',
-  dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
-  dataschemaversion: '1.0',
-  severitytext: 'INFO',
-  data: {
-    'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000',
-    messageReference: 'ref1',
-    senderId: 'sender1',
-  },
 };
 
-const validCloudEvent2: CloudEvent = {
-  ...validCloudEvent,
+const event2: TestEvent = {
   id: '550e8400-e29b-41d4-a716-446655440002',
-  data: {
-    'digital-letter-id': '123e4567-e89b-12d3-a456-426614174001',
-    messageReference: 'ref1',
-    senderId: 'sender1',
-  },
   source: '/nhs/england/notify/development/primary/data-plane/digital-letters',
   type: 'uk.nhs.notify.digital.letters.sent.v2',
 };
 
-const invalidCloudEvent = {
-  type: 'data',
-  id: 'missing-source',
-};
-
-const validEvents = [validCloudEvent, validCloudEvent2];
-const invalidEvents = [invalidCloudEvent as unknown as CloudEvent];
+const events = [event, event2];
 
 describe('Event Publishing', () => {
   beforeEach(() => {
@@ -82,7 +52,7 @@ describe('Event Publishing', () => {
 
   test('should return empty array when no events provided', async () => {
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents([]);
+    const result = await publisher.sendEvents([], () => true);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(0);
@@ -96,7 +66,7 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(validEvents);
+    const result = await publisher.sendEvents(events, () => true);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(1);
@@ -106,16 +76,16 @@ describe('Event Publishing', () => {
     expect(eventBridgeCall.args[0].input).toEqual({
       Entries: [
         {
-          Source: validCloudEvent.source,
-          DetailType: validCloudEvent.type,
-          Detail: JSON.stringify(validCloudEvent),
+          Source: event.source,
+          DetailType: event.type,
+          Detail: JSON.stringify(event),
           EventBusName:
             'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
         },
         {
-          Source: validCloudEvent2.source,
-          DetailType: validCloudEvent2.type,
-          Detail: JSON.stringify(validCloudEvent2),
+          Source: event2.source,
+          DetailType: event2.type,
+          Detail: JSON.stringify(event2),
           EventBusName:
             'arn:aws:events:us-east-1:123456789012:event-bus/test-bus',
         },
@@ -131,7 +101,7 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(invalidEvents);
+    const result = await publisher.sendEvents(events, () => false);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(0);
@@ -142,11 +112,11 @@ describe('Event Publishing', () => {
     expect(sqsInput.QueueUrl).toBe(
       'https://sqs.us-east-1.amazonaws.com/123456789012/test-dlq',
     );
-    expect(sqsInput.Entries).toHaveLength(1);
-    expect(sqsInput.Entries[0].MessageBody).toBe(
-      JSON.stringify(invalidCloudEvent),
-    );
+    expect(sqsInput.Entries).toHaveLength(2);
+    expect(sqsInput.Entries[0].MessageBody).toBe(JSON.stringify(events[0]));
     expect(sqsInput.Entries[0].Id).toBeDefined();
+    expect(sqsInput.Entries[1].MessageBody).toBe(JSON.stringify(events[1]));
+    expect(sqsInput.Entries[1].Id).toBeDefined();
   });
 
   test('should send failed EventBridge events to DLQ', async () => {
@@ -164,7 +134,7 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(validEvents);
+    const result = await publisher.sendEvents(events, () => true);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(1);
@@ -179,9 +149,7 @@ describe('Event Publishing', () => {
     const sqsCall = sqsMock.calls()[0];
     const sqsInput = sqsCall.args[0].input as any;
     expect(sqsInput.Entries).toHaveLength(1);
-    expect(sqsInput.Entries[0].MessageBody).toBe(
-      JSON.stringify(validCloudEvent),
-    );
+    expect(sqsInput.Entries[0].MessageBody).toBe(JSON.stringify(event));
   });
 
   test('should handle EventBridge send error and send all events to DLQ', async () => {
@@ -195,7 +163,7 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(validEvents);
+    const result = await publisher.sendEvents(events, () => true);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(1);
@@ -218,9 +186,9 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(invalidEvents);
+    const result = await publisher.sendEvents(events, () => false);
 
-    expect(result).toEqual(invalidEvents);
+    expect(result).toEqual([event]);
     expect(eventBridgeMock.calls()).toHaveLength(0);
     expect(sqsMock.calls()).toHaveLength(1);
   });
@@ -229,9 +197,9 @@ describe('Event Publishing', () => {
     sqsMock.on(SendMessageBatchCommand).rejects(new Error('DLQ error'));
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(invalidEvents);
+    const result = await publisher.sendEvents(events, () => false);
 
-    expect(result).toEqual(invalidEvents);
+    expect(result).toEqual(events);
     expect(eventBridgeMock.calls()).toHaveLength(0);
     expect(sqsMock.calls()).toHaveLength(1);
   });
@@ -240,7 +208,7 @@ describe('Event Publishing', () => {
     const largeEventArray = Array.from({ length: 25 })
       .fill(null)
       .map(() => ({
-        ...validCloudEvent,
+        ...event,
         id: randomUUID(),
       }));
 
@@ -250,7 +218,7 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(largeEventArray);
+    const result = await publisher.sendEvents(largeEventArray, () => true);
 
     expect(result).toEqual([]);
     expect(eventBridgeMock.calls()).toHaveLength(3);
@@ -270,12 +238,12 @@ describe('Event Publishing', () => {
     const largeEventArray = Array.from({ length: 25 })
       .fill(null)
       .map(() => ({
-        ...(invalidCloudEvent as unknown as CloudEvent),
+        ...event,
         id: randomUUID(),
       }));
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(largeEventArray);
+    const result = await publisher.sendEvents(largeEventArray, () => false);
 
     expect(result).toEqual(largeEventArray);
     expect(sqsMock.calls()).toHaveLength(3);
@@ -293,27 +261,27 @@ describe('Event Publishing', () => {
 
   test('should handle multiple event outcomes in one batch', async () => {
     const valid = Array.from({ length: 11 }, (_, i) => ({
-      ...validCloudEvent,
+      ...event,
       id: `11111111-1111-1111-1111-${i.toString().padStart(12, '0')}`,
     }));
 
     const invalid = Array.from({ length: 12 }, (_, i) => ({
-      ...(invalidCloudEvent as unknown as CloudEvent),
+      ...event,
       id: `22222222-2222-2222-2222-${i.toString().padStart(12, '0')}`,
     }));
 
     const invalidAndDlqError = Array.from({ length: 13 }, (_, i) => ({
-      ...(invalidCloudEvent as unknown as CloudEvent),
+      ...event,
       id: `33333333-3333-3333-3333-${i.toString().padStart(12, '0')}`,
     }));
 
     const eventBridgeError = Array.from({ length: 14 }, (_, i) => ({
-      ...validCloudEvent,
+      ...event,
       id: `44444444-4444-4444-4444-${i.toString().padStart(12, '0')}`,
     }));
 
     const eventBridgeAndDlqError = Array.from({ length: 15 }, (_, i) => ({
-      ...validCloudEvent,
+      ...event,
       id: `55555555-5555-5555-5555-${i.toString().padStart(12, '0')}`,
     }));
 
@@ -391,7 +359,14 @@ describe('Event Publishing', () => {
     });
 
     const publisher = new EventPublisher(testConfig);
-    const result = await publisher.sendEvents(allEvents);
+    const result = await publisher.sendEvents(
+      allEvents,
+      (e) =>
+        !(
+          e.id.includes('22222222-2222-2222-2222') ||
+          e.id.includes('33333333-3333-3333-3333')
+        ),
+    );
 
     expect(result).toHaveLength(
       invalidAndDlqError.length + eventBridgeAndDlqError.length,
@@ -420,9 +395,9 @@ describe('Event Publishing', () => {
     // Verify invalid events are are sent to the DLQ with correct reason
     expect(sqsMockEntries).toEqual(
       expect.arrayContaining(
-        [...invalid, ...invalidAndDlqError].map((event) =>
+        [...invalid, ...invalidAndDlqError].map((e) =>
           expect.objectContaining({
-            MessageBody: JSON.stringify(event),
+            MessageBody: JSON.stringify(e),
             MessageAttributes: {
               DlqReason: {
                 DataType: 'String',
@@ -437,9 +412,9 @@ describe('Event Publishing', () => {
     // Verify EventBridge failure events are sent to the DLQ with correct reason
     expect(sqsMockEntries).toEqual(
       expect.arrayContaining(
-        [...eventBridgeError, ...eventBridgeAndDlqError].map((event) =>
+        [...eventBridgeError, ...eventBridgeAndDlqError].map((e) =>
           expect.objectContaining({
-            MessageBody: JSON.stringify(event),
+            MessageBody: JSON.stringify(e),
             MessageAttributes: {
               DlqReason: {
                 DataType: 'String',
@@ -465,11 +440,10 @@ describe('Event Publishing', () => {
     // Verify valid events are sent to the event bridge
     expect(eventBridgeMockEntries).toEqual(
       expect.arrayContaining(
-        [...valid, ...eventBridgeError, ...eventBridgeAndDlqError].map(
-          (event) =>
-            expect.objectContaining({
-              Detail: JSON.stringify(event),
-            }),
+        [...valid, ...eventBridgeError, ...eventBridgeAndDlqError].map((e) =>
+          expect.objectContaining({
+            Detail: JSON.stringify(e),
+          }),
         ),
       ),
     );
@@ -523,11 +497,11 @@ describe('EventPublisher Class', () => {
     const publisher = new EventPublisher(testConfig);
 
     // First call
-    const result1 = await publisher.sendEvents([validCloudEvent]);
+    const result1 = await publisher.sendEvents([event], () => true);
     expect(result1).toEqual([]);
 
     // Second call with same publisher instance
-    const result2 = await publisher.sendEvents([validCloudEvent2]);
+    const result2 = await publisher.sendEvents([event2], () => true);
     expect(result2).toEqual([]);
 
     expect(eventBridgeMock.calls()).toHaveLength(2);

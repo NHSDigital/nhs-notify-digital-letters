@@ -41,8 +41,9 @@ The application is also exposed via a CLI which is useful for local testing. The
 
 Ensure you have the following environment variables set:
 
-- `NHS_AUTH_SERVER_TOKEN_ENDPOINT`
-- `SSM_ACCESS_TOKEN_PARAMETER_NAME`
-- `SSM_APIM_API_KEY_PARAMETER_NAME`
+- `APIM_AUTH_TOKEN_URL`
+- `APIM_ACCESS_TOKEN_SSM_PARAMETER_NAME`
+- `APIM_API_KEY_SSM_PARAMETER_NAME`
+- `APIM_PRIVATE_KEY_SSM_PARAMETER_NAME`
 
 Then run `pnpm run cli`.

@@ -1,7 +1,11 @@
 import { createHandler } from 'apis/sqs-trigger-lambda';
-import { randomUUID } from 'node:crypto';
 import type { SQSEvent } from 'aws-lambda';
-import { $TtlItemBusEvent, TtlItemBusEvent } from 'utils';
+import {
+  ItemEnqueued,
+  MESHInboxMessageDownloaded,
+} from 'digital-letters-events';
+import itemEnqueuedValidator from 'digital-letters-events/ItemEnqueued.js';
+import { randomUUID } from 'node:crypto';
 
 jest.mock('node:crypto', () => ({
   randomUUID: jest.fn(),
@@ -18,33 +22,43 @@ describe('createHandler', () => {
   let logger: any;
   let handler: any;
 
-  const validItem: TtlItemBusEvent = {
-    detail: {
-      profileversion: '1.0.0',
-      profilepublished: '2025-10',
-      id: '550e8400-e29b-41d4-a716-446655440001',
-      specversion: '1.0',
-      source:
-        '/nhs/england/notify/production/primary/data-plane/digital-letters',
-      subject:
-        'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-      type: 'uk.nhs.notify.digital.letters.sent.v1',
-      time: '2023-06-20T12:00:00Z',
-      recordedtime: '2023-06-20T12:00:00.250Z',
-      severitynumber: 2,
-      traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-      datacontenttype: 'application/json',
-      dataschema:
-        'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
-      dataschemaversion: '1.0',
-      severitytext: 'INFO',
-      data: {
-        messageUri: 'https://example.com/ttl/resource',
-        'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000',
-        messageReference: 'ref1',
-        senderId: 'sender1',
-      },
+  const messageDownloadedEvent: MESHInboxMessageDownloaded = {
+    id: '550e8400-e29b-41d4-a716-446655440001',
+    specversion: '1.0',
+    source:
+      '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
+    subject:
+      'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+    type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
+    time: '2023-06-20T12:00:00Z',
+    recordedtime: '2023-06-20T12:00:00.250Z',
+    severitynumber: 2,
+    traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+    datacontenttype: 'application/json',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
+    severitytext: 'INFO',
+    data: {
+      messageUri: 'https://example.com/ttl/resource',
+      messageReference: 'ref1',
+      senderId: 'sender1',
     },
+  };
+
+  const eventBusEvent = {
+    detail: messageDownloadedEvent,
+  };
+
+  const itemEnqueuedEvent: ItemEnqueued = {
+    ...messageDownloadedEvent,
+    id: '550e8400-e29b-41d4-a716-446655440001',
+    source:
+      '/nhs/england/notify/production/primary/data-plane/digitalletters/queue',
+    type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+    time: '2023-06-20T12:00:00.250Z',
+    recordedtime: '2023-06-20T12:00:00.250Z',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.json',
   };
 
   beforeEach(() => {
@@ -55,27 +69,24 @@ describe('createHandler', () => {
   });
 
   it('processes a valid SQS event and returns success', async () => {
-    jest
-      .spyOn($TtlItemBusEvent, 'safeParse')
-      .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('sent');
     const event: SQSEvent = {
-      Records: [{ body: JSON.stringify(validItem), messageId: 'msg1' }],
+      Records: [{ body: JSON.stringify(eventBusEvent), messageId: 'msg1' }],
     } as any;
 
     const res = await handler(event);
 
     expect(res.batchItemFailures).toEqual([]);
-    expect(createTtl.send).toHaveBeenCalledWith(validItem.detail);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      {
-        ...validItem.detail,
-        id: '550e8400-e29b-41d4-a716-446655440001',
-        time: '2023-06-20T12:00:00.250Z',
-        recordedtime: '2023-06-20T12:00:00.250Z',
-        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
-      },
-    ]);
+    expect(createTtl.send).toHaveBeenCalledWith(messageDownloadedEvent);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [itemEnqueuedEvent],
+      itemEnqueuedValidator,
+    );
+
+    const publishedEvent = eventPublisher.sendEvents.mock.lastCall?.[0];
+    expect(publishedEvent).toHaveLength(1);
+    expect(itemEnqueuedValidator(publishedEvent?.[0])).toBeTruthy();
+
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 0,
@@ -85,10 +96,6 @@ describe('createHandler', () => {
   });
 
   it('handles parse failure and logs error', async () => {
-    const zodError = { errors: [] } as any;
-    jest
-      .spyOn($TtlItemBusEvent, 'safeParse')
-      .mockReturnValue({ success: false, error: zodError });
     const event: SQSEvent = {
       Records: [{ body: '{}', messageId: 'msg2' }],
     } as any;
@@ -110,12 +117,9 @@ describe('createHandler', () => {
   });
 
   it('handles createTtl.send failure', async () => {
-    jest
-      .spyOn($TtlItemBusEvent, 'safeParse')
-      .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('failed');
     const event: SQSEvent = {
-      Records: [{ body: JSON.stringify(validItem), messageId: 'msg3' }],
+      Records: [{ body: JSON.stringify(eventBusEvent), messageId: 'msg3' }],
     } as any;
 
     const res = await handler(event);
@@ -130,11 +134,9 @@ describe('createHandler', () => {
   });
 
   it('handles thrown error and logs', async () => {
-    jest.spyOn($TtlItemBusEvent, 'safeParse').mockImplementation(() => {
-      throw new Error('bad json');
-    });
+    createTtl.send.mockRejectedValue(new Error('TTL service error'));
     const event: SQSEvent = {
-      Records: [{ body: '{}', messageId: 'msg4' }],
+      Records: [{ body: JSON.stringify(eventBusEvent), messageId: 'msg4' }],
     } as any;
 
     const res = await handler(event);
@@ -181,15 +183,12 @@ describe('createHandler', () => {
   });
 
   it('processes multiple successful events and sends them as a batch', async () => {
-    jest
-      .spyOn($TtlItemBusEvent, 'safeParse')
-      .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('sent');
     const sqsEvent: SQSEvent = {
       Records: [
-        { body: JSON.stringify(validItem), messageId: 'msg1' },
-        { body: JSON.stringify(validItem), messageId: 'msg2' },
-        { body: JSON.stringify(validItem), messageId: 'msg3' },
+        { body: JSON.stringify(eventBusEvent), messageId: 'msg1' },
+        { body: JSON.stringify(eventBusEvent), messageId: 'msg2' },
+        { body: JSON.stringify(eventBusEvent), messageId: 'msg3' },
       ],
     } as any;
 
@@ -197,29 +196,10 @@ describe('createHandler', () => {
 
     expect(res.batchItemFailures).toEqual([]);
     expect(createTtl.send).toHaveBeenCalledTimes(3);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      {
-        ...validItem.detail,
-        id: '550e8400-e29b-41d4-a716-446655440001',
-        time: '2023-06-20T12:00:00.250Z',
-        recordedtime: '2023-06-20T12:00:00.250Z',
-        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
-      },
-      {
-        ...validItem.detail,
-        id: '550e8400-e29b-41d4-a716-446655440001',
-        time: '2023-06-20T12:00:00.250Z',
-        recordedtime: '2023-06-20T12:00:00.250Z',
-        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
-      },
-      {
-        ...validItem.detail,
-        id: '550e8400-e29b-41d4-a716-446655440001',
-        time: '2023-06-20T12:00:00.250Z',
-        recordedtime: '2023-06-20T12:00:00.250Z',
-        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
-      },
-    ]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [itemEnqueuedEvent, itemEnqueuedEvent, itemEnqueuedEvent],
+      itemEnqueuedValidator,
+    );
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 0,
@@ -229,39 +209,24 @@ describe('createHandler', () => {
   });
 
   it('handles partial event publishing failures and logs warning', async () => {
-    jest
-      .spyOn($TtlItemBusEvent, 'safeParse')
-      .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('sent');
-    const failedEvents = [validItem];
+    const failedEvents = [messageDownloadedEvent];
     eventPublisher.sendEvents.mockResolvedValue(failedEvents);
 
     const event: SQSEvent = {
       Records: [
-        { body: JSON.stringify(validItem), messageId: 'msg1' },
-        { body: JSON.stringify(validItem), messageId: 'msg2' },
+        { body: JSON.stringify(eventBusEvent), messageId: 'msg1' },
+        { body: JSON.stringify(eventBusEvent), messageId: 'msg2' },
       ],
     } as any;
 
     const res = await handler(event);
 
     expect(res.batchItemFailures).toEqual([]);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      {
-        ...validItem.detail,
-        id: '550e8400-e29b-41d4-a716-446655440001',
-        time: '2023-06-20T12:00:00.250Z',
-        recordedtime: '2023-06-20T12:00:00.250Z',
-        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
-      },
-      {
-        ...validItem.detail,
-        id: '550e8400-e29b-41d4-a716-446655440001',
-        time: '2023-06-20T12:00:00.250Z',
-        recordedtime: '2023-06-20T12:00:00.250Z',
-        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
-      },
-    ]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [itemEnqueuedEvent, itemEnqueuedEvent],
+      itemEnqueuedValidator,
+    );
     expect(logger.warn).toHaveBeenCalledWith({
       description: 'Some events failed to publish',
       failedCount: 1,
@@ -270,29 +235,21 @@ describe('createHandler', () => {
   });
 
   it('handles event publishing exception and logs warning', async () => {
-    jest
-      .spyOn($TtlItemBusEvent, 'safeParse')
-      .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('sent');
     const publishError = new Error('EventBridge error');
     eventPublisher.sendEvents.mockRejectedValue(publishError);
 
     const event: SQSEvent = {
-      Records: [{ body: JSON.stringify(validItem), messageId: 'msg1' }],
+      Records: [{ body: JSON.stringify(eventBusEvent), messageId: 'msg1' }],
     } as any;
 
     const res = await handler(event);
 
     expect(res.batchItemFailures).toEqual([]);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      {
-        ...validItem.detail,
-        id: '550e8400-e29b-41d4-a716-446655440001',
-        time: '2023-06-20T12:00:00.250Z',
-        recordedtime: '2023-06-20T12:00:00.250Z',
-        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
-      },
-    ]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [itemEnqueuedEvent],
+      itemEnqueuedValidator,
+    );
     expect(logger.warn).toHaveBeenCalledWith({
       err: publishError,
       description: 'Failed to send events to EventBridge',
@@ -301,13 +258,10 @@ describe('createHandler', () => {
   });
 
   it('does not call eventPublisher when no successful events', async () => {
-    jest
-      .spyOn($TtlItemBusEvent, 'safeParse')
-      .mockReturnValue({ success: true, data: validItem });
     createTtl.send.mockResolvedValue('failed');
 
     const event: SQSEvent = {
-      Records: [{ body: JSON.stringify(validItem), messageId: 'msg1' }],
+      Records: [{ body: JSON.stringify(eventBusEvent), messageId: 'msg1' }],
     } as any;
 
     const res = await handler(event);
@@ -323,20 +277,15 @@ describe('createHandler', () => {
   });
 
   it('handles mixed success and failure scenarios', async () => {
-    jest
-      .spyOn($TtlItemBusEvent, 'safeParse')
-      .mockReturnValueOnce({ success: true, data: validItem })
-      .mockReturnValueOnce({ success: false, error: { errors: [] } as any })
-      .mockReturnValueOnce({ success: true, data: validItem });
     createTtl.send
       .mockResolvedValueOnce('sent')
       .mockResolvedValueOnce('failed');
 
     const event: SQSEvent = {
       Records: [
-        { body: JSON.stringify(validItem), messageId: 'msg1' },
+        { body: JSON.stringify(eventBusEvent), messageId: 'msg1' },
         { body: '{}', messageId: 'msg2' },
-        { body: JSON.stringify(validItem), messageId: 'msg3' },
+        { body: JSON.stringify(eventBusEvent), messageId: 'msg3' },
       ],
     } as any;
 
@@ -346,15 +295,10 @@ describe('createHandler', () => {
       { itemIdentifier: 'msg2' },
       { itemIdentifier: 'msg3' },
     ]);
-    expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-      {
-        ...validItem.detail,
-        id: '550e8400-e29b-41d4-a716-446655440001',
-        time: '2023-06-20T12:00:00.250Z',
-        recordedtime: '2023-06-20T12:00:00.250Z',
-        type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
-      },
-    ]);
+    expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+      [itemEnqueuedEvent],
+      itemEnqueuedValidator,
+    );
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 2,

@@ -16,16 +16,20 @@ architecture-beta
     service s3(logos:aws-s3)[Reports] in reportSender
     junction j1 in reportSender
     junction j2
+    junction j3
+    junction j4 in reportSender
     service reportSent(aws:res-amazon-eventbridge-event)[ReportSent Event]
 
 
     reportGenerated:R --> L:sqs
     sqs:R --> L:reportSenderLambda
-    clientConfig:R -- T:reportSenderLambda
-    s3:L -- T:reportSenderLambda
+    clientConfig:B -- T:j2
+    s3:B -- T:j3
+    j2:R -- L:j1
+    j3:L -- R:j1
     j1:B --> T:reportSenderLambda
     reportSenderLambda:B --> T:mesh
-    reportSenderLambda:R -- L:j2
-    j2:R --> L:reportSent
+    reportSenderLambda:R -- L:j4
+    j4:R --> L:reportSent
 
 ```

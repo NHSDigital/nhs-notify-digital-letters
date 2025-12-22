@@ -45,7 +45,7 @@ export class PdmClient implements IPdmClient, IAccessibleService {
     },
   ) {
     this.client = axios.create({
-      baseURL: this.apimBaseUrl
+      baseURL: this.apimBaseUrl,
     });
   }
 
@@ -73,8 +73,8 @@ export class PdmClient implements IPdmClient, IAccessibleService {
             ...(accessToken === ''
               ? {}
               : {
-                Authorization: `Bearer ${accessToken}`,
-              }),
+                  Authorization: `Bearer ${accessToken}`,
+                }),
           };
           const response = await this.client.post(
             '/patient-data-manager/FHIR/R4/DocumentReference',
@@ -87,8 +87,8 @@ export class PdmClient implements IPdmClient, IAccessibleService {
         (err) =>
           Boolean(
             isAxiosError(err) &&
-            err.response?.status ===
-            HTTP2_CONSTANTS.HTTP_STATUS_TOO_MANY_REQUESTS,
+              err.response?.status ===
+                HTTP2_CONSTANTS.HTTP_STATUS_TOO_MANY_REQUESTS,
           ),
         this.backoffConfig,
       );
@@ -127,8 +127,8 @@ export class PdmClient implements IPdmClient, IAccessibleService {
             ...(accessToken === ''
               ? {}
               : {
-                Authorization: `Bearer ${accessToken}`,
-              }),
+                  Authorization: `Bearer ${accessToken}`,
+                }),
           };
           const response = await this.client.get(
             `/patient-data-manager/FHIR/R4/DocumentReference/${documentReferenceId}`,
@@ -140,8 +140,8 @@ export class PdmClient implements IPdmClient, IAccessibleService {
         (err) =>
           Boolean(
             isAxiosError(err) &&
-            err.response?.status ===
-            HTTP2_CONSTANTS.HTTP_STATUS_TOO_MANY_REQUESTS,
+              err.response?.status ===
+                HTTP2_CONSTANTS.HTTP_STATUS_TOO_MANY_REQUESTS,
           ),
         this.backoffConfig,
       );

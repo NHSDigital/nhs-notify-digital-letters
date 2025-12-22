@@ -8,4 +8,5 @@ locals {
   root_domain_name                     = "${var.environment}.${local.acct.route53_zone_names["digital-letters"]}"
   root_domain_id                       = local.acct.route53_zone_ids["digital-letters"]
   ttl_shard_count                      = 3
+  deploy_pdm_mock                      = var.enable_pdm_mock
 }
