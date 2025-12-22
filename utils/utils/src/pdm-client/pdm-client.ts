@@ -1,41 +1,30 @@
 import axios, { AxiosInstance, isAxiosError } from 'axios';
-import type { Readable } from 'node:stream';
 import { constants as HTTP2_CONSTANTS } from 'node:http2';
-import {
-  IAccessibleService,
-  Logger,
-  PdmResponse,
-  RetryConfig,
-  conditionalRetry,
-} from 'utils';
+import { Logger } from '../logger';
+import { PdmResponse } from '../types';
+import { RetryConfig, conditionalRetry } from '../util-retry';
 
 export interface IAccessTokenRepository {
   getAccessToken(): Promise<string>;
 }
 
-export type Response = {
-  data: Readable;
-};
-
 export interface IPdmClient {
   createDocumentReference(
     fhirRequest: string,
     requestId: string,
-    correlationId?: string,
   ): Promise<PdmResponse>;
   getDocumentReference(
     documentReferenceId: string,
     requestId: string,
-    correlationId?: string,
   ): Promise<PdmResponse>;
 }
 
-export class PdmClient implements IPdmClient, IAccessibleService {
+export class PdmClient implements IPdmClient {
   private client: AxiosInstance;
 
   constructor(
-    private accessTokenRepository: IAccessTokenRepository,
     private apimBaseUrl: string,
+    private accessTokenRepository: IAccessTokenRepository,
     private logger: Logger,
     private backoffConfig: RetryConfig = {
       maxDelayMs: 10_000,
@@ -52,7 +41,6 @@ export class PdmClient implements IPdmClient, IAccessibleService {
   public async createDocumentReference(
     fhirRequest: string,
     requestId: string,
-    correlationId?: string,
   ): Promise<PdmResponse> {
     try {
       return await conditionalRetry(
@@ -61,7 +49,6 @@ export class PdmClient implements IPdmClient, IAccessibleService {
 
           this.logger.debug({
             requestId,
-            correlationId,
             description: 'Sending request',
             attempt,
           });
@@ -69,7 +56,6 @@ export class PdmClient implements IPdmClient, IAccessibleService {
           const headers = {
             'Content-Type': 'application/json',
             'X-Request-ID': requestId,
-            'X-Correlation-ID': correlationId,
             ...(accessToken === ''
               ? {}
               : {
@@ -96,7 +82,6 @@ export class PdmClient implements IPdmClient, IAccessibleService {
       this.logger.error({
         description: 'Failed sending PDM request',
         requestId,
-        correlationId,
         err: error,
       });
 
@@ -107,7 +92,6 @@ export class PdmClient implements IPdmClient, IAccessibleService {
   public async getDocumentReference(
     documentReferenceId: string,
     requestId: string,
-    correlationId?: string,
   ): Promise<PdmResponse> {
     try {
       return await conditionalRetry(
@@ -116,14 +100,12 @@ export class PdmClient implements IPdmClient, IAccessibleService {
 
           this.logger.debug({
             requestId,
-            correlationId,
             description: 'Sending request',
             attempt,
           });
 
           const headers = {
             'X-Request-ID': requestId,
-            'X-Correlation-ID': correlationId,
             ...(accessToken === ''
               ? {}
               : {
@@ -149,27 +131,10 @@ export class PdmClient implements IPdmClient, IAccessibleService {
       this.logger.error({
         description: 'Failed sending PDM request',
         requestId,
-        correlationId,
         err: error,
       });
 
       throw error;
-    }
-  }
-
-  public async isAccessible(): Promise<boolean> {
-    try {
-      const accessToken = await this.accessTokenRepository.getAccessToken();
-      await this.client.head('/', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      return true;
-    } catch (error: any) {
-      this.logger.error({
-        description: 'NHS API Unavailable',
-        err: error,
-      });
-      return false;
     }
   }
 }

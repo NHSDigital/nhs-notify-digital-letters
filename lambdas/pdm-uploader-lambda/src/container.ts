@@ -1,6 +1,7 @@
 import {
   EventPublisher,
   ParameterStoreCache,
+  PdmClient,
   createGetApimAccessToken,
   eventBridgeClient,
   logger,
@@ -8,7 +9,6 @@ import {
 } from 'utils';
 import { loadConfig } from 'infra/config';
 import { UploadToPdm } from 'app/upload-to-pdm';
-import { PdmClient } from 'infra/pdm-api-client';
 
 export const createContainer = () => {
   const {

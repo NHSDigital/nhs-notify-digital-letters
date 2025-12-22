@@ -28,12 +28,9 @@ export class Pdm {
     try {
       this.logger.info(item);
 
-      const requestId = crypto.randomUUID();
-
       const response = await this.pdmClient.getDocumentReference(
         item.data.resourceId,
-        requestId,
-        item.id,
+        item.data.messageReference,
       );
 
       this.logger.info(response);

@@ -38,7 +38,7 @@ export const createContainer = (): HandlerDependencies => {
     ),
   };
 
-  const pdmClient = new PdmClient(accessTokenRepository, apimBaseUrl, logger);
+  const pdmClient = new PdmClient(apimBaseUrl, accessTokenRepository, logger);
 
   const pdm = new Pdm({
     pdmClient,

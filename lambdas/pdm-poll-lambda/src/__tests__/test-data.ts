@@ -1,12 +1,14 @@
 import { SQSEvent, SQSRecord } from 'aws-lambda';
-import { CloudEvent } from 'utils';
+import {
+  PDMResourceSubmitted,
+  PDMResourceUnavailable,
+} from 'digital-letters-events';
 
 const baseEvent = {
-  profileversion: '1.0.0',
-  profilepublished: '2025-10',
   id: '550e8400-e29b-41d4-a716-446655440001',
   specversion: '1.0',
-  source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
+  source:
+    '/nhs/england/notify/production/primary/data-plane/digitalletters/pdm',
   subject:
     'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
   type: 'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
@@ -17,11 +19,9 @@ const baseEvent = {
   datacontenttype: 'application/json',
   dataschema:
     'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
-  dataschemaversion: '1.0',
   severitytext: 'INFO',
   data: {
     resourceId: 'a2bcbb42-ab7e-42b6-88d6-74f8d3ca4a09',
-    'digital-letter-id': '123e4567-e89b-12d3-a456-426614174000',
     messageReference: 'ref1',
     senderId: 'sender1',
   },
@@ -31,19 +31,19 @@ export const pdmResourceSubmittedEvent = {
   ...baseEvent,
   type: 'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
   dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
-} as CloudEvent;
+    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.json',
+} as PDMResourceSubmitted;
 
 export const pdmResourceUnavailableEvent = {
   ...baseEvent,
   type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
   dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
+    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
   data: {
     ...baseEvent.data,
     retryCount: 1,
   },
-} as CloudEvent;
+} as PDMResourceUnavailable;
 
 const busEvent = {
   version: '0',
@@ -66,7 +66,9 @@ const sqsRecord = {
   awsRegion: '',
 } as SQSRecord;
 
-export const recordEvent = (events: CloudEvent[]): SQSEvent => ({
+export const recordEvent = (
+  events: (PDMResourceSubmitted | PDMResourceUnavailable)[],
+): SQSEvent => ({
   Records: events.map((event, i) => ({
     ...sqsRecord,
     messageId: String(i + 1),

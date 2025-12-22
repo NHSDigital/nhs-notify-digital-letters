@@ -40,15 +40,18 @@ describe('SQS Handler', () => {
 
       const response = await handler(recordEvent([pdmResourceSubmittedEvent]));
 
-      expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-        {
-          ...pdmResourceSubmittedEvent,
-          id: '550e8400-e29b-41d4-a716-446655440001',
-          time: '2023-06-20T12:00:00.250Z',
-          recordedtime: '2023-06-20T12:00:00.250Z',
-          type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
-        },
-      ]);
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+        [
+          {
+            ...pdmResourceSubmittedEvent,
+            id: '550e8400-e29b-41d4-a716-446655440001',
+            time: '2023-06-20T12:00:00.250Z',
+            recordedtime: '2023-06-20T12:00:00.250Z',
+            type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+          },
+        ],
+        expect.any(Function),
+      );
       expect(logger.info).toHaveBeenCalledWith(
         'Received SQS Event of 1 record(s)',
       );
@@ -63,19 +66,22 @@ describe('SQS Handler', () => {
 
       const response = await handler(recordEvent([pdmResourceSubmittedEvent]));
 
-      expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-        {
-          ...pdmResourceSubmittedEvent,
-          id: '550e8400-e29b-41d4-a716-446655440001',
-          time: '2023-06-20T12:00:00.250Z',
-          recordedtime: '2023-06-20T12:00:00.250Z',
-          type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
-          data: {
-            ...pdmResourceSubmittedEvent.data,
-            retryCount: 0,
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+        [
+          {
+            ...pdmResourceSubmittedEvent,
+            id: '550e8400-e29b-41d4-a716-446655440001',
+            time: '2023-06-20T12:00:00.250Z',
+            recordedtime: '2023-06-20T12:00:00.250Z',
+            type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
+            data: {
+              ...pdmResourceSubmittedEvent.data,
+              retryCount: 0,
+            },
           },
-        },
-      ]);
+        ],
+        expect.any(Function),
+      );
       expect(logger.info).toHaveBeenCalledWith(
         'Received SQS Event of 1 record(s)',
       );
@@ -94,15 +100,18 @@ describe('SQS Handler', () => {
         recordEvent([pdmResourceUnavailableEvent]),
       );
 
-      expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-        {
-          ...pdmResourceUnavailableEvent,
-          id: '550e8400-e29b-41d4-a716-446655440001',
-          time: '2023-06-20T12:00:00.250Z',
-          recordedtime: '2023-06-20T12:00:00.250Z',
-          type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
-        },
-      ]);
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+        [
+          {
+            ...pdmResourceUnavailableEvent,
+            id: '550e8400-e29b-41d4-a716-446655440001',
+            time: '2023-06-20T12:00:00.250Z',
+            recordedtime: '2023-06-20T12:00:00.250Z',
+            type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+          },
+        ],
+        expect.any(Function),
+      );
       expect(logger.info).toHaveBeenCalledWith(
         'Received SQS Event of 1 record(s)',
       );
@@ -119,19 +128,22 @@ describe('SQS Handler', () => {
         recordEvent([pdmResourceUnavailableEvent]),
       );
 
-      expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-        {
-          ...pdmResourceUnavailableEvent,
-          id: '550e8400-e29b-41d4-a716-446655440001',
-          time: '2023-06-20T12:00:00.250Z',
-          recordedtime: '2023-06-20T12:00:00.250Z',
-          type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
-          data: {
-            ...pdmResourceSubmittedEvent.data,
-            retryCount: 2,
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+        [
+          {
+            ...pdmResourceUnavailableEvent,
+            id: '550e8400-e29b-41d4-a716-446655440001',
+            time: '2023-06-20T12:00:00.250Z',
+            recordedtime: '2023-06-20T12:00:00.250Z',
+            type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
+            data: {
+              ...pdmResourceSubmittedEvent.data,
+              retryCount: 2,
+            },
           },
-        },
-      ]);
+        ],
+        expect.any(Function),
+      );
       expect(logger.info).toHaveBeenCalledWith(
         'Received SQS Event of 1 record(s)',
       );
@@ -154,19 +166,22 @@ describe('SQS Handler', () => {
 
       const response = await handler(recordEvent([testEvent]));
 
-      expect(eventPublisher.sendEvents).toHaveBeenCalledWith([
-        {
-          ...pdmResourceUnavailableEvent,
-          id: '550e8400-e29b-41d4-a716-446655440001',
-          time: '2023-06-20T12:00:00.250Z',
-          recordedtime: '2023-06-20T12:00:00.250Z',
-          type: 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
-          data: {
-            ...pdmResourceSubmittedEvent.data,
-            retryCount: 10,
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+        [
+          {
+            ...pdmResourceUnavailableEvent,
+            id: '550e8400-e29b-41d4-a716-446655440001',
+            time: '2023-06-20T12:00:00.250Z',
+            recordedtime: '2023-06-20T12:00:00.250Z',
+            type: 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
+            data: {
+              ...pdmResourceSubmittedEvent.data,
+              retryCount: 10,
+            },
           },
-        },
-      ]);
+        ],
+        expect.any(Function),
+      );
       expect(logger.info).toHaveBeenCalledWith(
         'Received SQS Event of 1 record(s)',
       );
@@ -178,16 +193,91 @@ describe('SQS Handler', () => {
   });
 
   describe('errors', () => {
-    it('should return failed items to the queue if an error occurs while processing them', async () => {
+    it('should return failed SQS records to the queue if an error occurs while calling PDM', async () => {
+      pdm.poll.mockRejectedValueOnce(new Error('PDM error'));
+      const event = recordEvent([pdmResourceSubmittedEvent]);
+
+      const result = await handler(event);
+
+      expect(logger.warn).toHaveBeenCalledWith({
+        err: 'PDM error',
+        description: 'Failed processing message',
+      });
+
+      expect(logger.info).toHaveBeenCalledWith(
+        '0 of 1 records processed successfully',
+      );
+
+      expect(result).toEqual({
+        batchItemFailures: [{ itemIdentifier: '1' }],
+      });
+    });
+
+    it('should return failed SQS records to the queue if an error occurs while processing them', async () => {
       const event = recordEvent([pdmResourceSubmittedEvent]);
       event.Records[0].body = 'not-json';
 
       const result = await handler(event);
 
       expect(logger.warn).toHaveBeenCalledWith({
-        error: `Unexpected token 'o', "not-json" is not valid JSON`,
-        description: 'Failed processing message',
-        messageId: '1',
+        err: new SyntaxError(
+          `Unexpected token 'o', "not-json" is not valid JSON`,
+        ),
+        description: 'Error parsing SQS record',
+      });
+
+      expect(logger.info).toHaveBeenCalledWith(
+        '0 of 1 records processed successfully',
+      );
+
+      expect(result).toEqual({
+        batchItemFailures: [{ itemIdentifier: '1' }],
+      });
+    });
+
+    it('should return failed items to the queue if an invalid pdm.resource.submitted event is received', async () => {
+      const invalidSubmittedEvent = {
+        ...pdmResourceSubmittedEvent,
+        source: 'invalid pdm.resource.submitted source',
+      };
+      const event = recordEvent([invalidSubmittedEvent]);
+
+      const result = await handler(event);
+
+      expect(logger.warn).toHaveBeenCalledWith({
+        err: expect.arrayContaining([
+          expect.objectContaining({
+            instancePath: '/source',
+          }),
+        ]),
+        description: 'Error parsing queue entry',
+      });
+
+      expect(logger.info).toHaveBeenCalledWith(
+        '0 of 1 records processed successfully',
+      );
+
+      expect(result).toEqual({
+        batchItemFailures: [{ itemIdentifier: '1' }],
+      });
+    });
+
+    it('should return failed items to the queue if an invalid pdm.resource.unavailable event is received', async () => {
+      const invalidSubmittedEvent = {
+        ...pdmResourceUnavailableEvent,
+        source: 'invalid pdm.resource.unavailable source',
+      };
+      const event = recordEvent([invalidSubmittedEvent]);
+
+      const result = await handler(event);
+
+      expect(logger.warn).toHaveBeenCalledWith({
+        err: expect.arrayContaining([
+          expect.objectContaining({
+            instancePath: '/source',
+          }),
+        ]),
+        description: 'Error parsing queue entry',
       });
 
       expect(logger.info).toHaveBeenCalledWith(

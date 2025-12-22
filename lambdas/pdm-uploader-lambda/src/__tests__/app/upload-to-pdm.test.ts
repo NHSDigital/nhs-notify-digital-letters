@@ -1,7 +1,6 @@
 import { UploadToPdm } from 'app/upload-to-pdm';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
-import { IPdmClient } from 'infra/pdm-api-client';
-import { Logger, getS3ObjectFromUri } from 'utils';
+import { IPdmClient, Logger, getS3ObjectFromUri } from 'utils';
 
 jest.mock('utils', () => ({
   ...jest.requireActual('utils'),

@@ -3,8 +3,14 @@ import type {
   SQSBatchItemFailure,
   SQSBatchResponse,
   SQSEvent,
-  SQSRecord,
 } from 'aws-lambda';
+import {
+  PDMResourceSubmitted,
+  PDMResourceUnavailable,
+} from 'digital-letters-events';
+import pdmResourceAvailableValidator from 'digital-letters-events/PDMResourceAvailable.js';
+import pdmResourceSubmittedValidator from 'digital-letters-events/PDMResourceSubmitted.js';
+import pdmResourceUnavailableValidator from 'digital-letters-events/PDMResourceUnavailable.js';
 import { randomUUID } from 'node:crypto';
 import { EventPublisher, Logger } from 'utils';
 
@@ -13,6 +19,56 @@ export interface HandlerDependencies {
   logger: Logger;
   pdm: Pdm;
   pollMaxRetries: number;
+}
+
+interface ValidatedRecord {
+  messageId: string;
+  event: PDMResourceSubmitted | PDMResourceUnavailable;
+}
+
+function validateRecord(
+  { body, messageId }: { body: string; messageId: string },
+  logger: Logger,
+): ValidatedRecord | null {
+  try {
+    const sqsEventBody = JSON.parse(body);
+    const sqsEventDetail = sqsEventBody.detail;
+
+    if (
+      sqsEventDetail.type ===
+      'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1'
+    ) {
+      const isEventValid = pdmResourceSubmittedValidator(sqsEventDetail);
+      if (!isEventValid) {
+        logger.warn({
+          err: pdmResourceSubmittedValidator.errors,
+          description: 'Error parsing queue entry',
+        });
+
+        return null;
+      }
+
+      return { messageId, event: sqsEventDetail };
+    }
+
+    const isEventValid = pdmResourceUnavailableValidator(sqsEventDetail);
+    if (!isEventValid) {
+      logger.warn({
+        err: pdmResourceUnavailableValidator.errors,
+        description: 'Error parsing queue entry',
+      });
+
+      return null;
+    }
+
+    return { messageId, event: sqsEventDetail };
+  } catch (error) {
+    logger.warn({
+      err: error,
+      description: 'Error parsing SQS record',
+    });
+    return null;
+  }
 }
 
 export const createHandler = ({
@@ -28,46 +84,70 @@ export const createHandler = ({
 
     const batchItemFailures: SQSBatchItemFailure[] = [];
 
+    const validatedRecords: ValidatedRecord[] = [];
+    for (const record of sqsEvent.Records) {
+      const validated = validateRecord(record, logger);
+      if (validated) {
+        validatedRecords.push(validated);
+      } else {
+        batchItemFailures.push({ itemIdentifier: record.messageId });
+      }
+    }
+
     await Promise.all(
-      sqsEvent.Records.map(async (sqsRecord: SQSRecord) => {
+      validatedRecords.map(async (validatedRecord: ValidatedRecord) => {
         try {
-          const event = JSON.parse(sqsRecord.body); // Note: Add event validation when that ticket is completed.
-          const eventDetail = event.detail;
-
-          const result = await pdm.poll(eventDetail);
-
-          const retries = (eventDetail.data?.retryCount ?? -1) + 1;
+          const { event } = validatedRecord;
+          const result = await pdm.poll(event);
+          const retries =
+            ('retryCount' in event.data ? event.data.retryCount : -1) + 1;
           const eventTime = new Date().toISOString();
-          let eventType =
-            'uk.nhs.notify.digital.letters.pdm.resource.available.v1';
 
           if (result === 'unavailable') {
-            eventType =
+            const eventType =
               retries >= pollMaxRetries
                 ? 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1'
                 : 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1';
-          }
 
-          await eventPublisher.sendEvents([
-            {
-              ...eventDetail,
-              id: randomUUID(),
-              time: eventTime,
-              recordedtime: eventTime,
-              type: eventType,
-              data: {
-                ...eventDetail.data,
-                ...(result === 'available' ? {} : { retryCount: retries }),
-              },
-            },
-          ]);
+            await eventPublisher.sendEvents(
+              [
+                {
+                  ...event,
+                  id: randomUUID(),
+                  time: eventTime,
+                  recordedtime: eventTime,
+                  type: eventType,
+                  data: {
+                    ...event.data,
+                    retryCount: retries,
+                  },
+                },
+              ],
+              pdmResourceUnavailableValidator,
+            );
+          } else {
+            await eventPublisher.sendEvents(
+              [
+                {
+                  ...event,
+                  id: randomUUID(),
+                  time: eventTime,
+                  recordedtime: eventTime,
+                  type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+                  data: {
+                    ...event.data,
+                  },
+                },
+              ],
+              pdmResourceAvailableValidator,
+            );
+          }
         } catch (error: any) {
           logger.warn({
-            error: error.message,
+            err: error.message,
             description: 'Failed processing message',
-            messageId: sqsRecord.messageId,
           });
-          batchItemFailures.push({ itemIdentifier: sqsRecord.messageId });
+          batchItemFailures.push({ itemIdentifier: validatedRecord.messageId });
         }
       }),
     );

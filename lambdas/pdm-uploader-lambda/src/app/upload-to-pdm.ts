@@ -1,5 +1,4 @@
-import { Logger, getS3ObjectFromUri } from 'utils';
-import { IPdmClient } from 'infra/pdm-api-client';
+import { IPdmClient, Logger, getS3ObjectFromUri } from 'utils';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 
 export type UploadToPdmOutcome = 'sent' | 'failed';
