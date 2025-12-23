@@ -147,7 +147,7 @@ deploy-ci:
 	pwd && \
 	ls -la
 	@echo "from manual test tools versions file contains:"
-	cat .tool-versions
+	cat .tool-versions || echo "  -> .tool-versions file not found in this directory"
 	/usr/local/bin/asdf --version
 	@echo "Setting up asdf environment and adding plugins"
 	export ASDF_DATA_DIR=$$HOME/.asdf && \

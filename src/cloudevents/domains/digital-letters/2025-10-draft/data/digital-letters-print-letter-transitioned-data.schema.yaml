@@ -1,0 +1,22 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: PrintLetterTransitioned Data
+description: Base data of the PrintLetterTransitioned event
+type: object
+additionalProperties: false
+properties:
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  status:
+    $ref: ../defs/print.schema.yaml#/properties/status
+  supplierId:
+    $ref: ../defs/print.schema.yaml#/properties/supplierId
+  time:
+    $ref: ../defs/core.schema.yaml#/properties/time
+required:
+  - senderId
+  - messageReference
+  - status
+  - supplierId
+  - time

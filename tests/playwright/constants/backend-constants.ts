@@ -15,6 +15,7 @@ export const TTL_POLL_LAMBDA_NAME = `${CSI}-ttl-poll`;
 // Queue Names
 export const TTL_QUEUE_NAME = `${CSI}-ttl-queue`;
 export const TTL_DLQ_NAME = `${CSI}-ttl-dlq`;
+export const PDM_UPLOADER_DLQ_NAME = `${CSI}-pdm-uploader-dlq`;
 
 // Queue Url Prefix
 export const SQS_URL_PREFIX = `https://sqs.${REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/`;
@@ -22,6 +23,13 @@ export const SQS_URL_PREFIX = `https://sqs.${REGION}.amazonaws.com/${AWS_ACCOUNT
 // Event Bus
 export const EVENT_BUS_ARN = `arn:aws:events:${REGION}:${AWS_ACCOUNT_ID}:event-bus/${CSI}`;
 export const EVENT_BUS_DLQ_URL = `${SQS_URL_PREFIX}${CSI}-event-publisher-errors-queue`;
+export const EVENT_BUS_LOG_GROUP_NAME = `/aws/vendedlogs/events/event-bus/${CSI}`;
 
 // DynamoDB
 export const TTL_TABLE_NAME = `${CSI}-ttl`;
+
+// S3
+export const LETTERS_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-letters`;
+
+// Cloudwatch
+export const PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-uploader`;

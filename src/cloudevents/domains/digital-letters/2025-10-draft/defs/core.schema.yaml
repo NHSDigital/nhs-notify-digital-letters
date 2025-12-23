@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: Request data
+title: Core data
 description: Reusable types for NHS Notify payload schemas.
 type: object
 properties:
@@ -18,3 +18,12 @@ properties:
       - "CM_NOT_ALLOWED"
       - "CM_NO_SUCH_ROUTING_PLAN"
       - "CM_DUPLICATE_REQUEST"
+  time:
+    title: "Event Time"
+    description: "Timestamp when the event occurred (RFC 3339)."
+    examples: [
+      "2025-10-01T10:15:30.000Z"
+    ]
+    type: "string"
+    format: "date-time"
+    pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"

@@ -30,7 +30,3 @@ export interface IParameterStore {
 
 export type NonNullSSMParam = Omit<Parameter, 'Name' | 'Value'> &
   Required<Pick<Parameter, 'Name' | 'Value'>>;
-
-export interface IAccessibleService {
-  isAccessible(): Promise<boolean>;
-}
