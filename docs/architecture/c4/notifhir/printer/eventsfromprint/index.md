@@ -2,7 +2,7 @@
 
 title: Events from Supplier API
 parent:  Print Supplier Services
-nav_order: 9
+nav_order: 4
 has_children: true
 is_not_draft: false
 last_modified_date: 2025-12-12
