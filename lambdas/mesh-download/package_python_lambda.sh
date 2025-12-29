@@ -6,7 +6,7 @@ component_name="$1"
 rootdir=$(realpath "$(dirname "$0")/../..")
 source ${rootdir}/utils/get_version.sh
 
-VERSIONED_ZIP_NAME="NHSD.comms."${component_name}-"${point_version}"".zip"
+VERSIONED_ZIP_NAME="NHSD.dl."${component_name}-"${POINT_VERSION}"".zip"
 
 dist_dir="${PWD}/target/dist"
 build_dir="${PWD}/target/python-build"
