@@ -29,7 +29,7 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
 
         deployment = 'primary'
         plane = 'data-plane'
-        self.__cloud_event_source = f'/nhs/england/notify/{self.__config.environment}/{deployment}/{plane}/digital-letters'
+        self.__cloud_event_source = f'/nhs/england/notify/{self.__config.environment}/{deployment}/{plane}/digitalletters/mesh'
 
         # Initialize EventPublisher
         self.__event_publisher = EventPublisher(
@@ -134,8 +134,6 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         now = datetime.now(timezone.utc).isoformat()
 
         cloud_event = {
-            'profileversion': '1.0.0',
-            'profilepublished': '2025-10',
             'id': str(uuid4()),
             'specversion': '1.0',
             'source': self.__cloud_event_source,
@@ -146,8 +144,7 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
             'severitynumber': 2,
             'severitytext': 'INFO',
             'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-            'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letters-mesh-inbox-message-received-data.schema.json',
-            'dataschemaversion': '1.0',
+            'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json',
             'data': event_detail.get('data', {}),
         }
 

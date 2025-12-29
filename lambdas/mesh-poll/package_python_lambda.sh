@@ -23,18 +23,10 @@ grep -vE '^-e ' requirements.txt > target/external_requirements.txt || true
 pip install --platform manylinux2014_x86_64 --only-binary=:all: -r target/external_requirements.txt --target ${build_dir} --python-version 3.13 --implementation cp
 
 # Install internal dependencies (local packages)
-if [ -s target/internal_requirements.txt ]; then
-    while IFS= read -r dep; do
-        pip install "$dep" --target ${build_dir}
-    done < target/internal_requirements.txt
-fi
+pip install -r target/internal_requirements.txt --target ${build_dir}
 
-for item in src/*; do
-    basename=$(basename "$item")
-    if [[ "$basename" != "__tests__" && "$basename" != "venv" && "$basename" != "__pycache__" ]]; then
-        cp -r "$item" "${build_dir}/"
-    fi
-done
+# Bundle application code
+pip install . --no-deps --target ${build_dir}
 
 # Construct the build artefact
 cd ${build_dir} && zip -r "${dist_dir}/${VERSIONED_ZIP_NAME}" .

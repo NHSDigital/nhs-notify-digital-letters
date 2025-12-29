@@ -35,13 +35,13 @@ def setup_mocks():
 class TestHandler:
     """Test suite for Lambda handler"""
 
-    @patch('src.handler.Config')
-    @patch('src.handler.SenderLookup')
-    @patch('src.handler.MeshMessageProcessor')
-    @patch('src.handler.client')
+    @patch('mesh_poll.handler.Config')
+    @patch('mesh_poll.handler.SenderLookup')
+    @patch('mesh_poll.handler.MeshMessageProcessor')
+    @patch('mesh_poll.handler.client')
     def test_handler_success(self, mock_boto_client, mock_processor_class, mock_sender_lookup_class, mock_config_class):
         """Test successful handler execution"""
-        from src.handler import handler
+        from mesh_poll.handler import handler
 
         (mock_context, mock_config, mock_ssm,
         mock_sender_lookup, mock_processor) = setup_mocks()
@@ -82,13 +82,13 @@ class TestHandler:
         # Verify process_messages was called
         mock_processor.process_messages.assert_called_once()
 
-    @patch('src.handler.Config')
-    @patch('src.handler.SenderLookup')
-    @patch('src.handler.MeshMessageProcessor')
-    @patch('src.handler.client')
+    @patch('mesh_poll.handler.Config')
+    @patch('mesh_poll.handler.SenderLookup')
+    @patch('mesh_poll.handler.MeshMessageProcessor')
+    @patch('mesh_poll.handler.client')
     def test_handler_config_cleanup_on_exception(self, mock_boto_client, mock_processor_class, mock_sender_lookup_class, mock_config_class):
         """Test that Config context manager cleanup is called even on exception"""
-        from src.handler import handler
+        from mesh_poll.handler import handler
 
         (mock_context, mock_config, mock_ssm,
         mock_sender_lookup, mock_processor) = setup_mocks()
