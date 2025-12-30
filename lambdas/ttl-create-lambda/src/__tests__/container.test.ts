@@ -6,7 +6,7 @@ jest.mock('infra/config', () => ({
     eventPublisherEventBusArn: 'test-arn',
     ttlShardCount: 1,
     ttlTableName: 'test-table',
-    ttlWaitTimeHours: 24,
+    environment: 'test-environment',
   })),
 }));
 
@@ -18,12 +18,17 @@ jest.mock('app/create-ttl', () => ({
   CreateTtl: jest.fn(() => ({})),
 }));
 
+jest.mock('sender-management/src/infra/sender-repository/repository', () => ({
+  SenderRepository: jest.fn(() => ({})),
+}));
+
 jest.mock('utils', () => ({
   EventPublisher: jest.fn(() => ({})),
   dynamoClient: {},
   eventBridgeClient: {},
   logger: {},
   sqsClient: {},
+  ParameterStoreCache: jest.fn(() => ({})),
 }));
 
 describe('container', () => {

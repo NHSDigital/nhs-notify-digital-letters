@@ -1,5 +1,6 @@
 import { PutCommand, PutCommandOutput } from '@aws-sdk/lib-dynamodb';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
+import { ISenderRepository } from 'sender-management/src/infra/interfaces';
 import { Logger } from 'utils';
 
 interface IDynamoCaller {
@@ -7,20 +8,25 @@ interface IDynamoCaller {
 }
 
 export class TtlRepository {
-  private readonly ttlWaitTimeSeconds;
-
   constructor(
     private readonly tableName: string,
-    ttlWaitTimeHours: number,
     private readonly logger: Logger,
     private readonly dynamoClient: IDynamoCaller,
     private readonly shardCount: number,
-  ) {
-    this.ttlWaitTimeSeconds = ttlWaitTimeHours * 60 * 60;
-  }
+    private readonly senderRepository: ISenderRepository,
+  ) {}
 
   public async insertTtlRecord(item: MESHInboxMessageDownloaded) {
-    const ttlTime = Math.round(Date.now() / 1000) + this.ttlWaitTimeSeconds;
+    const sender = await this.senderRepository.getSender(item.data.senderId);
+    if (!sender) {
+      this.logger.error({
+        description: `Sender not found for sender ID ${item.data.senderId}`,
+      });
+      throw new Error(`Sender not found for sender ID ${item.data.senderId}`);
+    }
+
+    const ttlTime =
+      Math.round(Date.now() / 1000) + sender.fallbackWaitTimeSeconds;
 
     this.logger.info({
       description: 'Inserting item into TTL table',
