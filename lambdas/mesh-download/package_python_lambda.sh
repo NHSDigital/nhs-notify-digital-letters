@@ -20,7 +20,7 @@ grep -E '^-e ' requirements.txt | sed 's|^-e ||' > target/internal_requirements.
 grep -vE '^-e ' requirements.txt > target/external_requirements.txt || true
 
 # Install external dependencies (from PyPI)
-pip install --platform manylinux2014_x86_64 --only-binary=:all: -r target/external_requirements.txt --target ${build_dir} --python-version 3.13 --implementation cp
+pip install --platform manylinux2014_x86_64 --only-binary=:all: -r target/external_requirements.txt --target ${build_dir} --python-version 3.14 --implementation cp
 
 # Install internal dependencies (local packages)
 if [ -s target/internal_requirements.txt ]; then
