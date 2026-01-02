@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { EVENT_BUS_LOG_GROUP_NAME } from 'constants/backend-constants';
 import pdmResourceSubmittedValidator from 'digital-letters-events/PDMResourceSubmitted.js';
+import pdmResourceUnavailableValidator from 'digital-letters-events/PDMResourceUnavailable.js';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
@@ -59,6 +60,86 @@ test.describe('PDM Poll', () => {
           '$.message_type = "EVENT_RECEIPT"',
           '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.available.v1"',
           `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    }, 120);
+  });
+
+  test('should send a pdm.resource.unavailable event when not available in PDM', async () => {
+    const eventId = uuidv4();
+    const documentResourceId = 'b8f2b194-31e1-3719-aaf9-a9195e35e692';
+    const messageReference = uuidv4();
+    const senderId = uuidv4();
+
+    await eventPublisher.sendEvents(
+      [
+        {
+          ...baseEvent,
+          id: eventId,
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
+          type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
+          data: {
+            resourceId: documentResourceId,
+            messageReference,
+            senderId,
+            retryCount: 0,
+          },
+        },
+      ],
+      pdmResourceUnavailableValidator,
+    );
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        EVENT_BUS_LOG_GROUP_NAME,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1"',
+          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+          `$.details.event_detail = "*\\"retryCount\\":1*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    }, 120);
+  });
+
+  test('should send a pdm.resource.retries.exceeded event when not available in PDM after 10 retries', async () => {
+    const eventId = uuidv4();
+    const documentResourceId = 'b8f2b194-31e1-3719-aaf9-a9195e35e692';
+    const messageReference = uuidv4();
+    const senderId = uuidv4();
+
+    await eventPublisher.sendEvents(
+      [
+        {
+          ...baseEvent,
+          id: eventId,
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
+          type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
+          data: {
+            resourceId: documentResourceId,
+            messageReference,
+            senderId,
+            retryCount: 9,
+          },
+        },
+      ],
+      pdmResourceUnavailableValidator,
+    );
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        EVENT_BUS_LOG_GROUP_NAME,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1"',
+          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+          `$.details.event_detail = "*\\"retryCount\\":10*"`,
         ],
       );
 
