@@ -189,9 +189,11 @@ describe('SQS Handler', () => {
             id: '550e8400-e29b-41d4-a716-446655440001',
             time: '2023-06-20T12:00:00.250Z',
             recordedtime: '2023-06-20T12:00:00.250Z',
+            dataschema:
+              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-retries-exceeded-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
             data: {
-              ...pdmResourceSubmittedEvent.data,
+              ...pdmResourceUnavailableEvent.data,
               retryCount: 10,
             },
           },

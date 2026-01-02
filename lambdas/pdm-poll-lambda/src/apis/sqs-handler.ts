@@ -5,12 +5,15 @@ import type {
   SQSEvent,
 } from 'aws-lambda';
 import {
+  PDMResourceAvailable,
+  PDMResourceRetriesExceeded,
   PDMResourceSubmitted,
   PDMResourceUnavailable,
 } from 'digital-letters-events';
 import pdmResourceAvailableValidator from 'digital-letters-events/PDMResourceAvailable.js';
 import pdmResourceSubmittedValidator from 'digital-letters-events/PDMResourceSubmitted.js';
 import pdmResourceUnavailableValidator from 'digital-letters-events/PDMResourceUnavailable.js';
+import pdmResourceRetriesExceededValidator from 'digital-letters-events/PDMResourceRetriesExceeded.js';
 import { randomUUID } from 'node:crypto';
 import { EventPublisher, Logger } from 'utils';
 
@@ -21,10 +24,12 @@ export interface HandlerDependencies {
   pollMaxRetries: number;
 }
 
-interface ValidatedRecord {
+type PollableEvent = PDMResourceSubmitted | PDMResourceUnavailable;
+
+type ValidatedRecord = {
   messageId: string;
-  event: PDMResourceSubmitted | PDMResourceUnavailable;
-}
+  event: PollableEvent;
+};
 
 function validateRecord(
   { body, messageId }: { body: string; messageId: string },
@@ -71,6 +76,67 @@ function validateRecord(
   }
 }
 
+function generateAvailableEvent(event: PollableEvent): PDMResourceAvailable {
+  const eventTime = new Date().toISOString();
+
+  return {
+    ...event,
+    id: randomUUID(),
+    time: eventTime,
+    recordedtime: eventTime,
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
+    type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+    data: {
+      ...event.data,
+      nhsNumber: '9999999999',
+      odsCode: 'AB1234',
+    },
+  };
+}
+
+function generateUnavailableEvent(
+  event: PollableEvent,
+  retries: number,
+): PDMResourceUnavailable {
+  const eventTime = new Date().toISOString();
+
+  return {
+    ...event,
+    id: randomUUID(),
+    time: eventTime,
+    recordedtime: eventTime,
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
+    type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
+    data: {
+      ...event.data,
+      retryCount: retries,
+    },
+  };
+}
+
+function generateRetriesExceededEvent(
+  event: PollableEvent,
+  retries: number,
+): PDMResourceRetriesExceeded {
+  const eventTime = new Date().toISOString();
+
+  return {
+    ...event,
+    id: randomUUID(),
+    time: eventTime,
+    recordedtime: eventTime,
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-retries-exceeded-data.schema.json',
+    type: 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
+    data: {
+      ...event.data,
+      retryCount: retries,
+    },
+  };
+}
+
 export const createHandler = ({
   eventPublisher,
   logger,
@@ -79,12 +145,14 @@ export const createHandler = ({
 }: HandlerDependencies) =>
   async function handler(sqsEvent: SQSEvent): Promise<SQSBatchResponse> {
     const receivedItemCount = sqsEvent.Records.length;
+    const batchItemFailures: SQSBatchItemFailure[] = [];
+    const validatedRecords: ValidatedRecord[] = [];
+    const availableEvents: PDMResourceAvailable[] = [];
+    const unavailableEvents: PDMResourceUnavailable[] = [];
+    const retriesExceededEvents: PDMResourceRetriesExceeded[] = [];
 
     logger.info(`Received SQS Event of ${receivedItemCount} record(s)`);
 
-    const batchItemFailures: SQSBatchItemFailure[] = [];
-
-    const validatedRecords: ValidatedRecord[] = [];
     for (const record of sqsEvent.Records) {
       const validated = validateRecord(record, logger);
       if (validated) {
@@ -98,55 +166,24 @@ export const createHandler = ({
       validatedRecords.map(async (validatedRecord: ValidatedRecord) => {
         try {
           const { event } = validatedRecord;
+
           const result = await pdm.poll(event);
-          const retries =
-            ('retryCount' in event.data ? event.data.retryCount : -1) + 1;
-          const eventTime = new Date().toISOString();
+
+          let retries = 0; // First attempt for submitted events
+          if ('retryCount' in event.data) {
+            retries = event.data.retryCount + 1; // Increment attempt for unavailable events
+          }
 
           if (result === 'unavailable') {
-            const eventType =
-              retries >= pollMaxRetries
-                ? 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1'
-                : 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1';
-
-            await eventPublisher.sendEvents(
-              [
-                {
-                  ...event,
-                  id: randomUUID(),
-                  time: eventTime,
-                  recordedtime: eventTime,
-                  dataschema:
-                    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
-                  type: eventType,
-                  data: {
-                    ...event.data,
-                    retryCount: retries,
-                  },
-                },
-              ],
-              pdmResourceUnavailableValidator,
-            );
+            if (retries >= pollMaxRetries) {
+              retriesExceededEvents.push(
+                generateRetriesExceededEvent(event, retries),
+              );
+            } else {
+              unavailableEvents.push(generateUnavailableEvent(event, retries));
+            }
           } else {
-            await eventPublisher.sendEvents(
-              [
-                {
-                  ...event,
-                  id: randomUUID(),
-                  time: eventTime,
-                  recordedtime: eventTime,
-                  dataschema:
-                    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
-                  type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
-                  data: {
-                    ...event.data,
-                    nhsNumber: '9999999999',
-                    odsCode: 'AB1234',
-                  },
-                },
-              ],
-              pdmResourceAvailableValidator,
-            );
+            availableEvents.push(generateAvailableEvent(event));
           }
         } catch (error: any) {
           logger.warn({
@@ -156,6 +193,26 @@ export const createHandler = ({
           batchItemFailures.push({ itemIdentifier: validatedRecord.messageId });
         }
       }),
+    );
+
+    await Promise.all(
+      [
+        availableEvents.length > 0 &&
+          eventPublisher.sendEvents(
+            availableEvents,
+            pdmResourceAvailableValidator,
+          ),
+        unavailableEvents.length > 0 &&
+          eventPublisher.sendEvents(
+            unavailableEvents,
+            pdmResourceUnavailableValidator,
+          ),
+        retriesExceededEvents.length > 0 &&
+          eventPublisher.sendEvents(
+            retriesExceededEvents,
+            pdmResourceRetriesExceededValidator,
+          ),
+      ].filter(Boolean),
     );
 
     const processedItemCount = receivedItemCount - batchItemFailures.length;
