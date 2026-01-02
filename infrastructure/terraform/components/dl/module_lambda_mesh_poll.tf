@@ -22,8 +22,8 @@ module "mesh_poll" {
   function_code_base_path = local.aws_lambda_functions_dir_path
   function_code_dir       = "mesh-poll/target/dist"
   function_include_common = true
-  function_module_name    = "handler"
-  handler_function_name   = "handler"
+  function_module_name    = "mesh_poll"
+  handler_function_name   = "handler.handler"
   runtime                 = "python3.14"
   memory                  = 128
   timeout                 = 5
