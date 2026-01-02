@@ -9,7 +9,7 @@ import {
 import { loadConfig } from 'infra/config';
 import { TtlRepository } from 'infra/ttl-repository';
 import { CreateTtl } from 'app/create-ttl';
-import { SenderRepository } from 'sender-management/src/infra/sender-repository/repository';
+import { SenderManagement } from 'sender-management';
 
 export const createContainer = () => {
   const {
@@ -22,9 +22,8 @@ export const createContainer = () => {
 
   const parameterStore = new ParameterStoreCache();
 
-  const senderRepository = new SenderRepository({
-    config: { environment },
-    logger,
+  const senderRepository = SenderManagement({
+    configOverrides: { environment },
     parameterStore,
   });
 

@@ -1,12 +1,11 @@
 import { ENV } from 'constants/backend-constants';
-import { SenderRepository } from 'sender-management/src/infra/sender-repository';
-import { ParameterStoreCache, logger } from 'utils';
+import { SenderManagement } from 'sender-management';
+import { ParameterStoreCache } from 'utils';
 
 const parameterStore = new ParameterStoreCache();
 
-const senderRepository = new SenderRepository({
-  config: { environment: ENV },
-  logger,
+const senderRepository = SenderManagement({
+  configOverrides: { environment: ENV },
   parameterStore,
 });
 

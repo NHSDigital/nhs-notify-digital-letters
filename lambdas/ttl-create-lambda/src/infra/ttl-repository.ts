@@ -1,6 +1,6 @@
 import { PutCommand, PutCommandOutput } from '@aws-sdk/lib-dynamodb';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
-import { ISenderRepository } from 'sender-management/src/infra/interfaces';
+import { ISenderManagement } from 'sender-management';
 import { Logger } from 'utils';
 
 interface IDynamoCaller {
@@ -13,11 +13,13 @@ export class TtlRepository {
     private readonly logger: Logger,
     private readonly dynamoClient: IDynamoCaller,
     private readonly shardCount: number,
-    private readonly senderRepository: ISenderRepository,
+    private readonly senderRepository: ISenderManagement,
   ) {}
 
   public async insertTtlRecord(item: MESHInboxMessageDownloaded) {
-    const sender = await this.senderRepository.getSender(item.data.senderId);
+    const sender = await this.senderRepository.getSender({
+      senderId: item.data.senderId,
+    });
     if (!sender) {
       this.logger.error({
         description: `Sender not found for sender ID ${item.data.senderId}`,

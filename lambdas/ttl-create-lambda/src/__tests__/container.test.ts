@@ -18,8 +18,8 @@ jest.mock('app/create-ttl', () => ({
   CreateTtl: jest.fn(() => ({})),
 }));
 
-jest.mock('sender-management/src/infra/sender-repository/repository', () => ({
-  SenderRepository: jest.fn(() => ({})),
+jest.mock('sender-management', () => ({
+  SenderManagement: jest.fn(() => ({})),
 }));
 
 jest.mock('utils', () => ({

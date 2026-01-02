@@ -76,7 +76,9 @@ describe('TtlRepository', () => {
       }),
     );
 
-    expect(senderRepository.getSender).toHaveBeenCalledWith(item.data.senderId);
+    expect(senderRepository.getSender).toHaveBeenCalledWith({
+      senderId: item.data.senderId,
+    });
 
     const putCommand: PutCommand = dynamoClient.send.mock.calls[0][0];
     expect(putCommand.input).toStrictEqual({
