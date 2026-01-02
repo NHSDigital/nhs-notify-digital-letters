@@ -10,6 +10,7 @@
     "@faker-js/faker": "^9.6.0",
     "@playwright/test": "^1.51.1",
     "digital-letters-events": "^0.0.1",
+    "sender-management": "^0.0.1",
     "utils": "^0.0.1",
     "uuid": "^8.3.2"
   },

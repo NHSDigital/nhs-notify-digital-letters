@@ -1,5 +1,6 @@
 import {
   EventPublisher,
+  ParameterStoreCache,
   dynamoClient,
   eventBridgeClient,
   logger,
@@ -8,22 +9,30 @@ import {
 import { loadConfig } from 'infra/config';
 import { TtlRepository } from 'infra/ttl-repository';
 import { CreateTtl } from 'app/create-ttl';
+import { SenderManagement } from 'sender-management';
 
 export const createContainer = () => {
   const {
+    environment,
     eventPublisherDlqUrl,
     eventPublisherEventBusArn,
     ttlShardCount,
     ttlTableName,
-    ttlWaitTimeHours,
   } = loadConfig();
+
+  const parameterStore = new ParameterStoreCache();
+
+  const senderRepository = SenderManagement({
+    configOverrides: { environment },
+    parameterStore,
+  });
 
   const requestTtlRepository = new TtlRepository(
     ttlTableName,
-    ttlWaitTimeHours,
     logger,
     dynamoClient,
     ttlShardCount,
+    senderRepository,
   );
 
   const createTtl = new CreateTtl(requestTtlRepository, logger);

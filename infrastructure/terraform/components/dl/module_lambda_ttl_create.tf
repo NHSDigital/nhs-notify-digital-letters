@@ -36,8 +36,8 @@ module "ttl_create" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
+    "ENVIRONMENT"                   = var.environment
     "TTL_TABLE_NAME"                = aws_dynamodb_table.ttl.name
-    "TTL_WAIT_TIME_HOURS"           = 24
     "TTL_SHARD_COUNT"               = local.ttl_shard_count
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
@@ -112,6 +112,21 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
 
     resources = [
       module.sqs_event_publisher_errors.sqs_queue_arn,
+    ]
+  }
+
+  statement {
+    sid    = "AllowSSMParam"
+    effect = "Allow"
+
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:GetParametersByPath",
+    ]
+
+    resources = [
+      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter/${var.component}/${var.environment}/senders/*"
     ]
   }
 }

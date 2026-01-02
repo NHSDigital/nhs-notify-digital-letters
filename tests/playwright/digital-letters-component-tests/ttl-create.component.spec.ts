@@ -35,7 +35,7 @@ test.describe('Digital Letters - Create TTL', () => {
           data: {
             messageUri,
             messageReference: 'ref1',
-            senderId: 'sender1',
+            senderId: 'test-sender-1',
           },
         },
       ],

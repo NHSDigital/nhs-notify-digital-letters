@@ -2,6 +2,7 @@
   "dependencies": {
     "@aws-sdk/lib-dynamodb": "^3.908.0",
     "digital-letters-events": "^0.0.1",
+    "sender-management": "^0.0.1",
     "utils": "^0.0.1"
   },
   "devDependencies": {

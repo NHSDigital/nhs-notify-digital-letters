@@ -10,8 +10,13 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'senders:setup',
+      testMatch: 'senders.setup.ts',
+    },
+    {
       name: 'component',
       testMatch: '*.component.spec.ts',
+      dependencies: ['senders:setup'],
       teardown: 'component:teardown',
     },
     {
