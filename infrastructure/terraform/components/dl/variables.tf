@@ -92,6 +92,12 @@ variable "mesh_poll_schedule" {
   default     = "cron(0,30 8-16 ? * MON-FRI *)" # Every 30 minutes between 8am and 4:30pm Mon-Fri
 }
 
+variable "enable_mock_mesh" {
+  description = "Enable mock mesh access (dev only). Grants lambda permission to read mock-mesh prefix in non-pii bucket."
+  type        = bool
+  default     = false
+}
+
 variable "queue_batch_size" {
   type        = number
   description = "maximum number of queue items to process"

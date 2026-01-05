@@ -17,6 +17,7 @@ No requirements.
 | <a name="input_component"></a> [component](#input\_component) | The variable encapsulating the name of this component | `string` | `"dl"` | no |
 | <a name="input_default_tags"></a> [default\_tags](#input\_default\_tags) | A map of default tags to apply to all taggable resources within the component | `map(string)` | `{}` | no |
 | <a name="input_enable_dynamodb_delete_protection"></a> [enable\_dynamodb\_delete\_protection](#input\_enable\_dynamodb\_delete\_protection) | Enable DynamoDB Delete Protection on all Tables | `bool` | `true` | no |
+| <a name="input_enable_mock_mesh"></a> [enable\_mock\_mesh](#input\_enable\_mock\_mesh) | Enable mock mesh access (dev only). Grants lambda permission to read mock-mesh prefix in non-pii bucket. | `bool` | `false` | no |
 | <a name="input_enable_pdm_mock"></a> [enable\_pdm\_mock](#input\_enable\_pdm\_mock) | Flag indicating whether to deploy PDM mock API (should be false in production environments) | `bool` | `true` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | The name of the tfscaffold environment | `string` | n/a | yes |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Flag to force deletion of S3 buckets | `bool` | `false` | no |
@@ -51,6 +52,7 @@ No requirements.
 | <a name="module_s3bucket_letters"></a> [s3bucket\_letters](#module\_s3bucket\_letters) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_static_assets"></a> [s3bucket\_static\_assets](#module\_s3bucket\_static\_assets) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_sqs_event_publisher_errors"></a> [sqs\_event\_publisher\_errors](#module\_sqs\_event\_publisher\_errors) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
+| <a name="module_sqs_mesh_acknowledge"></a> [sqs\_mesh\_acknowledge](#module\_sqs\_mesh\_acknowledge) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-sqs.zip | n/a |
 | <a name="module_sqs_pdm_poll"></a> [sqs\_pdm\_poll](#module\_sqs\_pdm\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_pdm_uploader"></a> [sqs\_pdm\_uploader](#module\_sqs\_pdm\_uploader) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_ttl"></a> [sqs\_ttl](#module\_sqs\_ttl) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
