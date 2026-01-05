@@ -167,7 +167,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
     }, 120);
   });
 
-  test('should send invalid event to dlq', async () => {
+  test('should send invalid event to uploader dlq', async () => {
     // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
     test.setTimeout(550_000);
 
