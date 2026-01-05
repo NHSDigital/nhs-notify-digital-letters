@@ -1,9 +1,14 @@
 {
   "dependencies": {
-    "@eventcatalog/core": "2.64.3"
+    "@eventcatalog/core": "2.65.3"
   },
   "devDependencies": {
     "http-server": "^14.1.1"
+  },
+  "overrides": {
+    "@langchain/core": "^0.3.80",
+    "langchain": "^0.3.37",
+    "qs": "^6.14.1"
   },
   "name": "digital-letters",
   "private": true,
