@@ -6,30 +6,51 @@ title: sequence-expire-print-ttl
 
 ```mermaid
 sequenceDiagram
-  participant dl as Digital Letters
-  participant s3 as S3 Bucket
+  participant scannerlambda as Lambda<br/>PrintScanner
+  participant analyserLambda as Lambda<br/>PrintAnalyser
+  participant senderLambda as Lambda<br/>PrintSender
+  participant moveLambda as Lambda<br/>MoveLetters
+  participant unscannedS3 as S3<br/>UnscannedLetters
+  participant gd as GuardDuty
+  participant safeS3 as S3<br/>SafeLetters
+  participant quarantinedS3 as S3<br/>QuarantinedLetters
   participant eventBus as Event Bus
   participant printApi as Print API
 
-  eventBus ->> dl: ItemDequeued event
-  activate dl
-  dl ->> dl: Extract & Decode PDF
-        dl -) s3: Store PDF
-  deactivate dl
-  s3 -) s3: GuardDuty
-  s3 -) eventBus: ScanResult event
-  eventBus ->> dl: ScanResult event
-  activate dl
-  dl ->> s3: Get scanned PDF
-        activate s3
-                s3 -->> dl: PDF
-        deactivate s3
-  dl ->> dl: Count pages
-  dl ->> dl: SHA256
-  dl ->> eventBus: LetterAvailable event
-  deactivate dl
-  eventBus ->> dl: LetterAvailable event
-  activate dl
-  dl -) printApi: letter.PREPARED event
-  deactivate dl
+  eventBus ->> scannerlambda: ItemDequeued event
+  activate scannerlambda
+  scannerlambda ->> scannerlambda: Extract & Decode PDF
+        scannerlambda -) unscannedS3: Store PDF
+  deactivate scannerlambda
+  unscannedS3 -) gd: S3 new object event
+  activate gd
+      gd -) gd: Scan for threats
+      gd -) eventBus: ScanResult event
+  deactivate gd
+  eventBus -) moveLambda: ScanResult event
+  activate moveLambda
+    alt Move scanned letter
+      moveLambda ->> safeS3: Store safe PDF
+      moveLambda ->> eventBus: PrintLetterSafe event
+    else
+      moveLambda ->> quarantinedS3: Store quarantined PDF
+      moveLambda ->> eventBus: PrintLetterQuarantined event
+  end
+  moveLambda ->> unscannedS3: Delete unscanned PDF
+  deactivate moveLambda
+  eventBus -) analyserLambda: PrintLetterSafe event
+  activate analyserLambda
+  analyserLambda ->> safeS3: Get scanned PDF
+        activate safeS3
+                safeS3 -->> analyserLambda: PDF
+        deactivate safeS3
+  analyserLambda ->> analyserLambda: Count pages
+  analyserLambda ->> analyserLambda: SHA256
+  analyserLambda ->> eventBus: PrintLetterAnalysed event
+  deactivate analyserLambda
+  eventBus -) senderLambda: PrintLetterAnalysed event
+  activate senderLambda
+  senderLambda -) eventBus: letter.PREPARED event
+  deactivate senderLambda
+  eventBus -) printApi: letter.PREPARED event
 ```
