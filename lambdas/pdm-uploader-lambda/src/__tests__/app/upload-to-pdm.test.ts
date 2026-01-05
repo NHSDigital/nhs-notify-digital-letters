@@ -43,6 +43,14 @@ describe('UploadToPdm', () => {
       lastUpdated: '2023-06-20T12:00:00Z',
     },
     status: 'current',
+    author: [
+      {
+        identifier: {
+          system: 'https://fhir.nhs.uk/Id/ods-organization-code',
+          value: 'Y05868',
+        },
+      },
+    ],
     subject: {
       identifier: {
         system: 'https://fhir.nhs.uk/Id/nhs-number',
