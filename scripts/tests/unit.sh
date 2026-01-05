@@ -34,6 +34,11 @@ echo "Setting up and running eventcatalogasyncapiimporter tests..."
 make -C ./src/eventcatalogasyncapiimporter install-dev
 make -C ./src/eventcatalogasyncapiimporter coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
+# Python Lambda - mesh-acknowledge
+echo "Setting up and running mesh-acknowledge tests..."
+make -C ./lambdas/mesh-acknowledge install-dev
+make -C ./lambdas/mesh-acknowledge coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
 # Python projects - python-schema-generator
 echo "Setting up and running python-schema-generator tests..."
 make -C ./src/python-schema-generator install-dev
