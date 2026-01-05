@@ -140,6 +140,7 @@ data "aws_iam_policy_document" "mesh_poll_lambda" {
     effect = "Allow"
 
     actions = [
+      "ssm:GetParameter",
       "ssm:GetParametersByPath",
     ]
 
