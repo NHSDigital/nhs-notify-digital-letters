@@ -1,6 +1,12 @@
 import { IPdmClient, Logger } from 'utils';
 
-export type PdmOutcome = 'available' | 'unavailable';
+export type PdmAvailability = 'available' | 'unavailable';
+
+export type PdmPollResult = {
+  pdmAvailability: PdmAvailability;
+  nhsNumber: string;
+  odsCode: string;
+};
 
 export interface PdmDependencies {
   pdmClient: IPdmClient;
@@ -24,7 +30,7 @@ export class Pdm {
     this.logger = config.logger;
   }
 
-  async poll(item: any): Promise<PdmOutcome> {
+  async poll(item: any): Promise<PdmPollResult> {
     try {
       this.logger.info(item);
 
@@ -35,10 +41,23 @@ export class Pdm {
 
       this.logger.info(response);
 
-      if (response.content[0].attachment.data) {
-        return 'available';
+      const { data } = response.content[0].attachment;
+      const nhsNumber = response.subject.identifier.value;
+      const odsCode = response.author.find(
+        (author) =>
+          author.identifier.system ===
+          'https://fhir.nhs.uk/Id/ods-organization-code',
+      )?.identifier.value;
+
+      if (!odsCode) {
+        throw new Error('No ODS organization code found');
       }
-      return 'unavailable';
+
+      return {
+        pdmAvailability: data ? 'available' : 'unavailable',
+        nhsNumber,
+        odsCode,
+      };
     } catch (error) {
       this.logger.error({
         description: 'Error getting document resource from PDM',

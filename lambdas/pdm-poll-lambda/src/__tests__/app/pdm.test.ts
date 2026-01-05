@@ -18,6 +18,14 @@ const availableResponse = {
     lastUpdated: '2025-12-10T09:00:47.068021Z',
   },
   status: 'current',
+  author: [
+    {
+      identifier: {
+        system: 'https://fhir.nhs.uk/Id/ods-organization-code',
+        value: 'Y05868',
+      },
+    },
+  ],
   subject: {
     identifier: {
       system: 'https://fhir.nhs.uk/Id/nhs-number',
@@ -68,7 +76,11 @@ describe('Pdm', () => {
 
       const result = await pdm.poll(pdmResourceSubmittedEvent);
 
-      expect(result).toBe('available');
+      expect(result).toEqual({
+        pdmAvailability: 'available',
+        nhsNumber: '9912003071',
+        odsCode: 'Y05868',
+      });
     });
 
     it('returns unavailable when the document is not ready', async () => {
@@ -90,7 +102,11 @@ describe('Pdm', () => {
 
       const result = await pdm.poll(pdmResourceSubmittedEvent);
 
-      expect(result).toBe('unavailable');
+      expect(result).toEqual({
+        pdmAvailability: 'unavailable',
+        nhsNumber: '9912003071',
+        odsCode: 'Y05868',
+      });
     });
 
     it('logs and throws error when error from PDM', async () => {
@@ -106,7 +122,36 @@ describe('Pdm', () => {
       expect(logger.error).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Error getting document resource from PDM',
-          err: new Error('pdm failure'),
+          err: thrown,
+        }),
+      );
+    });
+
+    it('logs and throws error when no ODS Code is found', async () => {
+      const cfg = validConfig();
+      const thrown = new Error('No ODS organization code found');
+      const noOdsCodeResponse = {
+        ...availableResponse,
+        author: [
+          {
+            identifier: {
+              system: 'https://fhir.nhs.uk/Id/some-other-code',
+              value: '1111',
+            },
+          },
+        ],
+      };
+      pdmClient.getDocumentReference.mockResolvedValue(noOdsCodeResponse);
+
+      const pdm = new Pdm(cfg);
+
+      await expect(pdm.poll(pdmResourceSubmittedEvent)).rejects.toThrow(thrown);
+
+      expect(logger.error).toHaveBeenCalledTimes(1);
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Error getting document resource from PDM',
+          err: thrown,
         }),
       );
     });

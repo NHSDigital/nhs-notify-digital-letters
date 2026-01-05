@@ -36,7 +36,11 @@ describe('SQS Handler', () => {
 
   describe('pdm.resource.submitted', () => {
     it('should send pdm.resource.available event when the document is ready', async () => {
-      pdm.poll.mockResolvedValueOnce('available');
+      pdm.poll.mockResolvedValueOnce({
+        pdmAvailability: 'available',
+        nhsNumber: '9999999999',
+        odsCode: 'AB1234',
+      });
 
       const response = await handler(recordEvent([pdmResourceSubmittedEvent]));
 
@@ -69,7 +73,11 @@ describe('SQS Handler', () => {
     });
 
     it('should send pdm.resource.unavailable event when the document is not ready', async () => {
-      pdm.poll.mockResolvedValueOnce('unavailable');
+      pdm.poll.mockResolvedValueOnce({
+        pdmAvailability: 'unavailable',
+        nhsNumber: '9999999999',
+        odsCode: 'AB1234',
+      });
 
       const response = await handler(recordEvent([pdmResourceSubmittedEvent]));
 
@@ -103,7 +111,11 @@ describe('SQS Handler', () => {
 
   describe('pdm.resource.unavailable', () => {
     it('should send pdm.resource.available event when the document is ready', async () => {
-      pdm.poll.mockResolvedValueOnce('available');
+      pdm.poll.mockResolvedValueOnce({
+        pdmAvailability: 'available',
+        nhsNumber: '9999999999',
+        odsCode: 'AB1234',
+      });
 
       const response = await handler(
         recordEvent([pdmResourceUnavailableEvent]),
@@ -138,7 +150,11 @@ describe('SQS Handler', () => {
     });
 
     it('should send pdm.resource.unavailable event when the document is not ready', async () => {
-      pdm.poll.mockResolvedValueOnce('unavailable');
+      pdm.poll.mockResolvedValueOnce({
+        pdmAvailability: 'unavailable',
+        nhsNumber: '9999999999',
+        odsCode: 'AB1234',
+      });
 
       const response = await handler(
         recordEvent([pdmResourceUnavailableEvent]),
@@ -170,7 +186,11 @@ describe('SQS Handler', () => {
     });
 
     it('should send pdm.resource.retries.exceeded event when the document is not ready after 10 retries', async () => {
-      pdm.poll.mockResolvedValueOnce('unavailable');
+      pdm.poll.mockResolvedValueOnce({
+        pdmAvailability: 'unavailable',
+        nhsNumber: '9999999999',
+        odsCode: 'AB1234',
+      });
 
       const testEvent = {
         ...pdmResourceUnavailableEvent,

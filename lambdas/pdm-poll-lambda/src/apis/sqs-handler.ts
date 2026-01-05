@@ -76,7 +76,11 @@ function validateRecord(
   }
 }
 
-function generateAvailableEvent(event: PollableEvent): PDMResourceAvailable {
+function generateAvailableEvent(
+  event: PollableEvent,
+  nhsNumber: string,
+  odsCode: string,
+): PDMResourceAvailable {
   const eventTime = new Date().toISOString();
 
   return {
@@ -89,8 +93,8 @@ function generateAvailableEvent(event: PollableEvent): PDMResourceAvailable {
     type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
     data: {
       ...event.data,
-      nhsNumber: '9999999999',
-      odsCode: 'AB1234',
+      nhsNumber,
+      odsCode,
     },
   };
 }
@@ -166,15 +170,13 @@ export const createHandler = ({
       validatedRecords.map(async (validatedRecord: ValidatedRecord) => {
         try {
           const { event } = validatedRecord;
-
-          const result = await pdm.poll(event);
-
+          const { nhsNumber, odsCode, pdmAvailability } = await pdm.poll(event);
           let retries = 0; // First attempt for submitted events
           if ('retryCount' in event.data) {
             retries = event.data.retryCount + 1; // Increment attempt for unavailable events
           }
 
-          if (result === 'unavailable') {
+          if (pdmAvailability === 'unavailable') {
             if (retries >= pollMaxRetries) {
               retriesExceededEvents.push(
                 generateRetriesExceededEvent(event, retries),
@@ -183,7 +185,9 @@ export const createHandler = ({
               unavailableEvents.push(generateUnavailableEvent(event, retries));
             }
           } else {
-            availableEvents.push(generateAvailableEvent(event));
+            availableEvents.push(
+              generateAvailableEvent(event, nhsNumber, odsCode),
+            );
           }
         } catch (error: any) {
           logger.warn({

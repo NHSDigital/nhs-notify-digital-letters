@@ -39,7 +39,7 @@ test.describe('PDM Poll', () => {
 
   test('should send a pdm.resource.available event when available in PDM', async () => {
     const eventId = uuidv4();
-    const documentResourceId = 'fc450f3d-e6fe-3436-9e06-4c83cc38b707';
+    const documentResourceId = '9ae75410-c067-35ae-9410-153fa849a4dd';
     const messageReference = uuidv4();
     const senderId = uuidv4();
 
@@ -65,6 +65,8 @@ test.describe('PDM Poll', () => {
           '$.message_type = "EVENT_RECEIPT"',
           '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.available.v1"',
           `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+          `$.details.event_detail = "*\\"odsCode\\":\\"Y05868\\"*"`,
+          `$.details.event_detail = "*\\"nhsNumber\\":\\"9912003071\\"*"`,
         ],
       );
 

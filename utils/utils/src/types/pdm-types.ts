@@ -19,4 +19,10 @@ export type PdmResponse = {
       data?: string;
     };
   }[];
+  author: {
+    identifier: {
+      system: string;
+      value: string;
+    };
+  }[];
 };
