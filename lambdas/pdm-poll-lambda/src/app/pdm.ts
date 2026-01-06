@@ -39,8 +39,6 @@ export class Pdm {
         item.data.messageReference,
       );
 
-      this.logger.info(response);
-
       const { data } = response.content[0].attachment;
       const nhsNumber = response.subject.identifier.value;
       const odsCode = response.author.find(
