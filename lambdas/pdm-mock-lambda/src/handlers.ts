@@ -244,7 +244,7 @@ export const createGetResourceHandler = (logger: Logger) => {
       return createEmptySuccessResponse();
     }
 
-    const includeData = resourceId === 'unavailable-response' ? false : true;
+    const includeData = resourceId !== 'unavailable-response';
     const resource = generateMockResource(resourceId, includeData);
     logger.info('Returning mock resource', { resourceId, requestId });
     return createResourceResponse(resource);

@@ -13,9 +13,7 @@ export interface Container {
 }
 
 export const createContainer = (): Container => {
-  const authenticator = createAuthenticator(
-    logger,
-  );
+  const authenticator = createAuthenticator(logger);
 
   const getResourceHandler = createGetResourceHandler(logger);
   const createResourceHandler = createCreateResourceHandler(logger);
