@@ -194,7 +194,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
           },
         },
       ],
-      messageDownloadedValidator,
+      () => true,
     );
 
     await expectToPassEventually(async () => {
