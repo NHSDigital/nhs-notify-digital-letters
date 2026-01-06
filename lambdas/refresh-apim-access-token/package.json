@@ -2,11 +2,11 @@
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.840.0",
     "aws-lambda": "^1.0.7",
-    "axios": "1.10.0",
+    "axios": "^1.13.2",
     "esbuild": "^0.25.9",
     "jsonwebtoken": "^9.0.2",
-    "utils": "*",
-    "qs": "^6.14.0"
+    "qs": "^6.14.0",
+    "utils": "*"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",

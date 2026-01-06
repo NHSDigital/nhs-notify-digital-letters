@@ -2,6 +2,7 @@
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.914.0",
     "@types/yargs": "^17.0.33",
+    "axios": "^1.13.2",
     "tsx": "^4.20.6",
     "utils": "^0.0.1",
     "yargs": "^17.7.2",
