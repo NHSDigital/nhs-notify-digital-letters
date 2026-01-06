@@ -76,7 +76,7 @@ test.describe('PDM Poll', () => {
 
   test('should send a pdm.resource.unavailable event when not available in PDM', async () => {
     const eventId = uuidv4();
-    const documentResourceId = 'b8f2b194-31e1-3719-aaf9-a9195e35e692';
+    const documentResourceId = 'unavailable-response';
     const messageReference = uuidv4();
     const senderId = uuidv4();
 
@@ -116,7 +116,7 @@ test.describe('PDM Poll', () => {
 
   test('should send a pdm.resource.retries.exceeded event when not available in PDM after 10 retries', async () => {
     const eventId = uuidv4();
-    const documentResourceId = 'b8f2b194-31e1-3719-aaf9-a9195e35e692';
+    const documentResourceId = 'unavailable-response';
     const messageReference = uuidv4();
     const senderId = uuidv4();
 
