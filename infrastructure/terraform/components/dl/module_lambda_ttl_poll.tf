@@ -1,5 +1,5 @@
 module "ttl_poll" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
 
   function_name = "ttl-poll"
   description   = "A function for deleting any overdue TTL records"
@@ -32,7 +32,6 @@ module "ttl_poll" {
   force_lambda_code_deploy = var.force_lambda_code_deploy
   enable_lambda_insights   = false
 
-  send_to_firehose          = true
   log_destination_arn       = local.log_destination_arn
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 

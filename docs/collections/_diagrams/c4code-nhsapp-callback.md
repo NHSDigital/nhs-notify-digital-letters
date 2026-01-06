@@ -6,7 +6,7 @@ title: c4code-nhsapp-callback
 
 ```mermaid
 architecture-beta
-    group CallbackHandler(cloud)[NHSApp Callback Handler]
+    group CallbackHandler(cloud)[NHSAppCallbackHandler]
     service nhsapp(server)[NHS App]
     service apiGateway(aws:arch-amazon-api-gateway)[API Gateway]
     service lambda(logos:aws-lambda)[NHS App Callback Handler] in CallbackHandler
