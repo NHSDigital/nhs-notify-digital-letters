@@ -1,12 +1,12 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: PrintLetterAnalysed
+title: PrintLetterSafe
 type: object
 allOf:
   - $ref: ../digital-letters-print-profile.schema.yaml
 properties:
   type:
     type: string
-    const: uk.nhs.notify.digital.letters.print.letter.analysed.v1
+    const: uk.nhs.notify.digital.letters.print.letter.safe.v1
     description: Concrete versioned event type string for this event (.vN suffix).
   source:
     type: string
@@ -14,9 +14,9 @@ properties:
     description: Event source for digital letters.
   dataschema:
     type: string
-    const: ../data/digital-letters-print-letter-analysed-data.schema.yaml
+    const: ../data/digital-letters-print-letter-safe-data.schema.yaml
     description: Canonical URI of the event's data schema.
     examples:
-      - digital-letters-print-letter-analysed-data.schema.yaml
+      - digital-letters-print-letter-safe-data.schema.yaml
   data:
-    $ref: ../data/digital-letters-print-letter-analysed-data.schema.yaml
+    $ref: ../data/digital-letters-print-letter-safe-data.schema.yaml

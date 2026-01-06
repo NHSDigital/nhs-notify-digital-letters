@@ -1,6 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: PrintLetterAnalysed Data
-description: Data payload of the PrintLetterAnalysed event
+title: PrintLetterQuarantined Data
+description: Data payload of the PrintLetterQuarantined event
 type: object
 additionalProperties: false
 properties:
@@ -10,16 +10,7 @@ properties:
     $ref: ../defs/requests.schema.yaml#/properties/senderId
   letterUri:
     $ref: ../defs/print.schema.yaml#/properties/letterUri
-  pageCount:
-    $ref: ../defs/print.schema.yaml#/properties/pageCount
-  sha256Hash:
-    $ref: ../defs/print.schema.yaml#/properties/sha256Hash
-  createdAt:
-    $ref: ../defs/print.schema.yaml#/properties/createdAt
 required:
   - messageReference
   - senderId
   - letterUri
-  - pageCount
-  - sha256Hash
-  - createdAt
