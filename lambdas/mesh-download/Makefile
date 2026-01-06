@@ -8,11 +8,11 @@ install-dev:
 	pip install -r requirements-dev.txt
 
 test:
-	cd ../.. && PYTHONPATH=lambdas/mesh-download:$$PYTHONPATH pytest lambdas/mesh-download/src/__tests__/ -v
+	cd ../.. && PYTHONPATH=lambdas/mesh-download:$$PYTHONPATH pytest lambdas/mesh-download/mesh_download/__tests__/ -v
 
 coverage:
-	cd ../.. && PYTHONPATH=lambdas/mesh-download:$$PYTHONPATH pytest lambdas/mesh-download/src/__tests__/ \
-		--cov=lambdas/mesh-download/src \
+	cd ../.. && PYTHONPATH=lambdas/mesh-download:$$PYTHONPATH pytest lambdas/mesh-download/mesh_download/__tests__/ \
+		--cov=lambdas/mesh-download/mesh_download \
 		--cov-config=lambdas/mesh-download/pytest.ini \
 		--cov-report=html:lambdas/mesh-download/htmlcov \
 		--cov-report=term-missing \
@@ -20,7 +20,7 @@ coverage:
 		--cov-branch
 
 lint:
-	pylint src
+	pylint mesh_download
 
 format:
 	autopep8 -ri .
