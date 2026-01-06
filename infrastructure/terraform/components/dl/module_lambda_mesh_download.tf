@@ -37,7 +37,7 @@ module "mesh_download" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    SSM_PREFIX                          = "/dl/${var.environment}/mesh"
+    SSM_PREFIX                          = "${local.ssm_mesh_prefix}"
     EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
     EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_errors.sqs_queue_url
     ENVIRONMENT                         = var.environment
@@ -159,6 +159,20 @@ data "aws_iam_policy_document" "mesh_download_lambda" {
 
     resources = [
       module.sqs_event_publisher_errors.sqs_queue_arn,
+    ]
+  }
+
+  statement {
+    sid    = "SSMPermissions"
+    effect = "Allow"
+
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParametersByPath",
+    ]
+
+    resources = [
+      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.ssm_mesh_prefix}/*"
     ]
   }
 }
