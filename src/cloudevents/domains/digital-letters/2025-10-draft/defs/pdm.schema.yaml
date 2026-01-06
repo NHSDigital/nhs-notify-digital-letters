@@ -12,6 +12,6 @@ properties:
   retryCount:
     type: integer
     minimum: 0
-    description: Number of times that PDM has been polled while waiting for document processing to complete
+    description: Number of times that PDM has been retried while waiting for document processing to complete
     examples:
       - 2
