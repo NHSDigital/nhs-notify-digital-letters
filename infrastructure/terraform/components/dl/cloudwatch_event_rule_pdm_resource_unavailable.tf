@@ -12,9 +12,8 @@ resource "aws_cloudwatch_event_rule" "pdm_resource_unavailable" {
   })
 }
 
-resource "aws_cloudwatch_event_target" "pdm_resource_unavailable" {
+resource "aws_cloudwatch_event_target" "pdm_resource_unavailable_pdm_poll_target" {
   rule           = aws_cloudwatch_event_rule.pdm_resource_unavailable.name
   arn            = module.sqs_pdm_poll.sqs_queue_arn
-  target_id      = "pdm-resource-unavailable-target"
   event_bus_name = aws_cloudwatch_event_bus.main.name
 }
