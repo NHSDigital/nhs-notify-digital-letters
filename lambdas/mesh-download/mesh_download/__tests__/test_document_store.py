@@ -1,7 +1,7 @@
 """Tests for DocumentStore"""
 import pytest
 from unittest.mock import Mock
-from src.document_store import DocumentStore, IntermediaryBodyStoreError
+from mesh_download.document_store import DocumentStore, IntermediaryBodyStoreError
 
 
 class TestDocumentStore:

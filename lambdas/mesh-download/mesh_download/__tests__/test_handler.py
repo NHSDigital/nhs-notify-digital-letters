@@ -42,13 +42,13 @@ def create_sqs_event(num_records=1, event_source='aws:sqs'):
 class TestHandler:
     """Test suite for Lambda handler"""
 
-    @patch('src.handler.EventPublisher')
-    @patch('src.handler.DocumentStore')
-    @patch('src.handler.Config')
-    @patch('src.handler.MeshDownloadProcessor')
+    @patch('mesh_download.handler.EventPublisher')
+    @patch('mesh_download.handler.DocumentStore')
+    @patch('mesh_download.handler.Config')
+    @patch('mesh_download.handler.MeshDownloadProcessor')
     def test_handler_success_single_message(self, mock_processor_class, mock_config_class, mock_doc_store_class, mock_event_pub_class):
         """Test successful handler execution with single SQS message"""
-        from src.handler import handler
+        from mesh_download.handler import handler
 
         (mock_context, mock_config, mock_processor) = setup_mocks()
 
@@ -78,13 +78,13 @@ class TestHandler:
 
         assert result == {"batchItemFailures": []}
 
-    @patch('src.handler.EventPublisher')
-    @patch('src.handler.DocumentStore')
-    @patch('src.handler.Config')
-    @patch('src.handler.MeshDownloadProcessor')
+    @patch('mesh_download.handler.EventPublisher')
+    @patch('mesh_download.handler.DocumentStore')
+    @patch('mesh_download.handler.Config')
+    @patch('mesh_download.handler.MeshDownloadProcessor')
     def test_handler_success_multiple_messages(self, mock_processor_class, mock_config_class, mock_doc_store_class, mock_event_pub_class):
         """Test successful handler execution with multiple SQS messages"""
-        from src.handler import handler
+        from mesh_download.handler import handler
 
         (mock_context, mock_config, mock_processor) = setup_mocks()
 
@@ -105,13 +105,13 @@ class TestHandler:
         # Verify return value (no failures)
         assert result == {"batchItemFailures": []}
 
-    @patch('src.handler.EventPublisher')
-    @patch('src.handler.DocumentStore')
-    @patch('src.handler.Config')
-    @patch('src.handler.MeshDownloadProcessor')
+    @patch('mesh_download.handler.EventPublisher')
+    @patch('mesh_download.handler.DocumentStore')
+    @patch('mesh_download.handler.Config')
+    @patch('mesh_download.handler.MeshDownloadProcessor')
     def test_handler_config_cleanup_on_success(self, mock_processor_class, mock_config_class, mock_doc_store_class, mock_event_pub_class):
         """Test that Config context manager cleanup is called on success"""
-        from src.handler import handler
+        from mesh_download.handler import handler
 
         (mock_context, mock_config, mock_processor) = setup_mocks()
 
@@ -130,13 +130,13 @@ class TestHandler:
         mock_exit.assert_called_once()
         assert mock_exit.call_args[0] == (None, None, None)
 
-    @patch('src.handler.EventPublisher')
-    @patch('src.handler.DocumentStore')
-    @patch('src.handler.Config')
-    @patch('src.handler.MeshDownloadProcessor')
+    @patch('mesh_download.handler.EventPublisher')
+    @patch('mesh_download.handler.DocumentStore')
+    @patch('mesh_download.handler.Config')
+    @patch('mesh_download.handler.MeshDownloadProcessor')
     def test_handler_partial_batch_failure(self, mock_processor_class, mock_config_class, mock_doc_store_class, mock_event_pub_class):
         """Test handler handles partial batch failures correctly"""
-        from src.handler import handler
+        from mesh_download.handler import handler
 
         (mock_context, mock_config, mock_processor) = setup_mocks()
 
@@ -162,13 +162,13 @@ class TestHandler:
         assert len(result["batchItemFailures"]) == 1
         assert result["batchItemFailures"][0]["itemIdentifier"] == "msg-1"
 
-    @patch('src.handler.EventPublisher')
-    @patch('src.handler.DocumentStore')
-    @patch('src.handler.Config')
-    @patch('src.handler.MeshDownloadProcessor')
+    @patch('mesh_download.handler.EventPublisher')
+    @patch('mesh_download.handler.DocumentStore')
+    @patch('mesh_download.handler.Config')
+    @patch('mesh_download.handler.MeshDownloadProcessor')
     def test_handler_skips_non_sqs_records(self, mock_processor_class, mock_config_class, mock_doc_store_class, mock_event_pub_class):
         """Test handler skips records that are not from SQS"""
-        from src.handler import handler
+        from mesh_download.handler import handler
 
         (mock_context, mock_config, mock_processor) = setup_mocks()
 
@@ -187,13 +187,13 @@ class TestHandler:
 
         assert result == {"batchItemFailures": []}
 
-    @patch('src.handler.EventPublisher')
-    @patch('src.handler.DocumentStore')
-    @patch('src.handler.Config')
-    @patch('src.handler.MeshDownloadProcessor')
+    @patch('mesh_download.handler.EventPublisher')
+    @patch('mesh_download.handler.DocumentStore')
+    @patch('mesh_download.handler.Config')
+    @patch('mesh_download.handler.MeshDownloadProcessor')
     def test_handler_config_cleanup_on_exception(self, mock_processor_class, mock_config_class, mock_doc_store_class, mock_event_pub_class):
         """Test that Config context manager cleanup is called even on exception"""
-        from src.handler import handler
+        from mesh_download.handler import handler
 
         (mock_context, mock_config, mock_processor) = setup_mocks()
 
@@ -217,13 +217,13 @@ class TestHandler:
         # Verify the failed message is in batch failures
         assert len(result["batchItemFailures"]) == 1
 
-    @patch('src.handler.EventPublisher')
-    @patch('src.handler.DocumentStore')
-    @patch('src.handler.Config')
-    @patch('src.handler.MeshDownloadProcessor')
+    @patch('mesh_download.handler.EventPublisher')
+    @patch('mesh_download.handler.DocumentStore')
+    @patch('mesh_download.handler.Config')
+    @patch('mesh_download.handler.MeshDownloadProcessor')
     def test_handler_returns_empty_failures_on_empty_event(self, mock_processor_class, mock_config_class, mock_doc_store_class, mock_event_pub_class):
         """Test handler handles empty event gracefully"""
-        from src.handler import handler
+        from mesh_download.handler import handler
 
         (mock_context, mock_config, mock_processor) = setup_mocks()
 
@@ -242,13 +242,13 @@ class TestHandler:
 
         assert result == {"batchItemFailures": []}
 
-    @patch('src.handler.EventPublisher')
-    @patch('src.handler.DocumentStore')
-    @patch('src.handler.Config')
-    @patch('src.handler.MeshDownloadProcessor')
+    @patch('mesh_download.handler.EventPublisher')
+    @patch('mesh_download.handler.DocumentStore')
+    @patch('mesh_download.handler.Config')
+    @patch('mesh_download.handler.MeshDownloadProcessor')
     def test_handler_passes_correct_parameters_to_processor(self, mock_processor_class, mock_config_class, mock_doc_store_class, mock_event_pub_class):
         """Test that handler passes all required parameters to MeshDownloadProcessor"""
-        from src.handler import handler
+        from mesh_download.handler import handler
 
         (mock_context, mock_config, mock_processor) = setup_mocks()
 

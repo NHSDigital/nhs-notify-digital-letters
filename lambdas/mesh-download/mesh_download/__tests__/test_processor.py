@@ -89,7 +89,7 @@ class TestMeshDownloadProcessor:
 
     def test_processor_initialization_calls_mesh_handshake(self):
         """Processor initializes and handshakes mesh client"""
-        from src.processor import MeshDownloadProcessor
+        from mesh_download.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
 
@@ -104,10 +104,10 @@ class TestMeshDownloadProcessor:
 
         config.mesh_client.handshake.assert_called_once()
 
-    @patch('src.processor.datetime')
+    @patch('mesh_download.processor.datetime')
     def test_process_sqs_message_success(self, mock_datetime):
         """Successful end-to-end: validate, download, store via document_store, publish, acknowledge"""
-        from src.processor import MeshDownloadProcessor
+        from mesh_download.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
 
@@ -172,7 +172,7 @@ class TestMeshDownloadProcessor:
 
     def test_process_sqs_message_validation_failure(self):
         """Malformed CloudEvents should be rejected by pydantic and not trigger downloads"""
-        from src.processor import MeshDownloadProcessor
+        from mesh_download.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
 
@@ -196,7 +196,7 @@ class TestMeshDownloadProcessor:
 
     def test_process_sqs_message_missing_mesh_message_id(self):
         """Event missing meshMessageId should not be processed"""
-        from src.processor import MeshDownloadProcessor
+        from mesh_download.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
 
@@ -221,7 +221,7 @@ class TestMeshDownloadProcessor:
 
     def test_download_and_store_message_not_found(self):
         """If MESH returns None, nothing is stored or published"""
-        from src.processor import MeshDownloadProcessor
+        from mesh_download.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
         bound_logger = Mock()
@@ -249,7 +249,7 @@ class TestMeshDownloadProcessor:
 
     def test_document_store_failure_prevents_ack_and_raises(self):
         """If storing fails the processor should raise and not acknowledge the MESH message"""
-        from src.processor import MeshDownloadProcessor
+        from mesh_download.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
 
@@ -274,10 +274,10 @@ class TestMeshDownloadProcessor:
         # ensure we did not acknowledge the message if storage failed
         mesh_message.acknowledge.assert_not_called()
 
-    @patch('src.processor.datetime')
+    @patch('mesh_download.processor.datetime')
     def test_bucket_selection_with_mesh_mock_enabled(self, mock_datetime):
         """When use_mesh_mock=True, processor uses PII bucket for storage"""
-        from src.processor import MeshDownloadProcessor
+        from mesh_download.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
         # Configure for mock mesh
@@ -312,10 +312,10 @@ class TestMeshDownloadProcessor:
         message_uri = published_events[0]['data']['messageUri']
         assert message_uri.startswith('s3://test-pii-bucket/')
 
-    @patch('src.processor.datetime')
+    @patch('mesh_download.processor.datetime')
     def test_bucket_selection_with_mesh_mock_disabled(self, mock_datetime):
         """When use_mesh_mock=False, processor uses PII bucket for storage"""
-        from src.processor import MeshDownloadProcessor
+        from mesh_download.processor import MeshDownloadProcessor
 
         config, log, event_publisher, document_store = setup_mocks()
         # Configure for production (PII bucket)
