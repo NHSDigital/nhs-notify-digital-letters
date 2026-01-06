@@ -33,6 +33,7 @@ test.describe('Digital Letters - Create TTL', () => {
             'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
           severitytext: 'INFO',
           data: {
+            meshMessageId: '12345',
             messageUri,
             messageReference: 'ref1',
             senderId: 'test-sender-1',
