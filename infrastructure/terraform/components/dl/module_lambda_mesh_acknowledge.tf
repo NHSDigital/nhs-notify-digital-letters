@@ -40,6 +40,7 @@ module "mesh_acknowledge" {
     ENVIRONMENT                         = var.environment
     EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_errors.sqs_queue_url
     EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
+    MOCK_MESH_BUCKET                    = module.s3bucket_non_pii_data.bucket
     SSM_PREFIX                          = "${local.ssm_mesh_prefix}"
     USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"
   }
@@ -115,5 +116,22 @@ data "aws_iam_policy_document" "mesh_acknowledge_lambda" {
     resources = [
       "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.ssm_mesh_prefix}/*"
     ]
+  }
+
+  # Grant S3 PutObject permissions for the mock-mesh directory only when the mock is enabled
+  dynamic "statement" {
+    for_each = var.enable_mock_mesh ? [1] : []
+    content {
+      sid    = "MockMeshPutObject"
+      effect = "Allow"
+
+      actions = [
+        "s3:PutObject",
+      ]
+
+      resources = [
+        "${module.s3bucket_non_pii_data.arn}/mock-mesh/*"
+      ]
+    }
   }
 }

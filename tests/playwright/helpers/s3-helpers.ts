@@ -1,4 +1,5 @@
 import {
+  GetObjectCommand,
   ListBucketsCommand,
   PutObjectCommand,
   S3Client,
@@ -36,4 +37,25 @@ async function uploadToS3(
   );
 }
 
-export { listBuckets, uploadToS3 };
+async function downloadFromS3(
+  bucket: string,
+  key: string,
+): Promise<{ body: string; metadata?: Record<string, string> }> {
+  const response = await s3.send(
+    new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    }),
+  );
+
+  if (!response.Body) {
+    throw new Error(`No content found for s3://${bucket}/${key}`);
+  }
+
+  return {
+    body: await response.Body.transformToString(),
+    metadata: response.Metadata,
+  };
+}
+
+export { downloadFromS3, listBuckets, uploadToS3 };
