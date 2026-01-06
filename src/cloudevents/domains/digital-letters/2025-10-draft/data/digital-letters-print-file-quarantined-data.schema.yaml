@@ -1,6 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: PrintLetterSafe Data
-description: Data payload of the PrintLetterSafe event
+title: FileQuarantined Data
+description: Data payload of the FileQuarantined event
 type: object
 additionalProperties: false
 properties:

@@ -1,6 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: PrintLetterAnalysed Data
-description: Data payload of the PrintLetterAnalysed event
+title: PDFAnalysed Data
+description: Data payload of the PDFAnalysed event
 type: object
 additionalProperties: false
 properties:
