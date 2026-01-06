@@ -10,16 +10,13 @@ const mockLogger: Logger = {
 } as any;
 
 describe('Authenticator', () => {
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('with mock token', () => {
     it('should authenticate successfully with valid Bearer token', async () => {
-      const authenticator = createAuthenticator(
-        mockLogger,
-      );
+      const authenticator = createAuthenticator(mockLogger);
 
       const result = await authenticator({
         headers: { Authorization: 'Bearer test-token' },
@@ -29,9 +26,7 @@ describe('Authenticator', () => {
     });
 
     it('should reject request with missing Authorization header', async () => {
-      const authenticator = createAuthenticator(
-        mockLogger,
-      );
+      const authenticator = createAuthenticator(mockLogger);
 
       const result = await authenticator({ headers: {} });
 
@@ -50,9 +45,7 @@ describe('Authenticator', () => {
     });
 
     it('should reject request with invalid token type', async () => {
-      const authenticator = createAuthenticator(
-        mockLogger,
-      );
+      const authenticator = createAuthenticator(mockLogger);
 
       const result = await authenticator({
         headers: { Authorization: 'Basic test-token' },
@@ -69,9 +62,7 @@ describe('Authenticator', () => {
     });
 
     it('should handle lowercase authorization header', async () => {
-      const authenticator = createAuthenticator(
-        mockLogger,
-      );
+      const authenticator = createAuthenticator(mockLogger);
 
       const result = await authenticator({
         headers: { authorization: 'Bearer test-token' },
