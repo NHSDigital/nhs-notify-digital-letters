@@ -36,7 +36,7 @@ module "pdm_poll" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    "APIM_BASE_URL"                        = var.apim_base_url
+    "APIM_BASE_URL"                        = local.deploy_pdm_mock ? aws_api_gateway_stage.pdm_mock[0].invoke_url : var.apim_base_url
     "APIM_ACCESS_TOKEN_SSM_PARAMETER_NAME" = local.apim_access_token_ssm_parameter_name
     "EVENT_PUBLISHER_EVENT_BUS_ARN"        = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"              = module.sqs_event_publisher_errors.sqs_queue_url
