@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "sqs_pdm_poll" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-pdm-poll-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-pdm-poll-queue"
     ]
   }
 }
