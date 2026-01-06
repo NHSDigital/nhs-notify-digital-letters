@@ -6,7 +6,7 @@ title: c4code-mesh-statusreporter-recorder
 
 ```mermaid
 architecture-beta
-    group statusRecorder(cloud)[StatusRecorder]
+    group statusRecorder(cloud)[ReportStatusRecorder]
     service report1Event(aws:res-amazon-eventbridge-event)[DigitalLetterRead Event]
     service report2Event(aws:res-amazon-eventbridge-event)[PrintingDispatched Event]
     service report3Event(aws:res-amazon-eventbridge-event)[NHSAppMessageRequested Event]

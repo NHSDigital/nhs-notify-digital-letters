@@ -7,7 +7,7 @@ description: Manage TTL
 
 ```mermaid
 architecture-beta
-   group manageTTL(cloud)[ManageTTL]
+   group manageTTL(cloud)[QueueManager]
    service pollEvent(aws:res-amazon-eventbridge-event)[TTLPollTimerExpired Event]
    service manageLambda(logos:aws-lambda)[Poll TTL] in manageTTL
    service manageDb(aws:arch-amazon-dynamodb)[ItemsWithTTL] in manageTTL
