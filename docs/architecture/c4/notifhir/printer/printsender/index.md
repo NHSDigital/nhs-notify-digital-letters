@@ -10,6 +10,6 @@ owner: Ross Buggins
 author: Tom D'Roza
 diagrams: [c4code-printer-sender]
 events-raised: [external-supplier-api-letter-prepared]
-events-consumed: [print-letter-analysed]
+events-consumed: [pdf-analysed]
 c4type: code
 ---

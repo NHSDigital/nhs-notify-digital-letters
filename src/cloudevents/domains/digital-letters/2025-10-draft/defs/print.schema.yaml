@@ -5,16 +5,14 @@ type: object
 properties:
   status:
     type: string
-    minimum: 1
-    description: Number of times that PDM has been polled while waiting for document processing to complete
-    enum: [
-      "ACCEPTED",
-      "REJECTED",
-      "PRINTED",
-      "DISPATCHED",
-      "FAILED",
-      "RETURNED"
-    ]
+    description: Current status of the letter request
+    enum:
+      - "ACCEPTED"
+      - "REJECTED"
+      - "PRINTED"
+      - "DISPATCHED"
+      - "FAILED"
+      - "RETURNED"
     examples:
       - ACCEPTED
       - DISPATCHED
@@ -24,3 +22,30 @@ properties:
     description: Identifier of the print supplier handling the print job
     examples:
       - "supplier-12345"
+  pageCount:
+    type: integer
+    description: The number of pages in the analysed letter PDF.
+    examples:
+      - 1
+      - 3
+  sha256Hash:
+    type: string
+    description: The SHA256 hash of the analysed letter PDF.
+    pattern: '^[A-Fa-f0-9]{64}$'
+    examples:
+      - 3a7bd3e2360a3d80c4d4e8b1e3e5e6e7e8e9e0e1e2e3e4e5e6e7e8e9e0e1e2e3
+        abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+  letterUri:
+    type: string
+    format: uri
+    description: Uri to the S3 storage location of the PDF letter relating to this message request
+    examples:
+      - "s3://my-bucket/path/to/my-object"
+  createdAt:
+    title: "Created At DateTime"
+    description: "Timestamp when the letter was created (RFC 3339)."
+    examples: [
+      "2025-10-01T10:15:30.000Z"
+    ]
+    type: "string"
+    pattern: "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
