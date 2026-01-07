@@ -13,8 +13,6 @@ import { expectMessageContainingString } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 const baseEvent = {
-  profileversion: '1.0.0',
-  profilepublished: '2025-10',
   specversion: '1.0',
   source:
     '/nhs/england/notify/production/primary/data-plane/digitalletters/pdm',
@@ -25,7 +23,6 @@ const baseEvent = {
   severitynumber: 2,
   traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
   datacontenttype: 'application/json',
-  dataschemaversion: '1.0',
   severitytext: 'INFO',
 };
 
