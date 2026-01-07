@@ -1,8 +1,8 @@
 import { defaultConfigReader } from 'utils';
 
 export type TtlCreateConfig = {
+  environment: string;
   ttlTableName: string;
-  ttlWaitTimeHours: number;
   ttlShardCount: number;
   eventPublisherEventBusArn: string;
   eventPublisherDlqUrl: string;
@@ -10,8 +10,8 @@ export type TtlCreateConfig = {
 
 export function loadConfig(): TtlCreateConfig {
   return {
+    environment: defaultConfigReader.getValue('ENVIRONMENT'),
     ttlTableName: defaultConfigReader.getValue('TTL_TABLE_NAME'),
-    ttlWaitTimeHours: defaultConfigReader.getInt('TTL_WAIT_TIME_HOURS'),
     ttlShardCount: defaultConfigReader.getInt('TTL_SHARD_COUNT'),
     eventPublisherEventBusArn: defaultConfigReader.getValue(
       'EVENT_PUBLISHER_EVENT_BUS_ARN',

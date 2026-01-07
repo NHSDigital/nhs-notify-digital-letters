@@ -16,12 +16,12 @@ description: PDM Poller
 
 ```mermaid
 architecture-beta
+    group checkPdm(cloud)[PDMPoller]
     service pdmResourceSubmitted(aws:res-amazon-eventbridge-event)[PDMResourceSubmitted Event]
     service pdmResourceAvailable(aws:res-amazon-eventbridge-event)[PDMResourceUnavailable Event]
     service pdmResourceUnavailable2(aws:res-amazon-eventbridge-event)[PDMResourceAvailable Event]
     service pdmRetriesExceeded(aws:res-amazon-eventbridge-event)[PDMResourceRetriesExceeded Event]
     service pdmResourceUnavailable(aws:res-amazon-eventbridge-event)[PDMResourceUnavailable Event]
-    group checkPdm(cloud)[PDMPoller]
     service pollPdmQueue(logos:aws-sqs)[PollPDM SQS Delay Queue] in checkPdm
     service pollPdmLambda(logos:aws-lambda)[PollPDM] in checkPdm
     service pdm(server)[PDM]

@@ -1,5 +1,5 @@
 module "ttl_create" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
 
   function_name = "ttl-create"
   description   = "A function for creating TTL records"
@@ -31,13 +31,12 @@ module "ttl_create" {
   force_lambda_code_deploy = var.force_lambda_code_deploy
   enable_lambda_insights   = false
 
-  send_to_firehose          = true
   log_destination_arn       = local.log_destination_arn
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
+    "ENVIRONMENT"                   = var.environment
     "TTL_TABLE_NAME"                = aws_dynamodb_table.ttl.name
-    "TTL_WAIT_TIME_HOURS"           = 24
     "TTL_SHARD_COUNT"               = local.ttl_shard_count
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
@@ -112,6 +111,21 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
 
     resources = [
       module.sqs_event_publisher_errors.sqs_queue_arn,
+    ]
+  }
+
+  statement {
+    sid    = "AllowSSMParam"
+    effect = "Allow"
+
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:GetParametersByPath",
+    ]
+
+    resources = [
+      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter/${var.component}/${var.environment}/senders/*"
     ]
   }
 }

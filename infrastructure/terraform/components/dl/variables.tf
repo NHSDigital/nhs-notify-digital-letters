@@ -89,7 +89,7 @@ variable "parent_acct_environment" {
 variable "mesh_poll_schedule" {
   type        = string
   description = "Schedule to poll MESH for messages"
-  default     = "cron(0,30 8-16 ? * MON-FRI *)"  # Every 30 minutes between 8am and 4:30pm Mon-Fri
+  default     = "cron(0,30 8-16 ? * MON-FRI *)" # Every 30 minutes between 8am and 4:30pm Mon-Fri
 }
 
 variable "queue_batch_size" {
@@ -113,7 +113,7 @@ variable "enable_dynamodb_delete_protection" {
 variable "ttl_poll_schedule" {
   type        = string
   description = "Schedule to poll for any overdue TTL records"
-  default     = "rate(10 minutes)"  # Every 10 minutes
+  default     = "rate(10 minutes)" # Every 10 minutes
 }
 
 variable "pdm_mock_access_token" {
