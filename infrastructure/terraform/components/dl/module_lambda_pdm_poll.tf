@@ -31,7 +31,6 @@ module "pdm_poll" {
   force_lambda_code_deploy = var.force_lambda_code_deploy
   enable_lambda_insights   = false
 
-  send_to_firehose          = true
   log_destination_arn       = local.log_destination_arn
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
