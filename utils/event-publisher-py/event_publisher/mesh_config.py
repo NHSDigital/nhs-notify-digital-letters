@@ -160,8 +160,7 @@ class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes
 
     def build_mesh_client(self):
         if self.use_mesh_mock:
-            mock_bucket = os.getenv("MOCK_MESH_BUCKET")
-            mock_endpoint = f"s3://{mock_bucket}/mock-mesh/"
+            mock_endpoint = self.mesh_endpoint
             return MockMeshClient(
                 boto3.client('s3'),
                 mock_endpoint,

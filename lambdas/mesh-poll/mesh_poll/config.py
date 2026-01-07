@@ -11,7 +11,6 @@ _REQUIRED_ENV_VAR_MAP = {
     "environment": "ENVIRONMENT",
     "event_bus_arn": "EVENT_PUBLISHER_EVENT_BUS_ARN",
     "event_publisher_dlq_url": "EVENT_PUBLISHER_DLQ_URL",
-    "mock_mesh_bucket": "MOCK_MESH_BUCKET",
     "certificate_expiry_metric_name": "CERTIFICATE_EXPIRY_METRIC_NAME",
     "certificate_expiry_metric_namespace": "CERTIFICATE_EXPIRY_METRIC_NAMESPACE",
     "polling_metric_name": "POLLING_METRIC_NAME",

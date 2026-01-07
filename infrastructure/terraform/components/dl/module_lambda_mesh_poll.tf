@@ -44,7 +44,6 @@ module "mesh_poll" {
     EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_errors.sqs_queue_url
     EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
     MAXIMUM_RUNTIME_MILLISECONDS        = "240000"  # 4 minutes (Lambda has 5 min timeout)
-    MOCK_MESH_BUCKET                    = module.s3bucket_non_pii_data.bucket
     POLLING_METRIC_NAME                 = "mesh-poll-successful-polls"
     POLLING_METRIC_NAMESPACE            = "dl-mesh-poll"
     SSM_PREFIX                          = "${local.ssm_mesh_prefix}"
