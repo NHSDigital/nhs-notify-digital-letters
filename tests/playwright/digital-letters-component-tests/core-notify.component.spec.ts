@@ -1,12 +1,16 @@
 import { expect, test } from '@playwright/test';
-import { CSI, CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME, EVENT_BUS_LOG_GROUP_NAME } from 'constants/backend-constants';
+import {
+  CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
+  CSI,
+  EVENT_BUS_LOG_GROUP_NAME,
+} from 'constants/backend-constants';
 import { PDMResourceAvailable } from 'digital-letters-events';
 import messagePDMResourceAvailableValidator from 'digital-letters-events/PDMResourceAvailable.js';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
-import {SenderManagement} from 'sender-management';
+import { SenderManagement } from 'sender-management';
 import { v4 as uuidv4 } from 'uuid';
 import { ParameterStoreCache } from 'utils';
 
@@ -20,10 +24,10 @@ test.describe('Digital Letters - Core Notify', () => {
     parameterStore,
   });
 
-  async function deleteSendersIfExist(){
-    senderManagement.deleteSender({senderId: senderIdInvokingNotify});
-    senderManagement.deleteSender({senderId: senderIdThatSkipsNotify});
-  };
+  async function deleteSendersIfExist() {
+    senderManagement.deleteSender({ senderId: senderIdInvokingNotify });
+    senderManagement.deleteSender({ senderId: senderIdThatSkipsNotify });
+  }
 
   test.beforeAll(async () => {
     await purgeQueue(handleCoreNotifierDlqName);
@@ -51,9 +55,9 @@ test.describe('Digital Letters - Core Notify', () => {
     await deleteSendersIfExist();
   });
 
-
   test('given PDMResourceAvailable event, when client has routingConfigId then a message is sent to core Notify', async () => {
     const letterId = uuidv4();
+    const messageReference = uuidv4();
 
     await eventPublisher.sendEvents<PDMResourceAvailable>(
       [
@@ -75,7 +79,7 @@ test.describe('Digital Letters - Core Notify', () => {
             'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
           severitytext: 'INFO',
           data: {
-            messageReference: 'ref1',
+            messageReference: messageReference,
             senderId: senderIdInvokingNotify,
             resourceId: 'resource-123',
             nhsNumber: '9991234566',
@@ -90,14 +94,24 @@ test.describe('Digital Letters - Core Notify', () => {
     await expectToPassEventually(async () => {
       const filteredLogs = await getLogsFromCloudwatch(
         CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
-        [
-          '$.message.description  = "1 of 1 records processed successfully"',
-        ],
+        ['$.message.description  = "1 of 1 records processed successfully"'],
       );
 
       expect(filteredLogs.length).toEqual(1);
     }, 120);
     // more assertions needed, i.e. the event published
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        EVENT_BUS_LOG_GROUP_NAME,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.messages.request.submitted.v1"',
+          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    }, 120);
   });
   // create following tests
   // when the sender has no routingConfigId then the Skipped message is published

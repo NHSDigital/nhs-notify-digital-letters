@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "sqs_core_notifier" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-core-notifier-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-core-notifier-queue"
     ]
   }
 }
