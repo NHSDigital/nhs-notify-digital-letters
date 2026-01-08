@@ -76,15 +76,16 @@ data "aws_iam_policy_document" "mesh_poll_lambda" {
     }
   }
 
-  # Mock S3 GetObject only when enabled
   dynamic "statement" {
     for_each = var.enable_mock_mesh ? [1] : []
     content {
-      sid    = "MockMeshGetObject"
+      sid    = "AllowMockMeshActions"
       effect = "Allow"
 
       actions = [
-        "s3:GetObject"
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
       ]
 
       resources = [
