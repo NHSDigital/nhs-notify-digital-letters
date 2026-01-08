@@ -116,7 +116,9 @@ function generateUnavailableEvent(
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
     data: {
-      ...event.data,
+      messageReference: event.data.messageReference,
+      senderId: event.data.senderId,
+      resourceId: event.data.resourceId,
       retryCount: retries,
     },
   };
@@ -137,7 +139,9 @@ function generateRetriesExceededEvent(
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-retries-exceeded-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
     data: {
-      ...event.data,
+      messageReference: event.data.messageReference,
+      senderId: event.data.senderId,
+      resourceId: event.data.resourceId,
       retryCount: retries,
     },
   };

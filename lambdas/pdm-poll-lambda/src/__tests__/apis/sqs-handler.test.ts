@@ -94,7 +94,9 @@ describe('SQS Handler', () => {
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
             data: {
-              ...pdmResourceSubmittedEvent.data,
+              messageReference: pdmResourceSubmittedEvent.data.messageReference,
+              senderId: pdmResourceSubmittedEvent.data.senderId,
+              resourceId: pdmResourceSubmittedEvent.data.resourceId,
               retryCount: 0,
             },
           },
@@ -174,7 +176,10 @@ describe('SQS Handler', () => {
             recordedtime: '2023-06-20T12:00:00.250Z',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
             data: {
-              ...pdmResourceSubmittedEvent.data,
+              messageReference:
+                pdmResourceUnavailableEvent.data.messageReference,
+              senderId: pdmResourceUnavailableEvent.data.senderId,
+              resourceId: pdmResourceUnavailableEvent.data.resourceId,
               retryCount: 2,
             },
           },
@@ -218,7 +223,10 @@ describe('SQS Handler', () => {
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-retries-exceeded-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
             data: {
-              ...pdmResourceUnavailableEvent.data,
+              messageReference:
+                pdmResourceUnavailableEvent.data.messageReference,
+              senderId: pdmResourceUnavailableEvent.data.senderId,
+              resourceId: pdmResourceUnavailableEvent.data.resourceId,
               retryCount: 10,
             },
           },
