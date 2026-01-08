@@ -55,7 +55,9 @@ describe('SQS Handler', () => {
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
             data: {
-              ...pdmResourceSubmittedEvent.data,
+              messageReference: pdmResourceSubmittedEvent.data.messageReference,
+              senderId: pdmResourceSubmittedEvent.data.senderId,
+              resourceId: pdmResourceSubmittedEvent.data.resourceId,
               nhsNumber: '9999999999',
               odsCode: 'AB1234',
             },
@@ -132,7 +134,10 @@ describe('SQS Handler', () => {
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
             data: {
-              ...pdmResourceUnavailableEvent.data,
+              messageReference:
+                pdmResourceUnavailableEvent.data.messageReference,
+              senderId: pdmResourceUnavailableEvent.data.senderId,
+              resourceId: pdmResourceUnavailableEvent.data.resourceId,
               nhsNumber: '9999999999',
               odsCode: 'AB1234',
             },

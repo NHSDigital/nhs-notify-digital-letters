@@ -92,7 +92,9 @@ function generateAvailableEvent(
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
     data: {
-      ...event.data,
+      messageReference: event.data.messageReference,
+      senderId: event.data.senderId,
+      resourceId: event.data.resourceId,
       nhsNumber,
       odsCode,
     },
