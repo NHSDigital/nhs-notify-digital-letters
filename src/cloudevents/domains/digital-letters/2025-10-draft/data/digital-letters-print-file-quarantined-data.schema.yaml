@@ -1,0 +1,16 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: FileQuarantined Data
+description: Data payload of the FileQuarantined event
+type: object
+additionalProperties: false
+properties:
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  letterUri:
+    $ref: ../defs/print.schema.yaml#/properties/letterUri
+required:
+  - messageReference
+  - senderId
+  - letterUri
