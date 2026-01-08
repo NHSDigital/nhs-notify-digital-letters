@@ -44,7 +44,7 @@ No requirements.
 | <a name="module_lambda_lambda_apim_refresh_token"></a> [lambda\_lambda\_apim\_refresh\_token](#module\_lambda\_lambda\_apim\_refresh\_token) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_mesh_poll"></a> [mesh\_poll](#module\_mesh\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_pdm_mock"></a> [pdm\_mock](#module\_pdm\_mock) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
-| <a name="module_pdm_poll"></a> [pdm\_poll](#module\_pdm\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip | n/a |
+| <a name="module_pdm_poll"></a> [pdm\_poll](#module\_pdm\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_pdm_uploader"></a> [pdm\_uploader](#module\_pdm\_uploader) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_s3bucket_cf_logs"></a> [s3bucket\_cf\_logs](#module\_s3bucket\_cf\_logs) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_letters"></a> [s3bucket\_letters](#module\_s3bucket\_letters) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |

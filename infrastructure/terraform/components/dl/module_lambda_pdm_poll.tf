@@ -1,5 +1,5 @@
 module "pdm_poll" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
 
   function_name = "pdm-poll"
   description   = "A function for polling PDM document status"
