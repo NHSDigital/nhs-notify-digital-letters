@@ -1,9 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { CSI, ENV } from 'constants/backend-constants';
+import { CSI, CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME, EVENT_BUS_LOG_GROUP_NAME } from 'constants/backend-constants';
 import { PDMResourceAvailable } from 'digital-letters-events';
 import messagePDMResourceAvailableValidator from 'digital-letters-events/PDMResourceAvailable.js';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
-import { getTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
@@ -13,8 +12,6 @@ import { ParameterStoreCache } from 'utils';
 
 const senderIdInvokingNotify = 'componentTestSender_RoutingConfig';
 const senderIdThatSkipsNotify = 'componentTestSender_NoRoutingConfig';
-const EVENT_BUS_LOG_GROUP_NAME = `/aws/vendedlogs/events/event-bus/${ENV}`;
-const CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-core-notifier`;
 
 test.describe('Digital Letters - Core Notify', () => {
   const handleCoreNotifierDlqName = `${CSI}-core-notifier-errors-queue`;
