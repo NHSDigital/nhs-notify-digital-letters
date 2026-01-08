@@ -9,7 +9,7 @@ last_modified_date: 2025-12-22
 owner: Ross Buggins
 author: Tom D'Roza
 diagrams: [c4code-printer-analyser]
-events-raised: [print-letter-analysed]
-events-consumed: [print-letter-safe]
+events-raised: [pdf-analysed]
+events-consumed: [file-safe]
 c4type: code
 ---
