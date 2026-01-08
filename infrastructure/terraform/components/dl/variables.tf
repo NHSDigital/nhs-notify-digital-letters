@@ -101,7 +101,7 @@ variable "queue_batch_size" {
 variable "queue_batch_window_seconds" {
   type        = number
   description = "maximum time in seconds between processing events"
-  default     = 10
+  default     = 1
 }
 
 variable "enable_dynamodb_delete_protection" {

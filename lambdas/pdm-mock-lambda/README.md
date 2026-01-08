@@ -27,8 +27,8 @@ curl -X POST https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentRefe
 
 **Headers:**
 
-- `Authorization: Bearer <token>` - Required authentication token (default: `mock-pdm-token`)
-- `Content-Type: application/fhir+json` - Required content type
+- `Authorization: Bearer <token>` - Authentication token is not validated and can be any string value.
+- `Content-Type: application/fhir+json` - Required content type.
 - `X-Request-ID: <UUID>` - This uuid will be used as the DocumentReference `id` in the response.
 
 **Response (201 Created):**
@@ -76,8 +76,8 @@ curl https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentReference/te
 
 **Headers:**
 
-- `Authorization: Bearer <token>` - Required authentication token (default: `mock-pdm-token`)
-- `Content-Type: application/fhir+json` - Required content type
+- `Authorization: Bearer <token>` - Authentication token is not validated and can be any string value.
+- `Content-Type: application/fhir+json` - Required content type.
 - `X-Request-ID: <uuid>` - Used for request tracking and correlation. This isn't part of the ID or response that gets returned.
 
 **Response (200 OK):**
@@ -136,17 +136,18 @@ Both GET and POST endpoints require the `X-Request-ID` header. If it's missing, 
 
 The mock API supports triggering specific error responses for testing in both endpoints. Use these special resource IDs:
 
-| Resource ID              | Status Code | Error Code          | Description                     |
-| ------------------------ | ----------- | ------------------- | ------------------------------- |
-| `error-400-invalid`      | 400         | INVALID_VALUE       | Invalid resource value          |
-| `error-401-unauthorized` | 401         | UNAUTHORISED        | Unauthorized access             |
-| `error-403-forbidden`    | 403         | FORBIDDEN           | Access forbidden                |
-| `error-404-notfound`     | 404         | RESOURCE_NOT_FOUND  | Resource not found              |
-| `error-409-conflict`     | 409         | CONFLICT            | Resource already exists         |
-| `error-429-ratelimit`    | 429         | TOO_MANY_REQUESTS   | Rate limit exceeded             |
-| `error-500-internal`     | 500         | INTERNAL_ERROR      | Internal server error           |
-| `error-503-unavailable`  | 503         | SERVICE_UNAVAILABLE | Service temporarily unavailable |
-| `empty-response`         | 200         | -                   | Empty success response          |
+| Resource ID              | Status Code | Error Code          | Description                              |
+| ------------------------ | ----------- | ------------------- | ---------------------------------------- |
+| `error-400-invalid`      | 400         | INVALID_VALUE       | Invalid resource value                   |
+| `error-401-unauthorized` | 401         | UNAUTHORISED        | Unauthorized access                      |
+| `error-403-forbidden`    | 403         | FORBIDDEN           | Access forbidden                         |
+| `error-404-notfound`     | 404         | RESOURCE_NOT_FOUND  | Resource not found                       |
+| `error-409-conflict`     | 409         | CONFLICT            | Resource already exists                  |
+| `error-429-ratelimit`    | 429         | TOO_MANY_REQUESTS   | Rate limit exceeded                      |
+| `error-500-internal`     | 500         | INTERNAL_ERROR      | Internal server error                    |
+| `error-503-unavailable`  | 503         | SERVICE_UNAVAILABLE | Service temporarily unavailable          |
+| `empty-response`         | 200         | -                   | Empty success response                   |
+| `unavailable-response`   | 200         | -                   | Success response with no attachment.data |
 
 **Example - Trigger 404 Error:**
 
@@ -177,9 +178,6 @@ curl https://<api-gateway-url>/resource/error-404-notfound \
 
 The lambda is configured via environment variables:
 
-| Variable                | Description                              | Default                    |
-| ----------------------- | ---------------------------------------- | -------------------------- |
-| `MOCK_ACCESS_TOKEN`     | Token to use in local/dev environments   | `mock-pdm-token`           |
-| `ACCESS_TOKEN_SSM_PATH` | SSM parameter path for the access token  | `/dl/main/apim/access_token`|
-| `USE_NON_MOCK_TOKEN`    | Use SSM token instead of mock token      | `false`                    |
-| `LOG_LEVEL`             | Logging level (DEBUG, INFO, WARN, ERROR) | `INFO`                     |
+| Variable                | Description                              | Default                  |
+| ----------------------- | ---------------------------------------- | ------------------------ |
+| `LOG_LEVEL`             | Logging level (DEBUG, INFO, WARN, ERROR) | `INFO`                   |

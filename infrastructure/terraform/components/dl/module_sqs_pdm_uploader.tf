@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "sqs_pdm_uploader" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-pdm-uploader-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-pdm-uploader-queue"
     ]
   }
 }

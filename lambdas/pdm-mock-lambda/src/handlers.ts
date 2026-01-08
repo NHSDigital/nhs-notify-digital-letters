@@ -158,6 +158,14 @@ const generateMockResource = (
       lastUpdated: new Date().toISOString(),
     },
     status: 'current',
+    author: [
+      {
+        identifier: {
+          system: 'https://fhir.nhs.uk/Id/ods-organization-code',
+          value: 'Y05868',
+        },
+      },
+    ],
     subject: {
       identifier: {
         system: 'https://fhir.nhs.uk/Id/nhs-number',
@@ -236,7 +244,8 @@ export const createGetResourceHandler = (logger: Logger) => {
       return createEmptySuccessResponse();
     }
 
-    const resource = generateMockResource(resourceId, true);
+    const includeData = resourceId !== 'unavailable-response';
+    const resource = generateMockResource(resourceId, includeData);
     logger.info('Returning mock resource', { resourceId, requestId });
     return createResourceResponse(resource);
   };

@@ -16,6 +16,13 @@ export type PdmResponse = {
     attachment: {
       contentType: string;
       title: string;
+      data?: string;
+    };
+  }[];
+  author: {
+    identifier: {
+      system: string;
+      value: string;
     };
   }[];
 };

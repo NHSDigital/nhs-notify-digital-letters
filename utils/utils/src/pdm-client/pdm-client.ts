@@ -1,6 +1,8 @@
 import axios, { AxiosInstance, isAxiosError } from 'axios';
 import { constants as HTTP2_CONSTANTS } from 'node:http2';
-import { Logger, PdmResponse, RetryConfig, conditionalRetry } from 'utils';
+import { Logger } from '../logger';
+import { PdmResponse } from '../types';
+import { RetryConfig, conditionalRetry } from '../util-retry';
 
 export interface IAccessTokenRepository {
   getAccessToken(): Promise<string>;
@@ -9,6 +11,10 @@ export interface IAccessTokenRepository {
 export interface IPdmClient {
   createDocumentReference(
     fhirRequest: string,
+    requestId: string,
+  ): Promise<PdmResponse>;
+  getDocumentReference(
+    documentResourceId: string,
     requestId: string,
   ): Promise<PdmResponse>;
 }
@@ -59,6 +65,55 @@ export class PdmClient implements IPdmClient {
           const response = await this.client.post(
             '/patient-data-manager/FHIR/R4/DocumentReference',
             fhirRequest,
+            { headers },
+          );
+
+          return response.data;
+        },
+        (err) =>
+          Boolean(
+            isAxiosError(err) &&
+            err.response?.status ===
+              HTTP2_CONSTANTS.HTTP_STATUS_TOO_MANY_REQUESTS,
+          ),
+        this.backoffConfig,
+      );
+    } catch (error: any) {
+      this.logger.error({
+        description: 'Failed sending PDM request',
+        requestId,
+        err: error,
+      });
+
+      throw error;
+    }
+  }
+
+  public async getDocumentReference(
+    documentResourceId: string,
+    requestId: string,
+  ): Promise<PdmResponse> {
+    try {
+      return await conditionalRetry(
+        async (attempt) => {
+          const accessToken = await this.accessTokenRepository.getAccessToken();
+
+          this.logger.debug({
+            requestId,
+            description: 'Sending request',
+            attempt,
+          });
+
+          const headers = {
+            'X-Request-ID': requestId,
+            ...(accessToken === ''
+              ? {}
+              : {
+                  Authorization: `Bearer ${accessToken}`,
+                }),
+          };
+          const response = await this.client.get(
+            `/patient-data-manager/FHIR/R4/DocumentReference/${documentResourceId}`,
             { headers },
           );
 
