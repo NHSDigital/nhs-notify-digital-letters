@@ -29,9 +29,6 @@ architecture-beta
     junction j7 in fileScanner
     junction j8 in fileScanner
     junction j9 in fileScanner
-    junction j10 in fileScanner
-    junction j11 in fileScanner
-
 
     itemDequeued:R --> L:scannerQueue
     docRefBucket:B --> T:scannerLambda
@@ -57,5 +54,4 @@ architecture-beta
     j8:R --> L:safeBucket
     j8:B -- L:j9
     j9:R --> L:safeFile
-
 ```
