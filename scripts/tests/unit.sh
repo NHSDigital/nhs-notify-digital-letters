@@ -44,6 +44,11 @@ echo "Setting up and running metric-publishers tests..."
 make -C ./utils/metric-publishers install-dev
 make -C ./utils/metric-publishers coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
+# Python utility packages - sender-management
+echo "Setting up and running Python sender-management tests..."
+make -C ./utils/sender-management install-dev
+make -C ./utils/sender-management coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
 # Python Lambda - mesh-acknowledge
 echo "Setting up and running mesh-acknowledge tests..."
 make -C ./lambdas/mesh-acknowledge install-dev

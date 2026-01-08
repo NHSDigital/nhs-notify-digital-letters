@@ -20,8 +20,8 @@
   "private": true,
   "scripts": {
     "cli": "tsx ./src/entrypoint/cli/index.ts",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "test:unit": "jest",
     "typecheck": "tsc --noEmit"
   },
