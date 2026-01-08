@@ -64,6 +64,7 @@ Octokit
 onboarding
 outputDir
 Podman
+[pP][dD][fF]
 [pP][dD][mM]
 [pP]re
 producedby
