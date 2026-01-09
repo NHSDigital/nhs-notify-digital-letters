@@ -40,16 +40,14 @@ env:
   AWS_REGION: eu-west-2
   TERM: xterm-256color
 
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
-  packages: read # This is required for downloading from GitHub Package Registry
-
 jobs:
   check-generated-dependencies:
     name: "Check generated dependencies"
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
@@ -68,6 +66,9 @@ jobs:
     name: "Unit tests"
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
@@ -102,6 +103,9 @@ jobs:
     name: "Linting"
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
@@ -116,6 +120,9 @@ jobs:
     name: "Typecheck"
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -133,6 +140,8 @@ jobs:
     needs: [test-unit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
