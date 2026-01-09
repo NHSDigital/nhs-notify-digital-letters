@@ -34,7 +34,7 @@ export class NotifyMessageProcessor {
         payload,
         messageReference,
       );
-      this.logger.info('Successfully processed request', {
+      this.logger.info('Successfully processed request and sent to Notify', {
         messageReference,
         messageItemId: response.data.id,
       });

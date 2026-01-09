@@ -90,7 +90,66 @@ test.describe('Digital Letters - Core Notify', () => {
       messagePDMResourceAvailableValidator,
     );
 
-    // Verify the event happ
+    // Verify the event is processed.
+    await expectToPassEventually(async () => {
+      const filteredLogs = await getLogsFromCloudwatch(
+        CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
+        ['$.message.description  = "Successfully processed request and sent to Notify"'],
+      );
+
+      expect(filteredLogs.length).toEqual(1);
+    }, 120);
+    // more assertions needed, i.e. the event published
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        EVENT_BUS_LOG_GROUP_NAME,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.messages.request.submitted.v1"',
+          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    }, 120);
+  });
+  // create following tests
+  test('given PDMResourceAvailable event, when client does NOT have routingConfigId then a message is NOT sent to core Notify', async () => {
+    const letterId = uuidv4();
+    const messageReference = uuidv4();
+
+    await eventPublisher.sendEvents<PDMResourceAvailable>(
+      [
+        {
+          id: letterId,
+          specversion: '1.0',
+          source:
+            '/nhs/england/notify/production/primary/data-plane/digitalletters/pdm',
+          subject:
+            'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+          type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+          time: '2023-06-20T12:00:00Z',
+          recordedtime: '2023-06-20T12:00:00.250Z',
+          severitynumber: 2,
+          traceparent:
+            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+          datacontenttype: 'application/json',
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
+          severitytext: 'INFO',
+          data: {
+            messageReference: messageReference,
+            senderId: senderIdThatSkipsNotify,
+            resourceId: 'resource-1234',
+            nhsNumber: '9991234566',
+            odsCode: 'A12345',
+          },
+        },
+      ],
+      messagePDMResourceAvailableValidator,
+    );
+
+    // Verify the event is processed.
     await expectToPassEventually(async () => {
       const filteredLogs = await getLogsFromCloudwatch(
         CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
@@ -113,7 +172,5 @@ test.describe('Digital Letters - Core Notify', () => {
       expect(eventLogEntry.length).toEqual(1);
     }, 120);
   });
-  // create following tests
-  // when the sender has no routingConfigId then the Skipped message is published
   // when fails repeatedly then goes to DLQ
 });

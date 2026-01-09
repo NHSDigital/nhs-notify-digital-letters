@@ -39,7 +39,7 @@ describe('NotifyMessageProcessor', () => {
     });
 
     expect(mockLogger.info).toHaveBeenCalledWith(
-      'Successfully processed request',
+      'Successfully processed request and sent to Notify',
       {
         messageReference: mockRequest1.data.attributes.messageReference,
         messageItemId: mockResponse.data.id,
