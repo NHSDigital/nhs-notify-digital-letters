@@ -104,7 +104,7 @@ class CloudEvent(BaseModel):
         if not re.match(pattern, v):
             raise ValueError(
                 f'Invalid source pattern: {v}. '
-                'Must match /nhs/england/notify/{{environment}}/{{instance}}/{{plane}}/digitalletters/mesh'
+                'Must match /nhs/england/notify/{environment}/{instance}/{plane}/digitalletters/mesh'
             )
         return v
 

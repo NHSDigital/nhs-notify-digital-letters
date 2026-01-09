@@ -17,6 +17,17 @@ This library does the following:
 
 ## Sending and Receiving Messages
 
-1. Upload the to the S3 bucket by running this command: `aws s3 cp --metadata <field>=<value>,<field2>=<value2> <input_file> <target_path>`. Note: the target path should be the `nhs-<account>-<region>-<environment>-dl-non-pii-data` bucket for your environment. For example: the target path would be `s3://nhs-123456789012-eu-west-2-pr42-dl-non-pii-data/mock-mesh/<target-mailbox>/in/<key>`. The key is what the file will be saved as in the AWS S3 bucket, this is a string.
-2. The MESH poll lambda can be invoked early by pressing 'Test' in the AWS console. Alternatively, the lambda polls the mailbox every 5 minutes.
-3. To check for any errors and troubleshoot or that the message has been sent successfully, check the logs in the lambdas in the following order: MESH poller lambda, then the MESH download lambda.
+1. **Upload a test message** (CSV file) to the S3 bucket with required metadata:
+
+   ```bash
+   mesh_message_id=$(uuidgen)
+   aws s3 cp <input_file.csv> \
+     s3://nhs-<account_id>-eu-west-2-<environment>-dl-non-pii-data/mock-mesh/<mailbox-id>/in/$mesh_message_id \
+     --metadata "{\"subject\":\"<SUBJECT>\",\"sender\":\"<SENDER_MAILBOX_ID>\",\"workflow_id\":\"<WORKFLOW_ID>\",\"local_id\":\"<LOCAL_ID>\"}"
+   ```
+
+   **Note:** The input file must be a CSV (comma-delimited). Ensure the sender mailbox ID exists in SSM Parameter Store at `/dl/<environment>/mesh/senders/<SENDER_MAILBOX_ID>` with valid sender configuration.
+
+2. **Trigger the MESH poll lambda** by pressing 'Test' in the AWS console, or wait for the scheduled poll (every 5 minutes).
+
+3. **Check CloudWatch logs** for the MESH poll lambda first, then the MESH download lambda to verify message processing.
