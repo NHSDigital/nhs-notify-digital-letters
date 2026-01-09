@@ -45,11 +45,13 @@ No requirements.
 | <a name="module_mesh_poll"></a> [mesh\_poll](#module\_mesh\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_pdm_mock"></a> [pdm\_mock](#module\_pdm\_mock) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_pdm_uploader"></a> [pdm\_uploader](#module\_pdm\_uploader) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
+| <a name="module_print_status_handler"></a> [print\_status\_handler](#module\_print\_status\_handler) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_s3bucket_cf_logs"></a> [s3bucket\_cf\_logs](#module\_s3bucket\_cf\_logs) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_letters"></a> [s3bucket\_letters](#module\_s3bucket\_letters) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_static_assets"></a> [s3bucket\_static\_assets](#module\_s3bucket\_static\_assets) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_sqs_event_publisher_errors"></a> [sqs\_event\_publisher\_errors](#module\_sqs\_event\_publisher\_errors) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_pdm_uploader"></a> [sqs\_pdm\_uploader](#module\_sqs\_pdm\_uploader) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
+| <a name="module_sqs_print_status_handler"></a> [sqs\_print\_status\_handler](#module\_sqs\_print\_status\_handler) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_ttl"></a> [sqs\_ttl](#module\_sqs\_ttl) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_ttl_handle_expiry_errors"></a> [sqs\_ttl\_handle\_expiry\_errors](#module\_sqs\_ttl\_handle\_expiry\_errors) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_ttl_create"></a> [ttl\_create](#module\_ttl\_create) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |

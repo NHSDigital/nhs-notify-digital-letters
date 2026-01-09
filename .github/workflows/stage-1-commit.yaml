@@ -152,12 +152,15 @@ jobs:
         uses: ./.github/actions/lint-terraform
   trivy-iac:
     name: "Trivy IaC Scan"
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: detect-terraform-changes
     if: needs.detect-terraform-changes.outputs.terraform_changed == 'true'
+    permissions:
+      contents: read
+      packages: read
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -170,10 +173,13 @@ jobs:
   trivy-package:
     if: ${{ !inputs.skip_trivy_package }}
     name: "Trivy Package Scan"
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
