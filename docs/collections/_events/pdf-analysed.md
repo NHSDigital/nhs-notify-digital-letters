@@ -1,7 +1,7 @@
 ---
 title: pdf-analysed
 type: uk.nhs.notify.digital.letters.print.pdf.analysed.v1
-nice_name: PrintLetterAnalysed
+nice_name: PDFAnalysed
 service: Print Supplier Services
 schema_envelope:  https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/events/uk.nhs.notify.digital.letters.print.pdf.analysed.v1.schema.json
 schema_data: https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-pdf-analysed-data.schema.json

@@ -9,7 +9,7 @@ architecture-beta
     service fileSafe(aws:res-amazon-eventbridge-event)[FileSafe Event]
     service analyseQueue(logos:aws-sqs)[Analyse Queue] in printAnalyser
     service analyseLambda(logos:aws-lambda)[PrintAnalyser] in printAnalyser
-    service safeBucket(logos:aws-s3)[SafeLetters] in printAnalyser
+    service safeBucket(logos:aws-s3)[SafeFiles] in printAnalyser
     service pdfAnalysed(aws:res-amazon-eventbridge-event)[PDFAnalysed Event]
     group printAnalyser(cloud)[PrintAnalyser]
 
