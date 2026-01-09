@@ -19,6 +19,12 @@ cd "$(git rev-parse --show-toplevel)"
 
 # run tests
 
+# TypeScript/JavaScript projects (npm workspace)
+# Note: src/cloudevents is included in workspaces, so it will be tested here
+npm ci
+npm run generate-dependencies
+npm run test:unit --workspaces
+
 # Python projects - asyncapigenerator
 echo "Setting up and running asyncapigenerator tests..."
 make -C ./src/asyncapigenerator install-dev
@@ -58,12 +64,6 @@ make -C ./lambdas/mesh-acknowledge coverage  # Run with coverage to generate cov
 echo "Setting up and running python-schema-generator tests..."
 make -C ./src/python-schema-generator install-dev
 make -C ./src/python-schema-generator coverage  # Run with coverage to generate coverage.xml for SonarCloud
-
-# TypeScript/JavaScript projects (npm workspace)
-# Note: src/cloudevents is included in workspaces, so it will be tested here
-npm ci
-npm run generate-dependencies
-npm run test:unit --workspaces
 
 # merge coverage reports
 mkdir -p .reports
