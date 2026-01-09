@@ -101,6 +101,11 @@ export const createHandler = ({
               dataschema:
                 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
               source: itemEvent.source.replace(/\/mesh$/, '/queue'),
+              data: {
+                senderId: itemEvent.data.senderId,
+                messageReference: itemEvent.data.messageReference,
+                messageUri: itemEvent.data.messageUri,
+              },
             },
           ],
           itemDequeuedValidator,

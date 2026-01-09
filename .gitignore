@@ -12,6 +12,15 @@ version.json
 
 # Please, add your custom content below!
 
+# Don't track ephemeral local build files
+target/
+
+# Python build artifacts
+*.egg-info/
+.eggs/
+build/
+dist/
+
 # dependencies
 node_modules
 .node-version
@@ -25,6 +34,7 @@ dist
 output
 /schemas
 .env
+**/__pycache__
 
 # Python
 __pycache__/

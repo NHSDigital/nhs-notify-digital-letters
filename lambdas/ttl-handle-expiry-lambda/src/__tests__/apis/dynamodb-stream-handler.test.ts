@@ -54,6 +54,7 @@ const mockEvent: DynamoDBStreamEvent = {
               severitytext: { S: 'INFO' },
               data: {
                 M: {
+                  meshMessageId: { S: '12345' },
                   messageUri: { S: 'https://example.com/ttl/resource' },
                   messageReference: { S: 'ref1' },
                   senderId: { S: 'sender1' },
