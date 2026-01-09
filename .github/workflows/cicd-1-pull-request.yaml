@@ -158,7 +158,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-      package: read
+      packages: read
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     steps:
       - uses: actions/checkout@v5.0.0
