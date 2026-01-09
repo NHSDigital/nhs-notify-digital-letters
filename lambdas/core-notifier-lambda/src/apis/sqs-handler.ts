@@ -65,7 +65,9 @@ export const createHandler = ({
   async function handler(sqsEvent: SQSEvent): Promise<SQSBatchResponse> {
     const receivedItemCount = sqsEvent.Records.length;
 
-    logger.info(`Received SQS Event of ${receivedItemCount} record(s)`);
+    logger.info({
+      description: `Received SQS Event of ${receivedItemCount} record(s)`,
+    });
 
     const batchItemFailures: SQSBatchItemFailure[] = [];
     let incoming: PDMResourceAvailable;
@@ -108,9 +110,10 @@ export const createHandler = ({
     );
 
     const processedItemCount = receivedItemCount - batchItemFailures.length;
-    logger.info(
-      `${processedItemCount} of ${receivedItemCount} records processed successfully`,
-    );
+
+    logger.info({
+      description: `${processedItemCount} of ${receivedItemCount} records processed successfully`,
+    });
 
     return { batchItemFailures };
   };

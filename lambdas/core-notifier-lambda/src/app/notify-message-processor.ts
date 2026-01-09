@@ -26,7 +26,8 @@ export class NotifyMessageProcessor {
   public async process(payload: SingleMessageRequest): Promise<string> {
     const { messageReference } = payload.data.attributes;
 
-    this.logger.info('Processing request', {
+    this.logger.info({
+      description: 'Processing request',
       messageReference,
     });
     try {
@@ -34,20 +35,24 @@ export class NotifyMessageProcessor {
         payload,
         messageReference,
       );
-      this.logger.info('Successfully processed request and sent to Notify', {
+      const messageItemId = response.data.id;
+      this.logger.info({
+        description: 'Successfully processed request and sent to Notify',
         messageReference,
-        messageItemId: response.data.id,
+        messageItemId,
       });
-      return response.data.id;
+      return messageItemId;
     } catch (error: any) {
       if (error instanceof RequestAlreadyReceivedError) {
-        this.logger.info('Request has already been received by Notify', {
+        this.logger.info({
+          description: 'Request has already been received by Notify',
           messageReference,
         });
         throw error;
       }
 
-      this.logger.error('Failed processing request', {
+      this.logger.error({
+        description: 'Failed processing request',
         messageReference,
         error: error.message,
       });

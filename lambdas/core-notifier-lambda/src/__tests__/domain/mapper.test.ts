@@ -79,9 +79,11 @@ describe('mapper', () => {
         },
       });
 
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Mapping resource available with reference: msg-ref-123 for sender: test-sender-id',
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: 'Mapping resource available',
+        messageReference: 'msg-ref-123',
+        senderId: 'test-sender-id',
+      });
     });
   });
 

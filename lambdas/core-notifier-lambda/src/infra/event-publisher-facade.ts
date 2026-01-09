@@ -31,9 +31,11 @@ export class EventPublisherFacade {
   async publishMessageRequestSubmitted(
     event: MessageRequestSubmitted,
   ): Promise<void> {
-    this.logger.info(
-      `Publishing MessageRequestSubmitted event for senderId=${event.data.senderId}, messageReference=${event.data.messageReference}`,
-    );
+    this.logger.info({
+      description: 'Publishing MessageRequestSubmitted event',
+      senderId: event.data.senderId,
+      messageReference: event.data.messageReference,
+    });
     this.messageRequestSubmittedEventPublisher.sendEvents<MessageRequestSubmitted>(
       [event],
       submittedEventValidator,
@@ -43,9 +45,12 @@ export class EventPublisherFacade {
   async publishMessageRequestRejected(
     event: MessageRequestRejected,
   ): Promise<void> {
-    this.logger.info(
-      `Publishing MessageRequestRejected event for senderId=${event.data.senderId}, messageReference=${event.data.messageReference}`,
-    );
+    this.logger.info({
+      description: 'Publishing MessageRequestRejected event',
+      senderId: event.data.senderId,
+      messageReference: event.data.messageReference,
+    });
+
     this.messageRequestRejectedEventPublisher.sendEvents<MessageRequestRejected>(
       [event],
       rejectedEventValidator,
@@ -55,9 +60,12 @@ export class EventPublisherFacade {
   async publishMessageRequestSkipped(
     event: MessageRequestSkipped,
   ): Promise<void> {
-    this.logger.info(
-      `Publishing MessageRequestSkipped event for senderId=${event.data.senderId}, messageReference=${event.data.messageReference}`,
-    );
+    this.logger.info({
+      description: 'Publishing MessageRequestSkipped event',
+      senderId: event.data.senderId,
+      messageReference: event.data.messageReference,
+    });
+
     this.messageRequestSkippedEventPublisher.sendEvents<MessageRequestSkipped>(
       [event],
       skippedEventValidator,

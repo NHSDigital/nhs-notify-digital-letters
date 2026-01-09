@@ -99,7 +99,19 @@ test.describe('Digital Letters - Core Notify', () => {
 
       expect(filteredLogs.length).toEqual(1);
     }, 120);
-    // more assertions needed, i.e. the event published
+
+    await expectToPassEventually(async () => {
+      const filteredLogs = await getLogsFromCloudwatch(
+        CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
+        ['$.message.description  = "Publishing MessageRequestSubmitted event"',
+          `$.message.messageReference  = "${messageReference}"`,
+          `$.message.senderId  = "${senderIdInvokingNotify}"`,
+        ],
+      );
+
+      expect(filteredLogs.length).toEqual(1);
+    }, 120);
+
     await expectToPassEventually(async () => {
       const eventLogEntry = await getLogsFromCloudwatch(
         EVENT_BUS_LOG_GROUP_NAME,
@@ -156,15 +168,26 @@ test.describe('Digital Letters - Core Notify', () => {
         ['$.message.description  = "1 of 1 records processed successfully"'],
       );
 
+      expect(filteredLogs.length).toBeGreaterThanOrEqual(1);
+    }, 120);
+    await expectToPassEventually(async () => {
+      const filteredLogs = await getLogsFromCloudwatch(
+        CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
+        ['$.message.description  = "Publishing MessageRequestSkipped event"',
+          `$.message.messageReference  = "${messageReference}"`,
+          `$.message.senderId  = "${senderIdThatSkipsNotify}"`,
+        ],
+      );
+
       expect(filteredLogs.length).toEqual(1);
     }, 120);
-    // more assertions needed, i.e. the event published
+
     await expectToPassEventually(async () => {
       const eventLogEntry = await getLogsFromCloudwatch(
         EVENT_BUS_LOG_GROUP_NAME,
         [
           '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.messages.request.submitted.v1"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.messages.request.skipped.v1"',
           `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
         ],
       );

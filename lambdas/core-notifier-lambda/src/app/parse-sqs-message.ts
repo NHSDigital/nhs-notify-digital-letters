@@ -8,7 +8,8 @@ export const parseSqsRecord = (
   sqsRecord: SQSRecord,
   logger: Logger,
 ): PDMResourceAvailable => {
-  logger.info('Parsing SQS Record', {
+  logger.info({
+    description: 'Parsing SQS Record',
     messageId: sqsRecord.messageId,
     body: sqsRecord.body,
   });
@@ -18,7 +19,7 @@ export const parseSqsRecord = (
 
   if (!messagePDMResourceAvailableValidator(sqsEventDetail)) {
     logger.error({
-      err: messagePDMResourceAvailableValidator.errors,
+      error: messagePDMResourceAvailableValidator.errors,
       description:
         'The SQS message does not contain a valid PDMResourceAvailable event',
       messageId: sqsRecord.messageId,
@@ -26,7 +27,8 @@ export const parseSqsRecord = (
     throw new InvalidPdmResourceAvailableEvent(sqsRecord.messageId);
   }
 
-  logger.info('Parsed valid PDMResourceAvailable Event', {
+  logger.info({
+    description: 'Parsed valid PDMResourceAvailable Event',
     messageId: sqsRecord.messageId,
     messageReference: sqsEventDetail.data.messageReference,
     senderId: sqsEventDetail.data.senderId,

@@ -71,12 +71,12 @@ describe('createHandler', () => {
       const result = await handler(sqsEvent);
 
       expect(result).toEqual({ batchItemFailures: [] });
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Received SQS Event of 1 record(s)',
-      );
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        '1 of 1 records processed successfully',
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: 'Received SQS Event of 1 record(s)',
+      });
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: '1 of 1 records processed successfully',
+      });
       expect(mockParseSqsRecord).toHaveBeenCalledWith(
         sqsEvent.Records[0],
         mockLogger,
@@ -143,12 +143,12 @@ describe('createHandler', () => {
       const result = await handler(sqsEvent);
 
       expect(result).toEqual({ batchItemFailures: [] });
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Received SQS Event of 3 record(s)',
-      );
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        '3 of 3 records processed successfully',
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: 'Received SQS Event of 3 record(s)',
+      });
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: '3 of 3 records processed successfully',
+      });
       expect(mockParseSqsRecord).toHaveBeenCalledTimes(3);
       expect(mockNotifyMessageProcessor.process).toHaveBeenCalledTimes(3);
     });
@@ -172,9 +172,9 @@ describe('createHandler', () => {
       expect(result).toEqual({
         batchItemFailures: [{ itemIdentifier: 'message-id-2' }],
       });
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        '2 of 3 records processed successfully',
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: '2 of 3 records processed successfully',
+      });
     });
   });
 
@@ -198,9 +198,9 @@ describe('createHandler', () => {
         description: 'Failed processing message',
         messageId,
       });
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        '0 of 1 records processed successfully',
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: '0 of 1 records processed successfully',
+      });
     });
   });
 

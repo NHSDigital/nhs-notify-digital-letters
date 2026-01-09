@@ -34,17 +34,16 @@ describe('NotifyMessageProcessor', () => {
       mockRequest1.data.attributes.messageReference,
     );
 
-    expect(mockLogger.info).toHaveBeenCalledWith('Processing request', {
+    expect(mockLogger.info).toHaveBeenCalledWith({
+      description: 'Processing request',
       messageReference: mockRequest1.data.attributes.messageReference,
     });
 
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      'Successfully processed request and sent to Notify',
-      {
-        messageReference: mockRequest1.data.attributes.messageReference,
-        messageItemId: mockResponse.data.id,
-      },
-    );
+    expect(mockLogger.info).toHaveBeenCalledWith({
+      description: 'Successfully processed request and sent to Notify',
+      messageReference: mockRequest1.data.attributes.messageReference,
+      messageItemId: mockResponse.data.id,
+    });
   });
 
   it('re-throws when the API client fails', async () => {
@@ -56,7 +55,8 @@ describe('NotifyMessageProcessor', () => {
       err,
     );
 
-    expect(mockLogger.error).toHaveBeenCalledWith('Failed processing request', {
+    expect(mockLogger.error).toHaveBeenCalledWith({
+      description: 'Failed processing request',
       messageReference: mockRequest1.data.attributes.messageReference,
       error: errorMessage,
     });
@@ -74,11 +74,9 @@ describe('NotifyMessageProcessor', () => {
       err,
     );
 
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      'Request has already been received by Notify',
-      {
-        messageReference,
-      },
-    );
+    expect(mockLogger.info).toHaveBeenCalledWith({
+      description: 'Request has already been received by Notify',
+      messageReference,
+    });
   });
 });

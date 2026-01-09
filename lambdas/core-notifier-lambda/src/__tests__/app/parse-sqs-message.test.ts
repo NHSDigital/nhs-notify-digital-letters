@@ -38,19 +38,18 @@ describe('parseSqsRecord', () => {
       const result = parseSqsRecord(sqsRecord, mockLogger);
 
       expect(result).toEqual(validPdmEvent);
-      expect(mockLogger.info).toHaveBeenCalledWith('Parsing SQS Record', {
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: 'Parsing SQS Record',
         messageId,
         body: sqsRecord.body,
       });
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Parsed valid PDMResourceAvailable Event',
-        {
-          messageId,
-          messageReference: validPdmEvent.data.messageReference,
-          senderId: validPdmEvent.data.senderId,
-          resourceId: validPdmEvent.data.resourceId,
-        },
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: 'Parsed valid PDMResourceAvailable Event',
+        messageId,
+        messageReference: validPdmEvent.data.messageReference,
+        senderId: validPdmEvent.data.senderId,
+        resourceId: validPdmEvent.data.resourceId,
+      });
     });
   });
 
@@ -68,7 +67,7 @@ describe('parseSqsRecord', () => {
           description:
             'The SQS message does not contain a valid PDMResourceAvailable event',
           messageId,
-          err: expect.any(Array),
+          error: expect.any(Array),
         }),
       );
     });
@@ -94,7 +93,8 @@ describe('parseSqsRecord', () => {
       };
 
       expect(() => parseSqsRecord(sqsRecord, mockLogger)).toThrow(SyntaxError);
-      expect(mockLogger.info).toHaveBeenCalledWith('Parsing SQS Record', {
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: 'Parsing SQS Record',
         messageId,
         body: sqsRecord.body,
       });

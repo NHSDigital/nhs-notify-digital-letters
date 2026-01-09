@@ -18,9 +18,11 @@ export function mapPdmEventToSingleMessageRequest(
   const { data } = pdmResourceAvailable;
   const { messageReference } = data;
 
-  logger.info(
-    `Mapping resource available with reference: ${messageReference} for sender: ${sender.senderId}`,
-  );
+  logger.info({
+    description: 'Mapping resource available',
+    messageReference,
+    senderId: sender.senderId,
+  });
 
   const request: SingleMessageRequest = {
     data: {

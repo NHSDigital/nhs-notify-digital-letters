@@ -56,9 +56,11 @@ describe('EventPublisherFacade', () => {
 
       await eventPublisherFacade.publishMessageRequestSubmitted(event);
 
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        `Publishing MessageRequestSubmitted event for senderId=${event.data.senderId}, messageReference=${event.data.messageReference}`,
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: 'Publishing MessageRequestSubmitted event',
+        senderId: event.data.senderId,
+        messageReference: event.data.messageReference,
+      });
       expect(
         mockMessageRequestSubmittedEventPublisher.sendEvents,
       ).toHaveBeenCalledWith([event], messageRequestSubmittedValidator);
@@ -88,9 +90,11 @@ describe('EventPublisherFacade', () => {
 
       await eventPublisherFacade.publishMessageRequestRejected(event);
 
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        `Publishing MessageRequestRejected event for senderId=${event.data.senderId}, messageReference=${event.data.messageReference}`,
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: 'Publishing MessageRequestRejected event',
+        senderId: event.data.senderId,
+        messageReference: event.data.messageReference,
+      });
       expect(
         mockMessageRequestRejectedEventPublisher.sendEvents,
       ).toHaveBeenCalledWith([event], messageRequestRejectedValidator);
@@ -118,9 +122,11 @@ describe('EventPublisherFacade', () => {
 
       await eventPublisherFacade.publishMessageRequestSkipped(event);
 
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        `Publishing MessageRequestSkipped event for senderId=${event.data.senderId}, messageReference=${event.data.messageReference}`,
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: 'Publishing MessageRequestSkipped event',
+        senderId: event.data.senderId,
+        messageReference: event.data.messageReference,
+      });
       expect(
         mockMessageRequestSkippedEventPublisher.sendEvents,
       ).toHaveBeenCalledWith([event], messageRequestSkippedValidator);
