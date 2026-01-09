@@ -18,6 +18,11 @@ export class NotifyMessageProcessor {
     this.nhsNotifyClient = nhsNotifyClient;
   }
 
+  /**
+   *
+   * @param payload the single message request
+   * @returns the ID returned by Core Notify for a succesful response.
+   */
   public async process(payload: SingleMessageRequest): Promise<string> {
     const { messageReference } = payload.data.attributes;
 

@@ -8,7 +8,7 @@ import type {
   SingleMessageResponse,
 } from 'domain/request';
 import { RequestAlreadyReceivedError } from 'domain/request-already-received-error';
-import { IAccessibleService, RetryConfig, conditionalRetry } from 'utils';
+import { RetryConfig, conditionalRetry } from 'utils';
 import type { Logger } from 'utils';
 import { RequestNotifyError } from 'domain/request-notify-error';
 
@@ -30,7 +30,7 @@ export interface INotifyClient {
  * Client for sending requests to the NHS Notify API using FHIR API, see
  *  https://digital.nhs.uk/developer/api-catalogue/nhs-notify
  */
-export class NotifyClient implements INotifyClient, IAccessibleService {
+export class NotifyClient implements INotifyClient {
   private client: AxiosInstance;
 
   constructor(

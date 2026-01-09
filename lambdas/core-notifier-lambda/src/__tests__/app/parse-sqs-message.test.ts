@@ -10,10 +10,10 @@ const mockLogger = mock<Logger>();
 describe('parseSqsRecord', () => {
   const messageId = 'test-message-id-123';
 
-  const createSqsRecord = (detail: any): SQSRecord => ({
+  const createSqsRecord = (detailContents: any): SQSRecord => ({
     messageId,
     receiptHandle: 'receipt-handle',
-    body: JSON.stringify(detail),
+    body: JSON.stringify({ detail: detailContents }),
     attributes: {
       ApproximateReceiveCount: '1',
       SentTimestamp: '1234567890',

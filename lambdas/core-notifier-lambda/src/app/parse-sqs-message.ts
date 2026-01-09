@@ -14,8 +14,9 @@ export const parseSqsRecord = (
   });
 
   const sqsEventBody = JSON.parse(sqsRecord.body);
+  const sqsEventDetail = sqsEventBody.detail;
 
-  if (!messagePDMResourceAvailableValidator(sqsEventBody)) {
+  if (!messagePDMResourceAvailableValidator(sqsEventDetail)) {
     logger.error({
       err: messagePDMResourceAvailableValidator.errors,
       description:
@@ -27,10 +28,10 @@ export const parseSqsRecord = (
 
   logger.info('Parsed valid PDMResourceAvailable Event', {
     messageId: sqsRecord.messageId,
-    messageReference: sqsEventBody.data.messageReference,
-    senderId: sqsEventBody.data.senderId,
-    resourceId: sqsEventBody.data.resourceId,
+    messageReference: sqsEventDetail.data.messageReference,
+    senderId: sqsEventDetail.data.senderId,
+    resourceId: sqsEventDetail.data.resourceId,
   });
 
-  return sqsEventBody;
+  return sqsEventDetail;
 };
