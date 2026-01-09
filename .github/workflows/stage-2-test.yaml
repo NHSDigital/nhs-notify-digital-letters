@@ -53,9 +53,10 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: ./.github/actions/node-install
         with:
-          node-version: 24.10.0
+          node-version: ${{ inputs.nodejs_version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: "Repo setup"
         run: |
           npm ci
@@ -70,9 +71,10 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: ./.github/actions/node-install
         with:
-          node-version: 24.10.0
+          node-version: ${{ inputs.nodejs_version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v6
         with:
           python-version: '3.14'
@@ -103,9 +105,10 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: ./.github/actions/node-install
         with:
-          node-version: 24.10.0
+          node-version: ${{ inputs.nodejs_version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: "Run linting"
         run: |
           make test-lint
@@ -118,9 +121,10 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: ./.github/actions/node-install
         with:
-          node-version: 24.10.0
+          node-version: ${{ inputs.nodejs_version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: "Run typecheck"
         run: |
           make test-typecheck
