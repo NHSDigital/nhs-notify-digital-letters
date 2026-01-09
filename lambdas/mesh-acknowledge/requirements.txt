@@ -1,3 +1,10 @@
 mesh-client>=3.2.3
 boto3>=1.28.62
+pyopenssl>=24.2.1
 pydantic>=2.0.0
+structlog>=21.5.0
+-e ../../src/digital-letters-events
+-e ../../utils/event-publisher-py
+-e ../../utils/metric-publishers
+-e ../../utils/sender-management
+-e ../../utils/py-mock-mesh
