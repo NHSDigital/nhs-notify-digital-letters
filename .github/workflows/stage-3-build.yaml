@@ -44,3 +44,5 @@ jobs:
         uses: ./.github/actions/build-docs
         with:
           version: "${{ inputs.version }}"
+          node-version: ${{ inputs.nodejs_version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
