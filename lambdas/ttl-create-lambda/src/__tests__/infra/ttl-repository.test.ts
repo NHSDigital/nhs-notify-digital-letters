@@ -6,15 +6,16 @@ jest.useFakeTimers();
 
 const randomNumber = 0.42;
 const shardCount = 3;
+const ttlWaitTimeSeconds = 24 * 60 * 60;
 const expectedShard = Math.floor(randomNumber * shardCount);
 jest.spyOn(Math, 'random').mockReturnValue(randomNumber);
 
 describe('TtlRepository', () => {
   let logger: any;
   let dynamoClient: any;
+  let senderRepository: any;
   let repo: TtlRepository;
   const tableName = 'table';
-  const ttlWaitTimeHours = 24;
   const item: MESHInboxMessageDownloaded = {
     id: '550e8400-e29b-41d4-a716-446655440001',
     specversion: '1.0',
@@ -40,12 +41,17 @@ describe('TtlRepository', () => {
   beforeEach(() => {
     logger = { info: jest.fn(), error: jest.fn() };
     dynamoClient = { send: jest.fn().mockResolvedValue({}) };
+    senderRepository = {
+      getSender: jest
+        .fn()
+        .mockResolvedValue({ fallbackWaitTimeSeconds: ttlWaitTimeSeconds }),
+    };
     repo = new TtlRepository(
       tableName,
-      ttlWaitTimeHours,
       logger,
       dynamoClient,
       shardCount,
+      senderRepository,
     );
   });
 
@@ -56,7 +62,6 @@ describe('TtlRepository', () => {
   it('logs and inserts item', async () => {
     const now = new Date('2020-01-01T12:00:00').getTime();
     jest.setSystemTime(now);
-    const ttlWaitTimeSeconds = ttlWaitTimeHours * 60 * 60;
     const expectedTtlSeconds = Math.round(now / 1000) + ttlWaitTimeSeconds;
     const expectedTtlDate = new Date(expectedTtlSeconds * 1000)
       .toISOString()
@@ -70,6 +75,10 @@ describe('TtlRepository', () => {
         description: expect.stringContaining('Inserting item'),
       }),
     );
+
+    expect(senderRepository.getSender).toHaveBeenCalledWith({
+      senderId: item.data.senderId,
+    });
 
     const putCommand: PutCommand = dynamoClient.send.mock.calls[0][0];
     expect(putCommand.input).toStrictEqual({
@@ -108,5 +117,17 @@ describe('TtlRepository', () => {
     await repo.insertTtlRecord(item);
 
     expect(gsiPk).toMatch(/^\d{4}-\d{2}-\d{2}#\d{1,2}$/);
+  });
+
+  it('throws and logs error when sender not found', async () => {
+    senderRepository.getSender.mockResolvedValue(null);
+
+    await expect(repo.insertTtlRecord(item)).rejects.toThrow(
+      `Sender not found for sender ID ${item.data.senderId}`,
+    );
+
+    expect(logger.error).toHaveBeenCalledWith({
+      description: `Sender not found for sender ID ${item.data.senderId}`,
+    });
   });
 });

@@ -11,7 +11,7 @@ import { loadConfig } from 'infra/config';
 export function createContainer() {
   const config = loadConfig();
   const { getPrivateKey } = privateKeyFetcher(
-    config.ssmPrivateKeyParameterName,
+    config.apimPrivateKeySsmParameterName,
   );
 
   return {

@@ -56,9 +56,11 @@
   "workspaces": [
     "lambdas/key-generation",
     "lambdas/refresh-apim-access-token",
+    "lambdas/pdm-mock-lambda",
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
+    "lambdas/pdm-uploader-lambda",
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",
