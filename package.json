@@ -57,6 +57,7 @@
     "lambdas/refresh-apim-access-token",
     "lambdas/mesh-poll",
     "lambdas/pdm-mock-lambda",
+    "lambdas/pdm-poll-lambda",
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",

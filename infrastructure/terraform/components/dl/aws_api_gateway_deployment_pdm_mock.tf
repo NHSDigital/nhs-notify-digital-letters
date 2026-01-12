@@ -16,7 +16,9 @@ resource "aws_api_gateway_deployment" "pdm_mock" {
       aws_api_gateway_resource.document_reference[0].id,
       aws_api_gateway_resource.document_reference_id[0].id,
       aws_api_gateway_method.create_document_reference[0].id,
+      aws_api_gateway_method.create_document_reference[0].authorization,
       aws_api_gateway_method.get_document_reference[0].id,
+      aws_api_gateway_method.get_document_reference[0].authorization,
       aws_api_gateway_integration.create_document_reference[0].id,
       aws_api_gateway_integration.get_document_reference[0].id,
     ]))

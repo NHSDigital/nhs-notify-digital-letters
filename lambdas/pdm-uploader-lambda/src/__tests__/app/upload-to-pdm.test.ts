@@ -1,7 +1,6 @@
 import { UploadToPdm } from 'app/upload-to-pdm';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
-import { IPdmClient } from 'infra/pdm-api-client';
-import { Logger, getS3ObjectFromUri } from 'utils';
+import { IPdmClient, Logger, getS3ObjectFromUri } from 'utils';
 
 jest.mock('utils', () => ({
   ...jest.requireActual('utils'),
@@ -44,6 +43,14 @@ describe('UploadToPdm', () => {
       lastUpdated: '2023-06-20T12:00:00Z',
     },
     status: 'current',
+    author: [
+      {
+        identifier: {
+          system: 'https://fhir.nhs.uk/Id/ods-organization-code',
+          value: 'Y05868',
+        },
+      },
+    ],
     subject: {
       identifier: {
         system: 'https://fhir.nhs.uk/Id/nhs-number',
