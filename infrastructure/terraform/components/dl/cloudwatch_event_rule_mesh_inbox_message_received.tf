@@ -7,10 +7,7 @@ resource "aws_cloudwatch_event_rule" "mesh_inbox_message_received" {
     "detail" : {
       "type" : [
         "uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1"
-      ],
-      "dataschemaversion" : [{
-        "prefix" : "1."
-      }]
+      ]
     }
   })
 }

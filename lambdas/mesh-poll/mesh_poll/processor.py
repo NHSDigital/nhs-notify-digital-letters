@@ -27,9 +27,10 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         self.__mesh_client.handshake()
         self.__polling_metric = kwargs['polling_metric']
 
+        environment = 'development'
         deployment = 'primary'
         plane = 'data-plane'
-        self.__cloud_event_source = f'/nhs/england/notify/{self.__config.environment}/{deployment}/{plane}/digitalletters/mesh'
+        self.__cloud_event_source = f'/nhs/england/notify/{environment}/{deployment}/{plane}/digitalletters/mesh'
 
         # Initialize EventPublisher
         self.__event_publisher = EventPublisher(
@@ -115,8 +116,6 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
             }
 
             self._publish_mesh_inbox_message_received_event(event_detail)
-            logger.info(
-                "published MESHInboxMessageReceived event for valid sender")
 
         except AuthorizationError as exception:
             logger.error(format_exception(exception))
