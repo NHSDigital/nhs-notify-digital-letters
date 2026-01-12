@@ -50,6 +50,32 @@ class MockMeshClient:  # pylint: disable=too-many-arguments
                     ContinuationToken=continuation_token
                 )
 
+    def retrieve_message(self, message_id):
+        """
+        Retrieves a specific message by ID from the inbox
+        """
+        message_key = f"{self.inbox_prefix}{message_id}"
+
+        try:
+            response = self.s3_client.head_object(
+                Bucket=self.s3_bucket,
+                Key=message_key
+            )
+
+            s3_object = {
+                'Key': message_key,
+                'ETag': response['ETag']
+            }
+
+            return MockMeshMessage(self.s3_client, self.s3_bucket, s3_object, self.__log)
+
+        except self.s3_client.exceptions.NoSuchKey:
+            self.__log.warning(f"Message {message_id} not found in inbox")
+            return None
+        except Exception as e:
+            self.__log.error(f"Error retrieving message {message_id}: {str(e)}")
+            return None
+
     def send_message(self, recipient, data, **kwargs):
         """
         Sends a message to a mailbox
