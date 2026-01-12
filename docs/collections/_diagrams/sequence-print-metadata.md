@@ -6,22 +6,22 @@ title: sequence-expire-print-ttl
 
 ```mermaid
 sequenceDiagram
-  participant scannerlambda as Lambda<br/>PrintScanner
+  participant scannerLambda as Lambda<br/>PrintScanner
   participant analyserLambda as Lambda<br/>PrintAnalyser
   participant senderLambda as Lambda<br/>PrintSender
-  participant moveLambda as Lambda<br/>MoveLetters
-  participant unscannedS3 as S3<br/>UnscannedLetters
+  participant moveLambda as Lambda<br/>MoveFiles
+  participant unscannedS3 as S3<br/>UnscannedFiles
   participant gd as GuardDuty
-  participant safeS3 as S3<br/>SafeLetters
-  participant quarantinedS3 as S3<br/>QuarantinedLetters
+  participant safeS3 as S3<br/>SafeFiles
+  participant quarantinedS3 as S3<br/>QuarantinedFiles
   participant eventBus as Event Bus
   participant printApi as Print API
 
-  eventBus ->> scannerlambda: ItemDequeued event
-  activate scannerlambda
-  scannerlambda ->> scannerlambda: Extract & Decode PDF
-        scannerlambda -) unscannedS3: Store PDF
-  deactivate scannerlambda
+  eventBus ->> scannerLambda: ItemDequeued event
+  activate scannerLambda
+  scannerLambda ->> scannerLambda: Extract & Decode PDF
+        scannerLambda -) unscannedS3: Store PDF
+  deactivate scannerLambda
   unscannedS3 -) gd: S3 new object event
   activate gd
       gd -) gd: Scan for threats
@@ -29,16 +29,16 @@ sequenceDiagram
   deactivate gd
   eventBus -) moveLambda: ScanResult event
   activate moveLambda
-    alt Move scanned letter
+    alt Move scanned file
       moveLambda ->> safeS3: Store safe PDF
-      moveLambda ->> eventBus: PrintLetterSafe event
+      moveLambda ->> eventBus: FileSfe event
     else
       moveLambda ->> quarantinedS3: Store quarantined PDF
-      moveLambda ->> eventBus: PrintLetterQuarantined event
+      moveLambda ->> eventBus: FileQuarantined event
   end
   moveLambda ->> unscannedS3: Delete unscanned PDF
   deactivate moveLambda
-  eventBus -) analyserLambda: PrintLetterSafe event
+  eventBus -) analyserLambda: FileSafe event
   activate analyserLambda
   analyserLambda ->> safeS3: Get scanned PDF
         activate safeS3
@@ -46,9 +46,9 @@ sequenceDiagram
         deactivate safeS3
   analyserLambda ->> analyserLambda: Count pages
   analyserLambda ->> analyserLambda: SHA256
-  analyserLambda ->> eventBus: PrintLetterAnalysed event
+  analyserLambda ->> eventBus: PDFAnalysed event
   deactivate analyserLambda
-  eventBus -) senderLambda: PrintLetterAnalysed event
+  eventBus -) senderLambda: PDFAnalysed event
   activate senderLambda
   senderLambda -) eventBus: letter.PREPARED event
   deactivate senderLambda
