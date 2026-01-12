@@ -13,6 +13,11 @@ properties:
       - "DISPATCHED"
       - "FAILED"
       - "RETURNED"
+      - "PENDING"
+      - "ENCLOSED"
+      - "CANCELLED"
+      - "FORWARDED"
+      - "DELIVERED"
     examples:
       - ACCEPTED
       - DISPATCHED

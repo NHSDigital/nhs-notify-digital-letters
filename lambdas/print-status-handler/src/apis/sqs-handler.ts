@@ -8,10 +8,7 @@ import {
   $LetterEvent,
   LetterEvent,
 } from '@nhsdigital/nhs-notify-event-schemas-supplier-api/src/events/letter-events';
-import {
-  PrintLetterTransitioned,
-  PrintLetterTransitionedData,
-} from 'digital-letters-events';
+import { PrintLetterTransitioned } from 'digital-letters-events';
 import printLetterTransitionedValidator from 'digital-letters-events/PrintLetterTransitioned.js';
 import { EventPublisher, Logger } from 'utils';
 
@@ -87,7 +84,7 @@ function generateUpdatedEvent(event: LetterEvent): PrintLetterTransitioned {
       senderId,
       messageReference,
       specificationId,
-      status: status as PrintLetterTransitionedData['status'],
+      status,
       supplierId,
       time,
     },

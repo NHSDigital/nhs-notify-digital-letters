@@ -5,14 +5,10 @@ resource "aws_cloudwatch_event_rule" "print_status_changed" {
 
   event_pattern = jsonencode({
     "detail" : {
-      "type" : [
-        "uk.nhs.notify.supplier-api.letter.ACCEPTED.v1",
-        "uk.nhs.notify.supplier-api.letter.REJECTED.v1",
-        "uk.nhs.notify.supplier-api.letter.PRINTED.v1",
-        "uk.nhs.notify.supplier-api.letter.DISPATCHED.v1",
-        "uk.nhs.notify.supplier-api.letter.FAILED.v1",
-        "uk.nhs.notify.supplier-api.letter.RETURNED.v1"
-      ]
+      "type" : [{
+        "prefix" : "uk.nhs.notify.supplier-api.letter.",
+        "suffix" : ".v1"
+      }]
     }
   })
 }
