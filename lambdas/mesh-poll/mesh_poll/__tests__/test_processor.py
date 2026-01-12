@@ -80,14 +80,14 @@ class TestMeshMessageProcessor:
             polling_metric=polling_metric
         )
 
-        mesh_client.iterate_all_messages.side_effect = [
-            [message1, message2], []]
+        mesh_client.iterate_all_messages.return_value = [message1, message2]
         sender_lookup.is_valid_sender.return_value = True
 
         processor.process_messages()
 
         mesh_client.handshake.assert_called_once()
-        assert mesh_client.iterate_all_messages.call_count == 2
+        assert mesh_client.iterate_all_messages.call_count == 1
+        assert sender_lookup.is_valid_sender.call_count == 2  # Both messages validated
         polling_metric.record.assert_called_once()
 
     def test_process_messages_stops_near_timeout(self, mock_event_publisher_class):
@@ -196,8 +196,8 @@ class TestMeshMessageProcessor:
         # Verify error was logged
         log.error.assert_called()
 
-    def test_process_messages_across_multiple_iterations(self, mock_event_publisher_class):
-        """Test that processor continues polling until no messages remain"""
+    def test_all_messages_are_processed_in_a_single_iteration(self, mock_event_publisher_class):
+        """Test that processor processes all messages in a single iteration"""
         (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message1 = setup_message_data("1")
         message2 = setup_message_data("2")
@@ -216,17 +216,13 @@ class TestMeshMessageProcessor:
             polling_metric=polling_metric
         )
 
-        mesh_client.iterate_all_messages.side_effect = [
-            [message1, message2],  # First iteration
-            [message3],            # Second iteration
-            []                     # Third iteration - empty, stops
-        ]
+        mesh_client.iterate_all_messages.return_value = [message1, message2, message3]
         sender_lookup.is_valid_sender.return_value = True
 
         processor.process_messages()
 
         mesh_client.handshake.assert_called_once()
-        assert mesh_client.iterate_all_messages.call_count == 3
+        assert mesh_client.iterate_all_messages.call_count == 1
         assert sender_lookup.is_valid_sender.call_count == 3
         assert mock_event_publisher.send_events.call_count == 3  # Events published for all 3 messages
         polling_metric.record.assert_called_once()

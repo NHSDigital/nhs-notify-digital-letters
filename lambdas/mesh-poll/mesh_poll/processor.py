@@ -52,26 +52,25 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         """
         Iterates over and processes messages in a MESH inbox
         """
-        is_message_iterator_empty = False
+        self.__log.info('Polling for messages')
 
-        while not is_message_iterator_empty:
-            self.__log.info('Polling for messages')
+        # Process all messages in the inbox
+        message_count = 0
+        for message in self.__mesh_client.iterate_all_messages():
+            message_count += 1
+            if not self.is_enough_time_to_process_message():
+                self.__log.info(
+                    'Not enough time to process more files. Exiting')
+                self.__polling_metric.record(1)
+                return
 
-            # if iterate_all_messages does not return any items, we will exit the loop
-            is_message_iterator_empty = True
+            self.process_message(message)
 
-            # Initial processing of each message
-            for message in self.__mesh_client.iterate_all_messages():
-                is_message_iterator_empty = False
-                if not self.is_enough_time_to_process_message():
-                    self.__log.info(
-                        'Not enough time to process more files. Exiting')
-                    self.__polling_metric.record(1)
-                    return
+        if message_count == 0:
+            self.__log.info('No messages found in inbox')
+        else:
+            self.__log.info(f'Processed {message_count} message(s)')
 
-                self.process_message(message)
-
-        self.__log.info('No new messages found. Exiting')
         self.__polling_metric.record(1)
 
     def process_message(self, message):
