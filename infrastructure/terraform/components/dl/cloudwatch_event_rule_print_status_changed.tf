@@ -6,8 +6,7 @@ resource "aws_cloudwatch_event_rule" "print_status_changed" {
   event_pattern = jsonencode({
     "detail" : {
       "type" : [{
-        "prefix" : "uk.nhs.notify.supplier-api.letter.",
-        "suffix" : ".v1"
+        "prefix" : "uk.nhs.notify.supplier-api.letter."
       }]
     }
   })
