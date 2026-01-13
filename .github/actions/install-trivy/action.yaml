@@ -1,0 +1,9 @@
+name: "Install Trivy"
+description: Installs Trivy.
+
+runs:
+  using: composite
+  steps:
+    - name: "Install Trivy using ASDF"
+      shell: bash
+      run: "make _install-dependency name=\"trivy\""
