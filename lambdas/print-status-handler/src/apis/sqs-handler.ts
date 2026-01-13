@@ -129,7 +129,10 @@ export const createHandler = ({
       }),
     );
 
-    eventPublisher.sendEvents(validEvents, printLetterTransitionedValidator);
+    await eventPublisher.sendEvents(
+      validEvents,
+      printLetterTransitionedValidator,
+    );
 
     const processedItemCount = receivedItemCount - batchItemFailures.length;
     logger.info(
