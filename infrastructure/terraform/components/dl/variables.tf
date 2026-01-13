@@ -163,3 +163,9 @@ variable "enable_pdm_mock" {
   description = "Flag indicating whether to deploy PDM mock API (should be false in production environments)"
   default     = true
 }
+
+variable "aws_account_name" {
+  type        = string
+  description = "The AWS Account Name"
+  default     = "dev"
+}
