@@ -1,3 +1,6 @@
+import { HandlerDependencies } from 'apis/sqs-handler';
+import { Pdm } from 'app/pdm';
+import { loadConfig } from 'infra/config';
 import {
   EventPublisher,
   ParameterStoreCache,
@@ -7,16 +10,23 @@ import {
   logger,
   sqsClient,
 } from 'utils';
-import { loadConfig } from 'infra/config';
-import { UploadToPdm } from 'app/upload-to-pdm';
 
-export const createContainer = () => {
+export const createContainer = (): HandlerDependencies => {
   const {
     apimAccessTokenSsmParameterName,
     apimBaseUrl,
     eventPublisherDlqUrl,
     eventPublisherEventBusArn,
+    pollMaxRetries,
   } = loadConfig();
+
+  const eventPublisher = new EventPublisher({
+    eventBusArn: eventPublisherEventBusArn,
+    dlqUrl: eventPublisherDlqUrl,
+    logger,
+    sqsClient,
+    eventBridgeClient,
+  });
 
   const parameterStore = new ParameterStoreCache();
 
@@ -30,21 +40,12 @@ export const createContainer = () => {
 
   const pdmClient = new PdmClient(apimBaseUrl, accessTokenRepository, logger);
 
-  const uploadToPdm = new UploadToPdm(pdmClient, logger);
-
-  const eventPublisher = new EventPublisher({
-    eventBusArn: eventPublisherEventBusArn,
-    dlqUrl: eventPublisherDlqUrl,
+  const pdm = new Pdm({
+    pdmClient,
     logger,
-    sqsClient,
-    eventBridgeClient,
   });
 
-  return {
-    uploadToPdm,
-    eventPublisher,
-    logger,
-  };
+  return { eventPublisher, logger, pdm, pollMaxRetries };
 };
 
 export default createContainer;

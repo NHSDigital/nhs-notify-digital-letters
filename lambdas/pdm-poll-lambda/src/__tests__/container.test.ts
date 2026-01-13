@@ -6,11 +6,8 @@ jest.mock('infra/config', () => ({
     apimAccessTokenSsmParameterName: 'test-ssm-parameter-name',
     eventPublisherDlqUrl: 'test-url',
     eventPublisherEventBusArn: 'test-arn',
+    maxPollCount: 10,
   })),
-}));
-
-jest.mock('app/upload-to-pdm', () => ({
-  UploadToPdm: jest.fn(() => ({})),
 }));
 
 jest.mock('utils', () => ({

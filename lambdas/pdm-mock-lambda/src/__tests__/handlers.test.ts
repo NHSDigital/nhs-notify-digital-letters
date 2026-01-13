@@ -74,6 +74,10 @@ describe('GET Resource Handler', () => {
     expect(body.meta).toBeDefined();
     expect(body.meta.versionId).toBe('1');
     expect(body.meta.lastUpdated).toBeDefined();
+    expect(body.author[0].identifier.system).toBe(
+      'https://fhir.nhs.uk/Id/ods-organization-code',
+    );
+    expect(body.author[0].identifier.value).toBe('Y05868');
     expect(body.subject.identifier.system).toBe(
       'https://fhir.nhs.uk/Id/nhs-number',
     );
@@ -81,6 +85,40 @@ describe('GET Resource Handler', () => {
     expect(body.content[0].attachment.contentType).toBe('application/pdf');
     expect(body.content[0].attachment.data).toBeDefined();
     expect(body.content[0].attachment.data).toMatch(/^[A-Za-z0-9+/=]+$/);
+    expect(body.content[0].attachment.title).toBe('Dummy PDF');
+  });
+
+  it('should return response with no attachment.data for unavailable-response', async () => {
+    const handler = createGetResourceHandler(mockLogger);
+    const event = createMockEvent({
+      pathParameters: { id: 'unavailable-response' },
+      headers: {
+        'X-Request-ID': 'get-test-1234-5678-9abc-def012345678',
+      },
+    });
+
+    const response = await handler(event);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers?.['Content-Type']).toBe('application/fhir+json');
+
+    const body = JSON.parse(response.body);
+    expect(body.resourceType).toBe('DocumentReference');
+    expect(body.id).toBe('unavailable-response');
+    expect(body.status).toBe('current');
+    expect(body.meta).toBeDefined();
+    expect(body.meta.versionId).toBe('1');
+    expect(body.meta.lastUpdated).toBeDefined();
+    expect(body.author[0].identifier.system).toBe(
+      'https://fhir.nhs.uk/Id/ods-organization-code',
+    );
+    expect(body.author[0].identifier.value).toBe('Y05868');
+    expect(body.subject.identifier.system).toBe(
+      'https://fhir.nhs.uk/Id/nhs-number',
+    );
+    expect(body.subject.identifier.value).toBe('9912003071');
+    expect(body.content[0].attachment.contentType).toBe('application/pdf');
+    expect(body.content[0].attachment.data).not.toBeDefined();
     expect(body.content[0].attachment.title).toBe('Dummy PDF');
   });
 
