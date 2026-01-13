@@ -98,7 +98,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
   }
 
   test('should poll message from MESH inbox, publish received event, download message, and publish downloaded event', async () => {
-    const meshMessageId = `${Date.now()}_TEST_${uuidv4().substring(0, 8)}`;
+    const meshMessageId = `${Date.now()}_TEST_${uuidv4().slice(0, 8)}`;
     const messageReference = uuidv4();
     const messageContent = JSON.stringify({
       senderId,
@@ -107,16 +107,15 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
       timestamp: new Date().toISOString(),
     });
 
-    await uploadMeshMessage(
-      meshMessageId,
-      messageReference,
-      messageContent,
-    );
+    await uploadMeshMessage(meshMessageId, messageReference, messageContent);
 
     await invokeLambda(MESH_POLL_LAMBDA_NAME);
 
     await expectMeshInboxMessageReceivedEvent(meshMessageId);
-    await expectMeshInboxMessageDownloadedEvent(meshMessageId, messageReference);
+    await expectMeshInboxMessageDownloadedEvent(
+      meshMessageId,
+      messageReference,
+    );
 
     await expectToPassEventually(async () => {
       const storedMessage = await downloadFromS3(
@@ -140,7 +139,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
   test('should handle invalid sender and send to DLQ', async () => {
     test.setTimeout(300_000);
 
-    const meshMessageId = `${Date.now()}_INVALID_${uuidv4().substring(0, 8)}`;
+    const meshMessageId = `${Date.now()}_INVALID_${uuidv4().slice(0, 8)}`;
     const messageReference = uuidv4();
     const messageContent = JSON.stringify({
       senderId: 'unknown-sender',
@@ -157,19 +156,16 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
 
     await invokeLambda(MESH_POLL_LAMBDA_NAME);
 
-    await expectMessageContainingString(
-      MESH_POLL_DLQ_NAME,
-      meshMessageId,
-      240,
-    );
+    await expectMessageContainingString(MESH_POLL_DLQ_NAME, meshMessageId, 240);
   });
 
   test('should send message to mesh-download DLQ when download fails', async () => {
     test.setTimeout(400_000);
 
-    const meshMessageId = `${Date.now()}_DLQ_${uuidv4().substring(0, 8)}`;
+    const meshMessageId = `${Date.now()}_DLQ_${uuidv4().slice(0, 8)}`;
     const messageReference = uuidv4();
-    const invalidMessageUri = 'https://example.com/invalid/nonexistent-resource';
+    const invalidMessageUri =
+      'https://example.com/invalid/nonexistent-resource';
 
     await uploadMeshMessage(
       meshMessageId,
@@ -197,7 +193,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     test.setTimeout(300_000);
 
     const messages = Array.from({ length: 3 }, (_, i) => ({
-      meshMessageId: `${Date.now()}_MULTI_${i}_${uuidv4().substring(0, 8)}`,
+      meshMessageId: `${Date.now()}_MULTI_${i}_${uuidv4().slice(0, 8)}`,
       messageReference: uuidv4(),
       messageContent: JSON.stringify({
         senderId,
