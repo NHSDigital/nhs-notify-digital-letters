@@ -71,6 +71,6 @@ test.describe('Print status handler', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    }, 120 );
+    }, 120);
   });
 });
