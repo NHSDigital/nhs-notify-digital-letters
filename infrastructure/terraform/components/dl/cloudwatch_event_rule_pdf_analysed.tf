@@ -14,6 +14,6 @@ resource "aws_cloudwatch_event_rule" "pdf_analysed" {
 
 resource "aws_cloudwatch_event_target" "pdf-analysed-print-sender-target" {
   rule           = aws_cloudwatch_event_rule.pdf_analysed.name
-  arn            = module.print_sender.sqs_queue_arn
+  arn            = module.sqs_print_sender.sqs_queue_arn
   event_bus_name = aws_cloudwatch_event_bus.main.name
 }
