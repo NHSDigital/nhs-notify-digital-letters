@@ -50,7 +50,10 @@ test.describe('Print status handler', () => {
       ...baseLetterEvent,
       data: {
         ...baseLetterEvent.data,
-        subject: `letter-origin/digital-letters/letter/${messageReference}`,
+        origin: {
+          ...baseLetterEvent.data.origin,
+          subject: `letter-origin/digital-letters/letter/${messageReference}`,
+        },
       },
     };
 
