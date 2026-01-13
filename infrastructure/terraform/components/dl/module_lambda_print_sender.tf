@@ -57,6 +57,22 @@ data "aws_iam_policy_document" "print_sender_lambda" {
   }
 
   statement {
+    sid    = "SQSPermissionsPrintSenderQueue"
+    effect = "Allow"
+
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:GetQueueUrl",
+    ]
+
+    resources = [
+      module.sqs_print_sender.sqs_queue_arn,
+    ]
+  }
+
+  statement {
     sid    = "SQSPermissionsEventPublisherDLQ"
     effect = "Allow"
 
