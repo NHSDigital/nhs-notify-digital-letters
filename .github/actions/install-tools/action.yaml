@@ -1,0 +1,9 @@
+name: "Install Tools"
+description: Installs the necessary development tools.
+
+runs:
+  using: composite
+  steps:
+    - name: "Install tools using ASDF"
+      shell: bash
+      run: "make _install-dependencies"
