@@ -38,7 +38,7 @@ module "print_sender" {
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
     "ENVIRONMENT"                   = var.environment
-    "ACCOUNT_NAME"                  = var.account_name
+    "ACCOUNT_NAME"                  = var.aws_account_name
   }
 }
 
