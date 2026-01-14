@@ -117,6 +117,42 @@ describe('SQS Handler', () => {
       });
     });
 
+    it('should return failed items to the queue if an invalid origin.subject event is received', async () => {
+      const invalidAcceptedLetterEvent = {
+        ...acceptedLetterEvent,
+        data: {
+          ...acceptedLetterEvent.data,
+          origin: {
+            ...acceptedLetterEvent.data.origin,
+            subject: 'invalid origin.subject',
+          },
+        },
+      };
+      const event = recordEvent([invalidAcceptedLetterEvent]);
+
+      const result = await handler(event);
+
+      expect(logger.warn).toHaveBeenCalledWith({
+        err: expect.objectContaining({
+          issues: expect.arrayContaining([
+            expect.objectContaining({
+              message:
+                'Subject must be in format: client/{senderId}/digital-letters/{messageReference}',
+            }),
+          ]),
+        }),
+        description: 'Invalid origin.subject format',
+      });
+
+      expect(logger.info).toHaveBeenCalledWith(
+        '0 of 1 records processed successfully',
+      );
+
+      expect(result).toEqual({
+        batchItemFailures: [{ itemIdentifier: '1' }],
+      });
+    });
+
     it('should return failed items to the queue if event transformation fails', async () => {
       mockRandomUUID.mockImplementationOnce(() => {
         throw new Error('A forced error scenario');

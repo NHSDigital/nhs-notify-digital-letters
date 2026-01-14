@@ -26,7 +26,7 @@ export const acceptedLetterEvent = {
       event: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
       source: '/data-plane/letter-rendering/prod/render-pdf',
       subject:
-        'client/00f3b388-bbe9-41c9-9e76-052d37ee8988/letter-request/0o5Fs0EELR0fUjHjbCnEtdUwQe4_0o5Fs0EELR0fUjHjbCnEtdUwQe5',
+        'client/00f3b388-bbe9-41c9-9e76-052d37ee8988/digital-letters/b9c0c7f8-8204-400d-8348-7e7ddf775dae',
     },
     specificationId: '1y3q9v1zzzz',
     supplierId: 'supplier-1',
