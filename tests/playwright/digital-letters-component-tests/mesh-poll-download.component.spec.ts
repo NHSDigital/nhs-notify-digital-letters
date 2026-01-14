@@ -26,13 +26,10 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
   ): Promise<void> {
     const key = `mock-mesh/${meshMailboxId}/in/${meshMessageId}`;
     const meshMetadata = {
-      mex_from: sendersMeshMailboxId,
-      mex_to: meshMailboxId,
-      mex_workflowid: 'NHS_NOTIFY_SEND_REQUEST',
-      mex_messageid: meshMessageId,
-      mex_localid: messageReference,
-      mex_subject: '201',
-      mex_contenttype: 'application/json',
+      sender: sendersMeshMailboxId,
+      subject: '201',
+      workflow_id: 'NHS_NOTIFY_SEND_REQUEST',
+      local_id: messageReference,
       ...metadata,
     };
 
@@ -47,13 +44,10 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
   ): Promise<void> {
     const key = `mock-mesh/${meshMailboxId}/in/${meshMessageId}`;
     const meshMetadata = {
-      mex_from: senderMailboxId,
-      mex_to: meshMailboxId,
-      mex_workflowid: 'NHS_NOTIFY_SEND_REQUEST',
-      mex_messageid: meshMessageId,
-      mex_localid: messageReference,
-      mex_subject: '201',
-      mex_contenttype: 'application/json',
+      sender: senderMailboxId,
+      subject: '201',
+      workflow_id: 'NHS_NOTIFY_SEND_REQUEST',
+      local_id: messageReference,
     };
 
     await uploadToS3(messageContent, NON_PII_S3_BUCKET_NAME, key, meshMetadata);
