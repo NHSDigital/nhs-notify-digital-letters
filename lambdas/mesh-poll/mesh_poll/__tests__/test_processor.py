@@ -13,7 +13,7 @@ def setup_mocks():
     """
     config = Mock()
     config.maximum_runtime_milliseconds = "500"
-    config.ssm_prefix = "/dl/test/mesh"
+    config.ssm_prefix = "/dl/test"
     config.environment = "development"
 
     sender_lookup = Mock()

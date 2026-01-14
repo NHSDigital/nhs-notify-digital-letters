@@ -10,7 +10,7 @@ def setup_mocks():
     ssm = Mock()
 
     config = Mock()
-    config.ssm_prefix = "/dl/test/mesh"
+    config.ssm_prefix = "/dl/test"
 
     logger = Mock()
 
@@ -19,7 +19,7 @@ def setup_mocks():
 
 def create_sender_parameter(sender_id, mailbox_id):
     return {
-        "Name": f"/dl/test/mesh/senders/{sender_id}",
+        "Name": f"/dl/test/senders/{sender_id}",
         "Value": json.dumps({
             "senderId": sender_id,
             "meshMailboxSenderId": mailbox_id,
@@ -47,7 +47,7 @@ class TestSenderLookup:
         sender_lookup = SenderLookup(ssm, config, logger)
 
         ssm.get_parameters_by_path.assert_called_once_with(
-            Path="/dl/test/mesh/senders/",
+            Path="/dl/test/senders/",
             WithDecryption=True
         )
         assert sender_lookup.is_valid_sender("MAILBOX_001")
@@ -80,8 +80,8 @@ class TestSenderLookup:
 
         assert ssm.get_parameters_by_path.call_count == 2
         ssm.get_parameters_by_path.assert_has_calls([
-            call(Path="/dl/test/mesh/senders/", WithDecryption=True),
-            call(Path="/dl/test/mesh/senders/", WithDecryption=True, NextToken="token123")
+            call(Path="/dl/test/senders/", WithDecryption=True),
+            call(Path="/dl/test/senders/", WithDecryption=True, NextToken="token123")
         ], any_order=False)
         assert sender_lookup.is_valid_sender("MAILBOX_001")
         assert sender_lookup.is_valid_sender("MAILBOX_002")
@@ -127,7 +127,7 @@ class TestSenderLookup:
             "Parameters": [
                 create_sender_parameter("sender1", "MAILBOX_001"),
                 {
-                    "Name": "/dl/test/mesh/senders/bad_sender",
+                    "Name": "/dl/test/senders/bad_sender",
                     "Value": "not valid json {{"
                 },
                 create_sender_parameter("sender3", "MAILBOX_003"),
@@ -148,7 +148,7 @@ class TestSenderLookup:
             "Parameters": [
                 create_sender_parameter("sender1", "MAILBOX_001"),
                 {
-                    "Name": "/dl/test/mesh/senders/incomplete_sender",
+                    "Name": "/dl/test/senders/incomplete_sender",
                     "Value": json.dumps({
                         "senderId": "incomplete",
                         "name": "Incomplete Sender"
@@ -172,7 +172,7 @@ class TestSenderLookup:
             "Parameters": [
                 create_sender_parameter("sender1", "MAILBOX_001"),
                 {
-                    "Name": "/dl/test/mesh/senders/empty_mailbox",
+                    "Name": "/dl/test/senders/empty_mailbox",
                     "Value": json.dumps({
                         "senderId": "empty",
                         "meshMailboxSenderId": "",  # Empty string
@@ -192,7 +192,7 @@ class TestSenderLookup:
     def test_load_valid_senders_with_trailing_slash_in_path(self):
         """Test that paths with trailing slashes are handled correctly"""
         ssm, config, logger = setup_mocks()
-        config.ssm_prefix = "/dl/test/mesh/"  # Trailing slash
+        config.ssm_prefix = "/dl/test/"  # Trailing slash
 
         ssm.get_parameters_by_path.return_value = {
             "Parameters": [
@@ -203,7 +203,7 @@ class TestSenderLookup:
         sender_lookup = SenderLookup(ssm, config, logger)
 
         ssm.get_parameters_by_path.assert_called_once_with(
-            Path="/dl/test/mesh/senders/",
+            Path="/dl/test/senders/",
             WithDecryption=True
         )
         assert sender_lookup.is_valid_sender("MAILBOX_001")
@@ -292,7 +292,7 @@ class TestSenderLookup:
             "Parameters": [
                 create_sender_parameter("sender1", "MAILBOX_001"),
                 {
-                    "Name": "/dl/test/mesh/senders/incomplete",
+                    "Name": "/dl/test/senders/incomplete",
                     "Value": json.dumps({
                         "meshMailboxSenderId": "MAILBOX_BAD",
                         "name": "Incomplete"
