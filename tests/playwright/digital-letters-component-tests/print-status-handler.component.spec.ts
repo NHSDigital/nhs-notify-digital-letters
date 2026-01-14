@@ -1,10 +1,15 @@
 import { expect, test } from '@playwright/test';
 import { LetterEvent } from '@nhsdigital/nhs-notify-event-schemas-supplier-api/src/events/letter-events';
-import { ENV } from 'constants/backend-constants';
+import {
+  ENV,
+  PRINT_STATUS_HANDLER_DLQ_NAME,
+  PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
+} from 'constants/backend-constants';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { v4 as uuidv4 } from 'uuid';
+import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 
 const baseLetterEvent = {
   id: '550e8400-e29b-41d4-a716-446655440001',
@@ -54,6 +59,7 @@ test.describe.configure({ mode: 'parallel' });
 test.describe('Print status handler', () => {
   test.beforeAll(async () => {
     test.setTimeout(150_000);
+    await purgeQueue(PRINT_STATUS_HANDLER_DLQ_NAME);
   });
 
   for (const status of letterStatuses) {
@@ -90,4 +96,48 @@ test.describe('Print status handler', () => {
       }, 120);
     });
   }
+
+  test('should send invalid event to print status handler dlq', async () => {
+    // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
+    test.setTimeout(550_000);
+
+    const messageReference = uuidv4();
+
+    // Send letter.ACCEPTED event with no data.status
+    await eventPublisher.sendEvents<LetterEvent>(
+      [
+        {
+          ...baseLetterEvent,
+          type: `uk.nhs.notify.supplier-api.letter.ACCEPTED.v1`,
+          dataschema: `https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.ACCEPTED.1.0.0.schema.json`,
+          data: {
+            ...baseLetterEvent.data,
+            origin: {
+              ...baseLetterEvent.data.origin,
+              subject: `letter-origin/digital-letters/letter/${messageReference}`,
+            },
+          },
+        },
+      ],
+      () => true,
+    );
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
+        [
+          String.raw`$.message.err.message = "*Invalid option: expected one of \\\"PENDING\\\"*"`,
+          '$.message.description = "Error parsing queue item"',
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    }, 120);
+
+    await expectMessageContainingString(
+      PRINT_STATUS_HANDLER_DLQ_NAME,
+      messageReference,
+      420,
+    );
+  });
 });

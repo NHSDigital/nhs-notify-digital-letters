@@ -9,7 +9,7 @@ import pdmResourceUnavailableValidator from 'digital-letters-events/PDMResourceU
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
-import { expectMessageContainingString } from 'helpers/sqs-helpers';
+import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 const baseEvent = {
@@ -45,6 +45,7 @@ test.describe.configure({ mode: 'parallel' });
 test.describe('PDM Poll', () => {
   test.beforeAll(async () => {
     test.setTimeout(250_000);
+    await purgeQueue(PDM_POLL_DLQ_NAME);
   });
 
   test.describe('pdm.resource.submitted', () => {
