@@ -42,12 +42,9 @@ type EventToPublish = {
 async function handlePdmResourceAvailable(
   notifyMessageProcessor: NotifyMessageProcessor,
   incoming: PDMResourceAvailable,
-  sender: Sender | null,
+  sender: Sender,
 ): Promise<EventToPublish> {
   const eventToPublish = {} as EventToPublish;
-  if (sender === null) {
-    throw new Error(`Sender not found for senderId: ${incoming.data.senderId}`);
-  }
 
   if (sender.routingConfigId === undefined) {
     const messageRequestSkipped = mapPdmEventToMessageRequestSkipped(
@@ -100,6 +97,12 @@ export const createHandler = ({
           sender = await senderManagement.getSender({
             senderId: incoming.data.senderId,
           });
+          if (sender === null) {
+            throw new Error(
+              `Sender not found for senderId: ${incoming.data.senderId}`,
+            );
+          }
+
           const eventToPublish = await handlePdmResourceAvailable(
             notifyMessageProcessor,
             incoming,

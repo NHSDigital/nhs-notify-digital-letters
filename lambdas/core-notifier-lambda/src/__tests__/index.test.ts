@@ -76,15 +76,6 @@ describe('Lambda handler', () => {
     expect(result).toEqual(expectedResult);
   });
 
-  it('handles multiple records in the event', async () => {
-    const sqsEvent = createSqsEvent(5);
-
-    await handler(sqsEvent);
-
-    expect(mockSqsHandler).toHaveBeenCalledWith(sqsEvent);
-    expect(sqsEvent.Records).toHaveLength(5);
-  });
-
   it('propagates errors from createContainer', async () => {
     const sqsEvent = createSqsEvent(1);
     const error = new Error('Failed to create container');

@@ -10,7 +10,7 @@ export class RequestNotifyError extends Error {
   readonly errorCode: string;
 
   constructor(cause: Error, correlationId: string, errorCode: string) {
-    super('The request has already been received.');
+    super('Error received from Core Notify API');
 
     this.cause = cause;
     this.correlationId = correlationId;

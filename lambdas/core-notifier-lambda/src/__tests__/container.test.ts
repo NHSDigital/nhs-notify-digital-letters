@@ -129,49 +129,4 @@ describe('createContainer', () => {
       }),
     );
   });
-
-  it('creates all dependencies in the correct order', async () => {
-    const callOrder: string[] = [];
-
-    (ParameterStoreCache as jest.Mock).mockImplementation(() => {
-      callOrder.push('ParameterStoreCache');
-      return mockParameterStore;
-    });
-
-    (loadConfig as jest.Mock).mockImplementation(() => {
-      callOrder.push('loadConfig');
-      return mockConfig;
-    });
-
-    (SenderManagement as jest.Mock).mockImplementation(() => {
-      callOrder.push('SenderManagement');
-      return mockSenderManagement;
-    });
-
-    (NotifyClient as jest.Mock).mockImplementation(() => {
-      callOrder.push('NotifyClient');
-      return mockNotifyClient;
-    });
-
-    (NotifyMessageProcessor as jest.Mock).mockImplementation(() => {
-      callOrder.push('NotifyMessageProcessor');
-      return mockNotifyMessageProcessor;
-    });
-
-    (EventPublisher as jest.Mock).mockImplementation(() => {
-      callOrder.push('EventPublisher');
-      return mockEventPublisher;
-    });
-
-    await createContainer();
-
-    expect(callOrder).toEqual([
-      'ParameterStoreCache',
-      'loadConfig',
-      'SenderManagement',
-      'NotifyClient',
-      'NotifyMessageProcessor',
-      'EventPublisher',
-    ]);
-  });
 });

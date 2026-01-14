@@ -14,10 +14,10 @@ module "sqs_core_notifier" {
 
   create_dlq = true
 
-  sqs_policy_overload = data.aws_iam_policy_document.sqs_core_notifier.json
+  sqs_policy_overload = data.aws_iam_policy_document.sqs_inbound_event.json
 }
 
-data "aws_iam_policy_document" "sqs_core_notifier" {
+data "aws_iam_policy_document" "sqs_inbound_event" {
   statement {
     sid    = "AllowEventBridgeToSendMessage"
     effect = "Allow"
@@ -34,5 +34,11 @@ data "aws_iam_policy_document" "sqs_core_notifier" {
     resources = [
       "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-core-notifier-queue"
     ]
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = ["arn:aws:events:${var.region}:${var.aws_account_id}:rule/${local.csi}/*"]
+    }
   }
 }

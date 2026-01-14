@@ -76,41 +76,6 @@ describe('constructor', () => {
   });
 });
 
-describe('Accessibility', () => {
-  it('returns true when the service is available', async () => {
-    const { client, mocks } = setup();
-
-    mocks.axiosInstance.head.mockResolvedValueOnce({ status: 200 });
-
-    const actual = await client.isAccessible();
-
-    expect(mocks.axiosInstance.head).toHaveBeenCalledWith('/', {
-      headers: {
-        Authorization: 'Bearer fake-access-token',
-      },
-    });
-
-    expect(actual).toBe(true);
-  });
-
-  it('returns false when the service is unavailable', async () => {
-    const { client, mocks } = setup();
-
-    const error = new Error('Service Unavailable');
-    mocks.axiosInstance.head.mockRejectedValueOnce(error);
-
-    const actual = await client.isAccessible();
-
-    expect(mocks.axiosInstance.head).toHaveBeenCalledWith('/', {
-      headers: {
-        Authorization: 'Bearer fake-access-token',
-      },
-    });
-
-    expect(actual).toBe(false);
-  });
-});
-
 describe('sendRequest', () => {
   it('successfully sends a request', async () => {
     const { client, mocks } = setup();

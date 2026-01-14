@@ -27,7 +27,7 @@ export interface INotifyClient {
   ): Promise<SingleMessageResponse>;
 }
 /*
- * Client for sending requests to the NHS Notify API using FHIR API, see
+ * Client for sending requests to the NHS Notify API see
  *  https://digital.nhs.uk/developer/api-catalogue/nhs-notify
  */
 export class NotifyClient implements INotifyClient {
@@ -114,22 +114,6 @@ export class NotifyClient implements INotifyClient {
       }
 
       throw error;
-    }
-  }
-
-  public async isAccessible(): Promise<boolean> {
-    try {
-      const accessToken = await this.accessTokenRepository.getAccessToken();
-      await this.client.head('/', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      return true;
-    } catch (error: any) {
-      this.logger.error({
-        description: 'NHS API Unavailable',
-        err: error,
-      });
-      return false;
     }
   }
 }
