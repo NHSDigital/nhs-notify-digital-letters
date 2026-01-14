@@ -26,7 +26,7 @@ This library does the following:
      --metadata "{\"subject\":\"<SUBJECT>\",\"sender\":\"<SENDER_MAILBOX_ID>\",\"workflow_id\":\"<WORKFLOW_ID>\",\"local_id\":\"<LOCAL_ID>\"}"
    ```
 
-   **Note:** The input file must be a CSV (comma-delimited). Ensure the sender mailbox ID exists in SSM Parameter Store at `/dl/<environment>/mesh/senders/<SENDER_MAILBOX_ID>` with valid sender configuration.
+   **Note:** The input file must be a CSV (comma-delimited). Ensure the sender mailbox ID exists in SSM Parameter Store at `/dl/<environment>/senders/<SENDER_MAILBOX_ID>` with valid sender configuration.
 
 2. **Trigger the MESH poll lambda** by pressing 'Test' in the AWS console, or wait for the scheduled poll (every 5 minutes).
 
