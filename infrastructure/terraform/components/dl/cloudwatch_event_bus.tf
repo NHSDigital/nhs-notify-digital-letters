@@ -13,6 +13,11 @@ resource "aws_cloudwatch_event_bus" "main" {
   }
 }
 
+resource "aws_cloudwatch_event_bus_policy" "main_event_bus" {
+  policy         = data.aws_iam_policy_document.main_event_bus.json
+  event_bus_name = aws_cloudwatch_event_bus.main.name
+}
+
 data "aws_iam_policy_document" "main_event_bus" {
   statement {
     sid    = "AllowSNSPublish"
