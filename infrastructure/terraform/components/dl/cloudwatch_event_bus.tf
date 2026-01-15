@@ -20,8 +20,8 @@ data "aws_iam_policy_document" "main_event_bus" {
     effect = "Allow"
 
     principals {
-      type        = "AWS"
-      identifiers = ["*"]
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
     }
 
     actions = [
