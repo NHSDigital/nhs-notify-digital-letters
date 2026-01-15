@@ -96,8 +96,7 @@ test.describe('Print status handler', () => {
   }
 
   test('should send invalid event to print status handler dlq', async () => {
-    // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
-    test.setTimeout(550_000);
+    test.setTimeout(250_000);
 
     const messageReference = uuidv4();
 
@@ -135,7 +134,7 @@ test.describe('Print status handler', () => {
     await expectMessageContainingString(
       PRINT_STATUS_HANDLER_DLQ_NAME,
       messageReference,
-      420,
+      120,
     );
   });
 });
