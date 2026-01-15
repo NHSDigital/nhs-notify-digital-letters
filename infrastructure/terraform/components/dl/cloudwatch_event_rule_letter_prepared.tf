@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_event_rule" "letter_prepared" {
-  name           = "${local.csi}-pdf-analysed"
-  description    = "PDF Analysed event rule"
+  name           = "${local.csi}-letter-prepared"
+  description    = "Letter prepared event rule"
   event_bus_name = aws_cloudwatch_event_bus.main.name
 
   event_pattern = jsonencode({
