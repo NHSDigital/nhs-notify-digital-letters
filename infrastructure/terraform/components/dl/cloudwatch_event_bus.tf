@@ -7,10 +7,6 @@ resource "aws_cloudwatch_event_bus" "main" {
     include_detail = "FULL"
     level          = "TRACE"
   }
-
-  iam_policy_document = {
-    body = data.aws_iam_policy_document.main_event_bus.json
-  }
 }
 
 resource "aws_cloudwatch_event_bus_policy" "main_event_bus" {
