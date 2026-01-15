@@ -15,12 +15,15 @@ on:
 permissions:
   id-token: write
   contents: write
+  packages: read
 
 jobs:
   metadata:
     name: "Set CI/CD metadata"
     runs-on: ubuntu-latest
     timeout-minutes: 1
+    permissions:
+      contents: read
     outputs:
       build_datetime_london: ${{ steps.variables.outputs.build_datetime_london }}
       build_datetime: ${{ steps.variables.outputs.build_datetime }}
@@ -152,6 +155,9 @@ jobs:
     name: Trigger dynamic environment creation
     needs: [metadata, build-stage]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     steps:
       - uses: actions/checkout@v5.0.0

@@ -40,6 +40,7 @@ config:: _install-dependencies version # Configure development environment (main
 	$(MAKE) -C docs install
 	$(MAKE) -C src/cloudevents install
 	$(MAKE) -C src/eventcatalogasyncapiimporter install
+	./scripts/set-github-token.sh
 	npm install
 	$(MAKE) generate
 
