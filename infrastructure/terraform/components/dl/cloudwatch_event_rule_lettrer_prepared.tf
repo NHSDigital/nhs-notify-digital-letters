@@ -14,6 +14,6 @@ resource "aws_cloudwatch_event_rule" "letter_prepared" {
 
 resource "aws_cloudwatch_event_target" "letter-prepared-main-bus-target" {
   rule           = aws_cloudwatch_event_rule.letter_prepared.name
-  arn            = var.eventpub_data_plane_bus_arn
+  arn            = module.eventpub.sns_topic.arn
   event_bus_name = aws_cloudwatch_event_bus.main.name
 }

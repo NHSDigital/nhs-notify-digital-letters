@@ -57,6 +57,8 @@ export class PrintSender {
       this.logger.error({
         description: 'Error sending letter prepared event',
         err: error,
+        messageReference: item.data.messageReference,
+        senderId: item.data.senderId,
       });
 
       return 'failed';

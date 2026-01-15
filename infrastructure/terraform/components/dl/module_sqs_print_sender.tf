@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "sqs_print_sender" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-print-sender-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-print-sender-queue"
     ]
   }
 }

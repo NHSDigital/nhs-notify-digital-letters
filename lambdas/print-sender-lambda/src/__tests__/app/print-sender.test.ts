@@ -105,6 +105,8 @@ describe('PrintSender', () => {
       expect(mockLogger.error).toHaveBeenCalledWith({
         description: 'Error sending letter prepared event',
         err: error,
+        messageReference: mockPDFAnalysed.data.messageReference,
+        senderId: mockPDFAnalysed.data.senderId,
       });
     });
 
