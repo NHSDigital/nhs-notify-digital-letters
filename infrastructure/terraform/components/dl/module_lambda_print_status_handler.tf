@@ -2,7 +2,7 @@ module "print_status_handler" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
 
   function_name = "print-status-handler"
-  description   = "A function for processing letter printing statuses "
+  description   = "A function for processing letter printing statuses"
 
   aws_account_id = var.aws_account_id
   component      = local.component

@@ -34,17 +34,6 @@ export const acceptedLetterEvent = {
   },
 } as LetterEvent;
 
-export const dispatchedLetterEvent = {
-  ...acceptedLetterEvent,
-  type: 'uk.nhs.notify.supplier-api.letter.DISPATCHED.v1',
-  dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.DISPATCHED.1.0.0.schema.json',
-  data: {
-    ...acceptedLetterEvent.data,
-    status: 'DISPATCHED',
-  },
-} as LetterEvent;
-
 const busEvent = {
   version: '0',
   id: 'ab07d406-0797-e919-ff9b-3ad9c5498114',
