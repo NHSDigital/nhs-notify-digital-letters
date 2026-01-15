@@ -4,7 +4,7 @@ import { PrintSender } from 'app/print-sender';
 
 export const createContainer = () => {
   const {
-    accountName,
+    accountType,
     environment,
     eventPublisherDlqUrl,
     eventPublisherEventBusArn,
@@ -21,7 +21,7 @@ export const createContainer = () => {
   const printSender = new PrintSender(
     eventPublisher,
     environment,
-    accountName,
+    accountType,
     logger,
   );
 

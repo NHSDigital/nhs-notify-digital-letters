@@ -14,12 +14,14 @@ No requirements.
 | <a name="input_apim_base_url"></a> [apim\_base\_url](#input\_apim\_base\_url) | The URL used to send requests to Notify and PDM | `string` | `"https://int.api.service.nhs.uk"` | no |
 | <a name="input_apim_keygen_schedule"></a> [apim\_keygen\_schedule](#input\_apim\_keygen\_schedule) | Schedule to refresh key pairs if necessary | `string` | `"cron(0 14 * * ? *)"` | no |
 | <a name="input_aws_account_id"></a> [aws\_account\_id](#input\_aws\_account\_id) | The AWS Account ID (numeric) | `string` | n/a | yes |
-| <a name="input_aws_account_name"></a> [aws\_account\_name](#input\_aws\_account\_name) | The AWS Account Name | `string` | `"dev"` | no |
+| <a name="input_aws_account_type"></a> [aws\_account\_type](#input\_aws\_account\_type) | The AWS Account Type | `string` | n/a | yes |
 | <a name="input_component"></a> [component](#input\_component) | The variable encapsulating the name of this component | `string` | `"dl"` | no |
 | <a name="input_default_tags"></a> [default\_tags](#input\_default\_tags) | A map of default tags to apply to all taggable resources within the component | `map(string)` | `{}` | no |
 | <a name="input_enable_dynamodb_delete_protection"></a> [enable\_dynamodb\_delete\_protection](#input\_enable\_dynamodb\_delete\_protection) | Enable DynamoDB Delete Protection on all Tables | `bool` | `true` | no |
 | <a name="input_enable_pdm_mock"></a> [enable\_pdm\_mock](#input\_enable\_pdm\_mock) | Flag indicating whether to deploy PDM mock API (should be false in production environments) | `bool` | `true` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | The name of the tfscaffold environment | `string` | n/a | yes |
+| <a name="input_eventpub_control_plane_bus_arn"></a> [eventpub\_control\_plane\_bus\_arn](#input\_eventpub\_control\_plane\_bus\_arn) | Event publisher control plane | `string` | n/a | yes |
+| <a name="input_eventpub_data_plane_bus_arn"></a> [eventpub\_data\_plane\_bus\_arn](#input\_eventpub\_data\_plane\_bus\_arn) | Event publisher data plane | `string` | n/a | yes |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Flag to force deletion of S3 buckets | `bool` | `false` | no |
 | <a name="input_force_lambda_code_deploy"></a> [force\_lambda\_code\_deploy](#input\_force\_lambda\_code\_deploy) | If the lambda package in s3 has the same commit id tag as the terraform build branch, the lambda will not update automatically. Set to True if making changes to Lambda code from on the same commit for example during development | `bool` | `false` | no |
 | <a name="input_group"></a> [group](#input\_group) | The group variables are being inherited from (often synonmous with account short-name) | `string` | n/a | yes |

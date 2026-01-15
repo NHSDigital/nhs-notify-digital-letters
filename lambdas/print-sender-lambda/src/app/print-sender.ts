@@ -14,7 +14,7 @@ export class PrintSender {
   constructor(
     private readonly eventPublisher: EventPublisher,
     private readonly environment: string,
-    private readonly accountName: string,
+    private readonly accountType: string,
     private readonly logger: Logger,
   ) {}
 
@@ -27,7 +27,7 @@ export class PrintSender {
         type: 'uk.nhs.notify.letter-rendering.letter-request.prepared.v1',
         dataschema:
           'https://notify.nhs.uk/cloudevents/schemas/letter-rendering/letter-request.prepared.1.1.5.schema.json',
-        source: `/data-plane/digital-letters/${this.accountName}/${this.environment}`,
+        source: `/data-plane/digital-letters/${this.accountType}/${this.environment}`,
         specversion: '1.0',
         traceparent: item.traceparent,
         severitynumber: item.severitynumber,

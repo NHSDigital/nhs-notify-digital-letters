@@ -4,7 +4,7 @@ export type PrintSenderConfig = {
   eventPublisherEventBusArn: string;
   eventPublisherDlqUrl: string;
   environment: string;
-  accountName: string;
+  accountType: string;
 };
 
 export function loadConfig(): PrintSenderConfig {
@@ -16,6 +16,6 @@ export function loadConfig(): PrintSenderConfig {
       'EVENT_PUBLISHER_DLQ_URL',
     ),
     environment: defaultConfigReader.getValue('ENVIRONMENT'),
-    accountName: defaultConfigReader.getValue('ACCOUNT_NAME'),
+    accountType: defaultConfigReader.getValue('ACCOUNT_TYPE'),
   };
 }
