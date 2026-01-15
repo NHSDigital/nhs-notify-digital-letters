@@ -6,7 +6,7 @@ resource "aws_cloudwatch_event_rule" "pdf_analysed" {
   event_pattern = jsonencode({
     "detail" : {
       "type" : [
-        "uk.nhs.notify.digital.letters.pdf.analysed.v1"
+        "uk.nhs.notify.digital.letters.print.pdf.analysed.v1"
       ],
     }
   })

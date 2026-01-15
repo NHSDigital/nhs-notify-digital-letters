@@ -36,7 +36,7 @@ export class PrintSender {
         dataschemaversion: '1.1.5',
         plane: 'data',
         data: {
-          createdAt: new Date().toISOString(),
+          createdAt: item.data.createdAt,
           domainId:
             `${item.data.senderId}_${item.data.messageReference}` as LetterRequestDomainId,
           pageCount: item.data.pageCount,
