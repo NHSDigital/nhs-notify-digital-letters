@@ -28,3 +28,28 @@ module "eventpub" {
   data_plane_bus_arn    = var.eventpub_data_plane_bus_arn
   control_plane_bus_arn = var.eventpub_control_plane_bus_arn
 }
+
+resource "aws_sns_topic_policy" "eventbridge_publish" {
+  arn    = module.eventpub.sns_topic.arn
+  policy = data.aws_iam_policy_document.sns_publish.json
+}
+
+data "aws_iam_policy_document" "sns_publish" {
+  statement {
+    sid    = "AllowEventBridgePublish"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    actions = [
+      "sns:Publish"
+    ]
+
+    resources = [
+      module.eventpub.sns_topic.arn
+    ]
+  }
+}
