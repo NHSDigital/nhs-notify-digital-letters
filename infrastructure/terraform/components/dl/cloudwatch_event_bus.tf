@@ -19,6 +19,11 @@ data "aws_iam_policy_document" "main_event_bus" {
     sid    = "AllowSNSPublish"
     effect = "Allow"
 
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
     actions = [
       "sns:Publish"
     ]
