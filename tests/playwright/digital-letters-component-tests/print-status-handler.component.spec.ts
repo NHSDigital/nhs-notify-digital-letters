@@ -52,8 +52,6 @@ const letterStatuses = [
   'DELIVERED',
 ] as const;
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Print status handler', () => {
   test.beforeAll(async () => {
     test.setTimeout(150_000);

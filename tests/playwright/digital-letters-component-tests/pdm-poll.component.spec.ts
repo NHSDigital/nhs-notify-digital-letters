@@ -40,8 +40,6 @@ const unavailableEvent = {
     'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
 };
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('PDM Poll', () => {
   test.beforeAll(async () => {
     test.setTimeout(250_000);

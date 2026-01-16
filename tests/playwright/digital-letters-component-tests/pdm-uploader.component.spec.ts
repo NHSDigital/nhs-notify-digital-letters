@@ -50,8 +50,6 @@ const baseEvent = {
   severitytext: 'INFO',
 };
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Digital Letters - Upload to PDM', () => {
   test.beforeAll(async () => {
     await purgeQueue(PDM_UPLOADER_DLQ_NAME);

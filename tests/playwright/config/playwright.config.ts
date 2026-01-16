@@ -3,7 +3,7 @@ import path from 'node:path';
 
 export default defineConfig({
   testDir: path.resolve(__dirname, '../'),
-  fullyParallel: false,
+  fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   retries: 0,
