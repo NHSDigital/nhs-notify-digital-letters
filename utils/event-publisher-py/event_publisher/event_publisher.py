@@ -6,7 +6,7 @@ This module provides a Python equivalent of the TypeScript EventPublisher class.
 
 import json
 import logging
-from typing import List, Dict, Any, Optional, Literal
+from typing import List, Dict, Any, Optional, Literal, Callable
 from uuid import uuid4
 import boto3
 from botocore.exceptions import ClientError
@@ -48,14 +48,14 @@ class EventPublisher:
         self.events_client = events_client or boto3.client('events')
         self.sqs_client = sqs_client or boto3.client('sqs')
 
-    def _validate_cloud_event(self, event: Dict[str, Any]) -> tuple[bool, Optional[str]]:
+    def _validate_cloud_event(self, event: Dict[str, Any], validator: Callable[..., Any]) -> tuple[bool, Optional[str]]:
         """
-        Validate event using Pydantic CloudEvent model.
+        Validate event using the specified validator function.
         """
         try:
-            CloudEvent(**event)
+            validator(**event)
             return (True, None)
-        except ValidationError as e:
+        except Exception as e:
             return (False, str(e))
 
     def _send_to_event_bridge(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -216,11 +216,12 @@ class EventPublisher:
 
         return failed_dlqs
 
-    def send_events(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def send_events(self, events: List[Dict[str, Any]],
+                    validator: Callable[..., Any]) -> List[Dict[str, Any]]:
         """
         Send CloudEvents to EventBridge with validation and DLQ support.
 
-        1. Validates events against CloudEvent schema
+        1. Validates events using the specified validator function
         2. Sends valid events to EventBridge
         3. Routes failed events to DLQ
         """
@@ -233,13 +234,13 @@ class EventPublisher:
 
         # Validate events using Pydantic
         for event in events:
-            is_valid, error_msg = self._validate_cloud_event(event)
+            is_valid, error_msg = self._validate_cloud_event(event, validator)
             if is_valid:
                 valid_events.append(event)
             else:
                 invalid_events.append(event)
                 self.logger.warning(
-                    'CloudEvent validation failed',
+                    'Event validation failed',
                     extra={
                         'event_id': event.get('id', 'unknown'),
                         'validation_error': error_msg

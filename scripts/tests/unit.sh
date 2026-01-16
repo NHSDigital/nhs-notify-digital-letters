@@ -19,6 +19,12 @@ cd "$(git rev-parse --show-toplevel)"
 
 # run tests
 
+# TypeScript/JavaScript projects (npm workspace)
+# Note: src/cloudevents is included in workspaces, so it will be tested here
+npm ci
+npm run generate-dependencies
+npm run test:unit --workspaces
+
 # Python projects - asyncapigenerator
 echo "Setting up and running asyncapigenerator tests..."
 make -C ./src/asyncapigenerator install-dev
@@ -44,6 +50,16 @@ echo "Setting up and running metric-publishers tests..."
 make -C ./utils/metric-publishers install-dev
 make -C ./utils/metric-publishers coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
+# Python utility packages - sender-management
+echo "Setting up and running Python sender-management tests..."
+make -C ./utils/sender-management install-dev
+make -C ./utils/sender-management coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
+# Python Lambda - mesh-acknowledge
+echo "Setting up and running mesh-acknowledge tests..."
+make -C ./lambdas/mesh-acknowledge install-dev
+make -C ./lambdas/mesh-acknowledge coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
 # Python Lambda - mesh-poll
 echo "Setting up and running mesh-poll tests..."
 make -C ./lambdas/mesh-poll install-dev
@@ -53,16 +69,11 @@ make -C ./lambdas/mesh-poll coverage  # Run with coverage to generate coverage.x
 echo "Setting up and running mesh-download tests..."
 make -C ./lambdas/mesh-download install-dev
 make -C ./lambdas/mesh-download coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
 # Python projects - python-schema-generator
 echo "Setting up and running python-schema-generator tests..."
 make -C ./src/python-schema-generator install-dev
 make -C ./src/python-schema-generator coverage  # Run with coverage to generate coverage.xml for SonarCloud
-
-# TypeScript/JavaScript projects (npm workspace)
-# Note: src/cloudevents is included in workspaces, so it will be tested here
-npm ci
-npm run generate-dependencies
-npm run test:unit --workspaces
 
 # merge coverage reports
 mkdir -p .reports

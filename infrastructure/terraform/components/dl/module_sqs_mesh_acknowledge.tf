@@ -1,0 +1,38 @@
+module "sqs_mesh_acknowledge" {
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-sqs.zip"
+
+  aws_account_id = var.aws_account_id
+  component      = local.component
+  environment    = var.environment
+  project        = var.project
+  region         = var.region
+  name           = "mesh-acknowledge"
+
+  sqs_kms_key_arn = module.kms.key_arn
+
+  visibility_timeout_seconds = 60
+
+  create_dlq = true
+
+  sqs_policy_overload = data.aws_iam_policy_document.sqs_mesh_acknowledge.json
+}
+
+data "aws_iam_policy_document" "sqs_mesh_acknowledge" {
+  statement {
+    sid    = "AllowEventBridgeToSendMessage"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    actions = [
+      "sqs:SendMessage"
+    ]
+
+    resources = [
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-mesh-acknowledge-queue"
+    ]
+  }
+}
