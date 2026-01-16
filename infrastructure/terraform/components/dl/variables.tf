@@ -98,12 +98,6 @@ variable "enable_mock_mesh" {
   default     = false
 }
 
-variable "enable_mock_mesh" {
-  description = "Enable mock mesh access (dev only). Grants lambda permission to read mock-mesh prefix in non-pii bucket."
-  type        = bool
-  default     = false
-}
-
 variable "queue_batch_size" {
   type        = number
   description = "maximum number of queue items to process"
