@@ -16,6 +16,8 @@ dependencies:: # Install dependencies needed to build and test the project @Pipe
 	$(MAKE) -C utils/metric-publishers install
 	$(MAKE) -C utils/event-publisher-py install
 	$(MAKE) -C utils/sender-management install
+	$(MAKE) -C lambdas/mesh-poll install
+	$(MAKE) -C lambdas/mesh-download install
 	$(MAKE) -C utils/py-mock-mesh install
 	npm install --workspaces
 	$(MAKE) generate
@@ -46,8 +48,10 @@ clean:: # Clean-up project resources (main) @Operations
 	$(MAKE) -C lambdas/mesh-acknowledge clean && \
 	$(MAKE) -C utils/metric-publishers clean && \
 	$(MAKE) -C utils/event-publisher-py clean && \
-	$(MAKE) -C utils/py-mock-mesh clean && \
 	$(MAKE) -C utils/sender-management clean && \
+	$(MAKE) -C lambdas/mesh-poll clean && \
+	$(MAKE) -C lambdas/mesh-download clean && \
+	$(MAKE) -C utils/py-mock-mesh clean && \
 	$(MAKE) -C src/python-schema-generator clean && \
 	rm -f .version
 	npm run clean

@@ -84,6 +84,7 @@
       { "name": "mesh-poll", "rootPath": "lambdas/mesh-poll" },
       { "name": "pdm-mock-lambda", "rootPath": "lambdas/pdm-mock-lambda" },
       { "name": "pdm-uploader-lambda", "rootPath": "lambdas/pdm-uploader-lambda" },
+      { "name": "refresh-apim-access-token", "rootPath": "lambdas/refresh-apim-access-token" },
       { "name": "python-schema-generator", "rootPath": "src/python-schema-generator" },
       { "name": "refresh-apim-access-token", "rootPath": "lambdas/refresh-apim-access-token" },
       { "name": "ttl-create-lambda", "rootPath": "lambdas/ttl-create-lambda/" },

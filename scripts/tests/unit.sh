@@ -60,6 +60,16 @@ echo "Setting up and running mesh-acknowledge tests..."
 make -C ./lambdas/mesh-acknowledge install-dev
 make -C ./lambdas/mesh-acknowledge coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
+# Python Lambda - mesh-poll
+echo "Setting up and running mesh-poll tests..."
+make -C ./lambdas/mesh-poll install-dev
+make -C ./lambdas/mesh-poll coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
+# Python Lambda - mesh-download
+echo "Setting up and running mesh-download tests..."
+make -C ./lambdas/mesh-download install-dev
+make -C ./lambdas/mesh-download coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
 # Python projects - python-schema-generator
 echo "Setting up and running python-schema-generator tests..."
 make -C ./src/python-schema-generator install-dev

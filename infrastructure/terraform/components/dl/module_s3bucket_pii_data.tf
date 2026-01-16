@@ -1,7 +1,7 @@
-module "s3bucket_letters" {
+module "s3bucket_pii_data" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip"
 
-  name = "letters"
+  name = "pii-data"
 
   aws_account_id = var.aws_account_id
   region         = var.region
@@ -11,12 +11,12 @@ module "s3bucket_letters" {
 
   kms_key_arn = module.kms.key_arn
 
-  policy_documents = [data.aws_iam_policy_document.s3bucket_letters.json]
+  policy_documents = [data.aws_iam_policy_document.s3bucket_pii_data.json]
 
   force_destroy = var.force_destroy
 }
 
-data "aws_iam_policy_document" "s3bucket_letters" {
+data "aws_iam_policy_document" "s3bucket_pii_data" {
   statement {
     sid    = "AllowManagedAccountsToList"
     effect = "Allow"
@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "s3bucket_letters" {
     ]
 
     resources = [
-      module.s3bucket_letters.arn,
+      module.s3bucket_pii_data.arn,
     ]
 
     principals {
@@ -43,10 +43,11 @@ data "aws_iam_policy_document" "s3bucket_letters" {
 
     actions = [
       "s3:GetObject",
+      "s3:PutObject",
     ]
 
     resources = [
-      "${module.s3bucket_letters.arn}/*",
+      "${module.s3bucket_pii_data.arn}/*",
     ]
 
     principals {

@@ -99,6 +99,13 @@ def create_mock_failing_validator():
         raise ValueError('Validation failed')
     return validator
 
+@pytest.fixture
+def invalid_cloud_event():
+    return {
+        'type': 'data',
+        'id': 'missing-source',
+    }
+
 
 class TestEventPublishing:
 
@@ -137,13 +144,13 @@ class TestEventPublishing:
         assert call_args['Entries'][0]['EventBusName'] == test_config['event_bus_arn']
 
     def test_should_send_invalid_events_directly_to_dlq(
-            self, test_config, mock_sqs_client, valid_cloud_event, mock_failing_validator):
+            self, test_config, mock_sqs_client, invalid_cloud_event, mock_failing_validator):
         mock_sqs_client.send_message_batch.return_value = {
             'Successful': [{'Id': 'msg-1', 'MessageId': 'success-1', 'MD5OfMessageBody': 'hash1'}]
         }
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events([valid_cloud_event], validator=mock_failing_validator)
+        result = publisher.send_events([invalid_cloud_event], validator=mock_failing_validator)
 
         assert result == []
         assert mock_sqs_client.send_message_batch.call_count == 1
@@ -151,7 +158,7 @@ class TestEventPublishing:
         call_args = mock_sqs_client.send_message_batch.call_args[1]
         assert call_args['QueueUrl'] == test_config['dlq_url']
         assert len(call_args['Entries']) == 1
-        assert call_args['Entries'][0]['MessageBody'] == json.dumps(valid_cloud_event)
+        assert call_args['Entries'][0]['MessageBody'] == json.dumps(invalid_cloud_event)
         assert call_args['Entries'][0]['MessageAttributes']['DlqReason']['StringValue'] == 'INVALID_EVENT'
 
     def test_should_send_failed_eventbridge_events_to_dlq(
@@ -208,7 +215,7 @@ class TestEventPublishing:
         assert mock_sqs_client.send_message_batch.call_count == 1
 
     def test_should_return_failed_events_when_dlq_also_fails(
-            self, test_config, mock_sqs_client, valid_cloud_event, mock_failing_validator):
+            self, test_config, mock_sqs_client, invalid_cloud_event, mock_failing_validator):
         def mock_send_message_batch(**kwargs):
             first_entry_id = kwargs['Entries'][0]['Id']
             return {
@@ -223,22 +230,22 @@ class TestEventPublishing:
         mock_sqs_client.send_message_batch.side_effect = mock_send_message_batch
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events([valid_cloud_event], validator=mock_failing_validator)
+        result = publisher.send_events([invalid_cloud_event], validator=mock_failing_validator)
 
-        assert result == [valid_cloud_event]
+        assert result == [invalid_cloud_event]
         assert mock_sqs_client.send_message_batch.call_count == 1
 
     def test_should_handle_dlq_send_error_and_return_all_events_as_failed(
-            self, test_config, mock_sqs_client, valid_cloud_event, mock_failing_validator):
+            self, test_config, mock_sqs_client, invalid_cloud_event, mock_failing_validator):
         mock_sqs_client.send_message_batch.side_effect = ClientError(
             {'Error': {'Code': 'InternalError', 'Message': 'DLQ error'}},
             'SendMessageBatch'
         )
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events([valid_cloud_event], validator=mock_failing_validator)
+        result = publisher.send_events([invalid_cloud_event], validator=mock_failing_validator)
 
-        assert result == [valid_cloud_event]
+        assert result == [invalid_cloud_event]
         assert mock_sqs_client.send_message_batch.call_count == 1
 
     def test_should_send_to_eventbridge_in_batches(
@@ -266,9 +273,9 @@ class TestEventPublishing:
         assert len(calls[2][1]['Entries']) == 5
 
     def test_should_send_to_dlq_in_batches(
-            self, test_config, mock_sqs_client, valid_cloud_event, mock_failing_validator):
+            self, test_config, mock_sqs_client, invalid_cloud_event, mock_failing_validator):
         large_event_array = [
-            {**valid_cloud_event, 'id': str(uuid4())}
+            {**invalid_cloud_event, 'id': str(uuid4())}
             for _ in range(25)
         ]
 

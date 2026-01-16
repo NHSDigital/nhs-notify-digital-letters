@@ -1,8 +1,8 @@
-module "mesh_poll" {
+module "mesh_download" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
 
-  function_name = "mesh-poll"
-  description   = "A lambda function for polling MESH inbox for new messages"
+  function_name = "mesh-download"
+  description   = "A lambda function for downloading MESH messages and storing in S3"
 
   aws_account_id = var.aws_account_id
   component      = local.component
@@ -15,43 +15,43 @@ module "mesh_poll" {
   kms_key_arn           = module.kms.key_arn
 
   iam_policy_document = {
-    body = data.aws_iam_policy_document.mesh_poll_lambda.json
+    body = data.aws_iam_policy_document.mesh_download_lambda.json
   }
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
   function_code_base_path = local.aws_lambda_functions_dir_path
-  function_code_dir       = "mesh-poll/target/dist"
+  function_code_dir       = "mesh-download/target/dist"
   function_include_common = true
-  function_module_name    = "mesh_poll"
+  function_module_name    = "mesh_download"
   handler_function_name   = "handler.handler"
   runtime                 = "python3.14"
-  memory                  = 128
-  timeout                 = 300
+  memory                  = 256
+  timeout                 = 60
   log_level               = var.log_level
-  schedule                = var.mesh_poll_schedule
 
   force_lambda_code_deploy = var.force_lambda_code_deploy
   enable_lambda_insights   = false
 
+  send_to_firehose          = true
   log_destination_arn       = local.log_destination_arn
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    CERTIFICATE_EXPIRY_METRIC_NAME      = "mesh-poll-client-certificate-near-expiry"
-    CERTIFICATE_EXPIRY_METRIC_NAMESPACE = "dl-mesh-poll"
+    CERTIFICATE_EXPIRY_METRIC_NAME      = "mesh-download-client-certificate-near-expiry"
+    CERTIFICATE_EXPIRY_METRIC_NAMESPACE = "dl-mesh-download"
+    DOWNLOAD_METRIC_NAME                = "mesh-download-successful-downloads"
+    DOWNLOAD_METRIC_NAMESPACE           = "dl-mesh-download"
     ENVIRONMENT                         = var.environment
     EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_errors.sqs_queue_url
     EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
-    MAXIMUM_RUNTIME_MILLISECONDS        = "240000"  # 4 minutes (Lambda has 5 min timeout)
-    POLLING_METRIC_NAME                 = "mesh-poll-successful-polls"
-    POLLING_METRIC_NAMESPACE            = "dl-mesh-poll"
+    PII_BUCKET                          = module.s3bucket_pii_data.bucket
     SSM_PREFIX                          = "${local.ssm_mesh_prefix}"
     USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"
   }
 
 }
 
-data "aws_iam_policy_document" "mesh_poll_lambda" {
+data "aws_iam_policy_document" "mesh_download_lambda" {
   # Mock S3 ListBucket only when enabled
   dynamic "statement" {
     for_each = var.enable_mock_mesh ? [1] : []
@@ -82,7 +82,6 @@ data "aws_iam_policy_document" "mesh_poll_lambda" {
       effect = "Allow"
 
       actions = [
-        "s3:PutObject",
         "s3:GetObject",
         "s3:DeleteObject"
       ]
@@ -104,6 +103,35 @@ data "aws_iam_policy_document" "mesh_poll_lambda" {
 
     resources = [
       module.kms.key_arn,
+    ]
+  }
+
+  statement {
+    sid    = "S3BucketPermissions"
+    effect = "Allow"
+
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "${module.s3bucket_pii_data.arn}/*",
+    ]
+  }
+
+  statement {
+    sid    = "SQSPermissions"
+    effect = "Allow"
+
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+    ]
+
+    resources = [
+      module.sqs_mesh_download.sqs_queue_arn,
     ]
   }
 
