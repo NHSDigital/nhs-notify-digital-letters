@@ -101,7 +101,7 @@ function generateUpdatedEvent(event: LetterEvent): PrintLetterTransitioned {
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-letter-transitioned-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
-    // TODO: CCM-13892 Generate event digital letters source property from scratch
+    // NOTE: CCM-13892 Generate event digital letters source property from scratch
     source:
       '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
     data: {
