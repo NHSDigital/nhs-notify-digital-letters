@@ -1,17 +1,11 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import type { Logger } from 'utils';
 
-export interface AuthConfig {
-  mockAccessToken: string;
-  useNonMockToken: boolean;
-  getAccessToken: () => Promise<string>;
-}
-
 export type AuthResult =
   | { isValid: true }
   | { isValid: false; error: APIGatewayProxyResult };
 
-export const createAuthenticator = (authConfig: AuthConfig, logger: Logger) => {
+export const createAuthenticator = (logger: Logger) => {
   return async (
     event: Pick<APIGatewayProxyEvent, 'headers'>,
   ): Promise<AuthResult> => {
@@ -41,38 +35,10 @@ export const createAuthenticator = (authConfig: AuthConfig, logger: Logger) => {
       };
     }
 
-    const [tokenType, token] = authHeader.split(' ');
+    const [tokenType] = authHeader.split(' ');
 
     if (tokenType !== 'Bearer') {
       logger.warn(tokenType, 'Invalid token type');
-      return {
-        isValid: false,
-        error: {
-          statusCode: 401,
-          body: JSON.stringify({
-            resourceType: 'OperationOutcome',
-            issue: [
-              {
-                severity: 'error',
-                code: 'forbidden',
-                details: {
-                  coding: [{ code: 'ACCESS_DENIED' }],
-                },
-                diagnostics: 'Invalid Access Token',
-              },
-            ],
-          }),
-        },
-      };
-    }
-
-    const validToken = authConfig.useNonMockToken
-      ? await authConfig.getAccessToken()
-      : authConfig.mockAccessToken;
-
-    // eslint-disable-next-line security/detect-possible-timing-attacks
-    if (token !== validToken) {
-      logger.warn('Token validation failed');
       return {
         isValid: false,
         error: {

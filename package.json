@@ -57,6 +57,7 @@
     "lambdas/key-generation",
     "lambdas/refresh-apim-access-token",
     "lambdas/pdm-mock-lambda",
+    "lambdas/pdm-poll-lambda",
     "lambdas/ttl-create-lambda",
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",

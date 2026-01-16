@@ -32,7 +32,7 @@ No requirements.
 | <a name="input_pdm_use_non_mock_token"></a> [pdm\_use\_non\_mock\_token](#input\_pdm\_use\_non\_mock\_token) | Whether to use the shared APIM access token from SSM (/component/environment/apim/access\_token) instead of the mock token | `bool` | `false` | no |
 | <a name="input_project"></a> [project](#input\_project) | The name of the tfscaffold project | `string` | n/a | yes |
 | <a name="input_queue_batch_size"></a> [queue\_batch\_size](#input\_queue\_batch\_size) | maximum number of queue items to process | `number` | `10` | no |
-| <a name="input_queue_batch_window_seconds"></a> [queue\_batch\_window\_seconds](#input\_queue\_batch\_window\_seconds) | maximum time in seconds between processing events | `number` | `10` | no |
+| <a name="input_queue_batch_window_seconds"></a> [queue\_batch\_window\_seconds](#input\_queue\_batch\_window\_seconds) | maximum time in seconds between processing events | `number` | `1` | no |
 | <a name="input_region"></a> [region](#input\_region) | The AWS Region | `string` | n/a | yes |
 | <a name="input_shared_infra_account_id"></a> [shared\_infra\_account\_id](#input\_shared\_infra\_account\_id) | The AWS Shared Infra Account ID (numeric) | `string` | n/a | yes |
 | <a name="input_ttl_poll_schedule"></a> [ttl\_poll\_schedule](#input\_ttl\_poll\_schedule) | Schedule to poll for any overdue TTL records | `string` | `"rate(10 minutes)"` | no |
@@ -46,6 +46,7 @@ No requirements.
 | <a name="module_mesh_download"></a> [mesh\_download](#module\_mesh\_download) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_mesh_poll"></a> [mesh\_poll](#module\_mesh\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_pdm_mock"></a> [pdm\_mock](#module\_pdm\_mock) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
+| <a name="module_pdm_poll"></a> [pdm\_poll](#module\_pdm\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_pdm_uploader"></a> [pdm\_uploader](#module\_pdm\_uploader) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_s3bucket_cf_logs"></a> [s3bucket\_cf\_logs](#module\_s3bucket\_cf\_logs) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_letters"></a> [s3bucket\_letters](#module\_s3bucket\_letters) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
@@ -54,6 +55,7 @@ No requirements.
 | <a name="module_s3bucket_static_assets"></a> [s3bucket\_static\_assets](#module\_s3bucket\_static\_assets) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-s3bucket.zip | n/a |
 | <a name="module_sqs_event_publisher_errors"></a> [sqs\_event\_publisher\_errors](#module\_sqs\_event\_publisher\_errors) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_mesh_download"></a> [sqs\_mesh\_download](#module\_sqs\_mesh\_download) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
+| <a name="module_sqs_pdm_poll"></a> [sqs\_pdm\_poll](#module\_sqs\_pdm\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_pdm_uploader"></a> [sqs\_pdm\_uploader](#module\_sqs\_pdm\_uploader) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_ttl"></a> [sqs\_ttl](#module\_sqs\_ttl) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_ttl_handle_expiry_errors"></a> [sqs\_ttl\_handle\_expiry\_errors](#module\_sqs\_ttl\_handle\_expiry\_errors) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
