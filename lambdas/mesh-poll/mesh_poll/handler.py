@@ -1,7 +1,7 @@
 """lambda handler for mesh poll application"""
 
 from boto3 import client
-from .sender_lookup import SenderLookup
+from sender_management import SenderLookup
 from .config import Config, log
 from .processor import MeshMessageProcessor
 
