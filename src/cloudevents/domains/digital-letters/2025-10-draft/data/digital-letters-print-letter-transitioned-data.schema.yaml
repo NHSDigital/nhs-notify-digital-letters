@@ -8,6 +8,8 @@ properties:
     $ref: ../defs/requests.schema.yaml#/properties/senderId
   messageReference:
     $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  specificationId:
+    $ref: ../defs/print.schema.yaml#/properties/specificationId
   status:
     $ref: ../defs/print.schema.yaml#/properties/status
   supplierId:

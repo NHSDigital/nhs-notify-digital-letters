@@ -13,6 +13,11 @@ properties:
       - "DISPATCHED"
       - "FAILED"
       - "RETURNED"
+      - "PENDING"
+      - "ENCLOSED"
+      - "CANCELLED"
+      - "FORWARDED"
+      - "DELIVERED"
     examples:
       - ACCEPTED
       - DISPATCHED
@@ -22,6 +27,11 @@ properties:
     description: Identifier of the print supplier handling the print job
     examples:
       - "supplier-12345"
+  specificationId:
+    type: string
+    description: Reference to the letter specification which was used to produce a letter pack for this request
+    examples:
+      - "1y3q9v1zzzz"
   pageCount:
     type: integer
     description: The number of pages in the analysed letter PDF.
