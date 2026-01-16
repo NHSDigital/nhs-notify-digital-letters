@@ -12,6 +12,8 @@ module "s3bucket_letters" {
   kms_key_arn = module.kms.key_arn
 
   policy_documents = [data.aws_iam_policy_document.s3bucket_letters.json]
+
+  force_destroy = var.force_destroy
 }
 
 data "aws_iam_policy_document" "s3bucket_letters" {
