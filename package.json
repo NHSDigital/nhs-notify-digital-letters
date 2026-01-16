@@ -52,10 +52,10 @@
     "test:unit": "npm run test:unit --workspaces",
     "typecheck": "npm run typecheck --workspaces"
   },
+  "version": "0.0.1",
   "workspaces": [
     "lambdas/key-generation",
     "lambdas/refresh-apim-access-token",
-    "lambdas/mesh-poll",
     "lambdas/pdm-mock-lambda",
     "lambdas/pdm-poll-lambda",
     "lambdas/ttl-create-lambda",

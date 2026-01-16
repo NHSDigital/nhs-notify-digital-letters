@@ -1,0 +1,15 @@
+{
+  "description": "python metrics library",
+  "name": "@comms/metric-publishers",
+  "private": true,
+  "scripts": {
+    "audit": "make audit",
+    "lint": "make lint",
+    "lint:fmt": "make format",
+    "python-install": "make install",
+    "test:unit": "make test",
+    "test:unit:coverage": "make test-coverage",
+    "typecheck": "echo this package contains no typescript"
+  },
+  "version": "1.0.0"
+}
