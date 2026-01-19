@@ -34,8 +34,6 @@ const pdmRequest = {
 };
 
 const baseEvent = {
-  profileversion: '1.0.0',
-  profilepublished: '2025-10',
   specversion: '1.0',
   source:
     '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
@@ -49,7 +47,6 @@ const baseEvent = {
   datacontenttype: 'application/json',
   dataschema:
     'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
-  dataschemaversion: '1.0',
   severitytext: 'INFO',
 };
 
@@ -174,7 +171,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
     }, 120);
   });
 
-  test('should send invalid event to dlq', async () => {
+  test('should send invalid event to uploader dlq', async () => {
     // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
     test.setTimeout(550_000);
 

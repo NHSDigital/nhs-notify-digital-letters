@@ -14,12 +14,13 @@ jest.mock('app/upload-to-pdm', () => ({
 }));
 
 jest.mock('utils', () => ({
-  EventPublisher: jest.fn(() => ({})),
-  eventBridgeClient: {},
-  logger: {},
-  sqsClient: {},
-  ParameterStoreCache: jest.fn(() => ({})),
   createGetApimAccessToken: jest.fn(() => ({})),
+  eventBridgeClient: {},
+  EventPublisher: jest.fn(() => ({})),
+  logger: {},
+  ParameterStoreCache: jest.fn(() => ({})),
+  PdmClient: jest.fn(() => ({})),
+  sqsClient: {},
 }));
 
 describe('container', () => {
