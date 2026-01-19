@@ -62,6 +62,7 @@
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
     "lambdas/pdm-uploader-lambda",
+    "lambdas/print-analyser",
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",
