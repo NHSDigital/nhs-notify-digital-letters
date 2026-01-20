@@ -176,3 +176,9 @@ variable "enable_pdm_mock" {
   description = "Flag indicating whether to deploy PDM mock API (should be false in production environments)"
   default     = true
 }
+
+variable "default_cloudwatch_event_bus_name" {
+  type        = string
+  description = "The name of the default cloudwatch event bus. This is needed as GuardDuty Scan Result events are sent to the default bus"
+  default     = "default"
+}

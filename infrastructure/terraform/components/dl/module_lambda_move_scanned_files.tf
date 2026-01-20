@@ -1,0 +1,163 @@
+module "move_scanned_files" {
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
+
+  function_name = "move-scanned-files"
+  description   = "A function to send messages to NOTE: update description"
+
+  aws_account_id = var.aws_account_id
+  component      = local.component
+  environment    = var.environment
+  project        = var.project
+  region         = var.region
+  group          = var.group
+
+  log_retention_in_days = var.log_retention_in_days
+  kms_key_arn           = module.kms.key_arn
+
+  iam_policy_document = {
+    body = data.aws_iam_policy_document.move_scanned_files.json
+  }
+
+  function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
+  function_code_base_path = local.aws_lambda_functions_dir_path
+  function_code_dir       = "move-scanned-files-lambda/dist"
+  function_include_common = true
+  handler_function_name   = "handler"
+  runtime                 = "nodejs22.x"
+  memory                  = 128
+  timeout                 = 60
+  log_level               = var.log_level
+
+  force_lambda_code_deploy = var.force_lambda_code_deploy
+  enable_lambda_insights   = false
+
+  log_destination_arn       = local.log_destination_arn
+  log_subscription_role_arn = local.acct.log_subscription_role_arn
+
+  lambda_env_vars = {
+    "EVENT_PUBLISHER_EVENT_BUS_ARN"        = aws_cloudwatch_event_bus.main.arn
+    "EVENT_PUBLISHER_DLQ_URL"              = module.sqs_event_publisher_errors.sqs_queue_url
+    "ENVIRONMENT"                          = var.environment
+    "KEY_PREFIX_UNSCANNED_FILES"           = var.environment
+    "UNSCANNED_FILE_S3_BUCKET_NAME"        = local.unscanned_files_bucket
+    "SAFE_FILE_S3_BUCKET_NAME"             = module.s3bucket_file_safe.bucket
+    "QUARANTINE_FILE_S3_BUCKET_NAME"       = module.s3bucket_file_quarantine.bucket
+  }
+}
+
+data "aws_iam_policy_document" "move_scanned_files" {
+  statement {
+    sid    = "AllowSSMParam"
+    effect = "Allow"
+
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:GetParametersByPath"
+    ]
+
+    resources = [
+      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter/${var.component}/${var.environment}/apim/*",
+    ]
+  }
+
+  statement {
+    sid    = "KMSPermissions"
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      module.kms.key_arn,
+    ]
+  }
+
+  statement {
+    sid    = "SQSPermissionsFileScannerMoveScannedFiles"
+    effect = "Allow"
+
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:GetQueueUrl",
+    ]
+
+    resources = [
+      module.sqs_move_scanned_files.sqs_queue_arn,
+    ]
+  }
+
+  statement {
+    sid    = "PutEvents"
+    effect = "Allow"
+
+    actions = [
+      "events:PutEvents",
+    ]
+
+    resources = [
+      aws_cloudwatch_event_bus.main.arn,
+    ]
+  }
+
+  statement {
+    sid    = "SQSPermissionsDLQ"
+    effect = "Allow"
+
+    actions = [
+      "sqs:SendMessage",
+      "sqs:SendMessageBatch",
+    ]
+
+    resources = [
+      module.sqs_event_publisher_errors.sqs_queue_arn,
+    ]
+  }
+
+  statement {
+    sid    = "PermissionsToUnscannedBucket"
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:DeleteObject",
+      "s3:DeleteObjectVersion"
+    ]
+
+    resources = [
+      "arn:aws:s3:::${local.unscanned_files_bucket}/*",
+    ]
+  }
+
+  statement {
+    sid    = "PermissionsToSafeFileBucket"
+    effect = "Allow"
+
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "${module.s3bucket_file_safe.arn}/*"
+    ]
+  }
+
+  statement {
+    sid    = "PermissionsToQuarantineFileBucket"
+    effect = "Allow"
+
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "${module.s3bucket_file_quarantine.arn}/*"
+    ]
+  }
+
+}
