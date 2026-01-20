@@ -6,6 +6,7 @@ locals {
   apim_private_key_ssm_parameter_name  = "/${var.component}/${var.environment}/apim/private_key"
   apim_keystore_s3_bucket              = "nhs-${var.aws_account_id}-${var.region}-${var.environment}-${var.component}-static-assets"
   ssm_mesh_prefix                      = "/${var.component}/${var.environment}/mesh"
+  ssm_senders_prefix                   = "/${var.component}/${var.environment}/senders"
   mock_mesh_endpoint                   = "s3://${module.s3bucket_non_pii_data.bucket}/mock-mesh"
   root_domain_name                     = "${var.environment}.${local.acct.route53_zone_names["digital-letters"]}"
   root_domain_id                       = local.acct.route53_zone_ids["digital-letters"]

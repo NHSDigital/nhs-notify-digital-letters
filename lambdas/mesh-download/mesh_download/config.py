@@ -6,7 +6,8 @@ from metric_publishers.metric_client import Metric
 
 
 _REQUIRED_ENV_VAR_MAP = {
-    "ssm_prefix": "SSM_PREFIX",
+    "ssm_senders_prefix": "SSM_SENDERS_PREFIX",
+    "ssm_mesh_prefix": "SSM_MESH_PREFIX",
     "environment": "ENVIRONMENT",
     "certificate_expiry_metric_name": "CERTIFICATE_EXPIRY_METRIC_NAME",
     "certificate_expiry_metric_namespace": "CERTIFICATE_EXPIRY_METRIC_NAMESPACE",

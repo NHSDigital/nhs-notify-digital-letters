@@ -62,7 +62,7 @@ class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes
         self.mesh_client = None
 
         # Common configuration attributes
-        self.ssm_prefix = None
+        self.ssm_mesh_prefix = None
         self.environment = None
         self.certificate_expiry_metric_name = None
         self.certificate_expiry_metric_namespace = None
@@ -108,7 +108,7 @@ class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes
     def __enter__(self):
         # Load MESH configuration from SSM
         ssm_response = self.ssm.get_parameter(
-            Name=self.ssm_prefix + '/config',
+            Name=self.ssm_mesh_prefix + '/config',
             WithDecryption=True
         )
         mesh_config = json.loads(ssm_response['Parameter']['Value'])
@@ -120,11 +120,11 @@ class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes
 
         # Load client certificates from SSM
         client_cert_parameter = self.ssm.get_parameter(
-            Name=self.ssm_prefix + '/client-cert',
+            Name=self.ssm_mesh_prefix + '/client-cert',
             WithDecryption=True
         )
         client_key_parameter = self.ssm.get_parameter(
-            Name=self.ssm_prefix + '/client-key',
+            Name=self.ssm_mesh_prefix + '/client-key',
             WithDecryption=True
         )
 

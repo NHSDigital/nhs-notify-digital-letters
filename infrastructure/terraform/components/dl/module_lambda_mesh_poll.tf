@@ -45,7 +45,8 @@ module "mesh_poll" {
     MAXIMUM_RUNTIME_MILLISECONDS        = "240000"  # 4 minutes (Lambda has 5 min timeout)
     POLLING_METRIC_NAME                 = "mesh-poll-successful-polls"
     POLLING_METRIC_NAMESPACE            = "dl-mesh-poll"
-    SSM_PREFIX                          = "${local.ssm_mesh_prefix}"
+    SSM_MESH_PREFIX                     = "${local.ssm_mesh_prefix}"
+    SSM_SENDERS_PREFIX                  = "${local.ssm_senders_prefix}"
     USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"
   }
 
