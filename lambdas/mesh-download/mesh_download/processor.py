@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from pydantic import ValidationError
 from event_publisher.models import MeshInboxMessageEvent, MeshDownloadMessageEvent
+from mesh_download.errors import MeshMessageNotFound
 
 
 class MeshDownloadProcessor:
@@ -57,7 +58,7 @@ class MeshDownloadProcessor:
         message = self.__mesh_client.retrieve_message(data.meshMessageId)
         if not message:
             logger.error("Message not found in MESH inbox")
-            return
+            raise MeshMessageNotFound(f"MESH message with ID {data.meshMessageId} not found")
 
         logger.info(
             "Retrieved MESH message",

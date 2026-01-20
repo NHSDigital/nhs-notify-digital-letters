@@ -8,6 +8,7 @@ import pytest
 from unittest.mock import Mock, patch
 from datetime import datetime, timezone
 from pydantic import ValidationError
+from mesh_download.errors import MeshMessageNotFound
 
 
 def setup_mocks():
@@ -238,9 +239,11 @@ class TestMeshDownloadProcessor:
 
         config.mesh_client.retrieve_message.return_value = None
         sqs_record = create_sqs_record()
-        processor.process_sqs_message(sqs_record)
-        config.mesh_client.retrieve_message.assert_called_once_with('test_message_123')
 
+        with pytest.raises(MeshMessageNotFound, match="MESH message with ID test_message_123 not found"):
+            processor.process_sqs_message(sqs_record)
+
+        config.mesh_client.retrieve_message.assert_called_once_with('test_message_123')
         document_store.store_document.assert_not_called()
         event_publisher.send_events.assert_not_called()
         config.download_metric.record.assert_not_called()

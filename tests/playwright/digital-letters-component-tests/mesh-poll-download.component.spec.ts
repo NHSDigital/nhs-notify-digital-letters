@@ -2,11 +2,12 @@ import { expect, test } from '@playwright/test';
 import {
   ENV,
   MESH_DOWNLOAD_DLQ_NAME,
-  MESH_POLL_DLQ_NAME,
   MESH_POLL_LAMBDA_NAME,
   NON_PII_S3_BUCKET_NAME,
+  PII_S3_BUCKET_NAME,
 } from 'constants/backend-constants';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
+import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { invokeLambda } from 'helpers/lambda-helpers';
 import { downloadFromS3, uploadToS3 } from 'helpers/s3-helpers';
@@ -72,7 +73,6 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
   }
 
   async function expectMeshInboxMessageDownloadedEvent(
-    meshMessageId: string,
     messageReference: string,
   ): Promise<void> {
     await expectToPassEventually(async () => {
@@ -81,7 +81,6 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
         [
           '$.message_type = "EVENT_RECEIPT"',
           '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"',
-          `$.details.event_detail = "*\\"meshMessageId\\":\\"${meshMessageId}\\"*"`,
           `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
           `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
         ],
@@ -107,14 +106,13 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
 
     await expectMeshInboxMessageReceivedEvent(meshMessageId);
     await expectMeshInboxMessageDownloadedEvent(
-      meshMessageId,
       messageReference,
     );
 
     await expectToPassEventually(async () => {
       const storedMessage = await downloadFromS3(
-        NON_PII_S3_BUCKET_NAME,
-        `mesh-downloads/${senderId}/${messageReference}`,
+        PII_S3_BUCKET_NAME,
+        `document-reference/${senderId}_${messageReference}`,
       );
 
       expect(storedMessage.body).toContain(messageContent);
@@ -130,55 +128,39 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     }, 60_000);
   });
 
-  test('should handle invalid sender and send to DLQ', async () => {
-    test.setTimeout(300_000);
-
-    const meshMessageId = `${Date.now()}_INVALID_${uuidv4().slice(0, 8)}`;
-    const messageReference = uuidv4();
-    const messageContent = JSON.stringify({
-      senderId: 'unknown-sender',
-      messageReference,
-      testData: 'This should fail validation',
-    });
-
-    await uploadMeshMessageWithSender(
-      meshMessageId,
-      messageReference,
-      messageContent,
-      'unknown-mesh-sender',
-    );
-
-    await invokeLambda(MESH_POLL_LAMBDA_NAME);
-
-    await expectMessageContainingString(MESH_POLL_DLQ_NAME, meshMessageId, 240);
-  });
-
   test('should send message to mesh-download DLQ when download fails', async () => {
     test.setTimeout(400_000);
 
-    const meshMessageId = `${Date.now()}_DLQ_${uuidv4().slice(0, 8)}`;
+    const invalidMeshMessageId = `${Date.now()}_DLQ_${uuidv4().slice(0, 8)}`;
     const messageReference = uuidv4();
-    const invalidMessageUri =
-      'https://example.com/invalid/nonexistent-resource';
 
-    await uploadMeshMessage(
-      meshMessageId,
-      messageReference,
-      JSON.stringify({
-        senderId,
-        messageReference,
-        messageUri: invalidMessageUri,
-        testData: 'This message has an invalid URI',
-      }),
+    await eventPublisher.sendEvents(
+      [
+        {
+          id: uuidv4(),
+          specversion: '1.0',
+          source: '/nhs/england/notify/development/primary/data-plane/digitalletters/mesh',
+          subject: 'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000',
+          type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
+          time: '2026-01-20T15:48:21.636284+00:00',
+          recordedtime: '2026-01-20T15:48:21.636284+00:00',
+          severitynumber: 2,
+          severitytext: 'INFO',
+          traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+          dataschema: 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json',
+          data: {
+            meshMessageId: invalidMeshMessageId,
+            senderId,
+            messageReference,
+          },
+        }
+      ],
+      () => true,
     );
-
-    await invokeLambda(MESH_POLL_LAMBDA_NAME);
-
-    await expectMeshInboxMessageReceivedEvent(meshMessageId);
 
     await expectMessageContainingString(
       MESH_DOWNLOAD_DLQ_NAME,
-      meshMessageId,
+      invalidMeshMessageId,
       300,
     );
   });

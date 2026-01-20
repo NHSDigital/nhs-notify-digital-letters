@@ -16,7 +16,6 @@ export const TTL_POLL_LAMBDA_NAME = `${CSI}-ttl-poll`;
 export const TTL_QUEUE_NAME = `${CSI}-ttl-queue`;
 export const TTL_DLQ_NAME = `${CSI}-ttl-dlq`;
 export const PDM_UPLOADER_DLQ_NAME = `${CSI}-pdm-uploader-dlq`;
-export const MESH_POLL_DLQ_NAME = `${CSI}-mesh-poll-dlq`;
 export const MESH_DOWNLOAD_DLQ_NAME = `${CSI}-mesh-download-dlq`;
 export const PDM_POLL_DLQ_NAME = `${CSI}-pdm-poll-dlq`;
 
