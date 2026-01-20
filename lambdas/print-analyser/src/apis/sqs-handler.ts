@@ -8,7 +8,7 @@ import { PDFDocument } from 'pdf-lib';
 import { FileSafe, PDFAnalysed } from 'digital-letters-events';
 import fileSafeValidator from 'digital-letters-events/FileSafe.js';
 import pdfAnalysedValidator from 'digital-letters-events/PDFAnalysed.js';
-import { EventPublisher, getS3ObjectBufferFromUri, Logger } from 'utils';
+import { EventPublisher, Logger, getS3ObjectBufferFromUri } from 'utils';
 
 export interface HandlerDependencies {
   eventPublisher: EventPublisher;
@@ -58,7 +58,7 @@ function generateUpdatedEvent(event: FileSafe, pdfInfo: PdfInfo): PDFAnalysed {
   const eventTime = new Date().toISOString();
 
   const {
-    data: { letterUri, messageReference, senderId },
+    data: { createdAt, letterUri, messageReference, senderId },
   } = event;
 
   return {
@@ -78,7 +78,7 @@ function generateUpdatedEvent(event: FileSafe, pdfInfo: PdfInfo): PDFAnalysed {
       letterUri,
       pageCount: pdfInfo.pageCount,
       sha256Hash: pdfInfo.hash,
-      createdAt: eventTime,
+      createdAt,
     },
   };
 }
@@ -117,7 +117,9 @@ export const createHandler = ({
       validatedRecords.map(async (validatedRecord: ValidatedRecord) => {
         try {
           const { event } = validatedRecord;
-          const pdfBuffer = await getS3ObjectBufferFromUri(event.data.letterUri);
+          const pdfBuffer = await getS3ObjectBufferFromUri(
+            event.data.letterUri,
+          );
           const pdfInfo = await analysePdf(pdfBuffer);
           validEvents.push(generateUpdatedEvent(event, pdfInfo));
         } catch (error: any) {

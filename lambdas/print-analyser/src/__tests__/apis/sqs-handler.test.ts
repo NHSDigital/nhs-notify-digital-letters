@@ -2,13 +2,21 @@ import { mock } from 'jest-mock-extended';
 import { randomUUID } from 'node:crypto';
 import { createHandler } from 'apis/sqs-handler';
 import { EventPublisher, Logger } from 'utils';
-import { fileSafeEvent, recordEvent } from '__tests__/test-data';
+import { createTestPdf, fileSafeEvent, recordEvent } from '__tests__/test-data';
 
 const logger = mock<Logger>();
 const eventPublisher = mock<EventPublisher>();
 
 jest.mock('node:crypto', () => ({
+  ...jest.requireActual('node:crypto'),
   randomUUID: jest.fn(),
+}));
+
+const mockGetS3ObjectBufferFromUri = jest.fn();
+jest.mock('utils', () => ({
+  ...jest.requireActual('utils'),
+  getS3ObjectBufferFromUri: (...args: any[]) =>
+    mockGetS3ObjectBufferFromUri(...args),
 }));
 
 const mockRandomUUID = randomUUID as jest.MockedFunction<typeof randomUUID>;
@@ -28,8 +36,14 @@ describe('SQS Handler', () => {
 
   describe('file safe', () => {
     it('should send pdf.analysed event when file.safe received', async () => {
+      const testPdf = await createTestPdf(1);
+      mockGetS3ObjectBufferFromUri.mockResolvedValue(testPdf);
+
       const response = await handler(recordEvent([fileSafeEvent]));
 
+      expect(mockGetS3ObjectBufferFromUri).toHaveBeenCalledWith(
+        fileSafeEvent.data.letterUri,
+      );
       expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
         [
           {
@@ -47,8 +61,8 @@ describe('SQS Handler', () => {
               messageReference: fileSafeEvent.data.messageReference,
               letterUri: fileSafeEvent.data.letterUri,
               pageCount: 1,
-              sha256Hash: 'sha-value',
-              createdAt: '2023-06-20T12:00:00.250Z',
+              sha256Hash: expect.any(String),
+              createdAt: fileSafeEvent.data.createdAt,
             },
           },
         ],
@@ -115,6 +129,9 @@ describe('SQS Handler', () => {
     });
 
     it('should return failed items to the queue if event transformation fails', async () => {
+      const testPdf = await createTestPdf(1);
+      mockGetS3ObjectBufferFromUri.mockResolvedValue(testPdf);
+
       mockRandomUUID.mockImplementationOnce(() => {
         throw new Error('A forced error scenario');
       });
@@ -124,6 +141,28 @@ describe('SQS Handler', () => {
 
       expect(logger.warn).toHaveBeenCalledWith({
         err: 'A forced error scenario',
+        description: 'Failed processing message',
+      });
+
+      expect(logger.info).toHaveBeenCalledWith(
+        '0 of 1 records processed successfully',
+      );
+
+      expect(result).toEqual({
+        batchItemFailures: [{ itemIdentifier: '1' }],
+      });
+    });
+
+    it('should return failed items to the queue if PDF analysis fails', async () => {
+      mockGetS3ObjectBufferFromUri.mockRejectedValue(
+        new Error('S3 GetObject failed'),
+      );
+
+      const event = recordEvent([fileSafeEvent]);
+      const result = await handler(event);
+
+      expect(logger.warn).toHaveBeenCalledWith({
+        err: 'S3 GetObject failed',
         description: 'Failed processing message',
       });
 

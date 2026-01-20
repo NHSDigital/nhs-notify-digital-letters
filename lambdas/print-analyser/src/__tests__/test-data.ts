@@ -1,5 +1,6 @@
 import { SQSEvent, SQSRecord } from 'aws-lambda';
 import { FileSafe } from 'digital-letters-events';
+import { PDFDocument } from 'pdf-lib';
 
 export const fileSafeEvent: FileSafe = {
   id: '550e8400-e29b-41d4-a716-446655440001',
@@ -21,6 +22,7 @@ export const fileSafeEvent: FileSafe = {
     messageReference: 'ref1',
     senderId: 'sender1',
     letterUri: 'uri1',
+    createdAt: '2023-06-20T12:00:00.250Z',
   },
 };
 
@@ -52,3 +54,12 @@ export const recordEvent = (events: FileSafe[]): SQSEvent => ({
     body: JSON.stringify({ ...busEvent, detail: event }),
   })),
 });
+
+export async function createTestPdf(pageCount = 1): Promise<Buffer> {
+  const pdfDoc = await PDFDocument.create();
+  for (let i = 0; i < pageCount; i++) {
+    pdfDoc.addPage();
+  }
+  const pdfBytes = await pdfDoc.save();
+  return Buffer.from(pdfBytes);
+}
