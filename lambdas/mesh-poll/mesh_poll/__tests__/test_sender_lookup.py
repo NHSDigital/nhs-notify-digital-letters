@@ -10,7 +10,8 @@ def setup_mocks():
     ssm = Mock()
 
     config = Mock()
-    config.ssm_prefix = "/dl/test"
+    config.ssm_mesh_prefix = "/dl/test/mesh"
+    config.ssm_senders_prefix = "/dl/test/senders"
 
     logger = Mock()
 
