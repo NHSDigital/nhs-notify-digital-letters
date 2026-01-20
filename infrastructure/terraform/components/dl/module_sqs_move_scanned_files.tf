@@ -1,4 +1,4 @@
-module "sqs_core_notifier" {
+module "sqs_move_scanned_files" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip"
 
   aws_account_id = var.aws_account_id
@@ -6,7 +6,7 @@ module "sqs_core_notifier" {
   environment    = var.environment
   project        = var.project
   region         = var.region
-  name           = "core-notifier"
+  name           = "move-scanned-files"
 
   sqs_kms_key_arn = module.kms.key_arn
 
@@ -14,10 +14,10 @@ module "sqs_core_notifier" {
 
   create_dlq = true
 
-  sqs_policy_overload = data.aws_iam_policy_document.sqs_inbound_event.json
+  sqs_policy_overload = data.aws_iam_policy_document.sqs_move_scanned_files.json
 }
 
-data "aws_iam_policy_document" "sqs_inbound_event" {
+data "aws_iam_policy_document" "sqs_move_scanned_files" {
   statement {
     sid    = "AllowEventBridgeToSendMessage"
     effect = "Allow"
@@ -32,13 +32,13 @@ data "aws_iam_policy_document" "sqs_inbound_event" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-core-notifier-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-move-scanned-files-queue"
     ]
 
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = [aws_cloudwatch_event_rule.pdm_resource_available.arn]
+      values   = [aws_cloudwatch_event_rule.guardduty_scan_result.arn]
     }
   }
 }

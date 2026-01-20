@@ -35,11 +35,11 @@ module "file_scanner" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    "DOCUMENT_REFERENCE_BUCKET"    = module.s3bucket_pii_data.bucket
-    "UNSCANNED_FILES_BUCKET"       = local.unscanned_files_bucket
-    "UNSCANNED_FILES_PATH_PREFIX"  = var.environment
+    "DOCUMENT_REFERENCE_BUCKET"     = module.s3bucket_pii_data.bucket
+    "UNSCANNED_FILES_BUCKET"        = local.unscanned_files_bucket
+    "UNSCANNED_FILES_PATH_PREFIX"   = var.environment
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
-    "EVENT_PUBLISHER_DLQ_URL"      = module.sqs_event_publisher_errors.sqs_queue_url
+    "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
   }
 }
 
