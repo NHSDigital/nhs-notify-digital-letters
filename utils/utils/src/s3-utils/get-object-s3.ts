@@ -41,6 +41,17 @@ export async function streamToString(Body: Readable) {
   });
 }
 
+export async function streamToBuffer(Body: Readable) {
+  return new Promise<Buffer>((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    Body.on('data', (chunk: ArrayBuffer | SharedArrayBuffer) =>
+      chunks.push(Buffer.from(chunk)),
+    );
+    Body.on('error', (err) => reject(err));
+    Body.on('end', () => resolve(Buffer.concat(chunks)));
+  });
+}
+
 export async function getS3ObjectStream(
   location: S3Location,
 ): Promise<Readable> {
@@ -92,4 +103,22 @@ export async function getS3ObjectFromUri(uri: string): Promise<string> {
   }
   const [, Bucket, Key] = match;
   return getS3Object({ Bucket, Key });
+}
+
+export async function getS3ObjectBufferFromUri(uri: string): Promise<Buffer> {
+  const regex = /^s3:\/\/([^/]+)\/(.+)$/;
+  const match = regex.exec(uri);
+  if (!match) {
+    throw new Error(`Invalid S3 URI format: ${uri}`);
+  }
+  const [, Bucket, Key] = match;
+
+  try {
+    return await streamToBuffer(await getS3ObjectStream({ Bucket, Key }));
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Could not retrieve from bucket 's3://${Bucket}/${Key}' from S3: ${msg}`,
+    );
+  }
 }

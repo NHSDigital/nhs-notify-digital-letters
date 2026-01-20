@@ -3,11 +3,12 @@ import type {
   SQSBatchResponse,
   SQSEvent,
 } from 'aws-lambda';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
+import { PDFDocument } from 'pdf-lib';
 import { FileSafe, PDFAnalysed } from 'digital-letters-events';
 import fileSafeValidator from 'digital-letters-events/FileSafe.js';
 import pdfAnalysedValidator from 'digital-letters-events/PDFAnalysed.js';
-import { EventPublisher, Logger } from 'utils';
+import { EventPublisher, getS3ObjectBufferFromUri, Logger } from 'utils';
 
 export interface HandlerDependencies {
   eventPublisher: EventPublisher;
@@ -17,6 +18,11 @@ export interface HandlerDependencies {
 type ValidatedRecord = {
   messageId: string;
   event: FileSafe;
+};
+
+type PdfInfo = {
+  pageCount: number;
+  hash: string;
 };
 
 function validateRecord(
@@ -48,7 +54,7 @@ function validateRecord(
   }
 }
 
-function generateUpdatedEvent(event: FileSafe): PDFAnalysed {
+function generateUpdatedEvent(event: FileSafe, pdfInfo: PdfInfo): PDFAnalysed {
   const eventTime = new Date().toISOString();
 
   const {
@@ -70,11 +76,20 @@ function generateUpdatedEvent(event: FileSafe): PDFAnalysed {
       senderId,
       messageReference,
       letterUri,
-      pageCount: 1,
-      sha256Hash: 'sha-value',
+      pageCount: pdfInfo.pageCount,
+      sha256Hash: pdfInfo.hash,
       createdAt: eventTime,
     },
   };
+}
+
+async function analysePdf(pdf: Buffer): Promise<PdfInfo> {
+  const doc = await PDFDocument.load(pdf);
+  const pageCount = doc.getPageCount();
+
+  const hash = createHash('sha256').update(pdf).digest('hex');
+
+  return { pageCount, hash };
 }
 
 export const createHandler = ({
@@ -102,7 +117,9 @@ export const createHandler = ({
       validatedRecords.map(async (validatedRecord: ValidatedRecord) => {
         try {
           const { event } = validatedRecord;
-          validEvents.push(generateUpdatedEvent(event));
+          const pdfBuffer = await getS3ObjectBufferFromUri(event.data.letterUri);
+          const pdfInfo = await analysePdf(pdfBuffer);
+          validEvents.push(generateUpdatedEvent(event, pdfInfo));
         } catch (error: any) {
           logger.warn({
             err: error.message,

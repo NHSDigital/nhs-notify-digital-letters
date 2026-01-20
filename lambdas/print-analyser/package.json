@@ -2,6 +2,7 @@
   "dependencies": {
     "aws-lambda": "^1.0.7",
     "digital-letters-events": "^0.0.1",
+    "pdf-lib": "^1.17.1",
     "utils": "^0.0.1"
   },
   "devDependencies": {
