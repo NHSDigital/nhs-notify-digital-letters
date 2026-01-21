@@ -14,9 +14,10 @@ import { downloadFromS3, uploadToS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import messageMessageReceived from 'digital-letters-events/MESHInboxMessageReceived.js';
+import { TEST_SENDERS } from 'constants/test-senders';
 
 test.describe('Digital Letters - MESH Poll and Download', () => {
-  const senderId = 'test-sender-1';
+  const { senderId } = TEST_SENDERS[0];
   const sendersMeshMailboxId = 'test-mesh-sender-1';
   const meshMailboxId = 'mock-mailbox';
 

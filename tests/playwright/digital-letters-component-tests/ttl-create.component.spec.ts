@@ -7,6 +7,7 @@ import { getTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { v4 as uuidv4 } from 'uuid';
+import { TEST_SENDERS } from 'constants/test-senders';
 
 test.describe('Digital Letters - Create TTL', () => {
   test('should create TTL and publish item enqueued event following message downloaded event', async () => {
@@ -35,7 +36,7 @@ test.describe('Digital Letters - Create TTL', () => {
           data: {
             messageUri,
             messageReference: 'ref1',
-            senderId: 'test-sender-1',
+            senderId: TEST_SENDERS[0].senderId,
           },
         },
       ],
