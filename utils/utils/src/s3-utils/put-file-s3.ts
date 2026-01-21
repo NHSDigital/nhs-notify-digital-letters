@@ -19,7 +19,7 @@ export async function putFileS3(
     };
 
     const data = await s3Client.send(new PutObjectCommand(params));
-    console.log(`Buffer uploaded to ${Bucket}/${Key}`);
+
     return data;
   } catch (error) {
     throw new Error(`Upload to ${Bucket}/${Key} failed, error: ${error}`);
