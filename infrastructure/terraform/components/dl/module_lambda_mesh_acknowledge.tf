@@ -35,8 +35,6 @@ module "mesh_acknowledge" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    CERTIFICATE_EXPIRY_METRIC_NAME      = "mesh-acknowledge-client-certificate-near-expiry"
-    CERTIFICATE_EXPIRY_METRIC_NAMESPACE = "dl-mesh-acknowledge"
     DLQ_URL                             = module.sqs_mesh_acknowledge.sqs_dlq_url
     ENVIRONMENT                         = var.environment
     EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_errors.sqs_queue_url
