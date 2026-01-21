@@ -37,8 +37,6 @@ module "mesh_download" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    CERTIFICATE_EXPIRY_METRIC_NAME      = "mesh-download-client-certificate-near-expiry"
-    CERTIFICATE_EXPIRY_METRIC_NAMESPACE = "dl-mesh-download"
     DOWNLOAD_METRIC_NAME                = "mesh-download-successful-downloads"
     DOWNLOAD_METRIC_NAMESPACE           = "dl-mesh-download"
     ENVIRONMENT                         = var.environment

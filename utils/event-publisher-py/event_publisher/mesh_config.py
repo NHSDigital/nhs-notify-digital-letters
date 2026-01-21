@@ -169,12 +169,13 @@ class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes
             )
 
         # Use real MESH client
-        report_expiry_time(
-            self.client_cert,
-            self.certificate_expiry_metric_name,
-            self.certificate_expiry_metric_namespace,
-            self.environment
-        )
+        if self.certificate_expiry_metric_name and self.certificate_expiry_metric_namespace:
+            report_expiry_time(
+                self.client_cert,
+                self.certificate_expiry_metric_name,
+                self.certificate_expiry_metric_namespace,
+                self.environment
+            )
 
         return mesh_client.MeshClient(
             self.lookup_endpoint(self.mesh_endpoint),
