@@ -83,4 +83,17 @@ data "aws_iam_policy_document" "print_analyser" {
       module.sqs_print_analyser.sqs_queue_arn,
     ]
   }
+
+  statement {
+    sid    = "S3PermissionsPrintAnalyserQueue"
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "${module.s3bucket_file_safe.arn}/*",
+    ]
+  }
 }
