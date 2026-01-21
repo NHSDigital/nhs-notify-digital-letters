@@ -30,7 +30,7 @@ export interface S3Location {
   VersionId?: string;
 }
 
-export async function streamToString(Body: Readable) {
+async function streamToString(Body: Readable) {
   return new Promise<string>((resolve, reject) => {
     const chunks: Buffer[] = [];
     Body.on('data', (chunk: ArrayBuffer | SharedArrayBuffer) =>
@@ -41,7 +41,7 @@ export async function streamToString(Body: Readable) {
   });
 }
 
-export async function streamToBuffer(Body: Readable) {
+async function streamToBuffer(Body: Readable) {
   return new Promise<Buffer>((resolve, reject) => {
     const chunks: Buffer[] = [];
     Body.on('data', (chunk: ArrayBuffer | SharedArrayBuffer) =>

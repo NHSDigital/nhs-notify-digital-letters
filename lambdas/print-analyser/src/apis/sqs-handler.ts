@@ -88,7 +88,6 @@ function generateUpdatedEvent(event: FileSafe, pdfInfo: PdfInfo): PDFAnalysed {
 async function analysePdf(pdf: Buffer): Promise<PdfInfo> {
   const doc = await PDFDocument.load(pdf);
   const pageCount = doc.getPageCount();
-
   const hash = createHash('sha256').update(pdf).digest('hex');
 
   return { pageCount, hash };
