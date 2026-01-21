@@ -39,13 +39,13 @@ module "file_scanner_move_scanned_files" {
     "EVENT_PUBLISHER_DLQ_URL"              = module.sqs_event_publisher_errors.sqs_queue_url
     "ENVIRONMENT"                          = var.environment
     "KEY_PREFIX_UNSCANNED_FILES"           = "dl/"
-    "UNSCANNED_FILE_S3_BUCKET_NAME"        = "unscannedFileS3BucketName"
-    "SAFE_FILE_S3_BUCKET_NAME"             = "safeFileS3BucketName"
-    "QUARANTINE_FILE_S3_BUCKET_NAME"       = "quarantineFileS3BucketName"
+    "UNSCANNED_FILE_S3_BUCKET_NAME"        = module.s3bucket_unscanned_file.bucket
+    "SAFE_FILE_S3_BUCKET_NAME"             = module.s3bucket_file_safe.bucket
+    "QUARANTINE_FILE_S3_BUCKET_NAME"       = module.s3bucket_file_quarantine.bucket
   }
 }
 
-data "aws_iam_policy_document" "file_scanner_move_scanned_files_lambda" {
+data "aws_iam_policy_document" "file_scanner_move_scanned_files" {
   statement {
     sid    = "AllowSSMParam"
     effect = "Allow"
@@ -117,4 +117,47 @@ data "aws_iam_policy_document" "file_scanner_move_scanned_files_lambda" {
       module.sqs_event_publisher_errors.sqs_queue_arn,
     ]
   }
+
+  statement {
+    sid    = "PermissionsToUnscannedBucket"
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject",
+      "s3:DeleteObject"
+    ]
+
+    resources = [
+      "${module.s3bucket_unscanned_file.arn}/*"
+    ]
+  }
+
+  statement {
+    sid    = "PermissionsToSafeFileBucket"
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "${module.s3bucket_file_safe.arn}/*"
+    ]
+  }
+
+  statement {
+    sid    = "PermissionsToQuarantineFileBucket"
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "${module.s3bucket_file_quarantine.arn}/*"
+    ]
+  }
+
 }

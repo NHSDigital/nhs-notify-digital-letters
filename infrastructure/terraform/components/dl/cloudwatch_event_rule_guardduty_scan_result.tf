@@ -3,10 +3,12 @@ resource "aws_cloudwatch_event_rule" "guardduty_scan_result" {
   description    = "guardduty Scan Result event rule"
   event_bus_name = aws_cloudwatch_event_bus.main.name
   event_pattern = jsonencode({
-    "source": "aws.guardduty"
+    "source": ["aws.guardduty"]
     "detail" : {
-      "scanStatus" :  "COMPLETED",
-      "resourceType": "S3_OBJECT",
+      "resourceType": ["S3_OBJECT"],
+      "s3BucketDetails": {
+            "bucketName": [ module.s3bucket_unscanned_file.bucket ]
+      }
     }
   })
 }
