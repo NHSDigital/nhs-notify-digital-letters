@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { ENV } from 'constants/backend-constants';
+import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
@@ -7,7 +8,6 @@ import { getTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { v4 as uuidv4 } from 'uuid';
-import { TEST_SENDERS } from 'constants/test-senders';
 
 test.describe('Digital Letters - Create TTL', () => {
   test('should create TTL and publish item enqueued event following message downloaded event', async () => {
@@ -36,7 +36,7 @@ test.describe('Digital Letters - Create TTL', () => {
           data: {
             messageUri,
             messageReference: 'ref1',
-            senderId: TEST_SENDERS[0].senderId,
+            senderId: SENDER_ID_SKIPS_NOTIFY,
           },
         },
       ],
