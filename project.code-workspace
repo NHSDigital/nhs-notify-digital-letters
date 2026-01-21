@@ -81,7 +81,6 @@
     "shellcheck.run": "onSave",
     "jest.virtualFolders": [
       { "name": "key-generation", "rootPath": "lambdas/key-generation" },
-      { "name": "mesh-poll", "rootPath": "lambdas/mesh-poll" },
       { "name": "pdm-mock-lambda", "rootPath": "lambdas/pdm-mock-lambda" },
       { "name": "pdm-uploader-lambda", "rootPath": "lambdas/pdm-uploader-lambda" },
       { "name": "refresh-apim-access-token", "rootPath": "lambdas/refresh-apim-access-token" },
