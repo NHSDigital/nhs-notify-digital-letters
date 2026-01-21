@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { createHandler } from 'apis/sqs-handler';
 import { EventPublisher, Logger } from 'utils';
 import { fileSafeEvent, fivePagePdf, recordEvent } from '__tests__/test-data';
+import { FileSafe } from 'digital-letters-events';
 
 const logger = mock<Logger>();
 const eventPublisher = mock<EventPublisher>();
@@ -102,7 +103,7 @@ describe('SQS Handler', () => {
       });
     });
 
-    it('should return failed items to the queue if an invalid file.safe event is received', async () => {
+    it('should return failed items to the queue if a mildly invalid file.safe event is received', async () => {
       const invalidFileSafeEvent = {
         ...fileSafeEvent,
         source: 'invalid file.safe source',
@@ -118,6 +119,32 @@ describe('SQS Handler', () => {
           }),
         ]),
         description: 'Error parsing print analyser queue entry',
+        messageReference: invalidFileSafeEvent.data.messageReference,
+      });
+
+      expect(logger.info).toHaveBeenCalledWith(
+        '0 of 1 records processed successfully',
+      );
+
+      expect(result).toEqual({
+        batchItemFailures: [{ itemIdentifier: '1' }],
+      });
+    });
+
+    it('should return failed items to the queue if a very invalid file.safe event is received', async () => {
+      const invalidFileSafeEvent = {} as FileSafe;
+      const event = recordEvent([invalidFileSafeEvent]);
+
+      const result = await handler(event);
+
+      expect(logger.warn).toHaveBeenCalledWith({
+        err: expect.arrayContaining([
+          expect.objectContaining({
+            message: `must have required property 'specversion'`,
+          }),
+        ]),
+        description: 'Error parsing print analyser queue entry',
+        messageReference: 'not present',
       });
 
       expect(logger.info).toHaveBeenCalledWith(
