@@ -38,7 +38,8 @@ function validateRecord(
       logger.warn({
         err: fileSafeValidator.errors,
         description: 'Error parsing print analyser queue entry',
-        messageReference: sqsEventDetail?.data?.messageReference || 'not present',
+        messageReference:
+          sqsEventDetail?.data?.messageReference || 'not present',
       });
 
       return null;

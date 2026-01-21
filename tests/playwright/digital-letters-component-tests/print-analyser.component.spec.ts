@@ -15,7 +15,6 @@ import { FileSafe } from 'digital-letters-events';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { putFileS3 } from 'utils';
 
-
 export const fileSafeEvent: FileSafe = {
   id: '550e8400-e29b-41d4-a716-446655440001',
   specversion: '1.0',
@@ -41,17 +40,17 @@ export const fileSafeEvent: FileSafe = {
 };
 
 test.describe('Print analyser', () => {
-  const pdfFilename = `${uuidv4()}.pdf`
+  const pdfFilename = `${uuidv4()}.pdf`;
 
   test.beforeAll(async () => {
     test.setTimeout(150_000);
 
     await purgeQueue(PRINT_ANALYSER_DLQ_NAME);
 
-    await putFileS3(
-      fivePagePdf(),
-      { Bucket: FILE_SAFE_S3_BUCKET_NAME, Key: pdfFilename },
-    );
+    await putFileS3(fivePagePdf(), {
+      Bucket: FILE_SAFE_S3_BUCKET_NAME,
+      Key: pdfFilename,
+    });
   });
 
   test(`should create pdf.analysed event for a file.safe event`, async () => {
