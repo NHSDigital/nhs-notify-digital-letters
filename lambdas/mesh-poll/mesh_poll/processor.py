@@ -135,7 +135,7 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
             'id': str(uuid4()),
             'specversion': '1.0',
             'source': self.__cloud_event_source,
-            'subject': 'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000',
+            'subject': f'customer/{event_detail["data"]["senderId"]}/recipient/{event_detail["data"]["messageReference"]}',
             'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
             'time': now,
             'recordedtime': now,
@@ -143,6 +143,7 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
             'severitytext': 'INFO',
             'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
             'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json',
+            'datacontenttype': 'application/json',
             'data': event_detail.get('data', {}),
         }
 
