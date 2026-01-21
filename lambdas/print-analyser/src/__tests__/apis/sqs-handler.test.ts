@@ -2,7 +2,7 @@ import { mock } from 'jest-mock-extended';
 import { randomUUID } from 'node:crypto';
 import { createHandler } from 'apis/sqs-handler';
 import { EventPublisher, Logger } from 'utils';
-import { createTestPdf, fileSafeEvent, recordEvent } from '__tests__/test-data';
+import { fileSafeEvent, fivePagePdf, recordEvent } from '__tests__/test-data';
 
 const logger = mock<Logger>();
 const eventPublisher = mock<EventPublisher>();
@@ -36,7 +36,7 @@ describe('SQS Handler', () => {
 
   describe('file safe', () => {
     it('should send pdf.analysed event when file.safe received', async () => {
-      const testPdf = await createTestPdf(1);
+      const testPdf = fivePagePdf();
       mockGetS3ObjectBufferFromUri.mockResolvedValue(testPdf);
 
       const response = await handler(recordEvent([fileSafeEvent]));
@@ -60,8 +60,9 @@ describe('SQS Handler', () => {
               senderId: fileSafeEvent.data.senderId,
               messageReference: fileSafeEvent.data.messageReference,
               letterUri: fileSafeEvent.data.letterUri,
-              pageCount: 1,
-              sha256Hash: expect.any(String),
+              pageCount: 5,
+              sha256Hash:
+                '631b6ef1a936e62277d55a80deb850babdde861152d476489d75b0c9161bd326',
               createdAt: fileSafeEvent.data.createdAt,
             },
           },
@@ -129,7 +130,7 @@ describe('SQS Handler', () => {
     });
 
     it('should return failed items to the queue if event transformation fails', async () => {
-      const testPdf = await createTestPdf(1);
+      const testPdf = fivePagePdf();
       mockGetS3ObjectBufferFromUri.mockResolvedValue(testPdf);
 
       mockRandomUUID.mockImplementationOnce(() => {
@@ -159,6 +160,7 @@ describe('SQS Handler', () => {
       );
 
       const event = recordEvent([fileSafeEvent]);
+
       const result = await handler(event);
 
       expect(logger.warn).toHaveBeenCalledWith({

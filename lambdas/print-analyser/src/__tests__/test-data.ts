@@ -1,6 +1,7 @@
 import { SQSEvent, SQSRecord } from 'aws-lambda';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { FileSafe } from 'digital-letters-events';
-import { PDFDocument } from 'pdf-lib';
 
 export const fileSafeEvent: FileSafe = {
   id: '550e8400-e29b-41d4-a716-446655440001',
@@ -55,11 +56,5 @@ export const recordEvent = (events: FileSafe[]): SQSEvent => ({
   })),
 });
 
-export async function createTestPdf(pageCount = 1): Promise<Buffer> {
-  const pdfDoc = await PDFDocument.create();
-  for (let i = 0; i < pageCount; i++) {
-    pdfDoc.addPage();
-  }
-  const pdfBytes = await pdfDoc.save();
-  return Buffer.from(pdfBytes);
-}
+export const fivePagePdf = () =>
+  readFileSync(path.join(__dirname, 'five-page.pdf'));
