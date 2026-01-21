@@ -32,6 +32,7 @@ export const TTL_TABLE_NAME = `${CSI}-ttl`;
 
 // S3
 export const LETTERS_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-letters`;
+export const FILE_SAFE_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-file-safe`;
 
 // Cloudwatch
 export const PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-uploader`;
