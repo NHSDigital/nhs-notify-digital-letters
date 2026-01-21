@@ -6,7 +6,7 @@ resource "aws_cloudwatch_event_rule" "file_safe" {
   event_pattern = jsonencode({
     "detail" : {
       "type" : [
-        "uk.nhs.notify.digital.print.file.safe.v1"
+        "uk.nhs.notify.digital.letters.print.file.safe.v1"
       ]
     }
   })
