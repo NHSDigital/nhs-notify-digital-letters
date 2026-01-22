@@ -4,14 +4,21 @@ inputs:
   version:
     description: "Version number"
     required: true
+  node-version:
+    description: 'Node.js version'
+    required: true
+  GITHUB_TOKEN:
+    description: "Token for access to github package registry"
+    required: true
 runs:
   using: "composite"
   steps:
     - name: Checkout
       uses: actions/checkout@v5
-    - uses: actions/setup-node@v6
+    - uses: ./.github/actions/node-install
       with:
-        node-version: 24
+        node-version: ${{ inputs.node-version }}
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     - name: Npm cli install
       working-directory: ./docs
       run: npm ci
