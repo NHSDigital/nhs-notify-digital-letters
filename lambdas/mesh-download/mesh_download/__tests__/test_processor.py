@@ -169,7 +169,7 @@ class TestMeshDownloadProcessor:
         assert event_data['senderId'] == 'TEST_SENDER'
         assert event_data['messageReference'] == 'ref_001'
         assert event_data['messageUri'] == 's3://test-pii-bucket/document-reference/SENDER_001_ref_001'
-        assert set(event_data.keys()) == {'senderId', 'messageReference', 'messageUri'}
+        assert set(event_data.keys()) == {'senderId', 'messageReference', 'messageUri', 'meshMessageId'}
 
     def test_process_sqs_message_validation_failure(self):
         """Malformed CloudEvents should be rejected by pydantic and not trigger downloads"""

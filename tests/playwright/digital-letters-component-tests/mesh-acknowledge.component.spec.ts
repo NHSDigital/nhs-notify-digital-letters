@@ -4,6 +4,7 @@ import {
   MESH_ACKNOWLEDGE_DLQ_NAME,
   NON_PII_S3_BUCKET_NAME,
 } from 'constants/backend-constants';
+import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
@@ -15,7 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Mesh Acknowledger', () => {
   // These values match the ones configured in senders.setup.ts
-  const senderId = 'test-sender-1';
+  const senderId = SENDER_ID_SKIPS_NOTIFY;
   const sendersMeshMailboxId = 'test-mesh-sender-1';
 
   const validMessageDownloadedEvent: MESHInboxMessageDownloaded = {

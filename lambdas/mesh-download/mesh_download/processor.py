@@ -123,6 +123,7 @@ class MeshDownloadProcessor:
                 'senderId': incoming_event.data.senderId,
                 'messageReference': incoming_event.data.messageReference,
                 'messageUri': message_uri,
+                'meshMessageId': incoming_event.data.meshMessageId
             }
         }
 
