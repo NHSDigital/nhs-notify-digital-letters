@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import ValidationError
-from event_publisher.models import MeshInboxMessageEvent, MeshDownloadMessageEvent
+from dl_utils.models import MeshInboxMessageEvent, MeshDownloadMessageEvent
 from mesh_download.errors import MeshMessageNotFound
 
 

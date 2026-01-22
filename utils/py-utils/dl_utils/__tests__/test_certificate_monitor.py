@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
-from metric_publishers.certificate_monitor import CertificateExpiryMonitor, report_expiry_time
-from metric_publishers.metric_client import Metric
+from dl_utils.certificate_monitor import CertificateExpiryMonitor, report_expiry_time
+from dl_utils.metric_client import Metric
 import OpenSSL
 import OpenSSL.crypto
 import tempfile

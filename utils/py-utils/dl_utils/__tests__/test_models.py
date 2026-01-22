@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from event_publisher.models import CloudEvent, MeshInboxMessageEvent
+from dl_utils.models import CloudEvent, MeshInboxMessageEvent
 
 
 class TestCloudEvent:

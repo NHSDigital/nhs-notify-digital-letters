@@ -1,8 +1,7 @@
 """
 Module for configuring Mesh Poll application
 """
-from dl_utils import BaseMeshConfig, log
-from metric_publishers.metric_client import Metric
+from dl_utils import BaseMeshConfig, Metric, log
 
 
 _REQUIRED_ENV_VAR_MAP = {

@@ -4,7 +4,7 @@ from unittest.mock import Mock, MagicMock, call
 from uuid import uuid4
 from botocore.exceptions import ClientError
 
-from event_publisher import EventPublisher
+from dl_utils.event_publisher import EventPublisher
 
 
 @pytest.fixture

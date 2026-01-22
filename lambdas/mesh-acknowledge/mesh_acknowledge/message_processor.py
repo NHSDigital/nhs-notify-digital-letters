@@ -3,8 +3,7 @@ Processes SQS messages containing MESHInboxMessageDownloaded events
 and sends Mesh acknowledgements for each.
 """
 from typing import Dict, Any, List
-from event_publisher import EventPublisher
-from sender_management import SenderLookup
+from dl_utils import EventPublisher, SenderLookup
 from .acknowledger import MeshAcknowledger
 from .dlq import Dlq
 from .events import parse_downloaded_event, publish_acknowledged_event

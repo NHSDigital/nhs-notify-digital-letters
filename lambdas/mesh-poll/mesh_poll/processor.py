@@ -5,7 +5,7 @@ Module for processing messages from a MESH mailbox
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from event_publisher import EventPublisher
+from dl_utils import EventPublisher
 
 from .errors import AuthorizationError, format_exception
 

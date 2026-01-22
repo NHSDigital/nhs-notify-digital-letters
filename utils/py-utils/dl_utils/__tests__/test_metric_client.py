@@ -1,6 +1,6 @@
 import json
 from unittest.mock import Mock, patch
-from metric_publishers.metric_client import Metric
+from dl_utils.metric_client import Metric
 
 
 @patch('builtins.print')

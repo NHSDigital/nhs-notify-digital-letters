@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from digital_letters_events import MESHInboxMessageAcknowledged, MESHInboxMessageDownloaded
-from event_publisher import EventPublisher
+from dl_utils import EventPublisher
 
 
 def parse_downloaded_event(sqs_record, logger) -> MESHInboxMessageDownloaded:

@@ -8,8 +8,5 @@ idna>=3.7
 requests>=2.32.0
 pyopenssl>=24.2.1
 pydantic>=2.0.0
--e ../../utils/metric-publishers
--e ../../utils/event-publisher-py
 -e ../../utils/py-mock-mesh
 -e ../../utils/py-utils
--e ../../utils/sender-management

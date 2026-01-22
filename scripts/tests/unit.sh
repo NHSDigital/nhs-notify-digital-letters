@@ -40,25 +40,10 @@ echo "Setting up and running eventcatalogasyncapiimporter tests..."
 make -C ./src/eventcatalogasyncapiimporter install-dev
 make -C ./src/eventcatalogasyncapiimporter coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
-# Python utility packages - event-publisher-py
-echo "Setting up and running event-publisher-py tests..."
-make -C ./utils/event-publisher-py install-dev
-make -C ./utils/event-publisher-py coverage  # Run with coverage to generate coverage.xml for SonarCloud
-
 # Python utility packages - py-utils
 echo "Setting up and running py-utils tests..."
 make -C ./utils/py-utils install-dev
 make -C ./utils/py-utils coverage  # Run with coverage to generate coverage.xml for SonarCloud
-
-# Python utility packages - metric-publishers
-echo "Setting up and running metric-publishers tests..."
-make -C ./utils/metric-publishers install-dev
-make -C ./utils/metric-publishers coverage  # Run with coverage to generate coverage.xml for SonarCloud
-
-# Python utility packages - sender-management
-echo "Setting up and running Python sender-management tests..."
-make -C ./utils/sender-management install-dev
-make -C ./utils/sender-management coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
 # Python Lambda - mesh-acknowledge
 echo "Setting up and running mesh-acknowledge tests..."

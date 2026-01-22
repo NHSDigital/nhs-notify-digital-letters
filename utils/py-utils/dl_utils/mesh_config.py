@@ -6,7 +6,7 @@ import os
 import boto3
 import mesh_client
 from py_mock_mesh.mesh_client import MockMeshClient
-from metric_publishers.certificate_monitor import report_expiry_time
+from .certificate_monitor import report_expiry_time
 from .log_config import log
 from .store_file import store_file
 
