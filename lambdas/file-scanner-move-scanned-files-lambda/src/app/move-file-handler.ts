@@ -1,10 +1,7 @@
 import { Logger } from 'utils/logger';
 import { S3Location, copyAndDeleteObjectS3, getObjectMetadata } from 'utils';
 import { MoveScannedFilesConfig } from 'infra/config';
-import {
-  GuardDutyScanResultNotificationEvent,
-  GuardDutyScanResultNotificationEventDetail,
-} from 'aws-lambda';
+import { GuardDutyScanResultNotificationEventDetail } from 'aws-lambda';
 import { FileQuarantined, FileSafe } from 'digital-letters-events';
 import { createFileQuarantinedEvent, createFileSafeEvent } from 'domain/mapper';
 
@@ -173,9 +170,8 @@ export class MoveFileHandler {
   }
 
   public async handle(
-    scanResult: GuardDutyScanResultNotificationEvent,
+    scanDetail: GuardDutyScanResultNotificationEventDetail,
   ): Promise<EventToPublish | null> {
-    const scanDetail = scanResult.detail;
     const { scanStatus } = scanDetail;
     const objectDetails = scanDetail.s3ObjectDetails;
 
@@ -185,7 +181,7 @@ export class MoveFileHandler {
       subkey: getLastCharactersOfKey(objectDetails.objectKey),
     });
 
-    if (!(await this.isEventForDigitalLetters(scanResult.detail))) {
+    if (!(await this.isEventForDigitalLetters(scanDetail))) {
       this.logger.warn({
         description: 'Scan result event is not valid, skipping processing.',
         sourceBucket: objectDetails.bucketName,

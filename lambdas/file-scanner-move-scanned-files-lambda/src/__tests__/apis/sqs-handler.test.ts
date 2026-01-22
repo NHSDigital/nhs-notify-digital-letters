@@ -62,7 +62,7 @@ describe('sqs-handler', () => {
       const sqsEvent = createSqsEvent(1);
       const handler = createHandler(dependencies);
 
-      mockParseSqsRecord.mockReturnValue(guardDutyNoThreadsFoundEvent);
+      mockParseSqsRecord.mockReturnValue(guardDutyNoThreadsFoundEvent.detail);
       mockMoveFileHandler.handle.mockResolvedValue({
         fileSafe: {
           specversion: '1.0',
@@ -93,7 +93,7 @@ describe('sqs-handler', () => {
         mockLogger,
       );
       expect(mockMoveFileHandler.handle).toHaveBeenCalledWith(
-        guardDutyNoThreadsFoundEvent,
+        guardDutyNoThreadsFoundEvent.detail,
       );
       expect(mockEventPublisher.sendEvents).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ batchItemFailures: [] });
@@ -140,8 +140,8 @@ describe('sqs-handler', () => {
       };
 
       mockParseSqsRecord
-        .mockReturnValueOnce(guardDutyNoThreadsFoundEvent)
-        .mockReturnValueOnce(guardDutyThreadsFoundEvent);
+        .mockReturnValueOnce(guardDutyNoThreadsFoundEvent.detail)
+        .mockReturnValueOnce(guardDutyThreadsFoundEvent.detail);
       mockMoveFileHandler.handle
         .mockResolvedValueOnce({ fileSafe: mockFileSafeEvent })
         .mockResolvedValueOnce({
@@ -167,7 +167,7 @@ describe('sqs-handler', () => {
       const sqsEvent = createSqsEvent(1);
       const handler = createHandler(dependencies);
 
-      mockParseSqsRecord.mockReturnValue(guardDutyNoThreadsFoundEvent);
+      mockParseSqsRecord.mockReturnValue(guardDutyNoThreadsFoundEvent.detail);
       mockMoveFileHandler.handle.mockResolvedValue(null);
 
       await handler(sqsEvent);
@@ -180,7 +180,7 @@ describe('sqs-handler', () => {
       const handler = createHandler(dependencies);
 
       mockParseSqsRecord
-        .mockReturnValueOnce(guardDutyNoThreadsFoundEvent)
+        .mockReturnValueOnce(guardDutyNoThreadsFoundEvent.detail)
         .mockImplementationOnce(() => {
           throw new Error('Parse error');
         });
@@ -223,7 +223,7 @@ describe('sqs-handler', () => {
       const sqsEvent = createSqsEvent(1);
       const handler = createHandler(dependencies);
 
-      mockParseSqsRecord.mockReturnValue(guardDutyNoThreadsFoundEvent);
+      mockParseSqsRecord.mockReturnValue(guardDutyNoThreadsFoundEvent.detail);
       mockMoveFileHandler.handle.mockRejectedValue(new Error('Handler error'));
 
       const result = await handler(sqsEvent);

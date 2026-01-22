@@ -11,11 +11,11 @@ describe('parseSqsRecord', () => {
     jest.clearAllMocks();
   });
 
-  it('parses SQS record body and returns GuardDutyScanResultNotificationEvent', () => {
+  it('parses SQS record body and returns GuardDutyScanResultNotificationEvent.detail', () => {
     const sqsRecord: SQSRecord = {
       messageId: 'message-id-1',
       receiptHandle: 'receipt-handle-1',
-      body: JSON.stringify({ detail: guardDutyNoThreadsFoundEvent }),
+      body: JSON.stringify({ detail: guardDutyNoThreadsFoundEvent.detail }),
       attributes: {
         ApproximateReceiveCount: '1',
         SentTimestamp: '1234567890',
@@ -37,8 +37,8 @@ describe('parseSqsRecord', () => {
     });
     expect(mockLogger.debug).toHaveBeenCalledWith({
       description: 'Returning detail as GuardDutyScanResultNotificationEvent',
-      detail: guardDutyNoThreadsFoundEvent,
+      detail: guardDutyNoThreadsFoundEvent.detail,
     });
-    expect(result).toEqual(guardDutyNoThreadsFoundEvent);
+    expect(result).toEqual(guardDutyNoThreadsFoundEvent.detail);
   });
 });

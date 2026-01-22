@@ -1,10 +1,13 @@
-import { GuardDutyScanResultNotificationEvent, SQSRecord } from 'aws-lambda';
+import {
+  GuardDutyScanResultNotificationEventDetail,
+  SQSRecord,
+} from 'aws-lambda';
 import { Logger } from 'utils';
 
 export const parseSqsRecord = (
   sqsRecord: SQSRecord,
   logger: Logger,
-): GuardDutyScanResultNotificationEvent => {
+): GuardDutyScanResultNotificationEventDetail => {
   logger.info({
     description: 'Parsing SQS Record',
     messageId: sqsRecord.messageId,
@@ -27,5 +30,5 @@ export const parseSqsRecord = (
     description: 'Returning detail as GuardDutyScanResultNotificationEvent',
     detail: sqsEventDetail,
   });
-  return sqsEventDetail as GuardDutyScanResultNotificationEvent;
+  return sqsEventDetail as GuardDutyScanResultNotificationEventDetail;
 };

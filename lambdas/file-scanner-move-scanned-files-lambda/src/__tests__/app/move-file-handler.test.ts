@@ -331,7 +331,7 @@ describe('MoveFileHandler', () => {
 
   describe('handle', () => {
     it('processes safe file successfully', async () => {
-      const result = await handler.handle(guardDutyNoThreadsFoundEvent);
+      const result = await handler.handle(guardDutyNoThreadsFoundEvent.detail);
 
       expect(result).not.toBeNull();
       expect(mockLogger.info).toHaveBeenCalled();
@@ -348,7 +348,7 @@ describe('MoveFileHandler', () => {
     });
 
     it('processes infected file successfully', async () => {
-      const result = await handler.handle(guardDutyThreadsFoundEvent);
+      const result = await handler.handle(guardDutyThreadsFoundEvent.detail);
 
       expect(mockCopyAndDeleteObjectS3).toHaveBeenCalledWith(
         { Bucket: 'unscanned-bucket', Key: 'dl/sample.pdf' },
@@ -371,7 +371,7 @@ describe('MoveFileHandler', () => {
         },
       };
 
-      const result = await handler.handle(scanResult);
+      const result = await handler.handle(scanResult.detail);
 
       expect(result).toBeNull();
       expect(mockLogger.warn).toHaveBeenCalledWith({
@@ -397,7 +397,7 @@ describe('MoveFileHandler', () => {
 
       mockGetObjectMetadata.mockResolvedValue({});
 
-      const result = await handler.handle(scanResult);
+      const result = await handler.handle(scanResult.detail);
 
       expect(result).toBeNull();
       expect(mockLogger.error).toHaveBeenCalledWith({

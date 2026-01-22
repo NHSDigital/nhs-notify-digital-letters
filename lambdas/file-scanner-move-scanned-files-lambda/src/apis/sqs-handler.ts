@@ -1,5 +1,5 @@
 import type {
-  GuardDutyScanResultNotificationEvent,
+  GuardDutyScanResultNotificationEventDetail,
   SQSBatchItemFailure,
   SQSBatchResponse,
   SQSEvent,
@@ -34,7 +34,7 @@ export const createHandler = ({
     const fileSafeEvents: FileSafe[] = [];
     const fileQuarantinedEvents: FileQuarantined[] = [];
 
-    let incoming: GuardDutyScanResultNotificationEvent;
+    let incoming: GuardDutyScanResultNotificationEventDetail;
 
     await Promise.all(
       sqsEvent.Records.map(async (sqsRecord: SQSRecord) => {
