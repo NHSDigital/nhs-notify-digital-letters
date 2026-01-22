@@ -45,6 +45,11 @@ echo "Setting up and running event-publisher-py tests..."
 make -C ./utils/event-publisher-py install-dev
 make -C ./utils/event-publisher-py coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
+# Python utility packages - py-utils
+echo "Setting up and running py-utils tests..."
+make -C ./utils/py-utils install-dev
+make -C ./utils/py-utils coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
 # Python utility packages - metric-publishers
 echo "Setting up and running metric-publishers tests..."
 make -C ./utils/metric-publishers install-dev

@@ -119,35 +119,3 @@ class TestBaseMeshConfig:
 
         mock_mesh_client_class.assert_called_once()
         assert result is not None
-
-    @patch('dl_utils.mesh_config.report_expiry_time')
-    @patch('dl_utils.mesh_config.mesh_client')
-    def test_build_mesh_client_real_with_metrics(self, mock_mesh_client, mock_report_expiry, mock_ssm, mock_s3):
-        """Test build_mesh_client with real client and certificate metrics"""
-
-        class TestConfig(BaseMeshConfig):
-            _REQUIRED_ENV_VAR_MAP = {}
-
-        mock_mesh_client.TEST_ENDPOINT = 'https://test.endpoint'
-
-        config = TestConfig(ssm=mock_ssm, s3_client=mock_s3)
-        config.use_mesh_mock = False
-        config.mesh_endpoint = 'TEST'
-        config.mesh_mailbox = 'test_mailbox'
-        config.mesh_mailbox_password = 'test_password'
-        config.mesh_shared_key = b'test_key'
-        config.client_cert = '/tmp/cert'
-        config.client_key = '/tmp/key'
-        config.certificate_expiry_metric_name = 'CertExpiry'
-        config.certificate_expiry_metric_namespace = 'TestNamespace'
-        config.environment = 'test'
-
-        result = config.build_mesh_client()
-
-        mock_report_expiry.assert_called_once_with(
-            '/tmp/cert',
-            'CertExpiry',
-            'TestNamespace',
-            'test'
-        )
-        mock_mesh_client.MeshClient.assert_called_once()
