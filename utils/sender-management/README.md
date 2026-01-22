@@ -14,12 +14,12 @@ npm --prefix utils/sender-management run-script cli -- <command> [options]
 
 ### Library Usage
 
-Install the package as `@sender-management`
+Install the package as `sender-management`
 
 Instantiate an instance of the library as follows. The library should take an implementation of an `IParameterStore` to define how the library will interact with SSM (e.g. caching vs non-caching).
 
 ```ts
-import { SenderManagement } from '@sender-management';
+import { SenderManagement } from 'sender-management';
 
 const sm = SenderManagement({ parameterStore: new ParameterStore() });
 ```

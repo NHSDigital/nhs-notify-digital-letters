@@ -136,8 +136,15 @@ variable "pdm_use_non_mock_token" {
 
 variable "apim_base_url" {
   type        = string
-  description = "The URL used to send requests to Notify and PDM"
+  description = "The URL used to send requests to PDM"
   default     = "https://int.api.service.nhs.uk"
+}
+
+
+variable "core_notify_url" {
+  type        = string
+  description = "The URL used to send requests to Notify"
+  default     = "https://sandbox.api.service.nhs.uk"
 }
 
 variable "apim_auth_token_url" {
