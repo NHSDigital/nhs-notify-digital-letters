@@ -3,7 +3,8 @@
 from typing import Dict, Any
 
 from boto3 import client
-from event_publisher import EventPublisher, log
+from event_publisher import EventPublisher
+from dl_utils import log
 from sender_management import SenderLookup
 from .acknowledger import MeshAcknowledger
 from .config import Config

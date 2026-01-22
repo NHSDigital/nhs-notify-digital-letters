@@ -1,7 +1,7 @@
 """
 Module for configuring MESH Acknowledger application
 """
-from event_publisher import BaseMeshConfig
+from dl_utils import BaseMeshConfig
 
 _REQUIRED_ENV_VAR_MAP = {
     "ssm_prefix": "SSM_PREFIX",

@@ -8,3 +8,4 @@ structlog>=21.5.0
 -e ../../utils/metric-publishers
 -e ../../utils/sender-management
 -e ../../utils/py-mock-mesh
+-e ../../utils/py-utils

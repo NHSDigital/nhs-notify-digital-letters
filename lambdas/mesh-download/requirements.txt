@@ -10,4 +10,5 @@ requests>=2.32.0
 pyopenssl>=24.2.1
 -e ../../utils/event-publisher-py
 -e ../../utils/py-mock-mesh
+-e ../../utils/py-utils
 -e ../../utils/metric-publishers

@@ -4,7 +4,7 @@ Tests for Lambda handler in mesh_acknowledge.handler
 from unittest.mock import Mock, MagicMock, patch, call
 
 import pytest
-from event_publisher import log
+from dl_utils import log
 from mesh_acknowledge.handler import handler
 
 

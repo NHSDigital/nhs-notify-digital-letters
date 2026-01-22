@@ -3,15 +3,11 @@ Base configuration module for MESH client applications
 """
 import json
 import os
-import tempfile
 import boto3
-import structlog
 import mesh_client
 from py_mock_mesh.mesh_client import MockMeshClient
 from metric_publishers.certificate_monitor import report_expiry_time
-
-structlog.configure(processors=[structlog.processors.JSONRenderer()])
-log = structlog.get_logger()
+from .log_config import log
 
 
 class InvalidMeshEndpointError(Exception):
@@ -24,16 +20,6 @@ class InvalidEnvironmentVariableError(Exception):
     """
     Indicates an invalid environment variable
     """
-
-
-def store_file(content):
-    """
-    Writes a temp file and returns the name
-    """
-    with tempfile.NamedTemporaryFile(delete=False) as file:
-        file.write(content)
-        file.close()
-        return file.name
 
 
 class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes
@@ -50,8 +36,7 @@ class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes
         Initialize base MESH configuration.
         """
         self.ssm = ssm if ssm is not None else boto3.client('ssm')
-        self.s3_client = s3_client if s3_client is not None else boto3.client(
-            's3')
+        self.s3_client = s3_client if s3_client is not None else boto3.client('s3')
 
         # MESH connection attributes
         self.mesh_endpoint = None
@@ -63,7 +48,7 @@ class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes
         self.mesh_client = None
 
         # Common configuration attributes
-        self.ssm_prefix = None
+        self.ssm_mesh_prefix = None
         self.environment = None
         self.certificate_expiry_metric_name = None
         self.certificate_expiry_metric_namespace = None
@@ -102,15 +87,14 @@ class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes
                 value = os.environ[key]
                 if attr == "use_mesh_mock":
                     # Convert string to boolean
-                    setattr(self, attr, value.lower()
-                            in ('true', '1', 'yes', 'on'))
+                    setattr(self, attr, value.lower() in ('true', '1', 'yes', 'on'))
                 else:
                     setattr(self, attr, value)
 
     def __enter__(self):
         # Load MESH configuration from SSM
         ssm_response = self.ssm.get_parameter(
-            Name=self.ssm_prefix + '/mesh/config',
+            Name=self.ssm_mesh_prefix + '/config',
             WithDecryption=True
         )
         mesh_config = json.loads(ssm_response['Parameter']['Value'])
@@ -122,11 +106,11 @@ class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes
 
         # Load client certificates from SSM
         client_cert_parameter = self.ssm.get_parameter(
-            Name=self.ssm_prefix + '/mesh/client-cert',
+            Name=self.ssm_mesh_prefix + '/client-cert',
             WithDecryption=True
         )
         client_key_parameter = self.ssm.get_parameter(
-            Name=self.ssm_prefix + '/mesh/client-key',
+            Name=self.ssm_mesh_prefix + '/client-key',
             WithDecryption=True
         )
 
