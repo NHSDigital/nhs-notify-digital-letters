@@ -61,7 +61,12 @@ async function getObjectFromS3(
 
     return Buffer.concat(chunks);
   } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'NoSuchKey') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'NoSuchKey'
+    ) {
       return undefined;
     }
     throw error;
@@ -82,7 +87,12 @@ async function getObjectMetadata(
 
     return response.Metadata || {};
   } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'NotFound') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'NotFound'
+    ) {
       return undefined;
     }
     throw error;
