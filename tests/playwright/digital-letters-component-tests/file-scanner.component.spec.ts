@@ -90,9 +90,9 @@ test.describe('File Scanner', () => {
         expectedKey,
       );
       expect(metadata).toBeDefined();
-      expect(metadata?.messageReference).toEqual(messageReference);
-      expect(metadata?.senderId).toEqual(senderId);
-      expect(metadata?.createdAt).toBeDefined();
+      expect(metadata?.messagereference).toEqual(messageReference);
+      expect(metadata?.senderid).toEqual(senderId);
+      expect(metadata?.createdat).toBeDefined();
     }, 120);
   });
 
