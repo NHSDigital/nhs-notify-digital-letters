@@ -334,7 +334,9 @@ describe('SQS Handler', () => {
 
       const response = await handler(invalidEvent);
 
-      expect(response.batchItemFailures).toEqual([{ itemIdentifier: 'msg-001' }]);
+      expect(response.batchItemFailures).toEqual([
+        { itemIdentifier: 'msg-001' },
+      ]);
       expect(mockFileScanner.scanFile).not.toHaveBeenCalled();
       expect(mockLogger.warn).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -366,7 +368,8 @@ describe('SQS Handler', () => {
         expect.objectContaining({
           description: 'Error parsing SQS record',
         }),
-      );      expect(mockLogger.warn).toHaveBeenCalledWith(
+      );
+      expect(mockLogger.warn).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Invalid record will be retried',
           messageId: 'msg-001',
