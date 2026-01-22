@@ -11,7 +11,18 @@ export const parseSqsRecord = (
   });
 
   const sqsEventBody = JSON.parse(sqsRecord.body);
+  // remove
+  logger.info({
+    description: 'Parsed SQS record body',
+    body: sqsEventBody,
+  });
+
   const sqsEventDetail = sqsEventBody.detail;
+  logger.info({
+    description: 'Parsed body detail',
+    body: sqsEventDetail,
+  });
+
   logger.debug({
     description: 'Returning detail as GuardDutyScanResultNotificationEvent',
     detail: sqsEventDetail,
