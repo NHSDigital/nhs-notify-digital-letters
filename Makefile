@@ -17,6 +17,7 @@ dependencies:: # Install dependencies needed to build and test the project @Pipe
 	$(MAKE) -C lambdas/mesh-poll install
 	$(MAKE) -C lambdas/mesh-download install
 	$(MAKE) -C utils/py-mock-mesh install
+	./scripts/set-github-token.sh
 	npm install --workspaces
 	$(MAKE) generate
 

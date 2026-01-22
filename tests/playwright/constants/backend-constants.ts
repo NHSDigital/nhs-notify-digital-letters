@@ -21,6 +21,8 @@ export const MESH_DOWNLOAD_DLQ_NAME = `${CSI}-mesh-download-dlq`;
 export const PDM_POLL_DLQ_NAME = `${CSI}-pdm-poll-dlq`;
 export const MESH_ACKNOWLEDGE_DLQ_NAME = `${CSI}-mesh-acknowledge-dlq`;
 export const CORE_NOTIFIER_DLQ_NAME = `${CSI}-core-notifier-dlq`;
+export const PRINT_STATUS_HANDLER_DLQ_NAME = `${CSI}-print-status-handler-dlq`;
+export const HANDLE_TTL_DLQ_NAME = `${CSI}-ttl-handle-expiry-errors-queue`;
 
 // Queue Url Prefix
 export const SQS_URL_PREFIX = `https://sqs.${REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/`;
@@ -42,3 +44,4 @@ export const PII_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-$
 export const PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-uploader`;
 export const PDM_POLL_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-poll`;
 export const CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-core-notifier`;
+export const PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-status-handler`;
