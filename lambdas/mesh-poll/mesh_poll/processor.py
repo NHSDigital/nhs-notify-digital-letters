@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from dl_utils import EventPublisher
+from digital_letters_events import MESHInboxMessageReceived
 
 from .errors import AuthorizationError, format_exception
 
@@ -147,7 +148,7 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
             'data': event_detail.get('data', {}),
         }
 
-        failed_events = self.__event_publisher.send_events([cloud_event])
+        failed_events = self.__event_publisher.send_events([cloud_event], MESHInboxMessageReceived)
 
         if failed_events:
             error_msg = f"Failed to publish MESHInboxMessageReceived event: {failed_events}"

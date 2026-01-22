@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import ValidationError
-from dl_utils.models import MeshInboxMessageEvent, MeshDownloadMessageEvent
+from digital_letters_events import MESHInboxMessageDownloaded, MESHInboxMessageReceived
 from mesh_download.errors import MeshMessageNotFound
 
 
@@ -41,7 +41,7 @@ class MeshDownloadProcessor:
         event_detail = message_body.get('detail', {})
 
         try:
-            event = MeshInboxMessageEvent(**event_detail)
+            event = MESHInboxMessageReceived(**event_detail)
             self.__log.debug("CloudEvent validation passed")
             return event
         except ValidationError as e:
@@ -126,13 +126,7 @@ class MeshDownloadProcessor:
             }
         }
 
-        try:
-            MeshDownloadMessageEvent(**cloud_event)
-        except ValidationError as e:
-            self.__log.error("Invalid MeshDownloadMessageEvent", error=str(e))
-            raise
-
-        failed = self.__event_publisher.send_events([cloud_event])
+        failed = self.__event_publisher.send_events([cloud_event], MESHInboxMessageDownloaded)
         if failed:
             msg = f"Failed to publish MESHInboxMessageDownloaded event: {failed}"
             self.__log.error(msg, failed_count=len(failed))
