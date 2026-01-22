@@ -31,5 +31,11 @@ data "aws_iam_policy_document" "sqs_scanner" {
     resources = [
       "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-scanner-queue"
     ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_cloudwatch_event_rule.item_dequeued.arn]
+    }
   }
 }

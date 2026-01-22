@@ -1,8 +1,5 @@
 import { baseJestConfig } from '../../jest.config.base';
 
-const config = {
-  ...baseJestConfig,
-  displayName: 'file-scanner-lambda',
-};
+const config = baseJestConfig;
 
 export default config;

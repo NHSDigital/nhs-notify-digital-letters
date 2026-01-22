@@ -82,32 +82,43 @@ export function createHandler(dependencies: HandlerDependencies) {
       recordCount: event.Records.length,
     });
 
-    const validatedRecords = event.Records.map((record) =>
-      validateRecord(record, logger),
-    ).filter((record): record is ValidatedRecord => record !== null);
-
     const itemFailures: SQSBatchItemFailure[] = [];
 
-    for (const validatedRecord of validatedRecords) {
-      try {
-        await processRecord(validatedRecord, dependencies);
-      } catch (error) {
-        logger.error({
-          description: 'Error processing record',
-          err:
-            error instanceof Error
-              ? { message: error.message, name: error.name, stack: error.stack }
-              : error,
-          messageId: validatedRecord.messageId,
-        });
+    for (const record of event.Records) {
+      const validatedRecord = validateRecord(record, logger);
 
-        itemFailures.push({ itemIdentifier: validatedRecord.messageId });
+      if (validatedRecord) {
+        try {
+          await processRecord(validatedRecord, dependencies);
+        } catch (error) {
+          logger.error({
+            description: 'Error processing record',
+            err:
+              error instanceof Error
+                ? {
+                    message: error.message,
+                    name: error.name,
+                    stack: error.stack,
+                  }
+                : error,
+            messageId: validatedRecord.messageId,
+          });
+
+          itemFailures.push({ itemIdentifier: validatedRecord.messageId });
+        }
+      } else {
+        // Validation failed - return to queue for retry/DLQ
+        logger.warn({
+          description: 'Invalid record will be retried',
+          messageId: record.messageId,
+        });
+        itemFailures.push({ itemIdentifier: record.messageId });
       }
     }
 
     logger.info({
       description: 'Completed file scanner batch',
-      successCount: validatedRecords.length - itemFailures.length,
+      successCount: event.Records.length - itemFailures.length,
       failureCount: itemFailures.length,
     });
 

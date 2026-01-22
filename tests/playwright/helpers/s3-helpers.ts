@@ -1,4 +1,6 @@
 import {
+  GetObjectCommand,
+  HeadObjectCommand,
   ListBucketsCommand,
   PutObjectCommand,
   S3Client,
@@ -36,4 +38,55 @@ async function uploadToS3(
   );
 }
 
-export { listBuckets, uploadToS3 };
+async function getObjectFromS3(
+  bucket: string,
+  key: string,
+): Promise<Buffer | undefined> {
+  try {
+    const response = await s3.send(
+      new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      }),
+    );
+
+    if (!response.Body) {
+      return undefined;
+    }
+
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of response.Body as AsyncIterable<Uint8Array>) {
+      chunks.push(chunk);
+    }
+
+    return Buffer.concat(chunks);
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'NoSuchKey') {
+      return undefined;
+    }
+    throw error;
+  }
+}
+
+async function getObjectMetadata(
+  bucket: string,
+  key: string,
+): Promise<Record<string, string> | undefined> {
+  try {
+    const response = await s3.send(
+      new HeadObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      }),
+    );
+
+    return response.Metadata || {};
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'NotFound') {
+      return undefined;
+    }
+    throw error;
+  }
+}
+
+export { getObjectFromS3, getObjectMetadata, listBuckets, uploadToS3 };

@@ -1,0 +1,157 @@
+import { expect, test } from '@playwright/test';
+import { ENV, REGION } from 'constants/backend-constants';
+import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
+import {
+  getObjectFromS3,
+  getObjectMetadata,
+  uploadToS3,
+} from 'helpers/s3-helpers';
+import eventPublisher from 'helpers/event-bus-helpers';
+import expectToPassEventually from 'helpers/expectations';
+import { v4 as uuidv4 } from 'uuid';
+
+const DOCUMENT_REFERENCE_BUCKET = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-pii-data`;
+const UNSCANNED_FILES_BUCKET = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-main-acct-digi-unscanned-files`;
+
+test.describe('File Scanner', () => {
+  test.beforeAll(async () => {
+    test.setTimeout(250_000);
+  });
+
+  test('should extract PDF from DocumentReference and store in unscanned bucket with metadata', async () => {
+    const messageReference = uuidv4();
+    const senderId = 'TEST_SENDER_001';
+    const documentReferenceKey = messageReference;
+
+    const pdfContent = Buffer.from('Sample PDF content for test');
+    const documentReference = {
+      resourceType: 'DocumentReference',
+      id: messageReference,
+      content: [
+        {
+          attachment: {
+            contentType: 'application/pdf',
+            data: pdfContent.toString('base64'),
+          },
+        },
+      ],
+    };
+
+    await uploadToS3(
+      JSON.stringify(documentReference),
+      DOCUMENT_REFERENCE_BUCKET,
+      documentReferenceKey,
+    );
+
+    const eventId = uuidv4();
+    const messageUri = `s3://${DOCUMENT_REFERENCE_BUCKET}/${documentReferenceKey}`;
+    const eventTime = new Date().toISOString();
+
+    await eventPublisher.sendEvents(
+      [
+        {
+          id: eventId,
+          specversion: '1.0',
+          source: `/nhs/england/notify/development/dev-1/data-plane/digitalletters/queue`,
+          subject: `message/${messageReference}`,
+          type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+          time: eventTime,
+          recordedtime: eventTime,
+          severitynumber: 2,
+          traceparent:
+            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+          datacontenttype: 'application/json',
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
+          severitytext: 'INFO',
+          data: {
+            messageReference,
+            senderId,
+            messageUri,
+          },
+        },
+      ],
+      itemDequeuedValidator,
+    );
+
+    await expectToPassEventually(async () => {
+      const expectedKey = `${ENV}/${messageReference}.pdf`;
+
+      const storedPdf = await getObjectFromS3(
+        UNSCANNED_FILES_BUCKET,
+        expectedKey,
+      );
+      expect(storedPdf).toBeDefined();
+
+      expect(storedPdf?.toString()).toEqual(pdfContent.toString());
+
+      const metadata = await getObjectMetadata(
+        UNSCANNED_FILES_BUCKET,
+        expectedKey,
+      );
+      expect(metadata).toBeDefined();
+      expect(metadata?.messageReference).toEqual(messageReference);
+      expect(metadata?.senderId).toEqual(senderId);
+      expect(metadata?.createdAt).toBeDefined();
+    }, 120);
+  });
+
+  test('should handle validation errors by sending messages to DLQ', async () => {
+    const messageReference = uuidv4();
+    const senderId = 'TEST_SENDER_002';
+    const documentReferenceKey = `document-reference/${messageReference}`;
+
+    const documentReference = {
+      resourceType: 'DocumentReference',
+      id: messageReference,
+      content: [],
+    };
+
+    await uploadToS3(
+      JSON.stringify(documentReference),
+      DOCUMENT_REFERENCE_BUCKET,
+      documentReferenceKey,
+    );
+
+    const eventId = uuidv4();
+    const messageUri = `s3://${DOCUMENT_REFERENCE_BUCKET}/${documentReferenceKey}`;
+    const eventTime = new Date().toISOString();
+
+    await eventPublisher.sendEvents(
+      [
+        {
+          id: eventId,
+          specversion: '1.0',
+          source: `/nhs/england/notify/development/dev-1/data-plane/digitalletters/queue`,
+          subject: `message/${messageReference}`,
+          type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+          time: eventTime,
+          recordedtime: eventTime,
+          severitynumber: 2,
+          traceparent:
+            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+          datacontenttype: 'application/json',
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
+          severitytext: 'INFO',
+          data: {
+            messageReference,
+            senderId,
+            messageUri,
+          },
+        },
+      ],
+      itemDequeuedValidator,
+    );
+
+    await expectToPassEventually(async () => {
+      const expectedKey = `${ENV}/${messageReference}.pdf`;
+      const storedPdf = await getObjectFromS3(
+        UNSCANNED_FILES_BUCKET,
+        expectedKey,
+      );
+
+      expect(storedPdf).toBeUndefined();
+    }, 120);
+  });
+});

@@ -334,8 +334,13 @@ describe('SQS Handler', () => {
 
       const response = await handler(invalidEvent);
 
-      expect(response.batchItemFailures).toEqual([]);
+      expect(response.batchItemFailures).toEqual([{ itemIdentifier: 'msg-001' }]);
       expect(mockFileScanner.scanFile).not.toHaveBeenCalled();
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Invalid record will be retried',
+        }),
+      );
       expect(mockLogger.warn).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Error parsing queue entry',
@@ -353,11 +358,18 @@ describe('SQS Handler', () => {
 
       const response = await handler(event);
 
-      expect(response.batchItemFailures).toEqual([]);
+      expect(response.batchItemFailures).toEqual([
+        { itemIdentifier: 'msg-001' },
+      ]);
       expect(mockFileScanner.scanFile).not.toHaveBeenCalled();
       expect(mockLogger.warn).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Error parsing SQS record',
+        }),
+      );      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Invalid record will be retried',
+          messageId: 'msg-001',
         }),
       );
     });
@@ -384,11 +396,19 @@ describe('SQS Handler', () => {
 
       const response = await handler(invalidEvent);
 
-      expect(response.batchItemFailures).toEqual([]);
+      expect(response.batchItemFailures).toEqual([
+        { itemIdentifier: 'msg-001' },
+      ]);
       expect(mockFileScanner.scanFile).not.toHaveBeenCalled();
       expect(mockLogger.warn).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Error parsing queue entry',
+        }),
+      );
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Invalid record will be retried',
+          messageId: 'msg-001',
         }),
       );
     });
@@ -421,13 +441,15 @@ describe('SQS Handler', () => {
 
       const response = await handler(event);
 
-      expect(response.batchItemFailures).toEqual([]);
+      expect(response.batchItemFailures).toEqual([
+        { itemIdentifier: 'msg-002' },
+      ]);
       expect(mockFileScanner.scanFile).toHaveBeenCalledTimes(2);
       expect(mockLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Completed file scanner batch',
           successCount: 2,
-          failureCount: 0,
+          failureCount: 1,
         }),
       );
     });
@@ -463,13 +485,16 @@ describe('SQS Handler', () => {
 
       const response = await handler(event);
 
-      expect(response.batchItemFailures).toEqual([]);
+      expect(response.batchItemFailures).toEqual([
+        { itemIdentifier: 'msg-001' },
+        { itemIdentifier: 'msg-002' },
+      ]);
       expect(mockFileScanner.scanFile).not.toHaveBeenCalled();
       expect(mockLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Completed file scanner batch',
           successCount: 0,
-          failureCount: 0,
+          failureCount: 2,
         }),
       );
     });
