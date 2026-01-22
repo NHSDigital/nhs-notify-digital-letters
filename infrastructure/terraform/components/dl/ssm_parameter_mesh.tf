@@ -8,7 +8,7 @@ resource "aws_ssm_parameter" "mesh_config" {
   value = var.enable_mock_mesh ? jsonencode({
     mesh_endpoint         = local.mock_mesh_endpoint
     mesh_mailbox          = "mock-mailbox"
-    mesh_mailbox_password = "mock-password"
+    mesh_mailbox_password = "UNSET"
     mesh_shared_key       = "mock-shared-key"
   }) : jsonencode({
     mesh_endpoint         = "UNSET"

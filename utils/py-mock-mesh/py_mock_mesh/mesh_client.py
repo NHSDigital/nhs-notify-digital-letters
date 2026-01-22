@@ -73,7 +73,8 @@ class MockMeshClient:  # pylint: disable=too-many-arguments
             self.__log.warning(f"Message {message_id} not found in inbox")
             return None
         except Exception as e:
-            self.__log.error(f"Error retrieving message {message_id}: {str(e)}")
+            self.__log.error(
+                f"Error retrieving message {message_id}: {str(e)}")
             return None
 
     def send_message(self, recipient, data, **kwargs):

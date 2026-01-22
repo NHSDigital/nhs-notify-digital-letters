@@ -3,15 +3,12 @@ Base configuration module for MESH client applications
 """
 import json
 import os
-import tempfile
 import boto3
-import structlog
 import mesh_client
 from py_mock_mesh.mesh_client import MockMeshClient
 from metric_publishers.certificate_monitor import report_expiry_time
-
-structlog.configure(processors=[structlog.processors.JSONRenderer()])
-log = structlog.get_logger()
+from .log_config import log
+from .store_file import store_file
 
 
 class InvalidMeshEndpointError(Exception):
@@ -24,16 +21,6 @@ class InvalidEnvironmentVariableError(Exception):
     """
     Indicates an invalid environment variable
     """
-
-
-def store_file(content):
-    """
-    Writes a temp file and returns the name
-    """
-    with tempfile.NamedTemporaryFile(delete=False) as file:
-        file.write(content)
-        file.close()
-        return file.name
 
 
 class BaseMeshConfig:  # pylint: disable=too-many-instance-attributes

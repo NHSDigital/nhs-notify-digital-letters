@@ -85,6 +85,19 @@ def valid_cloud_event2():
         },
     }
 
+@pytest.fixture(name='mock_validator')
+def create_mock_validator():
+    def validator(**_kwargs):
+        ## Validation always succeeds.
+        pass
+    return validator
+
+
+@pytest.fixture(name='mock_failing_validator')
+def create_mock_failing_validator():
+    def validator(**_kwargs):
+        raise ValueError('Validation failed')
+    return validator
 
 @pytest.fixture
 def invalid_cloud_event():
@@ -96,15 +109,18 @@ def invalid_cloud_event():
 
 class TestEventPublishing:
 
-    def test_should_return_empty_array_when_no_events_provided(self, test_config, mock_events_client, mock_sqs_client):
+    def test_should_return_empty_array_when_no_events_provided(
+            self, test_config, mock_events_client, mock_sqs_client, mock_validator):
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events([])
+        result = publisher.send_events([], validator=mock_validator)
 
         assert result == []
         mock_events_client.put_events.assert_not_called()
         mock_sqs_client.send_message_batch.assert_not_called()
 
-    def test_should_send_valid_events_to_eventbridge(self, test_config, mock_events_client, mock_sqs_client, valid_cloud_event, valid_cloud_event2):
+    def test_should_send_valid_events_to_eventbridge(
+            self, test_config, mock_events_client, mock_sqs_client,
+            valid_cloud_event, valid_cloud_event2, mock_validator):
         mock_events_client.put_events.return_value = {
             'FailedEntryCount': 0,
             'Entries': [{'EventId': 'event-1'}]
@@ -114,7 +130,8 @@ class TestEventPublishing:
         }
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events([valid_cloud_event, valid_cloud_event2])
+        result = publisher.send_events([valid_cloud_event, valid_cloud_event2],
+                                        validator=mock_validator)
 
         assert result == []
         assert mock_events_client.put_events.call_count == 1
@@ -126,13 +143,14 @@ class TestEventPublishing:
         assert call_args['Entries'][0]['Detail'] == json.dumps(valid_cloud_event)
         assert call_args['Entries'][0]['EventBusName'] == test_config['event_bus_arn']
 
-    def test_should_send_invalid_events_directly_to_dlq(self, test_config, mock_sqs_client, invalid_cloud_event):
+    def test_should_send_invalid_events_directly_to_dlq(
+            self, test_config, mock_sqs_client, invalid_cloud_event, mock_failing_validator):
         mock_sqs_client.send_message_batch.return_value = {
             'Successful': [{'Id': 'msg-1', 'MessageId': 'success-1', 'MD5OfMessageBody': 'hash1'}]
         }
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events([invalid_cloud_event])
+        result = publisher.send_events([invalid_cloud_event], validator=mock_failing_validator)
 
         assert result == []
         assert mock_sqs_client.send_message_batch.call_count == 1
@@ -143,7 +161,9 @@ class TestEventPublishing:
         assert call_args['Entries'][0]['MessageBody'] == json.dumps(invalid_cloud_event)
         assert call_args['Entries'][0]['MessageAttributes']['DlqReason']['StringValue'] == 'INVALID_EVENT'
 
-    def test_should_send_failed_eventbridge_events_to_dlq(self, test_config, mock_events_client, mock_sqs_client, valid_cloud_event, valid_cloud_event2):
+    def test_should_send_failed_eventbridge_events_to_dlq(
+            self, test_config, mock_events_client, mock_sqs_client,
+            valid_cloud_event, valid_cloud_event2, mock_validator):
         mock_events_client.put_events.return_value = {
             'FailedEntryCount': 1,
             'Entries': [
@@ -156,7 +176,8 @@ class TestEventPublishing:
         }
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events([valid_cloud_event, valid_cloud_event2])
+        result = publisher.send_events([valid_cloud_event, valid_cloud_event2],
+                                        validator=mock_validator)
 
         assert result == []
         assert mock_events_client.put_events.call_count == 1
@@ -173,7 +194,9 @@ class TestEventPublishing:
         assert dlq_call_args['Entries'][0]['MessageBody'] == json.dumps(valid_cloud_event)
         assert dlq_call_args['Entries'][0]['MessageAttributes']['DlqReason']['StringValue'] == 'EVENTBRIDGE_FAILURE'
 
-    def test_should_handle_eventbridge_send_error_and_send_all_events_to_dlq(self, test_config, mock_events_client, mock_sqs_client, valid_cloud_event, valid_cloud_event2):
+    def test_should_handle_eventbridge_send_error_and_send_all_events_to_dlq(
+            self, test_config, mock_events_client, mock_sqs_client,
+            valid_cloud_event, valid_cloud_event2, mock_validator):
         mock_events_client.put_events.side_effect = ClientError(
             {'Error': {'Code': 'InternalError', 'Message': 'EventBridge error'}},
             'PutEvents'
@@ -183,14 +206,16 @@ class TestEventPublishing:
         }
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events([valid_cloud_event, valid_cloud_event2])
+        result = publisher.send_events([valid_cloud_event, valid_cloud_event2],
+                                        validator=mock_validator)
 
         assert result == []
         assert mock_events_client.put_events.call_count == 1
         # Should call DLQ once for all events after EventBridge failure
         assert mock_sqs_client.send_message_batch.call_count == 1
 
-    def test_should_return_failed_events_when_dlq_also_fails(self, test_config, mock_sqs_client, invalid_cloud_event):
+    def test_should_return_failed_events_when_dlq_also_fails(
+            self, test_config, mock_sqs_client, invalid_cloud_event, mock_failing_validator):
         def mock_send_message_batch(**kwargs):
             first_entry_id = kwargs['Entries'][0]['Id']
             return {
@@ -205,24 +230,26 @@ class TestEventPublishing:
         mock_sqs_client.send_message_batch.side_effect = mock_send_message_batch
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events([invalid_cloud_event])
+        result = publisher.send_events([invalid_cloud_event], validator=mock_failing_validator)
 
         assert result == [invalid_cloud_event]
         assert mock_sqs_client.send_message_batch.call_count == 1
 
-    def test_should_handle_dlq_send_error_and_return_all_events_as_failed(self, test_config, mock_sqs_client, invalid_cloud_event):
+    def test_should_handle_dlq_send_error_and_return_all_events_as_failed(
+            self, test_config, mock_sqs_client, invalid_cloud_event, mock_failing_validator):
         mock_sqs_client.send_message_batch.side_effect = ClientError(
             {'Error': {'Code': 'InternalError', 'Message': 'DLQ error'}},
             'SendMessageBatch'
         )
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events([invalid_cloud_event])
+        result = publisher.send_events([invalid_cloud_event], validator=mock_failing_validator)
 
         assert result == [invalid_cloud_event]
         assert mock_sqs_client.send_message_batch.call_count == 1
 
-    def test_should_send_to_eventbridge_in_batches(self, test_config, mock_events_client, valid_cloud_event):
+    def test_should_send_to_eventbridge_in_batches(
+            self, test_config, mock_events_client, valid_cloud_event, mock_validator):
         large_event_array = [
             {**valid_cloud_event, 'id': str(uuid4())}
             for _ in range(25)
@@ -234,7 +261,7 @@ class TestEventPublishing:
         }
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events(large_event_array)
+        result = publisher.send_events(large_event_array, validator=mock_validator)
 
         assert result == []
         assert mock_events_client.put_events.call_count == 3
@@ -245,7 +272,8 @@ class TestEventPublishing:
         assert len(calls[1][1]['Entries']) == 10
         assert len(calls[2][1]['Entries']) == 5
 
-    def test_should_send_to_dlq_in_batches(self, test_config, mock_sqs_client, invalid_cloud_event):
+    def test_should_send_to_dlq_in_batches(
+            self, test_config, mock_sqs_client, invalid_cloud_event, mock_failing_validator):
         large_event_array = [
             {**invalid_cloud_event, 'id': str(uuid4())}
             for _ in range(25)
@@ -264,7 +292,7 @@ class TestEventPublishing:
         mock_sqs_client.send_message_batch.side_effect = mock_send_message_batch
 
         publisher = EventPublisher(**test_config)
-        result = publisher.send_events(large_event_array)
+        result = publisher.send_events(large_event_array, validator=mock_failing_validator)
 
         assert len(result) == 25
         assert mock_sqs_client.send_message_batch.call_count == 3
@@ -288,7 +316,9 @@ class TestEventPublisherClass:
         with pytest.raises(ValueError, match='dlq_url has not been specified'):
             EventPublisher(**test_config)
 
-    def test_should_be_reusable_for_multiple_calls(self, test_config, mock_events_client, mock_sqs_client, valid_cloud_event, valid_cloud_event2):
+    def test_should_be_reusable_for_multiple_calls(
+            self, test_config, mock_events_client, mock_sqs_client,
+            valid_cloud_event, valid_cloud_event2, mock_validator):
         mock_events_client.put_events.return_value = {
             'FailedEntryCount': 0,
             'Entries': [{'EventId': 'event-1'}]
@@ -300,11 +330,11 @@ class TestEventPublisherClass:
         publisher = EventPublisher(**test_config)
 
         # First call
-        result1 = publisher.send_events([valid_cloud_event])
+        result1 = publisher.send_events([valid_cloud_event], validator=mock_validator)
         assert result1 == []
 
         # Second call with same publisher instance
-        result2 = publisher.send_events([valid_cloud_event2])
+        result2 = publisher.send_events([valid_cloud_event2], validator=mock_validator)
         assert result2 == []
 
         assert mock_events_client.put_events.call_count == 2

@@ -1,3 +1,4 @@
+"""A tool for looking up MESH sender information from SSM Parameter Store"""
 import json
 from .errors import format_exception
 
@@ -13,6 +14,7 @@ class SenderLookup:
         self.__logger = logger
         self.__valid_senders = set()
         self.__mailbox_to_sender = {}
+        self.__sender_to_mailbox = {}
         self.load_valid_senders()
 
     def is_valid_sender(self, mailbox_id):
@@ -33,24 +35,41 @@ class SenderLookup:
 
         return self.__mailbox_to_sender.get(mailbox_id.upper())
 
+    def get_mailbox_id(self, sender_id):
+        """
+        Get the MESH mailbox ID for a given sender ID
+        """
+        if not sender_id:
+            return None
+
+        return self.__sender_to_mailbox.get(sender_id.upper())
+
     def load_valid_senders(self):
         """
         Loads mailbox IDs and their corresponding sender IDs into memory
         """
         mailbox_ids = set()
         mailbox_to_sender = {}
+        sender_to_mailbox = {}
         next_token = ""
         page_number = 0
 
         while next_token or page_number < 1:
-            (page_mailbox_ids, page_mapping, token) = self.__get_page(next_token)
+            (
+                page_mailbox_ids,
+                page_mailbox_to_sender,
+                page_sender_to_mailbox,
+                token
+            ) = self.__get_page(next_token)
             mailbox_ids.update(page_mailbox_ids)
-            mailbox_to_sender.update(page_mapping)
+            mailbox_to_sender.update(page_mailbox_to_sender)
+            sender_to_mailbox.update(page_sender_to_mailbox)
             next_token = token
             page_number += 1
 
         self.__valid_senders = mailbox_ids
         self.__mailbox_to_sender = mailbox_to_sender
+        self.__sender_to_mailbox = sender_to_mailbox
         self.__logger.debug(
             f"Loaded {len(self.__valid_senders)} valid sender mailbox IDs")
 
@@ -74,6 +93,7 @@ class SenderLookup:
 
         mailbox_ids = set()
         mailbox_to_sender = {}
+        sender_to_mailbox = {}
 
         if "Parameters" in response:
             for parameter in response["Parameters"]:
@@ -83,9 +103,10 @@ class SenderLookup:
                     mailbox_id_upper = mailbox_id.upper()
                     mailbox_ids.add(mailbox_id_upper)
                     mailbox_to_sender[mailbox_id_upper] = sender_id
+                    sender_to_mailbox[sender_id.upper()] = mailbox_id
 
         new_next_token = response.get("NextToken", "")
-        return (mailbox_ids, mailbox_to_sender, new_next_token)
+        return (mailbox_ids, mailbox_to_sender, sender_to_mailbox, new_next_token)
 
     def __extract_mailbox_id(self, parameter):
         """

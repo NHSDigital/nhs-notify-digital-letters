@@ -19,6 +19,7 @@ export const TTL_DLQ_NAME = `${CSI}-ttl-dlq`;
 export const PDM_UPLOADER_DLQ_NAME = `${CSI}-pdm-uploader-dlq`;
 export const MESH_DOWNLOAD_DLQ_NAME = `${CSI}-mesh-download-dlq`;
 export const PDM_POLL_DLQ_NAME = `${CSI}-pdm-poll-dlq`;
+export const MESH_ACKNOWLEDGE_DLQ_NAME = `${CSI}-mesh-acknowledge-dlq`;
 export const CORE_NOTIFIER_DLQ_NAME = `${CSI}-core-notifier-dlq`;
 
 // Queue Url Prefix

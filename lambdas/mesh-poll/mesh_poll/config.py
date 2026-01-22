@@ -1,7 +1,7 @@
 """
 Module for configuring Mesh Poll application
 """
-from event_publisher import BaseMeshConfig, log
+from dl_utils import BaseMeshConfig, log
 from metric_publishers.metric_client import Metric
 
 
