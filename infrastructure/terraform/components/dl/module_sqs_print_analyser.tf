@@ -36,7 +36,7 @@ data "aws_iam_policy_document" "sqs_print_analyser" {
     condition {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
-      values   = [aws_cloudwatch_event_bus.main.arn]
+      values   = [aws_cloudwatch_event_rule.file_safe.arn]
     }
   }
 }
