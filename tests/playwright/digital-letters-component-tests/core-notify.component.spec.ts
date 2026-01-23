@@ -49,9 +49,6 @@ test.describe('Digital Letters - Core Notify', () => {
     const messageReference = uuidv4();
     const resourceId = 'resource-222';
 
-    // eslint-disable-next-line no-console
-    console.log(`messageReference: ${messageReference}`);
-
     await eventPublisher.sendEvents<PDMResourceAvailable>(
       [
         {
@@ -105,9 +102,6 @@ test.describe('Digital Letters - Core Notify', () => {
     const messageReference = uuidv4();
     const resourceId = 'resource-999';
 
-    // eslint-disable-next-line no-console
-    console.log(`messageReference: ${messageReference}`);
-
     await eventPublisher.sendEvents<PDMResourceAvailable>(
       [
         {
@@ -160,9 +154,6 @@ test.describe('Digital Letters - Core Notify', () => {
     const eventId = uuidv4();
     const messageReference = uuidv4();
 
-    // eslint-disable-next-line no-console
-    console.log(`messageReference: ${messageReference}`);
-
     await eventPublisher.sendEvents<PDMResourceAvailable>(
       [
         {
@@ -200,9 +191,6 @@ test.describe('Digital Letters - Core Notify', () => {
     test.setTimeout(550_000);
     const eventId = uuidv4();
     const messageReference = uuidv4();
-
-    // eslint-disable-next-line no-console
-    console.log(`messageReference: ${messageReference}`);
 
     await eventPublisher.sendEvents<PDMResourceAvailable>(
       [
