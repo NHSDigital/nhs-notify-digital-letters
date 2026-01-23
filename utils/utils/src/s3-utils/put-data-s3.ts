@@ -1,5 +1,9 @@
 /* eslint-disable no-console */
-import { PutObjectCommand, PutObjectCommandOutput } from '@aws-sdk/client-s3';
+import {
+  ListBucketsCommand,
+  PutObjectCommand,
+  PutObjectCommandOutput,
+} from '@aws-sdk/client-s3';
 import type { S3Location } from './get-object-s3';
 import { s3Client } from './s3-client';
 
@@ -22,4 +26,32 @@ export async function putDataS3(
   } catch (error) {
     throw new Error(`Upload to ${Bucket}/${Key} failed, error: ${error}`);
   }
+}
+
+export async function uploadToS3(
+  content: string,
+  bucket: string,
+  key: string,
+): Promise<void> {
+  await s3Client.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: content,
+    }),
+  );
+}
+
+export async function listBuckets(substring: string): Promise<string[]> {
+  const resp = await s3Client.send(new ListBucketsCommand({}));
+  const buckets = resp.Buckets ?? [];
+  if (!substring) {
+    return buckets.map((b) => b.Name!).filter(Boolean);
+  }
+  const needle = substring.toLowerCase();
+  return buckets
+    .map((b) => b.Name)
+    .filter(
+      (name): name is string => !!name && name.toLowerCase().includes(needle),
+    );
 }

@@ -9,9 +9,9 @@ import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageD
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
-import { uploadToS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
+import { uploadToS3 } from 'utils';
 
 const pdmRequest = {
   resourceType: 'DocumentReference',

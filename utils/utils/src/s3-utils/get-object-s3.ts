@@ -1,5 +1,9 @@
 import { type Readable } from 'node:stream';
-import { GetObjectCommand, GetObjectCommandOutput } from '@aws-sdk/client-s3';
+import {
+  GetObjectCommand,
+  GetObjectCommandOutput,
+  HeadObjectCommand,
+} from '@aws-sdk/client-s3';
 import { s3Client } from './s3-client';
 
 export function isReadable(
@@ -38,6 +42,17 @@ export async function streamToString(Body: Readable) {
     );
     Body.on('error', (err) => reject(err));
     Body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+  });
+}
+
+export async function streamToBuffer(Body: Readable): Promise<Buffer> {
+  return new Promise<Buffer>((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    Body.on('data', (chunk: ArrayBuffer | SharedArrayBuffer) =>
+      chunks.push(Buffer.from(chunk)),
+    );
+    Body.on('error', (err) => reject(err));
+    Body.on('end', () => resolve(Buffer.concat(chunks)));
   });
 }
 
@@ -92,4 +107,51 @@ export async function getS3ObjectFromUri(uri: string): Promise<string> {
   }
   const [, Bucket, Key] = match;
   return getS3Object({ Bucket, Key });
+}
+
+export async function getObjectFromS3(
+  bucket: string,
+  key: string,
+): Promise<Buffer | undefined> {
+  try {
+    const stream = await getS3ObjectStream({ Bucket: bucket, Key: key });
+    return await streamToBuffer(stream);
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'message' in error &&
+      typeof error.message === 'string' &&
+      error.message.includes('Could not retrieve from bucket')
+    ) {
+      return undefined;
+    }
+    throw error;
+  }
+}
+
+export async function getObjectMetadata(
+  bucket: string,
+  key: string,
+): Promise<Record<string, string> | undefined> {
+  try {
+    const response = await s3Client.send(
+      new HeadObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      }),
+    );
+
+    return response.Metadata || {};
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'NotFound'
+    ) {
+      return undefined;
+    }
+    throw error;
+  }
 }

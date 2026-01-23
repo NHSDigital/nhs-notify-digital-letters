@@ -1,14 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { ENV, REGION } from 'constants/backend-constants';
 import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
-import {
-  getObjectFromS3,
-  getObjectMetadata,
-  uploadToS3,
-} from 'helpers/s3-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { v4 as uuidv4 } from 'uuid';
+import { getObjectFromS3, getObjectMetadata, uploadToS3 } from 'utils';
 
 const DOCUMENT_REFERENCE_BUCKET = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-pii-data`;
 const UNSCANNED_FILES_BUCKET = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-main-acct-digi-unscanned-files`;
