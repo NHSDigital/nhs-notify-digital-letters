@@ -34,7 +34,7 @@ export interface S3Location {
   VersionId?: string;
 }
 
-export async function streamToString(Body: Readable) {
+async function streamToString(Body: Readable) {
   return new Promise<string>((resolve, reject) => {
     const chunks: Buffer[] = [];
     Body.on('data', (chunk: ArrayBuffer | SharedArrayBuffer) =>
@@ -45,7 +45,7 @@ export async function streamToString(Body: Readable) {
   });
 }
 
-export async function streamToBuffer(Body: Readable): Promise<Buffer> {
+async function streamToBuffer(Body: Readable) {
   return new Promise<Buffer>((resolve, reject) => {
     const chunks: Buffer[] = [];
     Body.on('data', (chunk: ArrayBuffer | SharedArrayBuffer) =>
@@ -109,49 +109,41 @@ export async function getS3ObjectFromUri(uri: string): Promise<string> {
   return getS3Object({ Bucket, Key });
 }
 
-export async function getObjectFromS3(
-  bucket: string,
-  key: string,
-): Promise<Buffer | undefined> {
+export async function getS3ObjectBufferFromUri(uri: string): Promise<Buffer> {
+  const regex = /^s3:\/\/([^/]+)\/(.+)$/;
+  const match = regex.exec(uri);
+  if (!match) {
+    throw new Error(`Invalid S3 URI format: ${uri}`);
+  }
+  const [, Bucket, Key] = match;
+
   try {
-    const stream = await getS3ObjectStream({ Bucket: bucket, Key: key });
-    return await streamToBuffer(stream);
-  } catch (error: unknown) {
-    if (
-      error &&
-      typeof error === 'object' &&
-      'message' in error &&
-      typeof error.message === 'string' &&
-      error.message.includes('Could not retrieve from bucket')
-    ) {
-      return undefined;
-    }
-    throw error;
+    return await streamToBuffer(await getS3ObjectStream({ Bucket, Key }));
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Could not retrieve from bucket 's3://${Bucket}/${Key}' from S3: ${msg}`,
+    );
   }
 }
 
-export async function getObjectMetadata(
-  bucket: string,
-  key: string,
+export async function getS3ObjectMetadata(
+  location: S3Location,
 ): Promise<Record<string, string> | undefined> {
+  const { Bucket, Key, VersionId } = location;
   try {
     const response = await s3Client.send(
       new HeadObjectCommand({
-        Bucket: bucket,
-        Key: key,
+        Bucket,
+        Key,
+        VersionId,
       }),
     );
-
-    return response.Metadata || {};
-  } catch (error: unknown) {
-    if (
-      error &&
-      typeof error === 'object' &&
-      'name' in error &&
-      error.name === 'NotFound'
-    ) {
-      return undefined;
-    }
-    throw error;
+    return response.Metadata;
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Could not retrieve metadata from bucket 's3://${Bucket}/${Key}' from S3: ${msg}`,
+    );
   }
 }

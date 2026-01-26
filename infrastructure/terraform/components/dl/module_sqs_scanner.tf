@@ -6,7 +6,7 @@ module "sqs_scanner" {
   environment                = var.environment
   project                    = var.project
   region                     = var.region
-  name                       = "scanner"
+  name                       = "file-scanner"
   sqs_kms_key_arn            = module.kms.key_arn
   visibility_timeout_seconds = 60
   delay_seconds              = 0

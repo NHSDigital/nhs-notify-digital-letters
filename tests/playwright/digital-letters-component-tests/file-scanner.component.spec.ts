@@ -4,7 +4,11 @@ import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { v4 as uuidv4 } from 'uuid';
-import { getObjectFromS3, getObjectMetadata, uploadToS3 } from 'utils';
+import {
+  getS3ObjectBufferFromUri,
+  getS3ObjectMetadata,
+  putDataS3,
+} from 'utils';
 
 const DOCUMENT_REFERENCE_BUCKET = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-pii-data`;
 const UNSCANNED_FILES_BUCKET = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-main-acct-digi-unscanned-files`;
@@ -72,19 +76,17 @@ test.describe('File Scanner', () => {
 
     await expectToPassEventually(async () => {
       const expectedKey = `${ENV}/${messageReference}.pdf`;
+      const expectedUri = `s3://${UNSCANNED_FILES_BUCKET}/${expectedKey}`;
 
-      const storedPdf = await getObjectFromS3(
-        UNSCANNED_FILES_BUCKET,
-        expectedKey,
-      );
+      const storedPdf = await getS3ObjectBufferFromUri(expectedUri);
       expect(storedPdf).toBeDefined();
 
-      expect(storedPdf?.toString()).toEqual(pdfContent.toString());
+      expect(storedPdf.toString()).toEqual(pdfContent.toString());
 
-      const metadata = await getObjectMetadata(
-        UNSCANNED_FILES_BUCKET,
-        expectedKey,
-      );
+      const metadata = await getS3ObjectMetadata({
+        Bucket: UNSCANNED_FILES_BUCKET,
+        Key: expectedKey,
+      });
       expect(metadata).toBeDefined();
       expect(metadata?.messagereference).toEqual(messageReference);
       expect(metadata?.senderid).toEqual(senderId);
@@ -103,11 +105,10 @@ test.describe('File Scanner', () => {
       content: [],
     };
 
-    await uploadToS3(
-      JSON.stringify(documentReference),
-      DOCUMENT_REFERENCE_BUCKET,
-      documentReferenceKey,
-    );
+    await putDataS3(documentReference, {
+      Bucket: DOCUMENT_REFERENCE_BUCKET,
+      Key: documentReferenceKey,
+    });
 
     const eventId = uuidv4();
     const messageUri = `s3://${DOCUMENT_REFERENCE_BUCKET}/${documentReferenceKey}`;
@@ -142,12 +143,8 @@ test.describe('File Scanner', () => {
 
     await expectToPassEventually(async () => {
       const expectedKey = `${ENV}/${messageReference}.pdf`;
-      const storedPdf = await getObjectFromS3(
-        UNSCANNED_FILES_BUCKET,
-        expectedKey,
-      );
-
-      expect(storedPdf).toBeUndefined();
+      const expectedUri = `s3://${UNSCANNED_FILES_BUCKET}/${expectedKey}`;
+      await expect(getS3ObjectBufferFromUri(expectedUri)).rejects.toThrow();
     }, 120);
   });
 });
