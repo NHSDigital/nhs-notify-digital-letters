@@ -150,7 +150,7 @@ class TestPublishAcknowledgedEvent:
 
         mesh_mailbox_id = 'MAILBOX001'
         expected_ack_event = {
-            **downloaded_event.model_dump(),
+            **downloaded_event.model_dump(exclude_none=True),
             'id': new_event_id,
             'time': fixed_time.isoformat(),
             'recordedtime': fixed_time.isoformat(),
