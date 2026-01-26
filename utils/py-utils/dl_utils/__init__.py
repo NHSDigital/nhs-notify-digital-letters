@@ -24,7 +24,6 @@ from .certificate_monitor import (
 
 __all__ = [
     'EventPublisher',
-    'models',
     'BaseMeshConfig',
     'InvalidMeshEndpointError',
     'InvalidEnvironmentVariableError',
