@@ -37,11 +37,10 @@ test.describe('File Scanner', () => {
       ],
     };
 
-    await uploadToS3(
-      JSON.stringify(documentReference),
-      DOCUMENT_REFERENCE_BUCKET,
-      documentReferenceKey,
-    );
+    await putDataS3(documentReference, {
+      Bucket: DOCUMENT_REFERENCE_BUCKET,
+      Key: documentReferenceKey,
+    });
 
     const eventId = uuidv4();
     const messageUri = `s3://${DOCUMENT_REFERENCE_BUCKET}/${documentReferenceKey}`;
