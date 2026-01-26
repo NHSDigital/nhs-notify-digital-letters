@@ -79,7 +79,6 @@ test.describe('File Scanner', () => {
 
       const storedPdf = await getS3ObjectBufferFromUri(expectedUri);
       expect(storedPdf).toBeDefined();
-
       expect(storedPdf.toString()).toEqual(pdfContent.toString());
 
       const metadata = await getS3ObjectMetadata({

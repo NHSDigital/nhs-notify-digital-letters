@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "sqs_scanner" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-scanner-queue"
+      module.sqs_scanner.queue_arn
     ]
 
     condition {
