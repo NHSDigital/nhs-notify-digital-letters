@@ -4,7 +4,6 @@ Utility library for Python projects.
 """
 
 from .event_publisher import EventPublisher
-from . import models
 
 from .mesh_config import (
     BaseMeshConfig,

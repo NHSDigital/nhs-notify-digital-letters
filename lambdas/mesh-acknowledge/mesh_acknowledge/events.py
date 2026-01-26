@@ -46,7 +46,7 @@ def publish_acknowledged_event(
 
     try:
         acknowledged_event = {
-            **incoming_event.model_dump(),
+            **incoming_event.model_dump(exclude_none=True),
             'id': str(uuid4()),
             'time': now,
             'recordedtime': now,

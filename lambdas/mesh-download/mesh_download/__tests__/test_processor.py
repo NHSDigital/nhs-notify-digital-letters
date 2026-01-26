@@ -163,6 +163,12 @@ class TestMeshDownloadProcessor:
         assert published_event['subject'] == 'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000'
         assert published_event['time'] == '2025-11-19T15:30:45+00:00'
         assert 'id' in published_event
+        assert 'tracestate' not in published_event
+        assert 'partitionkey' not in published_event
+        assert 'sequence' not in published_event
+        assert 'dataclassification' not in published_event
+        assert 'dataregulation' not in published_event
+        assert 'datacategory' not in published_event
 
         # Verify CloudEvent data payload
         event_data = published_event['data']

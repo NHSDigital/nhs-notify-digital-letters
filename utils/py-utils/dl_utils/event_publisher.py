@@ -11,7 +11,6 @@ from uuid import uuid4
 import boto3
 from botocore.exceptions import ClientError
 from pydantic import ValidationError
-from .models import CloudEvent
 
 
 DlqReason = Literal['INVALID_EVENT', 'EVENTBRIDGE_FAILURE']

@@ -110,7 +110,7 @@ class MeshDownloadProcessor:
         now = datetime.now(timezone.utc).isoformat()
 
         cloud_event = {
-            **incoming_event.model_dump(),
+            **incoming_event.model_dump(exclude_none=True),
             'id': str(uuid4()),
             'time': now,
             'recordedtime': now,
