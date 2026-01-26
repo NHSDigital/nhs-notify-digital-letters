@@ -64,6 +64,7 @@
     "lambdas/pdm-uploader-lambda",
     "lambdas/core-notifier-lambda",
     "lambdas/print-status-handler",
+    "lambdas/status-recorder",
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",
