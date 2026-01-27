@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { ENV } from 'constants/backend-constants';
+import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
@@ -33,9 +34,10 @@ test.describe('Digital Letters - Create TTL', () => {
             'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
           severitytext: 'INFO',
           data: {
+            meshMessageId: '12345',
             messageUri,
             messageReference: 'ref1',
-            senderId: 'test-sender-1',
+            senderId: SENDER_ID_SKIPS_NOTIFY,
           },
         },
       ],

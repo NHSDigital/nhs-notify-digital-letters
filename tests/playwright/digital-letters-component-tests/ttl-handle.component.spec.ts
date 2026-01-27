@@ -29,6 +29,7 @@ test.describe('Digital Letters - Handle TTL', () => {
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
     severitytext: 'INFO',
     data: {
+      meshMessageId: '12345',
       messageReference: 'ref1',
       senderId: 'sender1',
       messageUri: 'https://example.com/ttl/resource/sample',

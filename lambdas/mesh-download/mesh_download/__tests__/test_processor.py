@@ -8,6 +8,7 @@ import pytest
 from unittest.mock import Mock, patch
 from datetime import datetime, timezone
 from pydantic import ValidationError
+from mesh_download.errors import MeshMessageNotFound
 
 
 def setup_mocks():
@@ -162,13 +163,19 @@ class TestMeshDownloadProcessor:
         assert published_event['subject'] == 'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000'
         assert published_event['time'] == '2025-11-19T15:30:45+00:00'
         assert 'id' in published_event
+        assert 'tracestate' not in published_event
+        assert 'partitionkey' not in published_event
+        assert 'sequence' not in published_event
+        assert 'dataclassification' not in published_event
+        assert 'dataregulation' not in published_event
+        assert 'datacategory' not in published_event
 
         # Verify CloudEvent data payload
         event_data = published_event['data']
         assert event_data['senderId'] == 'TEST_SENDER'
         assert event_data['messageReference'] == 'ref_001'
         assert event_data['messageUri'] == 's3://test-pii-bucket/document-reference/SENDER_001_ref_001'
-        assert set(event_data.keys()) == {'senderId', 'messageReference', 'messageUri'}
+        assert set(event_data.keys()) == {'senderId', 'messageReference', 'messageUri', 'meshMessageId'}
 
     def test_process_sqs_message_validation_failure(self):
         """Malformed CloudEvents should be rejected by pydantic and not trigger downloads"""
@@ -238,9 +245,11 @@ class TestMeshDownloadProcessor:
 
         config.mesh_client.retrieve_message.return_value = None
         sqs_record = create_sqs_record()
-        processor.process_sqs_message(sqs_record)
-        config.mesh_client.retrieve_message.assert_called_once_with('test_message_123')
 
+        with pytest.raises(MeshMessageNotFound, match="MESH message with ID test_message_123 not found"):
+            processor.process_sqs_message(sqs_record)
+
+        config.mesh_client.retrieve_message.assert_called_once_with('test_message_123')
         document_store.store_document.assert_not_called()
         event_publisher.send_events.assert_not_called()
         config.download_metric.record.assert_not_called()

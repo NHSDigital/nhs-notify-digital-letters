@@ -12,6 +12,7 @@ import expectToPassEventually from 'helpers/expectations';
 import { uploadToS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
+import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 
 const pdmRequest = {
   resourceType: 'DocumentReference',
@@ -62,7 +63,8 @@ test.describe('Digital Letters - Upload to PDM', () => {
     const resourceKey = `test/${letterId}`;
     const messageUri = `s3://${LETTERS_S3_BUCKET_NAME}/${resourceKey}`;
     const messageReference = uuidv4();
-    const senderId = 'test-sender-1';
+    const senderId = SENDER_ID_SKIPS_NOTIFY;
+    const meshMessageId = '12345';
 
     uploadToS3(JSON.stringify(pdmRequest), LETTERS_S3_BUCKET_NAME, resourceKey);
 
@@ -72,6 +74,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
           ...baseEvent,
           id: eventId,
           data: {
+            meshMessageId,
             messageUri,
             messageReference,
             senderId,
@@ -114,7 +117,8 @@ test.describe('Digital Letters - Upload to PDM', () => {
     const resourceKey = `test/${letterId}`;
     const messageUri = `s3://${LETTERS_S3_BUCKET_NAME}/${resourceKey}`;
     const messageReference = uuidv4();
-    const senderId = 'test-sender-1';
+    const senderId = SENDER_ID_SKIPS_NOTIFY;
+    const meshMessageId = '12345';
     const invalidPdmRequest = {
       ...pdmRequest,
       unexpectedField: 'I should not be here',
@@ -132,6 +136,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
           ...baseEvent,
           id: eventId,
           data: {
+            meshMessageId,
             messageUri,
             messageReference,
             senderId,
@@ -174,7 +179,8 @@ test.describe('Digital Letters - Upload to PDM', () => {
     const eventId = uuidv4();
     const messageUri = `not-a-valid-s3-uri`;
     const messageReference = uuidv4();
-    const senderId = 'test-sender-1';
+    const senderId = SENDER_ID_SKIPS_NOTIFY;
+    const meshMessageId = '12345';
 
     await eventPublisher.sendEvents(
       [
@@ -182,13 +188,14 @@ test.describe('Digital Letters - Upload to PDM', () => {
           ...baseEvent,
           id: eventId,
           data: {
+            meshMessageId,
             messageUri,
             messageReference,
             senderId,
           },
         },
       ],
-      messageDownloadedValidator,
+      () => true,
     );
 
     await expectToPassEventually(async () => {

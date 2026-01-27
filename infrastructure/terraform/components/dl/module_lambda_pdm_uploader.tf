@@ -67,7 +67,8 @@ data "aws_iam_policy_document" "pdm_uploader_lambda" {
     ]
 
     resources = [
-      "${module.s3bucket_letters.arn}/*"
+      "${module.s3bucket_letters.arn}/*",
+      "${module.s3bucket_pii_data.arn}/*"
     ]
   }
 

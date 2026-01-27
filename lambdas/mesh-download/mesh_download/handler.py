@@ -1,7 +1,7 @@
 """lambda handler for mesh download"""
 
 import json
-from event_publisher import EventPublisher
+from dl_utils import EventPublisher
 
 from .config import Config, log
 from .processor import MeshDownloadProcessor

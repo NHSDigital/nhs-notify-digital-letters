@@ -30,6 +30,7 @@ class TestGeneratePydanticModel:
             output_model_type=DataModelType.PydanticV2BaseModel,
             class_name="TestModel",
             use_schema_description=True,
+            use_subclass_enum=True,
             custom_file_header='''"""Generated Pydantic model for NHS Notify Digital Letters events.
 
 This file is auto-generated. Do not edit manually.

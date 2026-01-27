@@ -11,3 +11,8 @@ def format_exception(exception):
     """
     return ''.join(traceback.format_exception(
         type(exception), exception, exception.__traceback__))
+
+class MeshMessageNotFound(Exception):
+    """
+    Indicates an invalid MESH message could not be retrieved
+    """

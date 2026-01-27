@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "sqs_mesh_download" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-mesh-download-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-mesh-download-queue"
     ]
   }
 }
