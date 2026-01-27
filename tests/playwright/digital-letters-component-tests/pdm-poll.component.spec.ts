@@ -41,8 +41,6 @@ const unavailableEvent = {
 };
 
 test.describe('PDM Poll', () => {
-  test.describe.configure({ mode: 'parallel' });
-
   test.beforeAll(async () => {
     test.setTimeout(250_000);
     await purgeQueue(PDM_POLL_DLQ_NAME);
