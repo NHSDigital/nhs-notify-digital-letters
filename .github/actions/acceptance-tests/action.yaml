@@ -25,16 +25,23 @@ runs:
   using: "composite"
 
   steps:
+    - name: Get Node version
+      id: nodejs_version
+      shell: bash
+      run: |
+        echo "nodejs_version=$(grep "^nodejs\s" .tool-versions | cut -f2 -d' ')" >> $GITHUB_OUTPUT
+    - uses: ./.github/actions/node-install
+      with:
+        node-version: ${{ steps.nodejs_version.outputs.nodejs_version }}
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
     - name: "Repo setup"
       shell: bash
       run: |
         npm ci
-
     - name: "Generate dependencies"
       shell: bash
       run: |
         npm run generate-dependencies
-
     - name: Run test - ${{ inputs.testType }}
       shell: bash
       run: |
@@ -51,7 +58,6 @@ runs:
       env:
         TEST_TYPE: ${{ inputs.testType }}
         ENVIRONMENT: ${{ inputs.targetEnvironment }}
-
     - name: Archive integration test results
       if: ${{ inputs.testType == 'integration' }}
       uses: actions/upload-artifact@v4

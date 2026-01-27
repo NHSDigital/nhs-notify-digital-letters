@@ -62,6 +62,8 @@
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
     "lambdas/pdm-uploader-lambda",
+    "lambdas/core-notifier-lambda",
+    "lambdas/print-status-handler",
     "lambdas/print-analyser",
     "utils/utils",
     "utils/sender-management",
