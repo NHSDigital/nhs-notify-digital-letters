@@ -127,7 +127,6 @@ data "aws_iam_policy_document" "move_scanned_files" {
 
     actions = [
       "s3:PutObject",
-      "s3:PutObjectAcl",
       "s3:PutObjectTagging",
     ]
 
@@ -142,7 +141,6 @@ data "aws_iam_policy_document" "move_scanned_files" {
 
     actions = [
       "s3:PutObject",
-      "s3:PutObjectAcl",
       "s3:PutObjectTagging",
     ]
 

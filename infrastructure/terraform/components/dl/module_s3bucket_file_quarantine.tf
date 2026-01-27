@@ -63,30 +63,11 @@ data "aws_iam_policy_document" "s3bucket_file_quarantine" {
   }
 
   statement {
-    sid    = "AllowManagedAccountsToGet"
+    sid    = "AllowManagedAccountsToGetPut"
     effect = "Allow"
 
     actions = [
       "s3:GetObject",
-    ]
-
-    resources = [
-      "${module.s3bucket_file_quarantine.arn}/*",
-    ]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${var.aws_account_id}:root"
-      ]
-    }
-  }
-
-  statement {
-    sid    = "AllowManagedAccountsToPut"
-    effect = "Allow"
-
-    actions = [
       "s3:PutObject",
     ]
 
