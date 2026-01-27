@@ -47,25 +47,11 @@ module "move_scanned_files" {
 
 data "aws_iam_policy_document" "move_scanned_files" {
   statement {
-    sid    = "AllowSSMParam"
-    effect = "Allow"
-
-    actions = [
-      "ssm:GetParameter",
-      "ssm:GetParameters",
-      "ssm:GetParametersByPath"
-    ]
-
-    resources = [
-      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter/${var.component}/${var.environment}/apim/*",
-    ]
-  }
-
-  statement {
     sid    = "KMSPermissions"
     effect = "Allow"
 
     actions = [
+      "kms:Encrypt",
       "kms:Decrypt",
       "kms:GenerateDataKey",
     ]
@@ -140,6 +126,7 @@ data "aws_iam_policy_document" "move_scanned_files" {
 
     actions = [
       "s3:PutObject",
+      "s3:PutObjectAcl",
     ]
 
     resources = [
@@ -153,6 +140,7 @@ data "aws_iam_policy_document" "move_scanned_files" {
 
     actions = [
       "s3:PutObject",
+      "s3:PutObjectAcl",
     ]
 
     resources = [
