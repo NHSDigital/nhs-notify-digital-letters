@@ -119,3 +119,16 @@ class TestBaseMeshConfig:
 
         mock_mesh_client_class.assert_called_once()
         assert result is not None
+
+    def test_lookup_endpoint_invalid(self, mock_ssm, mock_s3):
+        """Test lookup_endpoint with invalid endpoint raises error"""
+
+        class TestConfig(BaseMeshConfig):
+            _REQUIRED_ENV_VAR_MAP = {}
+
+        config = TestConfig(ssm=mock_ssm, s3_client=mock_s3)
+
+        with pytest.raises(InvalidMeshEndpointError) as exc_info:
+            config.lookup_endpoint('INVALID')
+
+        assert 'mesh_client module has no such endpoint INVALID_ENDPOINT' in str(exc_info.value)
