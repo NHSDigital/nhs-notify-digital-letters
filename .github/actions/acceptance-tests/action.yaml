@@ -34,6 +34,10 @@ runs:
       with:
         node-version: ${{ steps.nodejs_version.outputs.nodejs_version }}
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+    - name: "Install dependencies"
+      shell: bash
+      run: |
+        npm ci
     - name: "Generate dependencies"
       shell: bash
       run: |
