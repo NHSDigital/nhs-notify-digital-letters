@@ -35,6 +35,8 @@ const baseEvent: Omit<PDMResourceAvailable, 'id' | 'data'> = {
 };
 
 test.describe('Digital Letters - Core Notify', () => {
+  test.describe.configure({ mode: 'parallel' });
+
   test.beforeAll(async () => {
     await purgeQueue(CORE_NOTIFIER_DLQ_NAME);
     test.setTimeout(250_000);

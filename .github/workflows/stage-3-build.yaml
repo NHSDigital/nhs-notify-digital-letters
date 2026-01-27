@@ -33,8 +33,42 @@ on:
         type: string
 
 jobs:
+  detect-doc-changes:
+    name: "Detect Documentation Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      docs_changed: ${{ steps.filter.outputs.docs }}
+      schemas_changed: ${{ steps.filter.outputs.schemas }}
+      eventcatalog_changed: ${{ steps.filter.outputs.eventcatalog }}
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v5
+
+      - name: "Check for relevant changes"
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+              - '**.md'
+            schemas:
+              - 'schemas/**'
+              - 'src/cloudevents/**'
+              - 'src/cloudeventjekylldocs/**'
+            eventcatalog:
+              - 'src/eventcatalog/**'
+              - 'src/asyncapigenerator/**'
+              - 'src/eventcatalogasyncapiimporter/**'
+
   artefact-jekyll-docs:
     name: "Build Docs"
+    needs: [detect-doc-changes]
+    # Only build docs if relevant files changed
+    if: |
+      needs.detect-doc-changes.outputs.docs_changed == 'true' ||
+      needs.detect-doc-changes.outputs.schemas_changed == 'true' ||
+      needs.detect-doc-changes.outputs.eventcatalog_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

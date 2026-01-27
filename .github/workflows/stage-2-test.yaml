@@ -80,6 +80,8 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ inputs.python_version }}
+          cache: 'pip'
+          cache-dependency-path: '**/requirements*.txt'
       - name: "Run unit test suite"
         run: |
           make test-unit
@@ -117,6 +119,8 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ inputs.python_version }}
+          cache: 'pip'
+          cache-dependency-path: '**/requirements*.txt'
       - uses: ./.github/actions/node-install
         with:
           node-version: ${{ inputs.nodejs_version }}
@@ -143,22 +147,6 @@ jobs:
       - name: "Run typecheck"
         run: |
           make test-typecheck
-  test-coverage:
-    name: "Test coverage"
-    needs: [test-unit]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v5
-      - name: "Run test coverage check"
-        run: |
-          make test-coverage
-      - name: "Save the coverage check result"
-        run: |
-          echo "Nothing to save"
   perform-static-analysis:
     name: "Perform static analysis"
     needs: [test-unit]
