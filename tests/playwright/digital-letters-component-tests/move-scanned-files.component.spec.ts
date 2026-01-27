@@ -6,7 +6,7 @@ import {
   MOVE_SCANNED_FILES_DLQ_NAME,
   MOVE_SCANNED_FILES_LAMBDA_LOG_GROUP_NAME,
   MOVE_SCANNED_FILES_NAME,
-  PREFIX_UNSCANNED_FILES,
+  PREFIX_DL_FILES,
   UNSCANNED_FILES_S3_BUCKET_NAME,
 } from 'constants/backend-constants';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
@@ -32,7 +32,7 @@ test.describe('Digital Letters - Core Notify', () => {
   test('given file without virus, when uploaded into S3 bucket and guardduty scan passes then a FileSafe event is triggered', async () => {
     const messageReference = uuidv4();
     const createdAt = new Date().toISOString();
-    const objectKey = `${PREFIX_UNSCANNED_FILES}${messageReference}.txt`;
+    const objectKey = `${PREFIX_DL_FILES}${messageReference}.txt`;
 
     const body = Buffer.from('test file content');
 
@@ -67,6 +67,7 @@ test.describe('Digital Letters - Core Notify', () => {
 
     // Verify the event is published in the event bus
     await expectToPassEventually(async () => {
+      const expectedLetterUri = `s3://${FILE_SAFE_S3_BUCKET_NAME}/${objectKey}`;
       const eventLogEntry = await getLogsFromCloudwatch(
         EVENT_BUS_LOG_GROUP_NAME,
         [
@@ -75,7 +76,7 @@ test.describe('Digital Letters - Core Notify', () => {
           `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
           `$.details.event_detail = "*\\"senderId\\":\\"${SENDER_ID_SKIPS_NOTIFY}\\"*"`,
           `$.details.event_detail = "*\\"createdAt\\":\\"${createdAt}\\"*"`,
-          `$.details.event_detail = "*\\"letterUri\\":\\s3:\\"${objectKey}\\"*"`,
+          `$.details.event_detail = "*\\"letterUri\\":\\"${expectedLetterUri}\\"*"`,
         ],
       );
 
@@ -91,13 +92,20 @@ test.describe('Digital Letters - Core Notify', () => {
       expect(metadata?.messagereference).toEqual(messageReference);
       expect(metadata?.senderid).toEqual(SENDER_ID_SKIPS_NOTIFY);
       expect(metadata?.createdat).toEqual(createdAt);
+
+      // check the file was deleted from the unscanned bucket
+      const originalMetadata = await getS3ObjectMetadata({
+        Bucket: UNSCANNED_FILES_S3_BUCKET_NAME,
+        Key: objectKey,
+      });
+      expect(originalMetadata).toBeUndefined();
     }, 240);
   });
 
   test('given file with EICAR virus, when uploaded into S3 bucket and guardduty scan completes then a FileQuarantine event is triggered', async () => {
     const messageReference = uuidv4();
     const createdAt = new Date().toISOString();
-    const objectKey = `${PREFIX_UNSCANNED_FILES}${messageReference}.txt`;
+    const objectKey = `${PREFIX_DL_FILES}${messageReference}.txt`;
     // Divided in two strings in case it could trigger any antivirus software. Lint complains about unnecessary escape \P, so ignoring it
     const part1EicarFile = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$'; //eslint-disable-line
     const part2EicarFile = 'EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*';
@@ -135,6 +143,7 @@ test.describe('Digital Letters - Core Notify', () => {
 
     // Verify the event is published in the event bus
     await expectToPassEventually(async () => {
+      const expectedLetterUri = `s3://${FILE_QUARANTINE_S3_BUCKET_NAME}/${objectKey}`;
       const eventLogEntry = await getLogsFromCloudwatch(
         EVENT_BUS_LOG_GROUP_NAME,
         [
@@ -143,7 +152,7 @@ test.describe('Digital Letters - Core Notify', () => {
           `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
           `$.details.event_detail = "*\\"senderId\\":\\"${SENDER_ID_SKIPS_NOTIFY}\\"*"`,
           `$.details.event_detail = "*\\"createdAt\\":\\"${createdAt}\\"*"`,
-          `$.details.event_detail = "*\\"letterUri\\":\\s3:\\"${objectKey}\\"*"`,
+          `$.details.event_detail = "*\\"letterUri\\":\\"${expectedLetterUri}\\"*"`,
         ],
       );
 
@@ -159,12 +168,19 @@ test.describe('Digital Letters - Core Notify', () => {
       expect(metadata?.messagereference).toEqual(messageReference);
       expect(metadata?.senderid).toEqual(SENDER_ID_SKIPS_NOTIFY);
       expect(metadata?.createdat).toEqual(createdAt);
+
+      // check the file was deleted from the unscanned bucket
+      const originalMetadata = await getS3ObjectMetadata({
+        Bucket: UNSCANNED_FILES_S3_BUCKET_NAME,
+        Key: objectKey,
+      });
+      expect(originalMetadata).toBeUndefined();
     }, 240);
   });
 
   test('given file without REQUIRED metadata, when uploaded into S3 bucket and guardduty scan passes then it goes to DLQ', async () => {
     const messageReference = uuidv4();
-    const objectKey = `${PREFIX_UNSCANNED_FILES}${messageReference}.txt`;
+    const objectKey = `${PREFIX_DL_FILES}${messageReference}.txt`;
 
     const body = Buffer.from('test file content');
 
