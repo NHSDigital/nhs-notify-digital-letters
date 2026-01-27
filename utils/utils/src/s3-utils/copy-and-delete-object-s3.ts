@@ -15,12 +15,8 @@ export async function copyAndDeleteObjectS3(
     };
 
     await s3Client.send(new CopyObjectCommand(copyParams));
-    console.log(
-      `Data copied from ${source.Bucket}/${source.Key} to ${destination.Bucket}/${destination.Key}`,
-    );
 
     await s3Client.send(new DeleteObjectCommand(source));
-    console.log(`Data deleted from ${source.Bucket}/${source.Key}`);
   } catch (error) {
     throw new Error(
       `Move of ${source.Bucket}/${source.Key} to ${destination.Bucket}/${destination.Key} failed, error: ${error}`,

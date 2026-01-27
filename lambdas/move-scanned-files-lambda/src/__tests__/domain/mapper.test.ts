@@ -1,4 +1,6 @@
 import { createFileQuarantinedEvent, createFileSafeEvent } from 'domain/mapper';
+import fileSafeValidator from 'digital-letters-events/FileSafe.js';
+import fileQuarantinedValidator from 'digital-letters-events/FileQuarantined.js';
 
 // Mock randomUUID to make tests deterministic
 jest.mock('node:crypto', () => ({
@@ -50,6 +52,11 @@ describe('mapper', () => {
         recordedtime: '2024-01-15T10:30:00.000Z',
         severitynumber: 2,
       });
+      const isValid = fileSafeValidator(result);
+      if (!isValid) {
+        throw new Error(JSON.stringify(fileSafeValidator.errors, null, 2));
+      }
+      expect(isValid).toBe(true);
     });
 
     it('handles different input values correctly', () => {
@@ -103,6 +110,13 @@ describe('mapper', () => {
         recordedtime: '2024-01-15T10:30:00.000Z',
         severitynumber: 2,
       });
+      const isValid = fileQuarantinedValidator(result);
+      if (!isValid) {
+        throw new Error(
+          JSON.stringify(fileQuarantinedValidator.errors, null, 2),
+        );
+      }
+      expect(isValid).toBe(true);
     });
   });
 });

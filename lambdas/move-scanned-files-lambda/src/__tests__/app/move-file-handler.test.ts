@@ -325,6 +325,8 @@ describe('MoveFileHandler', () => {
         scanStatus: 'COMPLETED',
         scanResultDetails: scanDetail.scanResultDetails,
         key: 'd-file.pdf',
+        messageReference: 'msg-ref-456',
+        senderId: 'sender-123',
       });
     });
 
@@ -345,6 +347,8 @@ describe('MoveFileHandler', () => {
         scanResultDetails:
           guardDutyNoThreadsFoundEvent.detail.scanResultDetails,
         key: 'd-scan.pdf',
+        messageReference: 'msg-ref-456',
+        senderId: 'sender-123',
       });
     });
   });

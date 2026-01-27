@@ -168,6 +168,8 @@ export class MoveFileHandler {
         scanStatus,
         scanResultDetails: scanDetail.scanResultDetails,
         key: getLastCharactersOfKey(objectKey),
+        messageReference: metadata.messageReference,
+        senderId: metadata.senderId,
       });
       eventToPublish.fileQuarantined = createFileQuarantinedEvent(
         metadata.messageReference,
@@ -231,14 +233,24 @@ export class MoveFileHandler {
       metadata,
     );
 
-    this.logger.info({
+    this.logger.debug({
       description: 'Going to move file to destination bucket',
       scanStatus,
       destinationLocation: destination.Bucket,
       subkey: getLastCharactersOfKey(objectDetails.objectKey),
+      messageReference: metadata.messageReference,
+      senderId: metadata.senderId,
     });
 
     await copyAndDeleteObjectS3(source, destination);
+
+    this.logger.info({
+      description: 'Moved file to destination bucket',
+      scanStatus,
+      messageReference: metadata.messageReference,
+      senderId: metadata.senderId,
+    });
+
     return eventToPublish;
   }
 }

@@ -12,7 +12,7 @@ import {
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import expectToPassEventually from 'helpers/expectations';
-import { purgeQueue } from 'helpers/sqs-helpers';
+import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getS3ObjectMetadata, s3Client } from 'utils';
@@ -55,10 +55,10 @@ test.describe('Digital Letters - Core Notify', () => {
       const filteredLogs = await getLogsFromCloudwatch(
         MOVE_SCANNED_FILES_LAMBDA_LOG_GROUP_NAME,
         [
-          '$.message.description  = "Going to move file to destination bucket"',
+          '$.message.description  = "Moved file to destination bucket"',
           '$.message.scanStatus  = "COMPLETED"',
-          `$.message.destinationLocation  = "${FILE_SAFE_S3_BUCKET_NAME}"`,
-          `$.message.subkey  = "${objectKey.slice(10)}"`,
+          `$.message.messageReference  = "${messageReference}"`,
+          `$.message.senderId  = "${SENDER_ID_SKIPS_NOTIFY}"`,
         ],
       );
 
@@ -123,10 +123,10 @@ test.describe('Digital Letters - Core Notify', () => {
       const filteredLogs = await getLogsFromCloudwatch(
         MOVE_SCANNED_FILES_LAMBDA_LOG_GROUP_NAME,
         [
-          '$.message.description  = "Going to move file to destination bucket"',
+          '$.message.description  = "Moved file to destination bucket"',
           '$.message.scanStatus  = "COMPLETED"',
-          `$.message.destinationLocation  = "${FILE_QUARANTINE_S3_BUCKET_NAME}"`,
-          `$.message.subkey  = "${objectKey.slice(10)}"`,
+          `$.message.messageReference  = "${messageReference}"`,
+          `$.message.senderId  = "${SENDER_ID_SKIPS_NOTIFY}"`,
         ],
       );
 
@@ -160,5 +160,32 @@ test.describe('Digital Letters - Core Notify', () => {
       expect(metadata?.senderid).toEqual(SENDER_ID_SKIPS_NOTIFY);
       expect(metadata?.createdat).toEqual(createdAt);
     }, 240);
+  });
+
+  test('given file without REQUIRED metadata, when uploaded into S3 bucket and guardduty scan passes then it goes to DLQ', async () => {
+    const messageReference = uuidv4();
+    const objectKey = `${PREFIX_UNSCANNED_FILES}${messageReference}.txt`;
+
+    const body = Buffer.from('test file content');
+
+    const params = {
+      Bucket: UNSCANNED_FILES_S3_BUCKET_NAME,
+      Key: objectKey,
+      Body: body,
+      ContentType: 'application/pdf',
+      Metadata: {
+        messageReference,
+        // senderId and createdAt are missing
+      },
+    };
+
+    await s3Client.send(new PutObjectCommand(params));
+
+    // Verify there is a message in the DLQ
+    await expectMessageContainingString(
+      MOVE_SCANNED_FILES_DLQ_NAME,
+      objectKey,
+      420,
+    );
   });
 });
