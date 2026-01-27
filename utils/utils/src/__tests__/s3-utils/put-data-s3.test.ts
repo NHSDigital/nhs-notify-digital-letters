@@ -23,6 +23,7 @@ describe('putDataS3', () => {
       Body: '{\n  "value1": "1a",\n  "value2": "2a"\n}',
     });
   });
+
   it('throws an error when there is an issue puts data in S3', async () => {
     const s3Client = mockClient(S3Client);
     s3Client.rejectsOnce(new Error('It broke!'));
