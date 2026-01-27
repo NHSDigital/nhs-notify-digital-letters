@@ -71,6 +71,8 @@ jobs:
       needs.detect-doc-changes.outputs.eventcatalog_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
