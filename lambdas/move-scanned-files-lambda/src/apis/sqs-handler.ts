@@ -50,6 +50,9 @@ export const createHandler = ({
             if (eventToPublish.fileQuarantined) {
               fileQuarantinedEvents.push(eventToPublish.fileQuarantined);
             }
+          } else {
+            // there was something wrong with the event
+            batchItemFailures.push({ itemIdentifier: sqsRecord.messageId });
           }
         } catch (error: any) {
           logger.warn({
