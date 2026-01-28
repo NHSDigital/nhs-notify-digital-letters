@@ -55,8 +55,6 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0 # Full history is needed to compare branches
       - name: "Check file format"
         uses: ./.github/actions/check-file-format
   check-markdown-format:
@@ -66,8 +64,6 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0 # Full history is needed to compare branches
       - name: "Check Markdown format"
         uses: ./.github/actions/check-markdown-format
   terraform-docs:
@@ -101,8 +97,6 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0 # Full history is needed to compare branches
       - name: "Check English usage"
         uses: ./.github/actions/check-english-usage
   check-todo-usage:
@@ -112,8 +106,6 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0 # Full history is needed to compare branches
       - name: "Check TODO usage"
         uses: ./.github/actions/check-todo-usage
   detect-terraform-changes:
