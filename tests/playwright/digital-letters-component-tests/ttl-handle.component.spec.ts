@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ENV } from 'constants/backend-constants';
+import { ENV, HANDLE_TTL_DLQ_NAME } from 'constants/backend-constants';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import { deleteTtl, putTtl } from 'helpers/dynamodb-helpers';
@@ -8,10 +8,8 @@ import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Handle TTL', () => {
-  const handleTtlDlqName = `nhs-${ENV}-dl-ttl-handle-expiry-errors-queue`;
-
   test.beforeAll(async () => {
-    await purgeQueue(handleTtlDlqName);
+    await purgeQueue(HANDLE_TTL_DLQ_NAME);
   });
 
   const baseEvent: MESHInboxMessageDownloaded = {
@@ -146,6 +144,6 @@ test.describe('Digital Letters - Handle TTL', () => {
     const deleteResponseCode = await deleteTtl(messageUri);
     expect(deleteResponseCode).toBe(200);
 
-    await expectMessageContainingString(handleTtlDlqName, letterId);
+    await expectMessageContainingString(HANDLE_TTL_DLQ_NAME, letterId);
   });
 });

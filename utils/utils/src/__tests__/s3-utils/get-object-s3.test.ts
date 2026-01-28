@@ -1,5 +1,10 @@
 import { Readable } from 'node:stream';
-import { getS3Object, getS3ObjectFromUri, s3Client } from '../../s3-utils';
+import {
+  getS3Object,
+  getS3ObjectBufferFromUri,
+  getS3ObjectFromUri,
+  s3Client,
+} from '../../s3-utils';
 
 describe('getS3Object', () => {
   afterEach(jest.resetAllMocks);
@@ -86,6 +91,7 @@ describe('getS3Object', () => {
     expect(data).toEqual(defaultValue);
   });
 });
+
 describe('getS3ObjectFromUri', () => {
   afterEach(jest.resetAllMocks);
 
@@ -162,6 +168,92 @@ describe('getS3ObjectFromUri', () => {
 
     await expect(
       getS3ObjectFromUri('s3://bucket-name/config.test.json'),
+    ).rejects.toThrow(
+      "Could not retrieve from bucket 's3://bucket-name/config.test.json' from S3",
+    );
+  });
+});
+
+describe('getS3ObjectBufferFromUri', () => {
+  afterEach(jest.resetAllMocks);
+
+  it('Should throw an error for invalid S3 URI format', async () => {
+    await expect(getS3ObjectBufferFromUri('invalid-uri')).rejects.toThrow(
+      'Invalid S3 URI format: invalid-uri',
+    );
+  });
+
+  it('Should throw an error for S3 URI without bucket', async () => {
+    await expect(getS3ObjectBufferFromUri('s3://')).rejects.toThrow(
+      'Invalid S3 URI format: s3://',
+    );
+  });
+
+  it('Should throw an error for S3 URI without key', async () => {
+    await expect(getS3ObjectBufferFromUri('s3://bucket-name/')).rejects.toThrow(
+      'Invalid S3 URI format: s3://bucket-name/',
+    );
+  });
+
+  it('Should parse valid S3 URI and retrieve object', async () => {
+    const result = JSON.stringify({
+      featureFlags: {
+        testFlag: true,
+      },
+    });
+
+    s3Client.send = jest
+      .fn()
+      .mockReturnValueOnce({ Body: Readable.from([result]) });
+
+    const uri = 's3://bucket-name/config.test.json';
+    const data = await getS3ObjectBufferFromUri(uri);
+
+    expect(s3Client.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: {
+          Bucket: 'bucket-name',
+          Key: 'config.test.json',
+          VersionId: undefined,
+        },
+      }),
+    );
+
+    const expectedBuffer = Buffer.from(result);
+    expect(data).toEqual(expectedBuffer);
+  });
+
+  it('Should parse S3 URI with nested path', async () => {
+    const result = 'test content';
+
+    s3Client.send = jest
+      .fn()
+      .mockReturnValueOnce({ Body: Readable.from([result]) });
+
+    const uri = 's3://bucket-name/path/to/nested/file.json';
+    const data = await getS3ObjectBufferFromUri(uri);
+
+    expect(s3Client.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: {
+          Bucket: 'bucket-name',
+          Key: 'path/to/nested/file.json',
+          VersionId: undefined,
+        },
+      }),
+    );
+
+    const expectedBuffer = Buffer.from(result);
+    expect(data).toEqual(expectedBuffer);
+  });
+
+  it('Should throw an error if object not found', async () => {
+    s3Client.send = jest.fn().mockImplementationOnce(() => {
+      throw new Error('No file found');
+    });
+
+    await expect(
+      getS3ObjectBufferFromUri('s3://bucket-name/config.test.json'),
     ).rejects.toThrow(
       "Could not retrieve from bucket 's3://bucket-name/config.test.json' from S3",
     );

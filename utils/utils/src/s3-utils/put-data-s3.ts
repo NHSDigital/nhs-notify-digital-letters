@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { PutObjectCommand, PutObjectCommandOutput } from '@aws-sdk/client-s3';
 import type { S3Location } from './get-object-s3';
 import { s3Client } from './s3-client';
@@ -17,7 +16,7 @@ export async function putDataS3(
     };
 
     const data = await s3Client.send(new PutObjectCommand(params));
-    console.log(`Data uploaded to ${Bucket}/${Key}`);
+
     return data;
   } catch (error) {
     throw new Error(`Upload to ${Bucket}/${Key} failed, error: ${error}`);

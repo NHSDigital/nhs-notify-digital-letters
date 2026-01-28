@@ -89,7 +89,13 @@ variable "parent_acct_environment" {
 variable "mesh_poll_schedule" {
   type        = string
   description = "Schedule to poll MESH for messages"
-  default     = "cron(0,30 8-16 ? * MON-FRI *)" # Every 30 minutes between 8am and 4:30pm Mon-Fri
+  default     = "rate(5 minutes)"  # Every 5 minutes
+}
+
+variable "enable_mock_mesh" {
+  description = "Enable mock mesh access (dev only). Grants lambda permission to read mock-mesh prefix in non-pii bucket."
+  type        = bool
+  default     = false
 }
 
 variable "queue_batch_size" {
@@ -130,8 +136,15 @@ variable "pdm_use_non_mock_token" {
 
 variable "apim_base_url" {
   type        = string
-  description = "The URL used to send requests to Notify and PDM"
+  description = "The URL used to send requests to PDM"
   default     = "https://int.api.service.nhs.uk"
+}
+
+
+variable "core_notify_url" {
+  type        = string
+  description = "The URL used to send requests to Notify"
+  default     = "https://sandbox.api.service.nhs.uk"
 }
 
 variable "apim_auth_token_url" {
