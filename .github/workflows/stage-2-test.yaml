@@ -44,6 +44,8 @@ jobs:
   detect-schema-changes:
     name: "Detect Schema Changes"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       schemas_changed: ${{ steps.filter.outputs.schemas }}
     steps:
