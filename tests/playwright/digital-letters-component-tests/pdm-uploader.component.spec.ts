@@ -51,8 +51,6 @@ const baseEvent = {
 };
 
 test.describe('Digital Letters - Upload to PDM', () => {
-  test.describe.configure({ mode: 'parallel' });
-
   test.beforeAll(async () => {
     await purgeQueue(PDM_UPLOADER_DLQ_NAME);
     test.setTimeout(250_000);
