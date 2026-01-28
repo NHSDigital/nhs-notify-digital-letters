@@ -181,6 +181,7 @@ test.describe('Digital Letters - Move Scanned Files', () => {
   });
 
   test('given file without REQUIRED metadata, when uploaded into S3 bucket and guardduty scan passes then it goes to DLQ', async () => {
+    test.setTimeout(550_000);
     const messageReference = uuidv4();
     const objectKey = `${PREFIX_DL_FILES}${messageReference}.txt`;
 

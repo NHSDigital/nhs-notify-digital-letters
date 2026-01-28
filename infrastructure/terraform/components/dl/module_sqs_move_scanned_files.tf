@@ -34,5 +34,11 @@ data "aws_iam_policy_document" "sqs_move_scanned_files" {
     resources = [
       "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-move-scanned-files-queue"
     ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [ "arn:aws:guardduty:${var.region}:${var.aws_account_id}:malware-protection-plan/*" ]
+    }
   }
 }
