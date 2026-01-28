@@ -29,6 +29,7 @@ export class PrintSender {
           'https://notify.nhs.uk/cloudevents/schemas/letter-rendering/letter-request.prepared.1.1.5.schema.json',
         source: `/data-plane/digital-letters/${this.accountType}/${this.environment}`,
         specversion: '1.0',
+        datacontenttype: 'application/json',
         traceparent: item.traceparent,
         severitynumber: item.severitynumber,
         severitytext: 'INFO',
