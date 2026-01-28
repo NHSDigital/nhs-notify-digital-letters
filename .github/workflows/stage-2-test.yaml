@@ -41,8 +41,31 @@ env:
   TERM: xterm-256color
 
 jobs:
+  detect-schema-changes:
+    name: "Detect Schema Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      schemas_changed: ${{ steps.filter.outputs.schemas }}
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v5
+
+      - name: "Check for schema changes"
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            schemas:
+              - 'schemas/**'
+              - 'src/cloudevents/**'
+              - 'src/typescript-schema-generator/**'
+              - 'src/python-schema-generator/**'
+              - 'src/digital-letters-events/**'
+
   check-generated-dependencies:
     name: "Check generated dependencies"
+    needs: [detect-schema-changes]
+    if: needs.detect-schema-changes.outputs.schemas_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 4
     permissions:
