@@ -46,6 +46,7 @@ export class PrintSender {
           status: 'PREPARED',
           url: item.data.letterUri,
           clientId: item.data.senderId,
+          campaignId: "digitalLetters",
           letterVariantId: 'notify-digital-letter-standard',
         },
       };

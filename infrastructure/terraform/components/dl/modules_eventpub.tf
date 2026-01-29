@@ -14,7 +14,7 @@ module "eventpub" {
 
   kms_key_arn           = module.kms.key_arn
   log_retention_in_days = var.log_retention_in_days
-  log_level             = "INFO"
+  log_level             = var.log_level
 
   force_destroy = var.force_destroy
 
