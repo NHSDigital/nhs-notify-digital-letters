@@ -3,6 +3,7 @@ import {
   getS3Object,
   getS3ObjectBufferFromUri,
   getS3ObjectFromUri,
+  getS3ObjectMetadata,
   s3Client,
 } from '../../s3-utils';
 
@@ -256,6 +257,88 @@ describe('getS3ObjectBufferFromUri', () => {
       getS3ObjectBufferFromUri('s3://bucket-name/config.test.json'),
     ).rejects.toThrow(
       "Could not retrieve from bucket 's3://bucket-name/config.test.json' from S3",
+    );
+  });
+});
+
+describe('getS3ObjectMetadata', () => {
+  afterEach(jest.resetAllMocks);
+
+  it('Should retrieve metadata for object', async () => {
+    const metadata = {
+      messagereference: 'test-ref-001',
+      senderid: 'SENDER_001',
+      createdat: '2026-01-19T12:00:00Z',
+    };
+
+    s3Client.send = jest.fn().mockReturnValueOnce({ Metadata: metadata });
+
+    const s3Location = {
+      Bucket: 'bucket-name',
+      Key: 'test-file.pdf',
+    };
+
+    const result = await getS3ObjectMetadata(s3Location);
+
+    expect(s3Client.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: s3Location,
+      }),
+    );
+    expect(result).toEqual(metadata);
+  });
+
+  it('Should retrieve metadata with version ID', async () => {
+    const metadata = {
+      customkey: 'customvalue',
+    };
+
+    s3Client.send = jest.fn().mockReturnValueOnce({ Metadata: metadata });
+
+    const s3Location = {
+      Bucket: 'bucket-name',
+      Key: 'versioned-file.json',
+      VersionId: 'version-123',
+    };
+
+    const result = await getS3ObjectMetadata(s3Location);
+
+    expect(s3Client.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: s3Location,
+      }),
+    );
+    expect(result).toEqual(metadata);
+  });
+
+  it('Should throw an error if object not found', async () => {
+    s3Client.send = jest.fn().mockImplementationOnce(() => {
+      throw new Error('NoSuchKey');
+    });
+
+    await expect(
+      getS3ObjectMetadata({
+        Bucket: 'bucket-name',
+        Key: 'nonexistent.pdf',
+      }),
+    ).rejects.toThrow(
+      "Could not retrieve metadata from bucket 's3://bucket-name/nonexistent.pdf' from S3: NoSuchKey",
+    );
+  });
+
+  it('Should handle error objects', async () => {
+    const error = new Error('Access Denied');
+    s3Client.send = jest.fn().mockImplementationOnce(() => {
+      throw error;
+    });
+
+    await expect(
+      getS3ObjectMetadata({
+        Bucket: 'bucket-name',
+        Key: 'forbidden.pdf',
+      }),
+    ).rejects.toThrow(
+      "Could not retrieve metadata from bucket 's3://bucket-name/forbidden.pdf' from S3: Access Denied",
     );
   });
 });
