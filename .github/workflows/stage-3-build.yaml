@@ -36,6 +36,8 @@ jobs:
   detect-doc-changes:
     name: "Detect Documentation Changes"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       docs_changed: ${{ steps.filter.outputs.docs }}
       schemas_changed: ${{ steps.filter.outputs.schemas }}
@@ -64,7 +66,6 @@ jobs:
   artefact-jekyll-docs:
     name: "Build Docs"
     needs: [detect-doc-changes]
-    # Only build docs if relevant files changed
     if: |
       needs.detect-doc-changes.outputs.docs_changed == 'true' ||
       needs.detect-doc-changes.outputs.schemas_changed == 'true' ||
