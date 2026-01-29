@@ -1,4 +1,4 @@
-import { SQSEvent, SQSRecord } from 'aws-lambda';
+import { FirehoseTransformationEvent, SQSEvent, SQSRecord } from 'aws-lambda';
 import { DigitalLettersEvent } from 'types/events';
 
 const baseEvent = {
@@ -57,5 +57,21 @@ export const recordEvent = (events: DigitalLettersEvent[]): SQSEvent => ({
     ...sqsRecord,
     messageId: String(i + 1),
     body: JSON.stringify({ ...busEvent, detail: event }),
+  })),
+});
+
+export const firehoseEvent = (
+  events: DigitalLettersEvent[],
+): FirehoseTransformationEvent => ({
+  invocationId: 'test-invocation-id',
+  deliveryStreamArn:
+    'arn:aws:firehose:eu-west-2:123456789012:deliverystream/test',
+  region: 'eu-west-2',
+  records: events.map((event, i) => ({
+    recordId: String(i + 1),
+    approximateArrivalTimestamp: Date.now(),
+    data: Buffer.from(JSON.stringify({ ...busEvent, detail: event })).toString(
+      'base64',
+    ),
   })),
 });

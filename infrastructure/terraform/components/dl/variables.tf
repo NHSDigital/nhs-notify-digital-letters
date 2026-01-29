@@ -140,7 +140,6 @@ variable "apim_base_url" {
   default     = "https://int.api.service.nhs.uk"
 }
 
-
 variable "core_notify_url" {
   type        = string
   description = "The URL used to send requests to Notify"
@@ -175,4 +174,33 @@ variable "enable_pdm_mock" {
   type        = bool
   description = "Flag indicating whether to deploy PDM mock API (should be false in production environments)"
   default     = true
+}
+
+variable "s3_enable_force_destroy" {
+  type        = bool
+  description = "Allow force destroy of buckets and contents via Terraform - DO NOT ENABLE IN PRODUCTION"
+  default     = false
+
+  validation {
+    condition     = !(var.s3_enable_force_destroy && var.environment == "prod")
+    error_message = "s3_enable_force_destroy must not be set to true when environment is 'prod'."
+  }
+}
+
+variable "enable_backups" {
+  type        = bool
+  description = "Enable backups"
+  default     = false
+}
+
+variable "pii_data_retention_policy_days" {
+  type        = number
+  description = "The number of days for data retention policy for PII"
+  default     = 534
+}
+
+variable "log_retention_days" {
+  type        = number
+  description = "How many days to retain Cloudwatch logs"
+  default     = 180
 }

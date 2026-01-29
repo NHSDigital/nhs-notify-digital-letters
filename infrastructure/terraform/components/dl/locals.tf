@@ -11,4 +11,10 @@ locals {
   root_domain_id                       = local.acct.route53_zone_ids["digital-letters"]
   ttl_shard_count                      = 3
   deploy_pdm_mock                      = var.enable_pdm_mock
+  firehose_output_path_prefix          = "kinesis-firehose-output"
+  this_account                         = var.aws_account_id
+  pii_retention_config = {
+    current_days     = var.pii_data_retention_policy_days,
+    non_current_days = 14
+  }
 }

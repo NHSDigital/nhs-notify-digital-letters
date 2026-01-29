@@ -14,6 +14,7 @@ resource "aws_cloudwatch_event_rule" "status_recorder" {
 
 resource "aws_cloudwatch_event_target" "status_recorder" {
   rule           = aws_cloudwatch_event_rule.status_recorder.name
-  arn            = module.sqs_status_recorder.sqs_queue_arn
+  arn            = aws_kinesis_firehose_delivery_stream.to_s3_reporting.arn
+  role_arn       = aws_iam_role.eventbridge_firehose.arn
   event_bus_name = aws_cloudwatch_event_bus.main.name
 }

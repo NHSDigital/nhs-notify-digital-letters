@@ -1,6 +1,6 @@
 import { handler } from 'index';
 
-jest.mock('apis/sqs-handler', () => ({
+jest.mock('apis/firehose-handler', () => ({
   createHandler: jest.fn(() => jest.fn()),
 }));
 

@@ -1,11 +1,8 @@
-import { HandlerDependencies } from 'apis/sqs-handler';
-import { loadConfig } from 'infra/config';
+import { HandlerDependencies } from 'apis/firehose-handler';
 import { logger } from 'utils';
 
 export const createContainer = (): HandlerDependencies => {
-  const { athenaArn } = loadConfig();
-
-  return { athenaArn, logger };
+  return { logger };
 };
 
 export default createContainer;

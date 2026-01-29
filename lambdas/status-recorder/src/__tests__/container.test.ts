@@ -1,11 +1,5 @@
 import { createContainer } from 'container';
 
-jest.mock('infra/config', () => ({
-  loadConfig: jest.fn(() => ({
-    athenaArn: 'some value',
-  })),
-}));
-
 jest.mock('utils', () => ({
   logger: {},
 }));
