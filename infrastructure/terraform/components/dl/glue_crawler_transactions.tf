@@ -2,12 +2,12 @@ resource "aws_glue_crawler" "transactions" {
   name          = "${local.csi}-transactions-crawler"
   database_name = aws_glue_catalog_database.reporting.name
   role          = aws_iam_role.glue_crawler.arn
-  table_prefix  = ""
 
   schedule = "cron(0 * * * ? *)" # Run every hour
 
-  s3_target {
-    path = "s3://${aws_s3_bucket.reporting.bucket}/${local.firehose_output_path_prefix}/reporting/parquet/transaction_history"
+  catalog_target {
+    database_name = aws_glue_catalog_database.reporting.name
+    tables = [aws_glue_catalog_table.transactions.name]
   }
 
   schema_change_policy {
@@ -33,8 +33,6 @@ resource "aws_glue_crawler" "transactions" {
       }
     }
   })
-
-  depends_on = [aws_glue_catalog_table.transactions]
 }
 
 resource "aws_iam_role" "glue_crawler" {
