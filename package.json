@@ -54,6 +54,7 @@
   },
   "version": "0.0.1",
   "workspaces": [
+    "lambdas/file-scanner-lambda",
     "lambdas/key-generation",
     "lambdas/refresh-apim-access-token",
     "lambdas/pdm-mock-lambda",
@@ -64,6 +65,7 @@
     "lambdas/pdm-uploader-lambda",
     "lambdas/core-notifier-lambda",
     "lambdas/print-status-handler",
+    "lambdas/print-analyser",
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",

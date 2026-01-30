@@ -9,9 +9,9 @@ import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageD
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
-import { uploadToS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
+import { putDataS3 } from 'utils';
 
 const pdmRequest = {
   resourceType: 'DocumentReference',
@@ -64,7 +64,10 @@ test.describe('Digital Letters - Upload to PDM', () => {
     const messageReference = uuidv4();
     const senderId = 'test-sender-1';
 
-    uploadToS3(JSON.stringify(pdmRequest), LETTERS_S3_BUCKET_NAME, resourceKey);
+    await putDataS3(pdmRequest, {
+      Bucket: LETTERS_S3_BUCKET_NAME,
+      Key: resourceKey,
+    });
 
     await eventPublisher.sendEvents(
       [
@@ -120,11 +123,10 @@ test.describe('Digital Letters - Upload to PDM', () => {
       unexpectedField: 'I should not be here',
     };
 
-    uploadToS3(
-      JSON.stringify(invalidPdmRequest),
-      LETTERS_S3_BUCKET_NAME,
-      resourceKey,
-    );
+    await putDataS3(invalidPdmRequest, {
+      Bucket: LETTERS_S3_BUCKET_NAME,
+      Key: resourceKey,
+    });
 
     await eventPublisher.sendEvents(
       [
