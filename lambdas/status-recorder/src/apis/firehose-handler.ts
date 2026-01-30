@@ -59,6 +59,7 @@ function generateReportEvent(validatedRecord: ValidatedRecord): ReportEvent {
   const { messageReference, pageCount, senderId, supplierId } =
     validatedRecord.event.data;
   const { time, type } = validatedRecord.event;
+  const eventTime = new Date(time);
 
   const flattenedEvent: FlatDigitalLettersEvent = {
     messageReference,
@@ -75,10 +76,10 @@ function generateReportEvent(validatedRecord: ValidatedRecord): ReportEvent {
     result: 'Ok',
     metadata: {
       partitionKeys: {
-        year: new Date(flattenedEvent.time).getUTCFullYear().toString(),
-        month: (new Date(flattenedEvent.time).getUTCMonth() + 1).toString(),
-        day: new Date(flattenedEvent.time).getUTCDate().toString(),
-        senderId: flattenedEvent.senderId,
+        year: eventTime.getUTCFullYear().toString(),
+        month: (eventTime.getUTCMonth() + 1).toString(),
+        day: eventTime.getUTCDate().toString(),
+        senderId,
       },
     },
   };
@@ -90,7 +91,6 @@ export const createHandler = ({ logger }: HandlerDependencies) =>
   ): Promise<FirehoseTransformationResult> {
     const receivedItemCount = firehoseTransformationEvent.records.length;
     const failedEvents: FirehoseTransformationResultRecord[] = [];
-    const validatedRecords: ValidatedRecord[] = [];
     const validEvents: ReportEvent[] = [];
 
     logger.info(`Received Firehose Event of ${receivedItemCount} record(s)`);
@@ -98,14 +98,10 @@ export const createHandler = ({ logger }: HandlerDependencies) =>
     for (const record of firehoseTransformationEvent.records) {
       const validated = validateRecord(record, logger);
       if (validated) {
-        validatedRecords.push(validated);
+        validEvents.push(generateReportEvent(validated));
       } else {
         failedEvents.push({ ...record, result: 'ProcessingFailed' });
       }
-    }
-
-    for (const validatedRecord of validatedRecords) {
-      validEvents.push(generateReportEvent(validatedRecord));
     }
 
     const processedItemCount = receivedItemCount - failedEvents.length;

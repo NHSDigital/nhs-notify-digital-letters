@@ -1,4 +1,4 @@
-import { FirehoseTransformationEvent, SQSEvent, SQSRecord } from 'aws-lambda';
+import { FirehoseTransformationEvent } from 'aws-lambda';
 import { DigitalLettersEvent } from 'types/events';
 
 const baseEvent = {
@@ -31,35 +31,6 @@ export const digitalLettersEvent = {
     'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.json',
 } as DigitalLettersEvent;
 
-const busEvent = {
-  version: '0',
-  id: 'ab07d406-0797-e919-ff9b-3ad9c5498114',
-};
-
-const sqsRecord = {
-  messageId: '1',
-  receiptHandle: 'abc',
-  attributes: {
-    ApproximateReceiveCount: '1',
-    SentTimestamp: '2025-07-03T14:23:30Z',
-    SenderId: 'sender-id',
-    ApproximateFirstReceiveTimestamp: '2025-07-03T14:23:30Z',
-  },
-  messageAttributes: {},
-  md5OfBody: '',
-  eventSource: 'aws:sqs',
-  eventSourceARN: '',
-  awsRegion: '',
-} as SQSRecord;
-
-export const recordEvent = (events: DigitalLettersEvent[]): SQSEvent => ({
-  Records: events.map((event, i) => ({
-    ...sqsRecord,
-    messageId: String(i + 1),
-    body: JSON.stringify({ ...busEvent, detail: event }),
-  })),
-});
-
 export const firehoseEvent = (
   events: DigitalLettersEvent[],
 ): FirehoseTransformationEvent => ({
@@ -70,8 +41,12 @@ export const firehoseEvent = (
   records: events.map((event, i) => ({
     recordId: String(i + 1),
     approximateArrivalTimestamp: Date.now(),
-    data: Buffer.from(JSON.stringify({ ...busEvent, detail: event })).toString(
-      'base64',
-    ),
+    data: Buffer.from(
+      JSON.stringify({
+        version: '0',
+        id: 'ab07d406-0797-e919-ff9b-3ad9c5498114',
+        detail: event,
+      }),
+    ).toString('base64'),
   })),
 });
