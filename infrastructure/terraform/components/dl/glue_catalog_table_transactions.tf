@@ -59,6 +59,8 @@ resource "aws_glue_catalog_table" "transactions" {
   parameters = {
     EXTERNAL              = "TRUE"
     "parquet.compression" = "SNAPPY"
+    compressionType       = "none"
+    classification        = "parquet"
   }
 }
 
