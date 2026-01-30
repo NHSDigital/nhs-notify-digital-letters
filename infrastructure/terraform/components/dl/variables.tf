@@ -168,23 +168,17 @@ variable "force_destroy" {
   type        = bool
   description = "Flag to force deletion of S3 buckets"
   default     = false
+
+  validation {
+    condition     = !(var.force_destroy && var.environment == "prod")
+    error_message = "force_destroy must not be set to true when environment is 'prod'."
+  }
 }
 
 variable "enable_pdm_mock" {
   type        = bool
   description = "Flag indicating whether to deploy PDM mock API (should be false in production environments)"
   default     = true
-}
-
-variable "s3_enable_force_destroy" {
-  type        = bool
-  description = "Allow force destroy of buckets and contents via Terraform - DO NOT ENABLE IN PRODUCTION"
-  default     = false
-
-  validation {
-    condition     = !(var.s3_enable_force_destroy && var.environment == "prod")
-    error_message = "s3_enable_force_destroy must not be set to true when environment is 'prod'."
-  }
 }
 
 variable "enable_backups" {
@@ -197,10 +191,4 @@ variable "pii_data_retention_policy_days" {
   type        = number
   description = "The number of days for data retention policy for PII"
   default     = 534
-}
-
-variable "log_retention_days" {
-  type        = number
-  description = "How many days to retain Cloudwatch logs"
-  default     = 180
 }

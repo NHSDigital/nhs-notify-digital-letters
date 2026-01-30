@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "reporting" {
   bucket        = "${local.csi_global}-reporting"
-  force_destroy = var.s3_enable_force_destroy
+  force_destroy = var.force_destroy
 
   tags = merge(local.default_tags, { "Enable-Backup" = var.enable_backups }, { "Enable-S3-Continuous-Backup" = var.enable_backups })
 }
@@ -48,7 +48,7 @@ resource "aws_s3_bucket_public_access_block" "reporting" {
 
 resource "aws_s3_bucket_lifecycle_configuration" "reporting" {
   bucket                = aws_s3_bucket.reporting.id
-  expected_bucket_owner = local.this_account
+  expected_bucket_owner = var.aws_account_id
 
   rule {
     id     = "reporting"
