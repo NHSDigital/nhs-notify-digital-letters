@@ -1,0 +1,262 @@
+"""
+Tests for Lambda handler
+"""
+import pytest
+from unittest.mock import Mock, patch, MagicMock
+from send_reports.report_store import ReportStore
+from send_reports.handler import handler
+
+
+def setup_mocks():
+    """
+    Create all mock objects needed for handler testing
+    """
+    mock_context = Mock()
+
+    mock_config = MagicMock()
+    mock_config.mesh_client = Mock()
+    mock_config.s3_client = Mock()
+    mock_config.send_metric = Mock()
+
+    mock_ssm = Mock()
+
+    mock_sender_lookup = Mock()
+
+    mock_processor = Mock()
+    mock_processor.process_sqs_message = Mock()
+
+    return (
+        mock_context,
+        mock_config,
+        mock_ssm,
+        mock_sender_lookup,
+        mock_processor
+    )
+
+
+def create_sqs_event(num_records=1, event_source='aws:sqs'):
+    """
+    Create a mock SQS event for testing
+    """
+    records = []
+    for i in range(num_records):
+        records.append({
+            'messageId': f'msg-{i}',
+            'eventSource': event_source,
+            'body': '{"detail": {"data": {"meshMessageId": "test_id"}}}'
+        })
+
+    return {'Records': records}
+
+
+class TestHandler:
+    """Test suite for Lambda handler"""
+
+    @patch('send_reports.handler.client')
+    @patch('send_reports.handler.EventPublisher')
+    @patch('send_reports.handler.SenderLookup')
+    @patch('send_reports.handler.SendReportsProcessor')
+    @patch('send_reports.handler.Config')
+    def test_handler_success_single_record_on_event(
+        self,
+        mock_config_class,
+        mock_processor_class,
+        mock_sender_lookup_class,
+        mock_event_publisher_class,
+        mock_boto_client
+    ):
+        """Test successful handler execution"""
+
+        (mock_context, mock_config, mock_ssm,
+        mock_sender_lookup, mock_processor) = setup_mocks()
+
+        mock_event_publisher = Mock()
+
+        # Wire up the mocks
+        mock_config_class.return_value.__enter__.return_value = mock_config
+        mock_config_class.return_value.__exit__ = Mock(return_value=None)
+        mock_boto_client.return_value = mock_ssm
+        mock_sender_lookup_class.return_value = mock_sender_lookup
+        mock_processor_class.return_value = mock_processor
+        mock_event_publisher_class.return_value = mock_event_publisher
+
+        # Execute handler
+        event = create_sqs_event(num_records=1)
+
+        result = handler(event, mock_context)
+
+        # Perform assertions for object creation
+        self.assert_object_creation(
+            mock_config_class,
+            mock_boto_client,
+            mock_sender_lookup_class,
+            mock_event_publisher_class,
+            mock_processor_class,
+            mock_ssm,
+            mock_config,
+            mock_sender_lookup,
+            mock_event_publisher
+        )
+
+        assert result == {"batchItemFailures": []}
+        mock_processor.process_sqs_message.assert_called_once()
+
+    @patch('send_reports.handler.client')
+    @patch('send_reports.handler.EventPublisher')
+    @patch('send_reports.handler.SenderLookup')
+    @patch('send_reports.handler.SendReportsProcessor')
+    @patch('send_reports.handler.Config')
+    def test_handler_returns_empty_failures_on_empty_event(
+        self,
+        mock_config_class,
+        mock_processor_class,
+        mock_sender_lookup_class,
+        mock_event_publisher_class,
+        mock_boto_client
+    ):
+        """Test handler handles empty event gracefully"""
+
+        (mock_context, mock_config, mock_ssm,
+        mock_sender_lookup, mock_processor) = setup_mocks()
+
+        mock_event_publisher = Mock()
+
+        # Wire up the mocks
+        mock_config_class.return_value.__enter__.return_value = mock_config
+        mock_config_class.return_value.__exit__ = Mock(return_value=None)
+        mock_boto_client.return_value = mock_ssm
+        mock_sender_lookup_class.return_value = mock_sender_lookup
+        mock_processor_class.return_value = mock_processor
+        mock_event_publisher_class.return_value = mock_event_publisher
+
+        # Execute handler
+        event = create_sqs_event(num_records=0)
+
+        result = handler(event, mock_context)
+
+        # Perform assertions for object creation
+        self.assert_object_creation(
+            mock_config_class,
+            mock_boto_client,
+            mock_sender_lookup_class,
+            mock_event_publisher_class,
+            mock_processor_class,
+            mock_ssm,
+            mock_config,
+            mock_sender_lookup,
+            mock_event_publisher
+        )
+
+        assert result == {"batchItemFailures": []}
+        mock_processor.process_sqs_message.assert_not_called()
+
+    @patch('send_reports.handler.client')
+    @patch('send_reports.handler.EventPublisher')
+    @patch('send_reports.handler.SenderLookup')
+    @patch('send_reports.handler.SendReportsProcessor')
+    @patch('send_reports.handler.Config')
+    def test_handler_success_multiple_success_error_records_in_event(
+        self,
+        mock_config_class,
+        mock_processor_class,
+        mock_sender_lookup_class,
+        mock_event_publisher_class,
+        mock_boto_client
+    ):
+        """Test successful handler execution with multiple records, some failing"""
+
+        (mock_context, mock_config, mock_ssm,
+        mock_sender_lookup, mock_processor) = setup_mocks()
+
+        mock_event_publisher = Mock()
+
+        # Wire up the mocks
+        mock_config_class.return_value.__enter__.return_value = mock_config
+        mock_config_class.return_value.__exit__ = Mock(return_value=None)
+        mock_boto_client.return_value = mock_ssm
+        mock_sender_lookup_class.return_value = mock_sender_lookup
+        mock_processor_class.return_value = mock_processor
+        mock_event_publisher_class.return_value = mock_event_publisher
+
+        # Make second and fourth message fail
+        mock_processor.process_sqs_message.side_effect = [
+            None,
+            Exception("Test error"),
+            None,
+            Exception("Test error 2"),
+            None
+        ]
+
+        # Execute handler
+        event = create_sqs_event(num_records=5)
+
+        result = handler(event, mock_context)
+
+        # Perform assertions for object creation
+        self.assert_object_creation(
+            mock_config_class,
+            mock_boto_client,
+            mock_sender_lookup_class,
+            mock_event_publisher_class,
+            mock_processor_class,
+            mock_ssm,
+            mock_config,
+            mock_sender_lookup,
+            mock_event_publisher
+        )
+
+        assert result == {"batchItemFailures": [
+            {
+                'itemIdentifier': 'msg-1',
+            },
+            {
+                'itemIdentifier': 'msg-3',
+            }
+        ]}
+        assert mock_processor.process_sqs_message.call_count == 5
+
+    def assert_object_creation(
+        self,
+        mock_config_class,
+        mock_boto_client,
+        mock_sender_lookup_class,
+        mock_event_publisher_class,
+        mock_processor_class,
+        mock_ssm,
+        mock_config,
+        mock_sender_lookup,
+        mock_event_publisher
+        ):
+        """Helper method to assert object creation and initialization"""
+
+        # Verify Config was created and used as context manager
+        mock_config_class.assert_called_once()
+        mock_config_class.return_value.__enter__.assert_called_once()
+
+        # Verify SSM client was created
+        mock_boto_client.assert_called_once_with('ssm')
+
+        # Verify EventPublisher was created with correct parameters
+        mock_event_publisher_class.assert_called_once()
+        ep_kwargs = mock_event_publisher_class.call_args[1]
+        assert ep_kwargs['event_bus_arn'] == mock_config.event_publisher_event_bus_arn
+        assert ep_kwargs['dlq_url'] == mock_config.event_publisher_dlq_url
+        assert 'logger' in ep_kwargs
+
+        # Verify SenderLookup was created with correct parameters (positional args)
+        mock_sender_lookup_class.assert_called_once()
+        sl_args = mock_sender_lookup_class.call_args[0]  # Positional args
+        assert sl_args[0] == mock_ssm
+        assert sl_args[1] == mock_config
+        # Third argument is log, which we don't need to assert
+
+        # Verify SendReportsProcessor was created with correct parameters
+        mock_processor_class.assert_called_once()
+        call_kwargs = mock_processor_class.call_args[1]
+        assert call_kwargs['config'] == mock_config
+        assert call_kwargs['sender_lookup'] == mock_sender_lookup
+        assert call_kwargs['mesh_client'] == mock_config.mesh_client
+        assert isinstance(call_kwargs['report_store'], ReportStore)
+        assert call_kwargs['event_publisher'] == mock_event_publisher
+        assert call_kwargs['send_metric'] == mock_config.send_metric
+        assert 'log' in call_kwargs
