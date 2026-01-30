@@ -53,9 +53,7 @@ jobs:
           filters: |
             docs:
               - 'docs/**'
-              - '**.md'
             schemas:
-              - 'schemas/**'
               - 'src/cloudevents/**'
               - 'src/cloudeventjekylldocs/**'
             eventcatalog:

@@ -58,7 +58,6 @@ jobs:
         with:
           filters: |
             schemas:
-              - 'schemas/**'
               - 'src/cloudevents/**'
               - 'src/typescript-schema-generator/**'
               - 'src/python-schema-generator/**'
