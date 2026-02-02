@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "sqs_inbound_event" {
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = [ aws_cloudwatch_event_rule.pdm_resource_available.arn ]
+      values   = [aws_cloudwatch_event_rule.pdm_resource_available.arn]
     }
   }
 }
