@@ -6,7 +6,7 @@ resource "aws_glue_catalog_table" "event_record" {
   table_type = "EXTERNAL_TABLE"
 
   storage_descriptor {
-    location = "s3://${module.s3bucket_reporting.bucket}/${local.firehose_output_path_prefix}/reporting/parquet/event_staging"
+    location = "s3://${module.s3bucket_reporting.bucket}/${local.firehose_output_path_prefix}/reporting/parquet/event_record"
 
     input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
