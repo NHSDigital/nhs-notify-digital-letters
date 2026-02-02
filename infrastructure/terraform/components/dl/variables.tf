@@ -89,7 +89,7 @@ variable "parent_acct_environment" {
 variable "mesh_poll_schedule" {
   type        = string
   description = "Schedule to poll MESH for messages"
-  default     = "rate(5 minutes)"  # Every 5 minutes
+  default     = "rate(5 minutes)" # Every 5 minutes
 }
 
 variable "enable_mock_mesh" {

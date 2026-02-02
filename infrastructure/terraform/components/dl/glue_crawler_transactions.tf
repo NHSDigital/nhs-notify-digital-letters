@@ -7,7 +7,7 @@ resource "aws_glue_crawler" "transactions" {
 
   catalog_target {
     database_name = aws_glue_catalog_database.reporting.name
-    tables = [aws_glue_catalog_table.transactions.name]
+    tables        = [aws_glue_catalog_table.transactions.name]
   }
 
   schema_change_policy {
@@ -36,9 +36,9 @@ resource "aws_glue_crawler" "transactions" {
 }
 
 resource "aws_iam_role" "glue_crawler" {
-  name                 = "${local.csi}-glue-crawler"
-  description          = "Role for Glue Crawler to access S3 and Glue Catalog"
-  assume_role_policy   = data.aws_iam_policy_document.glue_crawler_assume_role.json
+  name               = "${local.csi}-glue-crawler"
+  description        = "Role for Glue Crawler to access S3 and Glue Catalog"
+  assume_role_policy = data.aws_iam_policy_document.glue_crawler_assume_role.json
 }
 
 data "aws_iam_policy_document" "glue_crawler_assume_role" {

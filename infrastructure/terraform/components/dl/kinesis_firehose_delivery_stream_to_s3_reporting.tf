@@ -1,5 +1,5 @@
 resource "aws_kinesis_firehose_delivery_stream" "to_s3_reporting" {
-  name  = "${local.csi}-to-s3-reporting"
+  name = "${local.csi}-to-s3-reporting"
 
   destination = "extended_s3"
 
@@ -72,9 +72,9 @@ resource "aws_kinesis_firehose_delivery_stream" "to_s3_reporting" {
 }
 
 resource "aws_iam_role" "firehose_role" {
-  name                 = "${local.csi}-firehose"
-  description          = "Firehose Role"
-  assume_role_policy   = data.aws_iam_policy_document.firehose_assume_role.json
+  name               = "${local.csi}-firehose"
+  description        = "Firehose Role"
+  assume_role_policy = data.aws_iam_policy_document.firehose_assume_role.json
 }
 
 data "aws_iam_policy_document" "firehose_assume_role" {

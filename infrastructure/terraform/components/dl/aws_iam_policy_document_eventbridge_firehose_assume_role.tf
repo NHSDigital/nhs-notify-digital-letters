@@ -13,9 +13,9 @@ data "aws_iam_policy_document" "eventbridge_firehose_assume_role" {
 }
 
 resource "aws_iam_role" "eventbridge_firehose" {
-  name                 = "${local.csi}-eventbridge-firehose"
-  description          = "Role for EventBridge to write to Kinesis Firehose"
-  assume_role_policy   = data.aws_iam_policy_document.eventbridge_firehose_assume_role.json
+  name               = "${local.csi}-eventbridge-firehose"
+  description        = "Role for EventBridge to write to Kinesis Firehose"
+  assume_role_policy = data.aws_iam_policy_document.eventbridge_firehose_assume_role.json
 }
 
 data "aws_iam_policy_document" "eventbridge_firehose_policy" {
