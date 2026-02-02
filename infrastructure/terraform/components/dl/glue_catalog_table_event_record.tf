@@ -1,12 +1,12 @@
-resource "aws_glue_catalog_table" "transactions" {
-  name          = "transaction_history"
-  description   = "transaction history for ${var.environment}"
+resource "aws_glue_catalog_table" "event_record" {
+  name          = "event_record"
+  description   = "Event records for ${var.environment}"
   database_name = aws_glue_catalog_database.reporting.name
 
   table_type = "EXTERNAL_TABLE"
 
   storage_descriptor {
-    location = "s3://${module.s3bucket_reporting.bucket}/${local.firehose_output_path_prefix}/reporting/parquet/transaction_history"
+    location = "s3://${module.s3bucket_reporting.bucket}/${local.firehose_output_path_prefix}/reporting/parquet/event_staging"
 
     input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
@@ -64,9 +64,9 @@ resource "aws_glue_catalog_table" "transactions" {
   }
 }
 
-resource "aws_glue_partition_index" "transaction_data" {
+resource "aws_glue_partition_index" "event_record" {
   database_name = aws_glue_catalog_database.reporting.name
-  table_name    = aws_glue_catalog_table.transactions.name
+  table_name    = aws_glue_catalog_table.event_record.name
 
   partition_index {
     index_name = "data"

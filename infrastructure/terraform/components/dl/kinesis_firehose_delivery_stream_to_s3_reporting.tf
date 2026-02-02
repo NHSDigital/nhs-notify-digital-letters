@@ -7,7 +7,7 @@ resource "aws_kinesis_firehose_delivery_stream" "to_s3_reporting" {
     role_arn   = aws_iam_role.firehose_role.arn
     bucket_arn = module.s3bucket_reporting.arn
 
-    prefix              = "${local.firehose_output_path_prefix}/reporting/parquet/transaction_history/senderid=!{partitionKeyFromLambda:senderId}/__year=!{partitionKeyFromLambda:year}/__month=!{partitionKeyFromLambda:month}/__day=!{partitionKeyFromLambda:day}/"
+    prefix              = "${local.firehose_output_path_prefix}/reporting/parquet/${aws_glue_catalog_table.event_record.name}/senderid=!{partitionKeyFromLambda:senderId}/__year=!{partitionKeyFromLambda:year}/__month=!{partitionKeyFromLambda:month}/__day=!{partitionKeyFromLambda:day}/"
     error_output_prefix = "${local.firehose_output_path_prefix}/errors/!{timestamp:yyyy}-!{timestamp:MM}-!{timestamp:dd}-!{timestamp:HH}/!{firehose:error-output-type}/"
 
     buffering_size     = 128
@@ -56,9 +56,9 @@ resource "aws_kinesis_firehose_delivery_stream" "to_s3_reporting" {
       }
 
       schema_configuration {
-        database_name = aws_glue_catalog_table.transactions.database_name
+        database_name = aws_glue_catalog_database.reporting.name
         role_arn      = aws_iam_role.firehose_role.arn
-        table_name    = aws_glue_catalog_table.transactions.name
+        table_name    = aws_glue_catalog_table.event_record.name
       }
     }
 
@@ -220,7 +220,7 @@ data "aws_iam_policy_document" "firehose_policy" {
     ]
 
     resources = [
-      aws_glue_catalog_table.transactions.arn,
+      aws_glue_catalog_table.event_record.arn,
       aws_glue_catalog_database.reporting.arn,
       "arn:aws:glue:${var.region}:${var.aws_account_id}:catalog"
     ]
