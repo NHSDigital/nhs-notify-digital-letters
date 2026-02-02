@@ -10,9 +10,12 @@ architecture-beta
     service report1Event(aws:res-amazon-eventbridge-event)[DigitalLetterRead Event]
     service report2Event(aws:res-amazon-eventbridge-event)[PrintingDispatched Event]
     service report3Event(aws:res-amazon-eventbridge-event)[NHSAppMessageRequested Event]
-    service sqs(logos:aws-sqs)[StatusRecorder Queue] in statusRecorder
-    service reportGeneratorLambda(logos:aws-lambda)[StatusRecorder] in statusRecorder
-    service ddb(aws:arch-amazon-athena)[Reports] in statusRecorder
+    service firehose(aws:arch-amazon-data-firehose)[Firehose] in statusRecorder
+    service transformLambda(logos:aws-lambda)[Event Transformer] in statusRecorder
+    service parquet(logos:aws-s3)[Parquet Append only storage] in statusRecorder
+    service stepFunction(aws:arch-aws-step-functions)[Ingestion Step Function] in statusRecorder
+    service athena(aws:arch-amazon-athena)[Ingestion query] in statusRecorder
+    service glue(aws:arch-aws-glue)[Glue Event Record] in statusRecorder
     junction j1
     junction j2
 
@@ -21,8 +24,11 @@ architecture-beta
     report2Event:R -- L:j1
     report3Event:R -- B:j1
 
-    j1:R --> L:sqs
-    sqs:R --> L:reportGeneratorLambda
-    reportGeneratorLambda:B --> T:ddb
+    j1:R --> L:firehose
+    transformLambda:B --> T:firehose
+    firehose:R --> L:parquet
+    stepFunction:B --> T:athena
+    parquet:R --> L:glue
+    athena:B --> T:glue
 
 ```
