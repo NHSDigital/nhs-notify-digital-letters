@@ -25,7 +25,7 @@ resource "aws_kinesis_firehose_delivery_stream" "to_s3_reporting" {
 
         parameters {
           parameter_name  = "LambdaArn"
-          parameter_value = "${module.status_recorder.function_arn}:$LATEST"
+          parameter_value = "${module.report_event_transformer.function_arn}:$LATEST"
         }
         parameters {
           parameter_name  = "RoleArn"
@@ -130,7 +130,7 @@ data "aws_iam_policy_document" "firehose_policy" {
     ]
 
     resources = [
-      "${module.status_recorder.function_arn}:$LATEST",
+      "${module.report_event_transformer.function_arn}:$LATEST",
     ]
   }
 
