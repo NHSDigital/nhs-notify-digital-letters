@@ -112,36 +112,29 @@ describe('PrintSender', () => {
     });
 
     it('should return failed when event validation fails', async () => {
-      mockEventPublisher.sendEvents.mockRejectedValue(
-        new Error('Validation error'),
-      );
-
-      const result = await printSender.send(mockPDFAnalysed);
-
-      expect(result).toBe('failed');
-      expect(mockLogger.error).toHaveBeenCalled();
-    });
-
-    it('should handle different sender IDs and message references', async () => {
-      const customInput: PDFAnalysed = {
+      const invalidInput = {
         ...mockPDFAnalysed,
-        data: {
-          ...mockPDFAnalysed.data,
-          senderId: 'custom-sender-999',
-          messageReference: 'custom-ref-abc',
-        },
+        data: {} as any,
       };
 
-      await printSender.send(customInput);
+      mockEventPublisher.sendEvents.mockImplementation(
+        async (events, validator) => {
+          const isValid = validator(events[0]);
+          if (!isValid) {
+            throw new Error('Event validation failed');
+          }
+          return [];
+        },
+      );
 
-      const [[events]] = mockEventPublisher.sendEvents.mock.calls;
-      const event = events[0] as LetterRequestPreparedEvent;
+      const result = await printSender.send(invalidInput);
 
-      expect(event.data.domainId).toBe('custom-sender-999_custom-ref-abc');
-      expect(event.data.clientId).toBe('custom-sender-999');
-      expect(event.data.requestItemPlanId).toBe('custom-ref-abc');
-      expect(event.subject).toBe(
-        'client/custom-sender-999/letter-request/custom-ref-abc',
+      expect(result).toBe('failed');
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Error sending letter prepared event',
+          err: expect.any(Error),
+        }),
       );
     });
 

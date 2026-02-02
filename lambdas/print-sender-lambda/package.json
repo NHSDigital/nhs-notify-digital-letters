@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@aws-sdk/lib-dynamodb": "^3.908.0",
     "@nhsdigital/nhs-notify-event-schemas-letter-rendering": "^1.1.5",
     "digital-letters-events": "^0.0.1",
     "utils": "^0.0.1"

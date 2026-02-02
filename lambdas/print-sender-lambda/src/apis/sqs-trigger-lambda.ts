@@ -8,11 +8,6 @@ import { Logger } from 'utils';
 import pdfAnalysedValidator from 'digital-letters-events/PDFAnalysed.js';
 import { PDFAnalysed } from 'digital-letters-events';
 
-interface ProcessingResult {
-  result: PrintSenderOutcome;
-  item?: PDFAnalysed;
-}
-
 interface PrintSenderHandlerDependencies {
   printSender: PrintSender;
   logger: Logger;
@@ -27,7 +22,7 @@ export const createHandler = ({
     let sent = 0;
 
     const promises = sqsEvent.Records.map(
-      async ({ body, messageId }): Promise<ProcessingResult> => {
+      async ({ body, messageId }): Promise<void> => {
         try {
           const sqsEventBody = JSON.parse(body);
           const sqsEventDetail = sqsEventBody.detail;
@@ -37,9 +32,11 @@ export const createHandler = ({
             logger.error({
               err: pdfAnalysedValidator.errors,
               description: 'Error parsing print sender queue entry',
+              messageReference:
+                sqsEventDetail?.data?.messageReference || 'not present',
             });
             batchItemFailures.push({ itemIdentifier: messageId });
-            return { result: 'failed' };
+            return;
           }
           const pdfAnalysedEvent: PDFAnalysed = sqsEventDetail;
 
@@ -47,12 +44,10 @@ export const createHandler = ({
 
           if (result === 'failed') {
             batchItemFailures.push({ itemIdentifier: messageId });
-            return { result: 'failed' };
+            return;
           }
 
           sent += 1;
-
-          return { result, item: pdfAnalysedEvent };
         } catch (error) {
           logger.error({
             err: error,
@@ -60,16 +55,14 @@ export const createHandler = ({
           });
 
           batchItemFailures.push({ itemIdentifier: messageId });
-
-          return { result: 'failed' };
         }
       },
     );
 
-    const results = await Promise.allSettled(promises);
+    await Promise.all(promises);
 
     const processed: Record<PrintSenderOutcome | 'retrieved', number> = {
-      retrieved: results.length,
+      retrieved: sqsEvent.Records.length,
       sent,
       failed: batchItemFailures.length,
     };

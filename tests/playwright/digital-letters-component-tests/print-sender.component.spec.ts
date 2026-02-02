@@ -1,10 +1,15 @@
 import { expect, test } from '@playwright/test';
-import { ENV } from 'constants/backend-constants';
+import {
+  ENV,
+  PRINT_SENDER_DLQ_NAME,
+  PRINT_SENDER_LAMBDA_LOG_GROUP_NAME,
+} from 'constants/backend-constants';
 import { PDFAnalysed } from 'digital-letters-events';
 import pdfAnalysedValidator from 'digital-letters-events/PDFAnalysed.js';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
+import { expectMessageContainingString } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Print Sender', () => {
@@ -63,5 +68,53 @@ test.describe('Digital Letters - Print Sender', () => {
 
       expect(eventLogEntry.length).toEqual(1);
     });
+  });
+
+  test('should send invalid event to print sender dlq', async () => {
+    test.setTimeout(250_000);
+
+    const messageReference = uuidv4();
+    const event = {
+      id: uuidv4(),
+      specversion: '1.0',
+      source:
+        '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+      subject:
+        'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+      type: 'uk.nhs.notify.digital.letters.print.pdf.analysed.v1',
+      time: '2023-06-20T12:00:00Z',
+      recordedtime: '2023-06-20T12:00:00.250Z',
+      severitynumber: 2,
+      traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+      datacontenttype: 'application/json',
+      dataschema:
+        'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-pdf-analysed-data.schema.json',
+      severitytext: 'INFO',
+      data: {
+        messageReference,
+      },
+    } as unknown as PDFAnalysed;
+
+    // Send event bypassing validation to trigger validation error in lambda
+    await eventPublisher.sendEvents<PDFAnalysed>([event], () => true);
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        PRINT_SENDER_LAMBDA_LOG_GROUP_NAME,
+        [
+          '$.message.description = "Error parsing print sender queue entry"',
+          `$.message.err[0].message = "must have required property 'senderId'"`,
+          `$.message.messageReference = "${messageReference}"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
+    }, 120);
+
+    await expectMessageContainingString(
+      PRINT_SENDER_DLQ_NAME,
+      messageReference,
+      120,
+    );
   });
 });

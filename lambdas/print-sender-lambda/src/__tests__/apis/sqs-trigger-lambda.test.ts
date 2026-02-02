@@ -69,10 +69,14 @@ describe('sqs-trigger-lambda', () => {
   });
 
   it('should process valid SQS messages successfully', async () => {
-    const validEvent = createValidEvent();
+    const event1 = createValidEvent({ id: 'id-1' });
+    const event2 = createValidEvent({ id: 'id-2' });
+    const event3 = createValidEvent({ id: 'id-3' });
     const sqsEvent: SQSEvent = {
       Records: [
-        createSQSRecord(JSON.stringify({ detail: validEvent }), 'message-1'),
+        createSQSRecord(JSON.stringify({ detail: event1 }), 'message-1'),
+        createSQSRecord(JSON.stringify({ detail: event2 }), 'message-2'),
+        createSQSRecord(JSON.stringify({ detail: event3 }), 'message-3'),
       ],
     };
 
@@ -81,12 +85,15 @@ describe('sqs-trigger-lambda', () => {
     const result = await handler(sqsEvent);
 
     expect(result.batchItemFailures).toEqual([]);
-    expect(mockPrintSender.send).toHaveBeenCalledWith(validEvent);
+    expect(mockPrintSender.send).toHaveBeenCalledTimes(3);
+    expect(mockPrintSender.send).toHaveBeenCalledWith(event1);
+    expect(mockPrintSender.send).toHaveBeenCalledWith(event2);
+    expect(mockPrintSender.send).toHaveBeenCalledWith(event3);
     expect(mockLogger.info).toHaveBeenCalledWith(
       expect.objectContaining({
         description: 'Processed SQS Event.',
-        retrieved: 1,
-        sent: 1,
+        retrieved: 3,
+        sent: 3,
         failed: 0,
       }),
     );
@@ -106,6 +113,7 @@ describe('sqs-trigger-lambda', () => {
     expect(mockLogger.error).toHaveBeenCalledWith(
       expect.objectContaining({
         description: 'Error parsing print sender queue entry',
+        messageReference: 'not present',
       }),
     );
     expect(mockPrintSender.send).not.toHaveBeenCalled();
@@ -126,46 +134,38 @@ describe('sqs-trigger-lambda', () => {
     expect(result.batchItemFailures).toEqual([{ itemIdentifier: 'message-1' }]);
   });
 
-  it('should handle multiple messages in batch', async () => {
-    const event1 = createValidEvent({ id: 'id-1' });
-    const event2 = createValidEvent({ id: 'id-2' });
-    const sqsEvent: SQSEvent = {
-      Records: [
-        createSQSRecord(JSON.stringify({ detail: event1 }), 'message-1'),
-        createSQSRecord(JSON.stringify({ detail: event2 }), 'message-2'),
-      ],
-    };
-
-    mockPrintSender.send.mockResolvedValue('sent');
-
-    const result = await handler(sqsEvent);
-
-    expect(result.batchItemFailures).toEqual([]);
-    expect(mockPrintSender.send).toHaveBeenCalledTimes(2);
-  });
-
   it('should handle partial batch failures', async () => {
     const event1 = createValidEvent({ id: 'id-1' });
     const event2 = createValidEvent({ id: 'id-2' });
+    const event4 = createValidEvent({ id: 'id-3' });
+    const event5 = createValidEvent({ id: 'id-4' });
     const sqsEvent: SQSEvent = {
       Records: [
         createSQSRecord(JSON.stringify({ detail: event1 }), 'message-1'),
         createSQSRecord(JSON.stringify({ detail: event2 }), 'message-2'),
+        createSQSRecord(JSON.stringify({ detail: event4 }), 'message-3'),
+        createSQSRecord(JSON.stringify({ detail: event5 }), 'message-4'),
       ],
     };
 
     mockPrintSender.send
       .mockResolvedValueOnce('sent')
+      .mockResolvedValueOnce('failed')
+      .mockResolvedValueOnce('failed')
       .mockResolvedValueOnce('failed');
 
     const result = await handler(sqsEvent);
 
-    expect(result.batchItemFailures).toEqual([{ itemIdentifier: 'message-2' }]);
+    expect(result.batchItemFailures).toEqual([
+      { itemIdentifier: 'message-2' },
+      { itemIdentifier: 'message-3' },
+      { itemIdentifier: 'message-4' },
+    ]);
     expect(mockLogger.info).toHaveBeenCalledWith(
       expect.objectContaining({
-        retrieved: 2,
+        retrieved: 4,
         sent: 1,
-        failed: 1,
+        failed: 3,
       }),
     );
   });

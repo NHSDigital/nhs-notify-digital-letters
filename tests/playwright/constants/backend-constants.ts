@@ -22,6 +22,8 @@ export const CORE_NOTIFIER_DLQ_NAME = `${CSI}-core-notifier-dlq`;
 export const PRINT_STATUS_HANDLER_DLQ_NAME = `${CSI}-print-status-handler-dlq`;
 export const HANDLE_TTL_DLQ_NAME = `${CSI}-ttl-handle-expiry-errors-queue`;
 export const PRINT_ANALYSER_DLQ_NAME = `${CSI}-print-analyser-dlq`;
+export const PRINT_SENDER_DLQ_NAME = `${CSI}-print-sender-dlq`;
+export const EVENT_PUBLISHER_DLQ_NAME = `${CSI}-event-publisher-errors`;
 
 // Queue Url Prefix
 export const SQS_URL_PREFIX = `https://sqs.${REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/`;
@@ -44,3 +46,4 @@ export const PDM_POLL_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-poll`;
 export const CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-core-notifier`;
 export const PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-status-handler`;
 export const PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-analyser`;
+export const PRINT_SENDER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-sender`;
