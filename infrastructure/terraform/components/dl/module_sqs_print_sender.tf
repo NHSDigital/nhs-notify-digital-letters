@@ -1,5 +1,5 @@
 module "sqs_print_sender" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip"
 
   aws_account_id = var.aws_account_id
   component      = local.component
@@ -12,7 +12,8 @@ module "sqs_print_sender" {
 
   visibility_timeout_seconds = 60
 
-  create_dlq = true
+  create_dlq        = true
+  max_receive_count = 1
 
   sqs_policy_overload = data.aws_iam_policy_document.sqs_print_sender.json
 }

@@ -70,7 +70,7 @@ No requirements.
 | <a name="module_sqs_pdm_poll"></a> [sqs\_pdm\_poll](#module\_sqs\_pdm\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_pdm_uploader"></a> [sqs\_pdm\_uploader](#module\_sqs\_pdm\_uploader) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_print_analyser"></a> [sqs\_print\_analyser](#module\_sqs\_print\_analyser) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip | n/a |
-| <a name="module_sqs_print_sender"></a> [sqs\_print\_sender](#module\_sqs\_print\_sender) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
+| <a name="module_sqs_print_sender"></a> [sqs\_print\_sender](#module\_sqs\_print\_sender) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip | n/a |
 | <a name="module_sqs_print_status_handler"></a> [sqs\_print\_status\_handler](#module\_sqs\_print\_status\_handler) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip | n/a |
 | <a name="module_sqs_scanner"></a> [sqs\_scanner](#module\_sqs\_scanner) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
 | <a name="module_sqs_ttl"></a> [sqs\_ttl](#module\_sqs\_ttl) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip | n/a |
