@@ -6,7 +6,7 @@ resource "aws_glue_catalog_table" "transactions" {
   table_type = "EXTERNAL_TABLE"
 
   storage_descriptor {
-    location = "s3://${aws_s3_bucket.reporting.bucket}/${local.firehose_output_path_prefix}/reporting/parquet/transaction_history"
+    location = "s3://${module.s3bucket_reporting.bucket}/${local.firehose_output_path_prefix}/reporting/parquet/transaction_history"
 
     input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"

@@ -5,7 +5,7 @@ resource "aws_kinesis_firehose_delivery_stream" "to_s3_reporting" {
 
   extended_s3_configuration {
     role_arn   = aws_iam_role.firehose_role.arn
-    bucket_arn = aws_s3_bucket.reporting.arn
+    bucket_arn = module.s3bucket_reporting.arn
 
     prefix              = "${local.firehose_output_path_prefix}/reporting/parquet/transaction_history/senderid=!{partitionKeyFromLambda:senderId}/__year=!{partitionKeyFromLambda:year}/__month=!{partitionKeyFromLambda:month}/__day=!{partitionKeyFromLambda:day}/"
     error_output_prefix = "${local.firehose_output_path_prefix}/errors/!{timestamp:yyyy}-!{timestamp:MM}-!{timestamp:dd}-!{timestamp:HH}/!{firehose:error-output-type}/"
@@ -164,8 +164,8 @@ data "aws_iam_policy_document" "firehose_policy" {
     ]
 
     resources = [
-      aws_s3_bucket.reporting.arn,
-      "${aws_s3_bucket.reporting.arn}/${local.firehose_output_path_prefix}/*"
+      module.s3bucket_reporting.arn,
+      "${module.s3bucket_reporting.arn}/${local.firehose_output_path_prefix}/*"
     ]
   }
 
@@ -185,7 +185,7 @@ data "aws_iam_policy_document" "firehose_policy" {
       test     = "StringLike"
       variable = "kms:EncryptionContext:aws:s3:arn"
       values = [
-        "${aws_s3_bucket.reporting.arn}"
+        "${module.s3bucket_reporting.arn}"
       ]
     }
 

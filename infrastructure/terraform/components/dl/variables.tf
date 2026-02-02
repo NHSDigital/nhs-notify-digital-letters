@@ -181,12 +181,6 @@ variable "enable_pdm_mock" {
   default     = true
 }
 
-variable "enable_backups" {
-  type        = bool
-  description = "Enable backups"
-  default     = false
-}
-
 variable "pii_data_retention_policy_days" {
   type        = number
   description = "The number of days for data retention policy for PII"

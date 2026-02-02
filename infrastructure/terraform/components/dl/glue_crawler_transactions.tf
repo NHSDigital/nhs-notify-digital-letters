@@ -69,8 +69,8 @@ data "aws_iam_policy_document" "glue_crawler_policy" {
     ]
 
     resources = [
-      aws_s3_bucket.reporting.arn,
-      "${aws_s3_bucket.reporting.arn}/${local.firehose_output_path_prefix}/*"
+      module.s3bucket_reporting.arn,
+      "${module.s3bucket_reporting.arn}/${local.firehose_output_path_prefix}/*"
     ]
   }
 
