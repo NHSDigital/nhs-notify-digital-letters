@@ -1,5 +1,9 @@
 import { type Readable } from 'node:stream';
-import { GetObjectCommand, GetObjectCommandOutput } from '@aws-sdk/client-s3';
+import {
+  GetObjectCommand,
+  GetObjectCommandOutput,
+  HeadObjectCommand,
+} from '@aws-sdk/client-s3';
 import { s3Client } from './s3-client';
 
 export function isReadable(
@@ -119,6 +123,27 @@ export async function getS3ObjectBufferFromUri(uri: string): Promise<Buffer> {
     const msg = error instanceof Error ? error.message : String(error);
     throw new Error(
       `Could not retrieve from bucket 's3://${Bucket}/${Key}' from S3: ${msg}`,
+    );
+  }
+}
+
+export async function getS3ObjectMetadata(
+  location: S3Location,
+): Promise<Record<string, string> | undefined> {
+  const { Bucket, Key, VersionId } = location;
+  try {
+    const response = await s3Client.send(
+      new HeadObjectCommand({
+        Bucket,
+        Key,
+        VersionId,
+      }),
+    );
+    return response.Metadata;
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Could not retrieve metadata from bucket 's3://${Bucket}/${Key}' from S3: ${msg}`,
     );
   }
 }
