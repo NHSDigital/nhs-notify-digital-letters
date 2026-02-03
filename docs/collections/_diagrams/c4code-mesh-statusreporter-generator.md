@@ -16,12 +16,14 @@ architecture-beta
     service sqs(logos:aws-sqs)[ReportGenerator Queue] in reportGenerator
     service reportGeneratorLambda(logos:aws-lambda)[Report Generator] in reportGenerator
     service s3(logos:aws-s3)[Reports] in reportGenerator
-    service reportsdb(aws:arch-amazon-athena)[Reports] in reportGenerator
+    service athena(aws:arch-amazon-athena)[Athena] in reportGenerator
+    service glue(aws:arch-aws-glue)[Glue Event Record] in reportGenerator
     service reportGeneratedEvent(aws:res-amazon-eventbridge-event)[ReportGenerated Event]
 
     generateReportEvent:R --> L:sqs
     sqs:R --> L:reportGeneratorLambda
-    reportGeneratorLambda:T <-- B:reportsdb
+    reportGeneratorLambda:T --> B:athena
+    athena:T --> B:glue
     reportGeneratorLambda:B --> T:s3
     reportGeneratorLambda:R --> L:reportGeneratedEvent
 ```
