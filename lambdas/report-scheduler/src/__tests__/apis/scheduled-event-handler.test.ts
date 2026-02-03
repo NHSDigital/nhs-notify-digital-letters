@@ -124,7 +124,9 @@ describe('scheduled-event-handler', () => {
       expect(event.data.reportPeriodEndTime).toBe('2024-01-14T23:59:59.999Z');
       expect(event.specversion).toBe('1.0');
       expect(event.id).toBeDefined();
-      expect(event.source).toBe('');
+      expect(event.source).toBe(
+        '/nhs/england/notify/production/primary/data-plane/digitalletters/report-scheduler',
+      );
       expect(event.subject).toBe('customer/test-sender-123');
       expect(event.type).toBe(
         'uk.nhs.notify.digital.letters.reporting.generate.report.v1',

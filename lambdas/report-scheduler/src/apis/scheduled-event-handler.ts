@@ -43,11 +43,12 @@ export const createHandler = ({
         },
         specversion: '1.0',
         id: randomUUID(),
-        source: '',
+        source:
+          '/nhs/england/notify/production/primary/data-plane/digitalletters/report-scheduler', // CCM-13892
         subject: `customer/${sender.senderId}`,
         type: 'uk.nhs.notify.digital.letters.reporting.generate.report.v1',
         time: new Date().toISOString(),
-        traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+        traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01', // CCM-14255
         recordedtime: new Date().toISOString(),
         severitynumber: 2,
       })),
