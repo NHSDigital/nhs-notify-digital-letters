@@ -12,6 +12,10 @@ properties:
     $ref: ../defs/print.schema.yaml#/properties/specificationId
   status:
     $ref: ../defs/print.schema.yaml#/properties/status
+  reasonCode:
+    $ref: ../defs/print.schema.yaml#/properties/reasonCode
+  reasonText:
+    $ref: ../defs/print.schema.yaml#/properties/reasonText
   supplierId:
     $ref: ../defs/print.schema.yaml#/properties/supplierId
   time:
