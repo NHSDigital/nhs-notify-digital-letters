@@ -1,23 +1,24 @@
-module "sqs_core_notifier" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip"
+module "sqs_print_sender" {
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip"
 
   aws_account_id = var.aws_account_id
   component      = local.component
   environment    = var.environment
   project        = var.project
   region         = var.region
-  name           = "core-notifier"
+  name           = "print-sender"
 
   sqs_kms_key_arn = module.kms.key_arn
 
   visibility_timeout_seconds = 60
 
-  create_dlq = true
+  create_dlq        = true
+  max_receive_count = 1
 
-  sqs_policy_overload = data.aws_iam_policy_document.sqs_inbound_event.json
+  sqs_policy_overload = data.aws_iam_policy_document.sqs_print_sender.json
 }
 
-data "aws_iam_policy_document" "sqs_inbound_event" {
+data "aws_iam_policy_document" "sqs_print_sender" {
   statement {
     sid    = "AllowEventBridgeToSendMessage"
     effect = "Allow"
@@ -32,13 +33,13 @@ data "aws_iam_policy_document" "sqs_inbound_event" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-core-notifier-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-print-sender-queue"
     ]
 
     condition {
-      test     = "ArnLike"
+      test     = "ArnEquals"
       variable = "aws:SourceArn"
-      values   = [aws_cloudwatch_event_rule.pdm_resource_available.arn]
+      values   = [aws_cloudwatch_event_rule.pdf_analysed.arn]
     }
   }
 }

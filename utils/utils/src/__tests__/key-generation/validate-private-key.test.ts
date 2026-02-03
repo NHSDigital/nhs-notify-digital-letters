@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/hardcoded-secret-signatures */
 import { JWK } from 'node-jose';
 import {
   ValidateKeyResult,

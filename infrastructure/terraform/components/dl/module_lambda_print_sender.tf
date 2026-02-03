@@ -1,8 +1,8 @@
-module "print_analyser" {
+module "print_sender" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
 
-  function_name = "print-analyser"
-  description   = "A function for processing file safe events"
+  function_name = "print-sender"
+  description   = "A function to trigger letter prints"
 
   aws_account_id = var.aws_account_id
   component      = local.component
@@ -15,12 +15,12 @@ module "print_analyser" {
   kms_key_arn           = module.kms.key_arn
 
   iam_policy_document = {
-    body = data.aws_iam_policy_document.print_analyser.json
+    body = data.aws_iam_policy_document.print_sender_lambda.json
   }
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
   function_code_base_path = local.aws_lambda_functions_dir_path
-  function_code_dir       = "print-analyser/dist"
+  function_code_dir       = "print-sender-lambda/dist"
   function_include_common = true
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
@@ -37,10 +37,12 @@ module "print_analyser" {
   lambda_env_vars = {
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
+    "ENVIRONMENT"                   = var.environment
+    "ACCOUNT_TYPE"                  = var.aws_account_type
   }
 }
 
-data "aws_iam_policy_document" "print_analyser" {
+data "aws_iam_policy_document" "print_sender_lambda" {
   statement {
     sid    = "PutEvents"
     effect = "Allow"
@@ -55,21 +57,7 @@ data "aws_iam_policy_document" "print_analyser" {
   }
 
   statement {
-    sid    = "SQSPermissionsDLQs"
-    effect = "Allow"
-
-    actions = [
-      "sqs:SendMessage",
-      "sqs:SendMessageBatch",
-    ]
-
-    resources = [
-      module.sqs_event_publisher_errors.sqs_queue_arn,
-    ]
-  }
-
-  statement {
-    sid    = "SQSPermissionsPrintAnalyserQueue"
+    sid    = "SQSPermissionsPrintSenderQueue"
     effect = "Allow"
 
     actions = [
@@ -80,20 +68,21 @@ data "aws_iam_policy_document" "print_analyser" {
     ]
 
     resources = [
-      module.sqs_print_analyser.sqs_queue_arn,
+      module.sqs_print_sender.sqs_queue_arn,
     ]
   }
 
   statement {
-    sid    = "S3PermissionsPrintAnalyserQueue"
+    sid    = "SQSPermissionsEventPublisherDLQ"
     effect = "Allow"
 
     actions = [
-      "s3:GetObject",
+      "sqs:SendMessage",
+      "sqs:SendMessageBatch",
     ]
 
     resources = [
-      "${module.s3bucket_file_safe.arn}/*",
+      module.sqs_event_publisher_errors.sqs_queue_arn,
     ]
   }
 }
