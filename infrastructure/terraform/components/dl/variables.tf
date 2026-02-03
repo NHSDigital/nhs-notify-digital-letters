@@ -89,7 +89,7 @@ variable "parent_acct_environment" {
 variable "mesh_poll_schedule" {
   type        = string
   description = "Schedule to poll MESH for messages"
-  default     = "rate(5 minutes)"  # Every 5 minutes
+  default     = "rate(5 minutes)" # Every 5 minutes
 }
 
 variable "enable_mock_mesh" {
@@ -140,7 +140,6 @@ variable "apim_base_url" {
   default     = "https://int.api.service.nhs.uk"
 }
 
-
 variable "core_notify_url" {
   type        = string
   description = "The URL used to send requests to Notify"
@@ -169,10 +168,21 @@ variable "force_destroy" {
   type        = bool
   description = "Flag to force deletion of S3 buckets"
   default     = false
+
+  validation {
+    condition     = !(var.force_destroy && var.environment == "prod")
+    error_message = "force_destroy must not be set to true when environment is 'prod'."
+  }
 }
 
 variable "enable_pdm_mock" {
   type        = bool
   description = "Flag indicating whether to deploy PDM mock API (should be false in production environments)"
   default     = true
+}
+
+variable "pii_data_retention_policy_days" {
+  type        = number
+  description = "The number of days for data retention policy for PII"
+  default     = 534
 }
