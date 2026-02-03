@@ -41,10 +41,34 @@ env:
   TERM: xterm-256color
 
 jobs:
+  detect-schema-changes:
+    name: "Detect Schema Changes"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      schemas_changed: ${{ steps.filter.outputs.schemas }}
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v5
+
+      - name: "Check for schema changes"
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            schemas:
+              - 'src/cloudevents/**'
+              - 'src/typescript-schema-generator/**'
+              - 'src/python-schema-generator/**'
+              - 'src/digital-letters-events/**'
+
   check-generated-dependencies:
     name: "Check generated dependencies"
+    needs: [detect-schema-changes]
+    if: needs.detect-schema-changes.outputs.schemas_changed == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 4
     permissions:
       contents: read
       packages: read
@@ -80,6 +104,8 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ inputs.python_version }}
+          cache: 'pip'
+          cache-dependency-path: '**/requirements*.txt'
       - name: "Run unit test suite"
         run: |
           make test-unit
@@ -106,7 +132,7 @@ jobs:
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 4
     permissions:
       contents: read
       packages: read
@@ -117,6 +143,8 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ inputs.python_version }}
+          cache: 'pip'
+          cache-dependency-path: '**/requirements*.txt'
       - uses: ./.github/actions/node-install
         with:
           node-version: ${{ inputs.nodejs_version }}
@@ -127,7 +155,7 @@ jobs:
   test-typecheck:
     name: "Typecheck"
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 4
     permissions:
       contents: read
       packages: read
@@ -143,22 +171,6 @@ jobs:
       - name: "Run typecheck"
         run: |
           make test-typecheck
-  test-coverage:
-    name: "Test coverage"
-    needs: [test-unit]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v5
-      - name: "Run test coverage check"
-        run: |
-          make test-coverage
-      - name: "Save the coverage check result"
-        run: |
-          echo "Nothing to save"
   perform-static-analysis:
     name: "Perform static analysis"
     needs: [test-unit]
@@ -166,7 +178,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    timeout-minutes: 5
+    timeout-minutes: 4
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v5

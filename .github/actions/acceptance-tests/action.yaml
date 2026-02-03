@@ -34,7 +34,7 @@ runs:
       with:
         node-version: ${{ steps.nodejs_version.outputs.nodejs_version }}
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
-    - name: "Repo setup"
+    - name: "Install dependencies"
       shell: bash
       run: |
         npm ci
