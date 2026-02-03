@@ -2,6 +2,7 @@ import { EventPublisher, Logger, Sender } from 'utils';
 import { ISenderManagement } from 'sender-management';
 import { GenerateReport } from 'digital-letters-events';
 import { createHandler } from 'apis/scheduled-event-handler';
+import GenerateReportValidator from 'digital-letters-events/GenerateReport.js';
 
 describe('scheduled-event-handler', () => {
   let mockLogger: jest.Mocked<Logger>;
@@ -125,7 +126,7 @@ describe('scheduled-event-handler', () => {
       expect(event.specversion).toBe('1.0');
       expect(event.id).toBeDefined();
       expect(event.source).toBe(
-        '/nhs/england/notify/production/primary/data-plane/digitalletters/report-scheduler',
+        '/nhs/england/notify/production/primary/data-plane/digitalletters/reporting',
       );
       expect(event.subject).toBe('customer/test-sender-123');
       expect(event.type).toBe(
@@ -133,6 +134,10 @@ describe('scheduled-event-handler', () => {
       );
       expect(event.time).toBe('2024-01-15T12:00:00.000Z');
       expect(event.severitynumber).toBe(2);
+
+      const isEventValid = GenerateReportValidator(event);
+      expect(GenerateReportValidator.errors).toBeNull();
+      expect(isEventValid).toBe(true);
     });
 
     it('should handle empty sender list', async () => {

@@ -44,7 +44,7 @@ export const createHandler = ({
         specversion: '1.0',
         id: randomUUID(),
         source:
-          '/nhs/england/notify/production/primary/data-plane/digitalletters/report-scheduler', // CCM-13892
+          '/nhs/england/notify/production/primary/data-plane/digitalletters/reporting', // CCM-13892
         subject: `customer/${sender.senderId}`,
         type: 'uk.nhs.notify.digital.letters.reporting.generate.report.v1',
         time: new Date().toISOString(),
