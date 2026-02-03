@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "aws-lambda": "^1.0.7",
+    "digital-letters-events": "^0.0.1",
+    "p-limit": "^3.1.0",
+    "sender-management": "^0.0.1",
+    "utils": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tsconfig/node22": "^22.0.2",
+    "@types/aws-lambda": "^8.10.155",
+    "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.20",
+    "aws-sdk-client-mock": "^4.1.0",
+    "aws-sdk-client-mock-jest": "^4.1.0",
+    "jest": "^29.7.0",
+    "jest-mock-extended": "^3.0.7",
+    "typescript": "^5.9.3"
+  },
+  "name": "nhs-notify-digital-letters-report-scheduler-lambda",
+  "private": true,
+  "scripts": {
+    "lambda-build": "rm -rf dist && npx esbuild --bundle --minify --sourcemap --target=es2020 --platform=node --loader:.node=file --entry-names=[name] --outdir=dist src/index.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test:unit": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "version": "0.0.1"
+}

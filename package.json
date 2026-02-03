@@ -66,6 +66,7 @@
     "lambdas/core-notifier-lambda",
     "lambdas/print-status-handler",
     "lambdas/print-analyser",
+    "lambdas/report-scheduler",
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",

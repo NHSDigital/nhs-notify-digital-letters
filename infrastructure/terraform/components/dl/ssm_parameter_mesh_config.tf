@@ -10,7 +10,7 @@ resource "aws_ssm_parameter" "mesh_config" {
     mesh_mailbox          = "mock-mailbox"
     mesh_mailbox_password = "mock-password"
     mesh_shared_key       = "mock-shared-key"
-  }) : jsonencode({
+    }) : jsonencode({
     mesh_endpoint         = "UNSET"
     mesh_mailbox          = "UNSET"
     mesh_mailbox_password = "UNSET"
@@ -18,7 +18,7 @@ resource "aws_ssm_parameter" "mesh_config" {
   })
 
   tags = merge(local.default_tags, {
-    Backup = "true"
+    Backup      = "true"
     Description = "MESH configuration"
   })
 
@@ -37,7 +37,7 @@ resource "aws_ssm_parameter" "mesh_client_cert" {
   value       = var.enable_mock_mesh ? "mock-cert" : "UNSET"
 
   tags = merge(local.default_tags, {
-    Backup = "true"
+    Backup      = "true"
     Description = "MESH client certificate"
   })
 
@@ -56,7 +56,7 @@ resource "aws_ssm_parameter" "mesh_client_key" {
   value       = var.enable_mock_mesh ? "mock-key" : "UNSET"
 
   tags = merge(local.default_tags, {
-    Backup = "true"
+    Backup      = "true"
     Description = "MESH client private key"
   })
 
