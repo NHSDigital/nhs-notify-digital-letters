@@ -1,7 +1,7 @@
-module "s3bucket_file_safe" {
+module "s3bucket_file_quarantine" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-s3bucket.zip"
 
-  name = "file-safe"
+  name = "file-quarantine"
 
   aws_account_id = var.aws_account_id
   region         = var.region
@@ -11,7 +11,7 @@ module "s3bucket_file_safe" {
 
   kms_key_arn = module.kms.key_arn
 
-  policy_documents = [data.aws_iam_policy_document.s3bucket_file_safe.json]
+  policy_documents = [data.aws_iam_policy_document.s3bucket_file_quarantine.json]
 
   force_destroy = var.force_destroy
 
@@ -41,7 +41,7 @@ module "s3bucket_file_safe" {
   ]
 }
 
-data "aws_iam_policy_document" "s3bucket_file_safe" {
+data "aws_iam_policy_document" "s3bucket_file_quarantine" {
   statement {
     sid    = "AllowManagedAccountsToList"
     effect = "Allow"
@@ -51,7 +51,7 @@ data "aws_iam_policy_document" "s3bucket_file_safe" {
     ]
 
     resources = [
-      module.s3bucket_file_safe.arn,
+      module.s3bucket_file_quarantine.arn,
     ]
 
     principals {
@@ -63,15 +63,16 @@ data "aws_iam_policy_document" "s3bucket_file_safe" {
   }
 
   statement {
-    sid    = "AllowManagedAccountsToGet"
+    sid    = "AllowManagedAccountsToGetPut"
     effect = "Allow"
 
     actions = [
       "s3:GetObject",
+      "s3:PutObject",
     ]
 
     resources = [
-      "${module.s3bucket_file_safe.arn}/*",
+      "${module.s3bucket_file_quarantine.arn}/*",
     ]
 
     principals {

@@ -1,4 +1,4 @@
-module "sqs_ttl" {
+module "sqs_move_scanned_files" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip"
 
   aws_account_id = var.aws_account_id
@@ -6,7 +6,7 @@ module "sqs_ttl" {
   environment    = var.environment
   project        = var.project
   region         = var.region
-  name           = "ttl"
+  name           = "move-scanned-files"
 
   sqs_kms_key_arn = module.kms.key_arn
 
@@ -14,10 +14,10 @@ module "sqs_ttl" {
 
   create_dlq = true
 
-  sqs_policy_overload = data.aws_iam_policy_document.sqs_ttl.json
+  sqs_policy_overload = data.aws_iam_policy_document.sqs_move_scanned_files.json
 }
 
-data "aws_iam_policy_document" "sqs_ttl" {
+data "aws_iam_policy_document" "sqs_move_scanned_files" {
   statement {
     sid    = "AllowEventBridgeToSendMessage"
     effect = "Allow"
@@ -32,7 +32,13 @@ data "aws_iam_policy_document" "sqs_ttl" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-ttl-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-move-scanned-files-queue"
     ]
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [aws_cloudwatch_event_rule.guardduty_scan_result.arn]
+    }
   }
 }
