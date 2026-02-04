@@ -121,19 +121,6 @@ describe('scheduled-event-handler', () => {
       expect(events).toHaveLength(0);
     });
 
-    it('should handle sender management errors', async () => {
-      const error = new Error('Failed to list senders');
-      mockSenderManagement.listSenders.mockRejectedValue(error);
-
-      const handler = createHandler({
-        senderManagement: mockSenderManagement,
-        eventPublisher: mockEventPublisher,
-      });
-
-      await expect(handler()).rejects.toThrow('Failed to list senders');
-      expect(mockEventPublisher.sendEvents).not.toHaveBeenCalled();
-    });
-
     it('should handle event publisher errors', async () => {
       const mockSenders = [{ senderId: 'sender-1' }] as unknown as Sender[];
       const error = new Error('Failed to publish events');

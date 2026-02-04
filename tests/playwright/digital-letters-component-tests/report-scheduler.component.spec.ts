@@ -3,7 +3,11 @@ import {
   EVENT_BUS_LOG_GROUP_NAME,
   REPORT_SCHEDULER_LAMBDA_NAME,
 } from 'constants/backend-constants';
-import { SENDER_ID_SKIPS_NOTIFY, SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX, SENDER_ID_VALID_FOR_NOTIFY_SANDBOX } from 'constants/tests-constants';
+import {
+  SENDER_ID_SKIPS_NOTIFY,
+  SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX,
+  SENDER_ID_VALID_FOR_NOTIFY_SANDBOX,
+} from 'constants/tests-constants';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { invokeLambda } from 'helpers/lambda-helpers';
@@ -50,7 +54,9 @@ test.describe('Digital Letters - Report Scheduler', () => {
 
       const senderIds = parsedEvents.map((event) => event.data.senderId);
       expect(senderIds).toContain(SENDER_ID_VALID_FOR_NOTIFY_SANDBOX);
-      expect(senderIds).toContain(SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX);
+      expect(senderIds).toContain(
+        SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX,
+      );
       expect(senderIds).toContain(SENDER_ID_SKIPS_NOTIFY);
     }, 120);
   });
