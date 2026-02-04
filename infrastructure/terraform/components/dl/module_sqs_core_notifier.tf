@@ -1,5 +1,5 @@
 module "sqs_core_notifier" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip"
 
   aws_account_id = var.aws_account_id
   component      = local.component
@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "sqs_inbound_event" {
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = [ aws_cloudwatch_event_rule.pdm_resource_available.arn ]
+      values   = [aws_cloudwatch_event_rule.pdm_resource_available.arn]
     }
   }
 }
