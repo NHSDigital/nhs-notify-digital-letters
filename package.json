@@ -68,6 +68,7 @@
     "lambdas/print-status-handler",
     "lambdas/print-analyser",
     "lambdas/report-scheduler",
+    "lambdas/report-event-transformer",
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",
