@@ -21,15 +21,9 @@ properties:
     description: Id of the mailbox used to receive daily reports
     examples:
       - "MAILBOX02"
-  reportPeriodStartTime:
+  reportDate:
     type: string
-    format: date-time
-    description: Start time of the reporting period
+    format: date
+    description: Date covered by the report
     examples:
-      - "2025-12-03T00:00:00Z"
-  reportPeriodEndTime:
-    type: string
-    format: date-time
-    description: End time of the reporting period
-    examples:
-      - "2025-12-04T23:59:59Z"
+      - "2025-12-03"
