@@ -1,36 +1,22 @@
-import { EventPublisher, Logger } from 'utils';
+import { EventPublisher } from 'utils';
 import { ISenderManagement } from 'sender-management';
 import { GenerateReport } from 'digital-letters-events';
 import GenerateReportValidator from 'digital-letters-events/GenerateReport.js';
 import { randomUUID } from 'node:crypto';
 
 export type CreateHandlerDependencies = {
-  logger: Logger;
   senderManagement: ISenderManagement;
   eventPublisher: EventPublisher;
 };
 
 export const createHandler = ({
   eventPublisher,
-  logger,
   senderManagement,
 }: CreateHandlerDependencies) => {
-  function yesterdayDateRange() {
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const yesterdayStart = new Date(yesterday.setUTCHours(0, 0, 0, 0));
-    const yesterdayEnd = new Date(yesterday.setUTCHours(23, 59, 59, 999));
-
-    logger.debug({
-      description: 'Calculated yesterday date range',
-      yesterdayStart: yesterdayStart.toISOString(),
-      yesterdayEnd: yesterdayEnd.toISOString(),
-    });
-
-    return { yesterdayStart, yesterdayEnd };
-  }
-
   return async () => {
-    const { yesterdayEnd, yesterdayStart } = yesterdayDateRange();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = yesterday.toISOString().split('T')[0];
 
     const senders = await senderManagement.listSenders();
 
@@ -38,8 +24,7 @@ export const createHandler = ({
       senders.map((sender) => ({
         data: {
           senderId: sender.senderId,
-          reportPeriodStartTime: yesterdayStart.toISOString(),
-          reportPeriodEndTime: yesterdayEnd.toISOString(),
+          reportDate: yesterdayString,
         },
         specversion: '1.0',
         id: randomUUID(),

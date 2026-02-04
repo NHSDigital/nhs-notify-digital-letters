@@ -2,4 +2,3 @@
 CVE-2024-49761 # https://avd.aquasec.com/nvd/cve-2024-49761 ## latest Jekyll Webpack (0.2.7) installs old version of rexml
 CVE-2024-47220 # https://avd.aquasec.com/nvd/cve-2024-47220 ## latest lint_roller (1.1.0) installs old version of rexml
 CVE-2024-7254 # https://avd.aquasec.com/nvd/cve-2024-7254 ## latest Jekyll Webpack (0.2.7) installs old version of google-protobuf
-CVE-2026-25128

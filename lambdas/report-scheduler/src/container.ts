@@ -25,7 +25,7 @@ export const createContainer = (): CreateHandlerDependencies => {
     eventBridgeClient,
   });
 
-  return { logger, senderManagement, eventPublisher };
+  return { senderManagement, eventPublisher };
 };
 
 export default createContainer;

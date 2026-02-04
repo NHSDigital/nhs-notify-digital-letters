@@ -1,22 +1,14 @@
-import { EventPublisher, Logger, Sender } from 'utils';
+import { EventPublisher, Sender } from 'utils';
 import { ISenderManagement } from 'sender-management';
 import { GenerateReport } from 'digital-letters-events';
 import { createHandler } from 'apis/scheduled-event-handler';
 import GenerateReportValidator from 'digital-letters-events/GenerateReport.js';
 
 describe('scheduled-event-handler', () => {
-  let mockLogger: jest.Mocked<Logger>;
   let mockSenderManagement: jest.Mocked<ISenderManagement>;
   let mockEventPublisher: jest.Mocked<EventPublisher>;
 
   beforeEach(() => {
-    mockLogger = {
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-    } as unknown as jest.Mocked<Logger>;
-
     mockSenderManagement = {
       listSenders: jest.fn(),
     } as unknown as jest.Mocked<ISenderManagement>;
@@ -33,34 +25,11 @@ describe('scheduled-event-handler', () => {
   });
 
   describe('createHandler', () => {
-    it('should calculate yesterday date range correctly', async () => {
-      const mockDate = new Date('2024-01-15T12:00:00.000Z');
-      jest.setSystemTime(mockDate);
-
-      mockSenderManagement.listSenders.mockResolvedValue([]);
-      mockEventPublisher.sendEvents.mockResolvedValue([]);
-
-      const handler = createHandler({
-        logger: mockLogger,
-        senderManagement: mockSenderManagement,
-        eventPublisher: mockEventPublisher,
-      });
-
-      await handler();
-
-      expect(mockLogger.debug).toHaveBeenCalledWith({
-        description: 'Calculated yesterday date range',
-        yesterdayStart: '2024-01-14T00:00:00.000Z',
-        yesterdayEnd: '2024-01-14T23:59:59.999Z',
-      });
-    });
-
     it('should retrieve senders from sender management', async () => {
       mockSenderManagement.listSenders.mockResolvedValue([]);
       mockEventPublisher.sendEvents.mockResolvedValue([]);
 
       const handler = createHandler({
-        logger: mockLogger,
         senderManagement: mockSenderManagement,
         eventPublisher: mockEventPublisher,
       });
@@ -84,7 +53,6 @@ describe('scheduled-event-handler', () => {
       mockEventPublisher.sendEvents.mockResolvedValue([]);
 
       const handler = createHandler({
-        logger: mockLogger,
         senderManagement: mockSenderManagement,
         eventPublisher: mockEventPublisher,
       });
@@ -110,7 +78,6 @@ describe('scheduled-event-handler', () => {
       mockEventPublisher.sendEvents.mockResolvedValue([]);
 
       const handler = createHandler({
-        logger: mockLogger,
         senderManagement: mockSenderManagement,
         eventPublisher: mockEventPublisher,
       });
@@ -121,8 +88,7 @@ describe('scheduled-event-handler', () => {
       const event = events[0] as GenerateReport;
 
       expect(event.data.senderId).toBe('test-sender-123');
-      expect(event.data.reportPeriodStartTime).toBe('2024-01-14T00:00:00.000Z');
-      expect(event.data.reportPeriodEndTime).toBe('2024-01-14T23:59:59.999Z');
+      expect(event.data.reportDate).toBe('2024-01-14');
       expect(event.specversion).toBe('1.0');
       expect(event.id).toBeDefined();
       expect(event.source).toBe(
@@ -145,7 +111,6 @@ describe('scheduled-event-handler', () => {
       mockEventPublisher.sendEvents.mockResolvedValue([]);
 
       const handler = createHandler({
-        logger: mockLogger,
         senderManagement: mockSenderManagement,
         eventPublisher: mockEventPublisher,
       });
@@ -161,7 +126,6 @@ describe('scheduled-event-handler', () => {
       mockSenderManagement.listSenders.mockRejectedValue(error);
 
       const handler = createHandler({
-        logger: mockLogger,
         senderManagement: mockSenderManagement,
         eventPublisher: mockEventPublisher,
       });
@@ -178,7 +142,6 @@ describe('scheduled-event-handler', () => {
       mockEventPublisher.sendEvents.mockRejectedValue(error);
 
       const handler = createHandler({
-        logger: mockLogger,
         senderManagement: mockSenderManagement,
         eventPublisher: mockEventPublisher,
       });
@@ -196,7 +159,6 @@ describe('scheduled-event-handler', () => {
       mockEventPublisher.sendEvents.mockResolvedValue([]);
 
       const handler = createHandler({
-        logger: mockLogger,
         senderManagement: mockSenderManagement,
         eventPublisher: mockEventPublisher,
       });
