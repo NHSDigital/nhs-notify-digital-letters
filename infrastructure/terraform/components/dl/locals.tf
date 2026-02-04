@@ -8,9 +8,15 @@ locals {
   ssm_prefix                           = "/${var.component}/${var.environment}"
   ssm_mesh_prefix                      = "${local.ssm_prefix}/mesh"
   ssm_senders_prefix                   = "${local.ssm_prefix}/senders"
+  unscanned_files_bucket               = local.acct.additional_s3_buckets["digital-letters_unscanned-files"]["id"]
   mock_mesh_endpoint                   = "s3://${module.s3bucket_non_pii_data.bucket}/mock-mesh"
   root_domain_name                     = "${var.environment}.${local.acct.route53_zone_names["digital-letters"]}"
   root_domain_id                       = local.acct.route53_zone_ids["digital-letters"]
   ttl_shard_count                      = 3
   deploy_pdm_mock                      = var.enable_pdm_mock
+  firehose_output_path_prefix          = "kinesis-firehose-output"
+  pii_retention_config = {
+    current_days     = var.pii_data_retention_policy_days,
+    non_current_days = 14
+  }
 }
