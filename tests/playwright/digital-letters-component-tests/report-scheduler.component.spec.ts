@@ -12,17 +12,6 @@ import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { invokeLambda } from 'helpers/lambda-helpers';
 
-function yesterdayDateRange() {
-  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const yesterdayStart = new Date(yesterday.setUTCHours(0, 0, 0, 0));
-  const yesterdayEnd = new Date(yesterday.setUTCHours(23, 59, 59, 999));
-
-  return {
-    yesterdayStart: yesterdayStart.toISOString(),
-    yesterdayEnd: yesterdayEnd.toISOString(),
-  };
-}
-
 test.describe('Digital Letters - Report Scheduler', () => {
   test('should send reporting.generate.report for all senders', async () => {
     invokeLambda(REPORT_SCHEDULER_LAMBDA_NAME);
@@ -40,7 +29,9 @@ test.describe('Digital Letters - Report Scheduler', () => {
         JSON.parse(entry.details.event_detail),
       );
 
-      const { yesterdayEnd, yesterdayStart } = yesterdayDateRange();
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayString = yesterday.toISOString().split('T')[0];
 
       for (const event of parsedEvents) {
         expect(event.type).toBe(
@@ -48,8 +39,7 @@ test.describe('Digital Letters - Report Scheduler', () => {
         );
         expect(event.data).toBeDefined();
         expect(event.data.senderId).toBeDefined();
-        expect(event.data.reportPeriodStartTime).toBe(yesterdayStart);
-        expect(event.data.reportPeriodEndTime).toBe(yesterdayEnd);
+        expect(event.data.reportDate).toBe(yesterdayString);
       }
 
       const senderIds = parsedEvents.map((event) => event.data.senderId);
