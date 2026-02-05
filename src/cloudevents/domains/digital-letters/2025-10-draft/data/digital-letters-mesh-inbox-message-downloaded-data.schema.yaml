@@ -4,13 +4,16 @@ description: Data payload of the MESHInboxMessageDownloaded event
 type: object
 additionalProperties: false
 properties:
-  messageReference:
-    $ref: ../defs/requests.schema.yaml#/properties/messageReference
+  meshMessageId:
+    $ref: ../defs/mesh.schema.yaml#/properties/meshMessageId
   senderId:
     $ref: ../defs/requests.schema.yaml#/properties/senderId
+  messageReference:
+    $ref: ../defs/requests.schema.yaml#/properties/messageReference
   messageUri:
     $ref: ../defs/requests.schema.yaml#/properties/messageUri
 required:
-  - messageReference
+  - meshMessageId
   - senderId
+  - messageReference
   - messageUri

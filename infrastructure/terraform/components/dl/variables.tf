@@ -192,3 +192,9 @@ variable "pii_data_retention_policy_days" {
   description = "The number of days for data retention policy for PII"
   default     = 534
 }
+
+variable "default_cloudwatch_event_bus_name" {
+  type        = string
+  description = "The name of the default cloudwatch event bus. This is needed as GuardDuty Scan Result events are sent to the default bus"
+  default     = "default"
+}

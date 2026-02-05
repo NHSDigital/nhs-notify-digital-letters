@@ -37,16 +37,15 @@ module "mesh_download" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    CERTIFICATE_EXPIRY_METRIC_NAME      = "mesh-download-client-certificate-near-expiry"
-    CERTIFICATE_EXPIRY_METRIC_NAMESPACE = "dl-mesh-download"
-    DOWNLOAD_METRIC_NAME                = "mesh-download-successful-downloads"
-    DOWNLOAD_METRIC_NAMESPACE           = "dl-mesh-download"
-    ENVIRONMENT                         = var.environment
-    EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_errors.sqs_queue_url
-    EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
-    PII_BUCKET                          = module.s3bucket_pii_data.bucket
-    SSM_PREFIX                          = "${local.ssm_mesh_prefix}"
-    USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"
+    DOWNLOAD_METRIC_NAME          = "mesh-download-successful-downloads"
+    DOWNLOAD_METRIC_NAMESPACE     = "dl-mesh-download"
+    ENVIRONMENT                   = var.environment
+    EVENT_PUBLISHER_DLQ_URL       = module.sqs_event_publisher_errors.sqs_queue_url
+    EVENT_PUBLISHER_EVENT_BUS_ARN = aws_cloudwatch_event_bus.main.arn
+    PII_BUCKET                    = module.s3bucket_pii_data.bucket
+    SSM_MESH_PREFIX               = "${local.ssm_mesh_prefix}"
+    SSM_SENDERS_PREFIX            = "${local.ssm_senders_prefix}"
+    USE_MESH_MOCK                 = var.enable_mock_mesh ? "true" : "false"
   }
 
 }
@@ -172,7 +171,8 @@ data "aws_iam_policy_document" "mesh_download_lambda" {
     ]
 
     resources = [
-      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.ssm_mesh_prefix}/*"
+      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.ssm_mesh_prefix}/*",
+      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.ssm_senders_prefix}/*"
     ]
   }
 }

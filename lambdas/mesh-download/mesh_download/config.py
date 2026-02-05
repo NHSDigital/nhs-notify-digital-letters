@@ -1,15 +1,13 @@
 """
 Module for configuring MESH Download application
 """
-from event_publisher import BaseMeshConfig, log
-from metric_publishers.metric_client import Metric
+from dl_utils import BaseMeshConfig, Metric, log
 
 
 _REQUIRED_ENV_VAR_MAP = {
-    "ssm_prefix": "SSM_PREFIX",
+    "ssm_senders_prefix": "SSM_SENDERS_PREFIX",
+    "ssm_mesh_prefix": "SSM_MESH_PREFIX",
     "environment": "ENVIRONMENT",
-    "certificate_expiry_metric_name": "CERTIFICATE_EXPIRY_METRIC_NAME",
-    "certificate_expiry_metric_namespace": "CERTIFICATE_EXPIRY_METRIC_NAMESPACE",
     "download_metric_name": "DOWNLOAD_METRIC_NAME",
     "download_metric_namespace": "DOWNLOAD_METRIC_NAMESPACE",
     "event_publisher_event_bus_arn": "EVENT_PUBLISHER_EVENT_BUS_ARN",

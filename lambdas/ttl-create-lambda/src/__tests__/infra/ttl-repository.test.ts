@@ -1,6 +1,6 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
+import { messageDownloadedEvent } from '__tests__/data';
 import { TtlRepository } from 'infra/ttl-repository';
-import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 
 jest.useFakeTimers();
 
@@ -16,27 +16,6 @@ describe('TtlRepository', () => {
   let senderRepository: any;
   let repo: TtlRepository;
   const tableName = 'table';
-  const item: MESHInboxMessageDownloaded = {
-    id: '550e8400-e29b-41d4-a716-446655440001',
-    specversion: '1.0',
-    source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
-    subject:
-      'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-    type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
-    time: '2023-06-20T12:00:00Z',
-    recordedtime: '2023-06-20T12:00:00.250Z',
-    severitynumber: 2,
-    traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-    datacontenttype: 'application/json',
-    dataschema:
-      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
-    severitytext: 'INFO',
-    data: {
-      messageReference: 'ref1',
-      senderId: 'sender1',
-      messageUri: 'https://example.com/ttl/resource',
-    },
-  };
 
   beforeEach(() => {
     logger = { info: jest.fn(), error: jest.fn() };
@@ -68,7 +47,7 @@ describe('TtlRepository', () => {
       .split('T')[0];
     const expectedDateOfExpiry = `${expectedTtlDate}#${expectedShard}`;
 
-    await repo.insertTtlRecord(item);
+    await repo.insertTtlRecord(messageDownloadedEvent);
 
     expect(logger.info).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -77,17 +56,17 @@ describe('TtlRepository', () => {
     );
 
     expect(senderRepository.getSender).toHaveBeenCalledWith({
-      senderId: item.data.senderId,
+      senderId: messageDownloadedEvent.data.senderId,
     });
 
     const putCommand: PutCommand = dynamoClient.send.mock.calls[0][0];
     expect(putCommand.input).toStrictEqual({
       TableName: tableName,
       Item: {
-        PK: item.data.messageUri,
+        PK: messageDownloadedEvent.data.messageUri,
         SK: 'TTL',
         dateOfExpiry: expectedDateOfExpiry,
-        event: item,
+        event: messageDownloadedEvent,
         ttl: expectedTtlSeconds,
       },
     });
@@ -97,7 +76,9 @@ describe('TtlRepository', () => {
     const error = new Error('fail');
     dynamoClient.send.mockRejectedValue(error);
 
-    await expect(repo.insertTtlRecord(item)).rejects.toThrow(error);
+    await expect(repo.insertTtlRecord(messageDownloadedEvent)).rejects.toThrow(
+      error,
+    );
 
     expect(logger.error).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -114,7 +95,7 @@ describe('TtlRepository', () => {
       return Promise.resolve({});
     });
 
-    await repo.insertTtlRecord(item);
+    await repo.insertTtlRecord(messageDownloadedEvent);
 
     expect(gsiPk).toMatch(/^\d{4}-\d{2}-\d{2}#\d{1,2}$/);
   });
@@ -122,12 +103,12 @@ describe('TtlRepository', () => {
   it('throws and logs error when sender not found', async () => {
     senderRepository.getSender.mockResolvedValue(null);
 
-    await expect(repo.insertTtlRecord(item)).rejects.toThrow(
-      `Sender not found for sender ID ${item.data.senderId}`,
+    await expect(repo.insertTtlRecord(messageDownloadedEvent)).rejects.toThrow(
+      `Sender not found for sender ID ${messageDownloadedEvent.data.senderId}`,
     );
 
     expect(logger.error).toHaveBeenCalledWith({
-      description: `Sender not found for sender ID ${item.data.senderId}`,
+      description: `Sender not found for sender ID ${messageDownloadedEvent.data.senderId}`,
     });
   });
 });
