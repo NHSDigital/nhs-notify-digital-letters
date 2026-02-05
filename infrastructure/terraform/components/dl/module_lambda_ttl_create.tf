@@ -125,7 +125,7 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
     ]
 
     resources = [
-      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter/${local.ssm_senders_prefix}/*"
+      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.ssm_senders_prefix}/*"
     ]
   }
 }
