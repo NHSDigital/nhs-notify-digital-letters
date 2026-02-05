@@ -1,8 +1,8 @@
 module "mesh_acknowledge" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
 
-  function_name = "mesh-acknowledge"
-  description   = "A lambda function for acknowledging MESH messages"
+  function_name  = "mesh-acknowledge"
+  description    = "A lambda function for acknowledging MESH messages"
   aws_account_id = var.aws_account_id
   component      = local.component
   environment    = var.environment
@@ -35,14 +35,14 @@ module "mesh_acknowledge" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    DLQ_URL                             = module.sqs_mesh_acknowledge.sqs_dlq_url
-    ENVIRONMENT                         = var.environment
-    EVENT_PUBLISHER_DLQ_URL             = module.sqs_event_publisher_errors.sqs_queue_url
-    EVENT_PUBLISHER_EVENT_BUS_ARN       = aws_cloudwatch_event_bus.main.arn
-    MOCK_MESH_BUCKET                    = module.s3bucket_non_pii_data.bucket
-    SSM_MESH_PREFIX                     = "${local.ssm_mesh_prefix}"
-    SSM_SENDERS_PREFIX                  = "${local.ssm_senders_prefix}"
-    USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"
+    DLQ_URL                       = module.sqs_mesh_acknowledge.sqs_dlq_url
+    ENVIRONMENT                   = var.environment
+    EVENT_PUBLISHER_DLQ_URL       = module.sqs_event_publisher_errors.sqs_queue_url
+    EVENT_PUBLISHER_EVENT_BUS_ARN = aws_cloudwatch_event_bus.main.arn
+    MOCK_MESH_BUCKET              = module.s3bucket_non_pii_data.bucket
+    SSM_MESH_PREFIX               = "${local.ssm_mesh_prefix}"
+    SSM_SENDERS_PREFIX            = "${local.ssm_senders_prefix}"
+    USE_MESH_MOCK                 = var.enable_mock_mesh ? "true" : "false"
   }
 
 }
