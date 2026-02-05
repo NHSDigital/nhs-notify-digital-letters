@@ -1,5 +1,5 @@
+import { mockEvent } from '__tests__/data';
 import { UploadToPdm } from 'app/upload-to-pdm';
-import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import { IPdmClient, Logger, getS3ObjectFromUri } from 'utils';
 
 jest.mock('utils', () => ({
@@ -11,28 +11,6 @@ describe('UploadToPdm', () => {
   let mockPdmClient: jest.Mocked<IPdmClient>;
   let mockLogger: jest.Mocked<Logger>;
   let uploadToPdm: UploadToPdm;
-
-  const mockEvent: MESHInboxMessageDownloaded = {
-    id: 'test-event-id',
-    specversion: '1.0',
-    source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
-    subject:
-      'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-    type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
-    time: '2023-06-20T12:00:00Z',
-    recordedtime: '2023-06-20T12:00:00.250Z',
-    severitynumber: 2,
-    traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-    datacontenttype: 'application/json',
-    dataschema:
-      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
-    severitytext: 'INFO',
-    data: {
-      messageReference: 'test-message-reference',
-      senderId: 'test-sender-id',
-      messageUri: 's3://bucket/key',
-    },
-  };
 
   const mockFhirRequest = { resourceType: 'Bundle' };
   const mockPdmResponse = {
@@ -87,7 +65,7 @@ describe('UploadToPdm', () => {
       expect(getS3ObjectFromUri).toHaveBeenCalledWith('s3://bucket/key');
       expect(mockPdmClient.createDocumentReference).toHaveBeenCalledWith(
         mockFhirRequest,
-        'test-message-reference',
+        mockEvent.data.messageReference,
       );
       expect(result).toEqual({
         outcome: 'sent',
@@ -96,8 +74,8 @@ describe('UploadToPdm', () => {
       expect(mockLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({
           description: 'Successfully sent request to PDM',
-          eventId: 'test-event-id',
-          messageReference: 'test-message-reference',
+          eventId: mockEvent.id,
+          messageReference: mockEvent.data.messageReference,
           resourceId: 'test-resource-id',
         }),
       );

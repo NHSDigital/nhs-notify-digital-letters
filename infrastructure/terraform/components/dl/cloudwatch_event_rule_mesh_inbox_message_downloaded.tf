@@ -12,16 +12,23 @@ resource "aws_cloudwatch_event_rule" "mesh_inbox_message_downloaded" {
   })
 }
 
-resource "aws_cloudwatch_event_target" "create-ttl-target" {
+resource "aws_cloudwatch_event_target" "create_ttl_target" {
   rule           = aws_cloudwatch_event_rule.mesh_inbox_message_downloaded.name
   arn            = module.sqs_ttl.sqs_queue_arn
-  target_id      = "create-ttl-target"
+  target_id      = "create_ttl_target"
   event_bus_name = aws_cloudwatch_event_bus.main.name
 }
 
-resource "aws_cloudwatch_event_target" "pdm-uploader-target" {
+resource "aws_cloudwatch_event_target" "pdm_uploader_target" {
   rule           = aws_cloudwatch_event_rule.mesh_inbox_message_downloaded.name
   arn            = module.sqs_pdm_uploader.sqs_queue_arn
-  target_id      = "pdm-uploader-target"
+  target_id      = "pdm_uploader_target"
+  event_bus_name = aws_cloudwatch_event_bus.main.name
+}
+
+resource "aws_cloudwatch_event_target" "mesh_cknowledge_target" {
+  rule           = aws_cloudwatch_event_rule.mesh_inbox_message_downloaded.name
+  arn            = module.sqs_mesh_acknowledge.sqs_queue_arn
+  target_id      = "mesh_acknowledge_target"
   event_bus_name = aws_cloudwatch_event_bus.main.name
 }

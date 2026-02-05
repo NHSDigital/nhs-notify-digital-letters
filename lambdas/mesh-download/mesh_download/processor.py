@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import ValidationError
-from event_publisher.models import MeshInboxMessageEvent, MeshDownloadMessageEvent
+from digital_letters_events import MESHInboxMessageDownloaded, MESHInboxMessageReceived
+from mesh_download.errors import MeshMessageNotFound
 
 
 class MeshDownloadProcessor:
@@ -40,7 +41,7 @@ class MeshDownloadProcessor:
         event_detail = message_body.get('detail', {})
 
         try:
-            event = MeshInboxMessageEvent(**event_detail)
+            event = MESHInboxMessageReceived(**event_detail)
             self.__log.debug("CloudEvent validation passed")
             return event
         except ValidationError as e:
@@ -57,7 +58,7 @@ class MeshDownloadProcessor:
         message = self.__mesh_client.retrieve_message(data.meshMessageId)
         if not message:
             logger.error("Message not found in MESH inbox")
-            return
+            raise MeshMessageNotFound(f"MESH message with ID {data.meshMessageId} not found")
 
         logger.info(
             "Retrieved MESH message",
@@ -109,7 +110,7 @@ class MeshDownloadProcessor:
         now = datetime.now(timezone.utc).isoformat()
 
         cloud_event = {
-            **incoming_event.model_dump(),
+            **incoming_event.model_dump(exclude_none=True),
             'id': str(uuid4()),
             'time': now,
             'recordedtime': now,
@@ -122,16 +123,11 @@ class MeshDownloadProcessor:
                 'senderId': incoming_event.data.senderId,
                 'messageReference': incoming_event.data.messageReference,
                 'messageUri': message_uri,
+                'meshMessageId': incoming_event.data.meshMessageId
             }
         }
 
-        try:
-            MeshDownloadMessageEvent(**cloud_event)
-        except ValidationError as e:
-            self.__log.error("Invalid MeshDownloadMessageEvent", error=str(e))
-            raise
-
-        failed = self.__event_publisher.send_events([cloud_event])
+        failed = self.__event_publisher.send_events([cloud_event], MESHInboxMessageDownloaded)
         if failed:
             msg = f"Failed to publish MESHInboxMessageDownloaded event: {failed}"
             self.__log.error(msg, failed_count=len(failed))

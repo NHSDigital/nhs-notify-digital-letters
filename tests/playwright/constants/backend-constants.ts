@@ -17,7 +17,9 @@ export const CORE_NOTIFIER_LAMBDA_NAME = `${CSI}-core-notifier`;
 export const TTL_QUEUE_NAME = `${CSI}-ttl-queue`;
 export const TTL_DLQ_NAME = `${CSI}-ttl-dlq`;
 export const PDM_UPLOADER_DLQ_NAME = `${CSI}-pdm-uploader-dlq`;
+export const MESH_DOWNLOAD_DLQ_NAME = `${CSI}-mesh-download-dlq`;
 export const PDM_POLL_DLQ_NAME = `${CSI}-pdm-poll-dlq`;
+export const MESH_ACKNOWLEDGE_DLQ_NAME = `${CSI}-mesh-acknowledge-dlq`;
 export const CORE_NOTIFIER_DLQ_NAME = `${CSI}-core-notifier-dlq`;
 export const FILE_SCANNER_DLQ_NAME = `${CSI}-scanner-dlq`;
 export const PRINT_STATUS_HANDLER_DLQ_NAME = `${CSI}-print-status-handler-dlq`;
@@ -39,6 +41,8 @@ export const TTL_TABLE_NAME = `${CSI}-ttl`;
 
 // S3
 export const LETTERS_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-letters`;
+export const NON_PII_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-non-pii-data`;
+export const PII_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-pii-data`;
 export const FILE_SAFE_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-file-safe`;
 export const UNSCANNED_FILES_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-main-acct-digi-unscanned-files`;
 export const FILE_QUARANTINE_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-file-quarantine`;
