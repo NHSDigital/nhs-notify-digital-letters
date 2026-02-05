@@ -2,7 +2,7 @@
 
 from urllib.parse import urlparse
 
-class ReportStore:
+class ReportsStore:
     """Class for fetching reports from S3"""
 
     def __init__(self, s3_client):

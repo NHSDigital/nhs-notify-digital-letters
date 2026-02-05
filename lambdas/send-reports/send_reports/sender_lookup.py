@@ -12,118 +12,29 @@ class SenderLookup:
         self.__config = config
         self.__logger = logger
 
-    def is_valid_sender(self, mailbox_id):
+    def get_mailbox_from_sender(self, sender_id) -> str:
         """
-        Check if a MESH mailbox ID is from a known sender
-        """
-        if not mailbox_id:
-            return False
-
-        return mailbox_id.upper() in self.__valid_senders
-
-    def get_mailbox_from_sender(self, sender_id):
-        """
-        Get the MESH mailbox ID for a given sender ID
+        Get the MESH reporting mailbox for a given sender ID
         """
 
-        sender_key = f"{self.__config.ssm_senders_prefix.rstrip('/')}/senders/{sender_id}"
+        sender_key = f"{self.__config.ssm_senders_prefix}/{sender_id}"
 
-        for mailbox_id, s_id in self.__mailbox_to_sender.items():
-            if s_id == sender_id:
-                return mailbox_id
-        return None
+        sender = self.__ssm.get_parameter(Name=sender_key, WithDecryption=True)
 
-    def get_sender_id(self, mailbox_id):
-        """
-        Get the sender ID for a given MESH mailbox ID
-        """
-        if not mailbox_id:
-            return None
+        if not sender:
+            raise Exception(f"No sender found in SSM for sender ID {sender_id}")
 
-        return self.__mailbox_to_sender.get(mailbox_id.upper())
+        return self.__extract_mailbox_id(sender, sender_id)
 
-    def load_valid_senders(self):
-        """
-        Loads mailbox IDs and their corresponding sender IDs into memory
-        """
-        mailbox_ids = set()
-        mailbox_to_sender = {}
-        next_token = ""
-        page_number = 0
-
-        while next_token or page_number < 1:
-            (page_mailbox_ids, page_mapping, token) = self.__get_page(next_token)
-            mailbox_ids.update(page_mailbox_ids)
-            mailbox_to_sender.update(page_mapping)
-            next_token = token
-            page_number += 1
-
-        self.__valid_senders = mailbox_ids
-        self.__mailbox_to_sender = mailbox_to_sender
-        self.__logger.debug(
-            f"Loaded {len(self.__valid_senders)} valid sender mailbox IDs")
-
-    def __get_page(self, next_token=""):
-        """
-        Loads a page of sender data and extracts mailbox IDs and sender IDs
-        """
-        senders_path = f"{self.__config.ssm_mesh_prefix.rstrip('/')}/senders/"
-
-        if len(next_token) == 0:
-            response = self.__ssm.get_parameters_by_path(
-                Path=senders_path,
-                WithDecryption=True,
-            )
-        else:
-            response = self.__ssm.get_parameters_by_path(
-                Path=senders_path,
-                WithDecryption=True,
-                NextToken=next_token,
-            )
-
-        mailbox_ids = set()
-        mailbox_to_sender = {}
-
-        if "Parameters" in response:
-            for parameter in response["Parameters"]:
-                mailbox_id = self.__extract_mailbox_id(parameter)
-                sender_id = self.__extract_sender_id(parameter)
-                if mailbox_id and sender_id:
-                    mailbox_id_upper = mailbox_id.upper()
-                    mailbox_ids.add(mailbox_id_upper)
-                    mailbox_to_sender[mailbox_id_upper] = sender_id
-
-        new_next_token = response.get("NextToken", "")
-        return (mailbox_ids, mailbox_to_sender, new_next_token)
-
-    def __extract_mailbox_id(self, parameter):
+    def __extract_mailbox_id(self, sender, sender_id) -> str:
         """
         Extract just the meshMailboxSenderId from a sender parameter
         """
-        if "Value" not in parameter:
-            return None
+        if "Value" not in sender['Parameter']:
+            raise Exception(f"The SSM value for the sender ID {sender_id} are missing a 'Value' field")
 
         try:
-            sender_config = json.loads(parameter["Value"])
-            return sender_config.get("meshMailboxSenderId", "")
+            sender_config = json.loads(sender['Parameter']['Value'])
+            return sender_config.get("meshMailboxSenderId")
         except (ValueError, AttributeError) as exception:
-            self.__logger.warn(
-                f"Failed to parse mailbox ID from parameter {parameter['Name']}")
-            self.__logger.error(format_exception(exception))
-            return None
-
-    def __extract_sender_id(self, parameter):
-        """
-        Extract just the sender ID from a sender parameter
-        """
-        if "Value" not in parameter:
-            return None
-
-        try:
-            sender_config = json.loads(parameter["Value"])
-            return sender_config.get("senderId", "")
-        except (ValueError, AttributeError) as exception:
-            self.__logger.warn(
-                f"Failed to parse sender ID from parameter {parameter['Name']}")
-            self.__logger.error(format_exception(exception))
-            return None
+            raise Exception(f"Failed to parse mailbox ID from parameter for sender ID {sender_id}")

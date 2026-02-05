@@ -12,8 +12,9 @@ from digital_letters_events import ReportGenerated
 
 from .errors import AuthorizationError, InvalidSenderDetailsError
 
-ACKNOWLEDGED_MESSAGE = "acknowledged message"
-PROCESSING_MESSAGE = "processing message"
+ACKNOWLEDGED_MESSAGE = 'acknowledged message'
+PROCESSING_MESSAGE = 'processing message'
+MESH_MESSAGE_WORKFLOW_ID = 'NHS_NOTIFY_DIGITAL_LETTERS_DAILY_REPORT'
 
 class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
     """
@@ -21,28 +22,19 @@ class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
     """
 
     def __init__(self, **kwargs):
-        self.__config = kwargs['config']
         self.__log = kwargs['log']
-        self.__mesh_client = kwargs['mesh_client']
         self.__sender_lookup = kwargs['sender_lookup']
-        self.__report_store = kwargs['report_store']
+        self.__reports_store = kwargs['reports_store']
         self.__event_publisher = kwargs['event_publisher']
         self.__send_metric = kwargs['send_metric']
-        self.__mesh_client.handshake()
+        self.__mesh_reports_sender = kwargs['mesh_reports_sender']
 
         environment = 'development'
         deployment = 'primary'
         plane = 'data-plane'
         self.__cloud_event_source = f'/nhs/england/notify/{environment}/{deployment}/{plane}/digitalletters/mesh'
 
-        # Initialize EventPublisher
-        self.__event_publisher = EventPublisher(
-            event_bus_arn=self.__config.event_bus_arn,
-            dlq_url=self.__config.event_publisher_dlq_url,
-            logger=self.__log
-        )
-
-    def _parse_and_validate_event(self, sqs_record):
+    def _parse_and_validate_event(self, sqs_record) -> ReportGenerated:
         """Extract report generated data from SQS record"""
         message_body = json.loads(sqs_record['body'])
         event_detail = message_body.get('detail', {})
@@ -75,10 +67,10 @@ class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
 
         return reporting_mailbox
 
-    def _extract_report_date_from_report_uri(self, report_uri):
-        ignore_extension_characters = 4 # to skip .csv
-        report_date_start_index = 14 # to extract 2026-02-03.csv
-        return report_uri[-(report_date_start_index):-ignore_extension_characters]
+    def _extract_report_date_from_report_uri(self, report_uri) -> str:
+        ignore_extension_characters = -4 # to skip .csv
+        report_date_start_index = -14 # to extract from the end of the URI the date 2026-02-03.csv
+        return report_uri[report_date_start_index:ignore_extension_characters]
 
 
     def process_sqs_message(self, sqs_record):
@@ -87,7 +79,7 @@ class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
         """
         self.__log.info('Extract data from SQS record')
 
-        report_generated_event = self._parse_and_validate_event(sqs_record)
+        report_generated_event : ReportGenerated = self._parse_and_validate_event(sqs_record)
         sender_id = report_generated_event.data.senderId
         report_uri = report_generated_event.data.reportUri
 
@@ -95,22 +87,23 @@ class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
         reporting_mailbox = self._get_reporting_mailbox_for_sender(sender_id)
 
         self.__log.info(f'Fetching reporting URI : {report_uri} for sender ID: {sender_id}')
-        report_bytes = self.__report_store.download_report(report_uri)
+        report_bytes = self.__reports_store.download_report(report_uri)
         report_date = self._extract_report_date_from_report_uri(report_uri)
 
         self.__log.info(f'Sending MESH message to the sender: {sender_id} using mailbox: {reporting_mailbox} for date: {report_date}')
         # https://github.com/NHSDigital/mesh-client/blob/develop/tests/mesh_sandbox_tests.py
-        self.__mesh_client.send_message(
+        self.__mesh_reports_sender.send_report(
             reporting_mailbox,
             report_bytes,
-            workflow_id='NHS_NOTIFY_DIGITAL_LETTERS_DAILY_REPORT',
-            subject=f'{report_date}'
+            report_date
         )
 
         self.__log.info(f'Publishing ReportEventSent for the sender: {sender_id} using mailbox: {reporting_mailbox} for date: {report_date}')
+        self._publish_report_sent_event(sender_id, report_uri)
+        self.__send_metric.record(1)
         # logger = self.__log.bind(mesh_message_id=validated_event.data.meshMessageId)
 
-    def _publish_report_sent_event(self, sender_id, meshMailboxReportsId, event_detail):
+    def _publish_report_sent_event(self, sender_id, meshMailboxReportsId):
         """
         Publishes a ReportSent event
         """
@@ -140,3 +133,9 @@ class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
             error_msg = f"Failed to publish ReportingReportSent event: {failed_events}"
             self.__log.error(error_msg, failed_count=len(failed_events))
             raise RuntimeError(error_msg)
+
+        self.__log.info(
+            "Published ReportingReportSent event",
+            sender_id=sender_id,
+            meshMailboxReportsId=meshMailboxReportsId
+        )

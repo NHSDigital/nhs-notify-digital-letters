@@ -5,8 +5,9 @@ from boto3 import client
 from dl_utils import EventPublisher
 from .sender_lookup import SenderLookup
 from .config import Config, log
-from .processor import SendReportsProcessor
-from .report_store import ReportStore
+from .send_reports_processor import SendReportsProcessor
+from .reports_store import ReportsStore
+from .mesh_reports_sender import MeshReportsSender
 
 
 def handler(event, context):
@@ -33,14 +34,16 @@ def handler(event, context):
                 logger=log
             )
 
-            report_store = ReportStore(config.s3_client)
+            reports_store = ReportsStore(config.s3_client)
+
+            mesh_reports_sender = MeshReportsSender(config.mesh_client, log)
 
             processor = SendReportsProcessor(
                 config=config,
                 log=log,
                 sender_lookup=SenderLookup(client('ssm'), config, log),
-                mesh_client=config.mesh_client,
-                report_store=report_store,
+                mesh_reports_sender=mesh_reports_sender,
+                reports_store=reports_store,
                 event_publisher=event_publisher,
                 send_metric=config.send_metric)
 

@@ -3,8 +3,9 @@ Tests for Lambda handler
 """
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from send_reports.report_store import ReportStore
+from send_reports.reports_store import ReportsStore
 from send_reports.handler import handler
+from send_reports.mesh_reports_sender import MeshReportsSender
 
 
 def setup_mocks():
@@ -252,11 +253,11 @@ class TestHandler:
 
         # Verify SendReportsProcessor was created with correct parameters
         mock_processor_class.assert_called_once()
-        call_kwargs = mock_processor_class.call_args[1]
-        assert call_kwargs['config'] == mock_config
-        assert call_kwargs['sender_lookup'] == mock_sender_lookup
-        assert call_kwargs['mesh_client'] == mock_config.mesh_client
-        assert isinstance(call_kwargs['report_store'], ReportStore)
-        assert call_kwargs['event_publisher'] == mock_event_publisher
-        assert call_kwargs['send_metric'] == mock_config.send_metric
-        assert 'log' in call_kwargs
+        mock_processor_args = mock_processor_class.call_args[1]
+        assert mock_processor_args['config'] == mock_config
+        assert mock_processor_args['sender_lookup'] == mock_sender_lookup
+        assert isinstance(mock_processor_args['mesh_reports_sender'], MeshReportsSender)
+        assert isinstance(mock_processor_args['reports_store'], ReportsStore)
+        assert mock_processor_args['event_publisher'] == mock_event_publisher
+        assert mock_processor_args['send_metric'] == mock_config.send_metric
+        assert 'log' in mock_processor_args
