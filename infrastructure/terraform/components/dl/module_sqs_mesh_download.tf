@@ -34,5 +34,11 @@ data "aws_iam_policy_document" "sqs_mesh_download" {
     resources = [
       "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-mesh-download-queue"
     ]
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [aws_cloudwatch_event_rule.mesh_inbox_message_received.arn]
+    }
   }
 }

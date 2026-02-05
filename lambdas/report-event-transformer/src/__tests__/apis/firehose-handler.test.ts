@@ -46,8 +46,10 @@ describe('Firehose Handler', () => {
       );
       expect(decodedData).toEqual({
         messageReference: digitalLettersEvent.data.messageReference,
-        senderId: digitalLettersEvent.data.senderId,
         pageCount: digitalLettersEvent.data.pageCount,
+        reasonCode: digitalLettersEvent.data.reasonCode,
+        reasonText: digitalLettersEvent.data.reasonText,
+        senderId: digitalLettersEvent.data.senderId,
         supplierId: digitalLettersEvent.data.supplierId,
         time: digitalLettersEvent.time,
         type: digitalLettersEvent.type,
