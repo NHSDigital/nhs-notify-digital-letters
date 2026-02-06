@@ -1,10 +1,9 @@
 """lambda handler for send reports application"""
 
-from logging import config
 from boto3 import client
-from dl_utils import EventPublisher
+from dl_utils import log, EventPublisher
 from .sender_lookup import SenderLookup
-from .config import Config, log
+from .config import Config
 from .report_sender_processor import ReportSenderProcessor
 from .reports_store import ReportsStore
 from .mesh_report_sender import MeshReportsSender

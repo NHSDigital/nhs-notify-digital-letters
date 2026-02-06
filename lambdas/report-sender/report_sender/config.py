@@ -1,7 +1,7 @@
 """
 Module for configuring Mesh Poll application
 """
-from dl_utils import BaseMeshConfig, Metric, log
+from dl_utils import BaseMeshConfig, Metric
 
 
 _REQUIRED_ENV_VAR_MAP = {
@@ -13,8 +13,8 @@ _REQUIRED_ENV_VAR_MAP = {
     "event_publisher_dlq_url": "EVENT_PUBLISHER_DLQ_URL",
     "certificate_expiry_metric_name": "CERTIFICATE_EXPIRY_METRIC_NAME",
     "certificate_expiry_metric_namespace": "CERTIFICATE_EXPIRY_METRIC_NAMESPACE",
-    "send_metric_name": "SEND_METRIC_NAME",
-    "send_metric_namespace": "SEND_METRIC_NAMESPACE"
+    "send_metric_name": "REPORT_SENDER_METRIC_NAME",
+    "send_metric_namespace": "REPORT_SENDER_METRIC_NAMESPACE"
 }
 
 
