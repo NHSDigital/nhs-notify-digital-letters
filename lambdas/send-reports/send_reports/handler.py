@@ -41,7 +41,7 @@ def handler(event, context):
             processor = SendReportsProcessor(
                 config=config,
                 log=log,
-                sender_lookup=SenderLookup(client('ssm'), config, log),
+                sender_lookup=SenderLookup(client('ssm'), config),
                 mesh_reports_sender=mesh_reports_sender,
                 reports_store=reports_store,
                 event_publisher=event_publisher,

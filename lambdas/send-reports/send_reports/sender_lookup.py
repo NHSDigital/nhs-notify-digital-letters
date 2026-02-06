@@ -7,10 +7,9 @@ class SenderLookup:
     Lightweight sender lookup for basic sender validation and sender ID extraction
     """
 
-    def __init__(self, ssm, config, logger):
+    def __init__(self, ssm, config):
         self.__ssm = ssm
         self.__config = config
-        self.__logger = logger
 
     def get_mailbox_from_sender(self, sender_id) -> str:
         """

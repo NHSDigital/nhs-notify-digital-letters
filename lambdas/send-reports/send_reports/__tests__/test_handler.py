@@ -216,6 +216,66 @@ class TestHandler:
         ]}
         assert mock_processor.process_sqs_message.call_count == 5
 
+    @patch('send_reports.handler.client')
+    @patch('send_reports.handler.EventPublisher')
+    @patch('send_reports.handler.SenderLookup')
+    @patch('send_reports.handler.SendReportsProcessor')
+    @patch('send_reports.handler.Config')
+    def test_handler_skips_non_sqs_records(
+        self,
+        mock_config_class,
+        mock_processor_class,
+        mock_sender_lookup_class,
+        mock_event_publisher_class,
+        mock_boto_client
+    ):
+        """Test that handler skips non-SQS records"""
+
+        (mock_context, mock_config, mock_ssm,
+        mock_sender_lookup, mock_processor) = setup_mocks()
+
+        mock_event_publisher = Mock()
+
+        # Wire up the mocks
+        mock_config_class.return_value.__enter__.return_value = mock_config
+        mock_config_class.return_value.__exit__ = Mock(return_value=None)
+        mock_boto_client.return_value = mock_ssm
+        mock_sender_lookup_class.return_value = mock_sender_lookup
+        mock_processor_class.return_value = mock_processor
+        mock_event_publisher_class.return_value = mock_event_publisher
+
+        # Create event with non-SQS record
+        event = create_sqs_event(num_records=1, event_source='aws:sns')
+
+        result = handler(event, mock_context)
+
+        # Verify the processor was not called for non-SQS record
+        mock_processor.process_sqs_message.assert_not_called()
+        assert result == {"batchItemFailures": []}
+
+    @patch('send_reports.handler.client')
+    @patch('send_reports.handler.EventPublisher')
+    @patch('send_reports.handler.SenderLookup')
+    @patch('send_reports.handler.SendReportsProcessor')
+    @patch('send_reports.handler.Config')
+    def test_handler_raises_exception_on_config_failure(
+        self,
+        mock_config_class,
+        mock_processor_class,
+        mock_sender_lookup_class,
+        mock_event_publisher_class,
+        mock_boto_client
+    ):
+        """Test that handler raises exception when Config initialization fails"""
+
+        mock_context = Mock()
+        mock_config_class.return_value.__enter__.side_effect = Exception("Config error")
+
+        event = create_sqs_event(num_records=1)
+
+        with pytest.raises(Exception, match="Config error"):
+            handler(event, mock_context)
+
     def assert_object_creation(
         self,
         mock_config_class,

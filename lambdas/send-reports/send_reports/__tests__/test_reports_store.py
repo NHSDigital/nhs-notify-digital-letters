@@ -45,3 +45,15 @@ class TestReportsStore:
             reports_store.download_report(
                 s3_uri=f's3://test-bucket/report-key'
             )
+
+    def test_download_report_non_200_status_code_raises_error(self, reports_store, mock_s3_client):
+        """Raises Exception when S3 returns non-200 status code"""
+        mock_s3_client.get_object.return_value = {
+            'Body': Mock(read=Mock(return_value=b'report content')),
+            'ResponseMetadata': {'HTTPStatusCode': 404}
+        }
+
+        with pytest.raises(Exception, match="Failed to fetch report from S3"):
+            reports_store.download_report(
+                s3_uri='s3://test-bucket/report-key'
+            )

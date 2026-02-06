@@ -70,7 +70,8 @@ class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
     def _extract_report_date_from_report_uri(self, report_uri) -> str:
         ignore_extension_characters = -4 # to skip .csv
         report_date_start_index = -14 # to extract from the end of the URI the date 2026-02-03.csv
-        return report_uri[report_date_start_index:ignore_extension_characters]
+        report_uri_str = str(report_uri)
+        return report_uri_str[report_date_start_index:ignore_extension_characters]
 
 
     def process_sqs_message(self, sqs_record):
@@ -81,7 +82,7 @@ class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
 
         report_generated_event : ReportGenerated = self._parse_and_validate_event(sqs_record)
         sender_id = report_generated_event.data.senderId
-        report_uri = report_generated_event.data.reportUri
+        report_uri = str(report_generated_event.data.reportUri)
 
         self.__log.info(f'Fetching sender details for sender ID: {sender_id}')
         reporting_mailbox = self._get_reporting_mailbox_for_sender(sender_id)
