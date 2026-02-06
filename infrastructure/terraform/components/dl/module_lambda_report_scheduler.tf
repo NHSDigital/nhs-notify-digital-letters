@@ -1,8 +1,8 @@
-module "ttl_create" {
+module "report_scheduler" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
 
-  function_name = "ttl-create"
-  description   = "A function for creating TTL records"
+  function_name = "report-scheduler"
+  description   = "A function for triggering reports"
 
   aws_account_id = var.aws_account_id
   component      = local.component
@@ -15,18 +15,19 @@ module "ttl_create" {
   kms_key_arn           = module.kms.key_arn
 
   iam_policy_document = {
-    body = data.aws_iam_policy_document.ttl_create_lambda.json
+    body = data.aws_iam_policy_document.report_scheduler_lambda.json
   }
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
   function_code_base_path = local.aws_lambda_functions_dir_path
-  function_code_dir       = "ttl-create-lambda/dist"
+  function_code_dir       = "report-scheduler/dist"
   function_include_common = true
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
   memory                  = 128
-  timeout                 = 60
+  timeout                 = 360
   log_level               = var.log_level
+  schedule                = var.report_scheduler_schedule
 
   force_lambda_code_deploy = var.force_lambda_code_deploy
   enable_lambda_insights   = false
@@ -35,28 +36,13 @@ module "ttl_create" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    "ENVIRONMENT"                   = var.environment
-    "TTL_TABLE_NAME"                = aws_dynamodb_table.ttl.name
-    "TTL_SHARD_COUNT"               = local.ttl_shard_count
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
+    "ENVIRONMENT"                   = var.environment
   }
 }
 
-data "aws_iam_policy_document" "ttl_create_lambda" {
-  statement {
-    sid    = "AllowTtlDynamoAccess"
-    effect = "Allow"
-
-    actions = [
-      "dynamodb:PutItem",
-    ]
-
-    resources = [
-      aws_dynamodb_table.ttl.arn,
-    ]
-  }
-
+data "aws_iam_policy_document" "report_scheduler_lambda" {
   statement {
     sid    = "KMSPermissions"
     effect = "Allow"
@@ -72,23 +58,7 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
   }
 
   statement {
-    sid    = "SQSPermissionsTtlQueue"
-    effect = "Allow"
-
-    actions = [
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes",
-      "sqs:GetQueueUrl",
-    ]
-
-    resources = [
-      module.sqs_ttl.sqs_queue_arn,
-    ]
-  }
-
-  statement {
-    sid    = "PutEvents"
+    sid    = "EventBridgePermissions"
     effect = "Allow"
 
     actions = [
@@ -101,7 +71,7 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
   }
 
   statement {
-    sid    = "SQSPermissionsEventPublisherDLQ"
+    sid    = "DLQPermissions"
     effect = "Allow"
 
     actions = [
@@ -115,12 +85,11 @@ data "aws_iam_policy_document" "ttl_create_lambda" {
   }
 
   statement {
-    sid    = "AllowSSMParam"
+    sid    = "SSMPermissions"
     effect = "Allow"
 
     actions = [
       "ssm:GetParameter",
-      "ssm:GetParameters",
       "ssm:GetParametersByPath",
     ]
 
