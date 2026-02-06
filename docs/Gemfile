@@ -42,3 +42,8 @@ gem 'sass-embedded', '1.78'
 gem 'jekyll-webpack'
 
 gem 'rubocop', require: false
+
+# Security: Explicit dependency pins to resolve CVEs
+gem 'google-protobuf', '>= 4.28.3'  # Addresses CVE-2024-7254
+gem 'rexml', '>= 3.3.9'              # Addresses CVE-2024-49761, CVE-2024-47220
+gem 'webrick', '~> 1.8'              # Standard Ruby web server for Jekyll serve
