@@ -1,7 +1,7 @@
 """Tests for ReportsStore"""
 import pytest
 from unittest.mock import Mock
-from send_reports.reports_store import ReportsStore
+from report_sender.reports_store import ReportsStore
 
 @pytest.fixture(name='mock_s3_client')
 def create_mock_s3_client():

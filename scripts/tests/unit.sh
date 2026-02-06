@@ -65,10 +65,10 @@ echo "Setting up and running mesh-download tests..."
 make -C ./lambdas/mesh-download install-dev
 make -C ./lambdas/mesh-download coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
-# Python Lambda - send-reports
-echo "Setting up and running send-reports tests..."
-make -C ./lambdas/send-reports install-dev
-make -C ./lambdas/send-reports coverage  # Run with coverage to generate coverage.xml for SonarCloud
+# Python Lambda - report-sender
+echo "Setting up and running report-sender tests..."
+make -C ./lambdas/report-sender install-dev
+make -C ./lambdas/report-sender coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
 # TypeScript/JavaScript projects (npm workspace)
 # Note: src/cloudevents is included in workspaces, so it will be tested here

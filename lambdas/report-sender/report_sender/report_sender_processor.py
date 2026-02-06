@@ -16,7 +16,7 @@ ACKNOWLEDGED_MESSAGE = 'acknowledged message'
 PROCESSING_MESSAGE = 'processing message'
 MESH_MESSAGE_WORKFLOW_ID = 'NHS_NOTIFY_DIGITAL_LETTERS_DAILY_REPORT'
 
-class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
+class ReportSenderProcessor:  # pylint: disable=too-many-instance-attributes
     """
     Class that processes messages from a MESH inbox
     """
@@ -27,7 +27,7 @@ class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
         self.__reports_store = kwargs['reports_store']
         self.__event_publisher = kwargs['event_publisher']
         self.__send_metric = kwargs['send_metric']
-        self.__mesh_reports_sender = kwargs['mesh_reports_sender']
+        self.__mesh_report_sender = kwargs['mesh_report_sender']
 
         environment = 'development'
         deployment = 'primary'
@@ -93,7 +93,7 @@ class SendReportsProcessor:  # pylint: disable=too-many-instance-attributes
 
         self.__log.info(f'Sending MESH message to the sender: {sender_id} using mailbox: {reporting_mailbox} for date: {report_date}')
         # https://github.com/NHSDigital/mesh-client/blob/develop/tests/mesh_sandbox_tests.py
-        self.__mesh_reports_sender.send_report(
+        self.__mesh_report_sender.send_report(
             reporting_mailbox,
             report_bytes,
             report_date

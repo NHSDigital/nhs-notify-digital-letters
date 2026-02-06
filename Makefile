@@ -16,7 +16,7 @@ dependencies:: # Install dependencies needed to build and test the project @Pipe
 	$(MAKE) -C lambdas/mesh-acknowledge install
 	$(MAKE) -C lambdas/mesh-poll install
 	$(MAKE) -C lambdas/mesh-download install
-	$(MAKE) -C lambdas/send-reports install
+	$(MAKE) -C lambdas/report-sender install
 	$(MAKE) -C src/digital-letters-events install
 	./scripts/set-github-token.sh
 	npm install --workspaces
@@ -49,7 +49,7 @@ clean:: # Clean-up project resources (main) @Operations
 	$(MAKE) -C utils/py-utils clean && \
 	$(MAKE) -C lambdas/mesh-poll clean && \
 	$(MAKE) -C lambdas/mesh-download clean && \
-	$(MAKE) -C lambdas/send-reports clean && \
+	$(MAKE) -C lambdas/report-sender clean && \
 	$(MAKE) -C utils/py-mock-mesh clean && \
 	$(MAKE) -C src/python-schema-generator clean && \
 	rm -f .version

@@ -1,12 +1,12 @@
 """
-Tests for SendReportsProcessor class
+Tests for ReportSenderProcessor class
 """
 import json
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 from pydantic import ValidationError
-from send_reports.send_reports_processor import SendReportsProcessor
-from send_reports.errors import InvalidSenderDetailsError
+from report_sender.report_sender_processor import ReportSenderProcessor
+from report_sender.errors import InvalidSenderDetailsError
 
 
 @pytest.fixture(name='mock_logger')
@@ -51,8 +51,8 @@ def create_mock_send_metric():
     return send_metric
 
 
-@pytest.fixture(name='mock_mesh_reports_sender')
-def create_mock_mesh_reports_sender():
+@pytest.fixture(name='mock_mesh_report_sender')
+def create_mock_mesh_report_sender():
     """Create a mock MESH reports sender for testing"""
     mesh_sender = Mock()
     mesh_sender.send_report = Mock()
@@ -66,18 +66,18 @@ def create_processor(
     mock_reports_store,
     mock_event_publisher,
     mock_send_metric,
-    mock_mesh_reports_sender
+    mock_mesh_report_sender
 ):
-    """Create a SendReportsProcessor instance with mocked dependencies"""
+    """Create a ReportSenderProcessor instance with mocked dependencies"""
     mock_config = Mock()
-    return SendReportsProcessor(
+    return ReportSenderProcessor(
         config=mock_config,
         log=mock_logger,
         sender_lookup=mock_sender_lookup,
         reports_store=mock_reports_store,
         event_publisher=mock_event_publisher,
         send_metric=mock_send_metric,
-        mesh_reports_sender=mock_mesh_reports_sender
+        mesh_report_sender=mock_mesh_report_sender
     )
 
 
@@ -108,8 +108,8 @@ def create_valid_sqs_record(sender_id="test-sender-1", report_uri="s3://bucket/r
     }
 
 
-class TestSendReportsProcessor:
-    """Test suite for SendReportsProcessor class"""
+class TestReportSenderProcessor:
+    """Test suite for ReportSenderProcessor class"""
 
     def test_parse_and_validate_event_success(self, processor):
         """Test successful parsing and validation of CloudEvent"""
@@ -200,7 +200,7 @@ class TestSendReportsProcessor:
         processor,
         mock_sender_lookup,
         mock_reports_store,
-        mock_mesh_reports_sender,
+        mock_mesh_report_sender,
         mock_event_publisher,
         mock_send_metric,
         mock_logger
@@ -219,7 +219,7 @@ class TestSendReportsProcessor:
         # Verify all steps were called
         mock_sender_lookup.get_sender_details.assert_called_once_with('test-sender-1')
         mock_reports_store.download_report.assert_called_once_with('s3://bucket/report-2026-02-03.csv')
-        mock_mesh_reports_sender.send_report.assert_called_once_with(
+        mock_mesh_report_sender.send_report.assert_called_once_with(
             'MAILBOX001',
             b'report content',
             '2026-02-03'
@@ -262,7 +262,7 @@ class TestSendReportsProcessor:
         processor,
         mock_sender_lookup,
         mock_reports_store,
-        mock_mesh_reports_sender
+        mock_mesh_report_sender
     ):
         """Test processing fails when MESH send fails"""
         sqs_record = create_valid_sqs_record()
@@ -271,7 +271,7 @@ class TestSendReportsProcessor:
             'reporting_mailbox': 'MAILBOX001'
         }
         mock_reports_store.download_report.return_value = b'report content'
-        mock_mesh_reports_sender.send_report.side_effect = Exception("MESH error")
+        mock_mesh_report_sender.send_report.side_effect = Exception("MESH error")
 
         with pytest.raises(Exception, match="MESH error"):
             processor.process_sqs_message(sqs_record)

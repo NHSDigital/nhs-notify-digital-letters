@@ -3,9 +3,9 @@ Tests for Lambda handler
 """
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from send_reports.reports_store import ReportsStore
-from send_reports.handler import handler
-from send_reports.mesh_reports_sender import MeshReportsSender
+from report_sender.reports_store import ReportsStore
+from report_sender.handler import handler
+from report_sender.mesh_report_sender import MeshReportsSender
 
 
 def setup_mocks():
@@ -53,11 +53,11 @@ def create_sqs_event(num_records=1, event_source='aws:sqs'):
 class TestHandler:
     """Test suite for Lambda handler"""
 
-    @patch('send_reports.handler.client')
-    @patch('send_reports.handler.EventPublisher')
-    @patch('send_reports.handler.SenderLookup')
-    @patch('send_reports.handler.SendReportsProcessor')
-    @patch('send_reports.handler.Config')
+    @patch('report_sender.handler.client')
+    @patch('report_sender.handler.EventPublisher')
+    @patch('report_sender.handler.SenderLookup')
+    @patch('report_sender.handler.ReportSenderProcessor')
+    @patch('report_sender.handler.Config')
     def test_handler_success_single_record_on_event(
         self,
         mock_config_class,
@@ -102,11 +102,11 @@ class TestHandler:
         assert result == {"batchItemFailures": []}
         mock_processor.process_sqs_message.assert_called_once()
 
-    @patch('send_reports.handler.client')
-    @patch('send_reports.handler.EventPublisher')
-    @patch('send_reports.handler.SenderLookup')
-    @patch('send_reports.handler.SendReportsProcessor')
-    @patch('send_reports.handler.Config')
+    @patch('report_sender.handler.client')
+    @patch('report_sender.handler.EventPublisher')
+    @patch('report_sender.handler.SenderLookup')
+    @patch('report_sender.handler.ReportSenderProcessor')
+    @patch('report_sender.handler.Config')
     def test_handler_returns_empty_failures_on_empty_event(
         self,
         mock_config_class,
@@ -151,11 +151,11 @@ class TestHandler:
         assert result == {"batchItemFailures": []}
         mock_processor.process_sqs_message.assert_not_called()
 
-    @patch('send_reports.handler.client')
-    @patch('send_reports.handler.EventPublisher')
-    @patch('send_reports.handler.SenderLookup')
-    @patch('send_reports.handler.SendReportsProcessor')
-    @patch('send_reports.handler.Config')
+    @patch('report_sender.handler.client')
+    @patch('report_sender.handler.EventPublisher')
+    @patch('report_sender.handler.SenderLookup')
+    @patch('report_sender.handler.ReportSenderProcessor')
+    @patch('report_sender.handler.Config')
     def test_handler_success_multiple_success_error_records_in_event(
         self,
         mock_config_class,
@@ -216,11 +216,11 @@ class TestHandler:
         ]}
         assert mock_processor.process_sqs_message.call_count == 5
 
-    @patch('send_reports.handler.client')
-    @patch('send_reports.handler.EventPublisher')
-    @patch('send_reports.handler.SenderLookup')
-    @patch('send_reports.handler.SendReportsProcessor')
-    @patch('send_reports.handler.Config')
+    @patch('report_sender.handler.client')
+    @patch('report_sender.handler.EventPublisher')
+    @patch('report_sender.handler.SenderLookup')
+    @patch('report_sender.handler.ReportSenderProcessor')
+    @patch('report_sender.handler.Config')
     def test_handler_skips_non_sqs_records(
         self,
         mock_config_class,
@@ -253,11 +253,11 @@ class TestHandler:
         mock_processor.process_sqs_message.assert_not_called()
         assert result == {"batchItemFailures": []}
 
-    @patch('send_reports.handler.client')
-    @patch('send_reports.handler.EventPublisher')
-    @patch('send_reports.handler.SenderLookup')
-    @patch('send_reports.handler.SendReportsProcessor')
-    @patch('send_reports.handler.Config')
+    @patch('report_sender.handler.client')
+    @patch('report_sender.handler.EventPublisher')
+    @patch('report_sender.handler.SenderLookup')
+    @patch('report_sender.handler.ReportSenderProcessor')
+    @patch('report_sender.handler.Config')
     def test_handler_raises_exception_on_config_failure(
         self,
         mock_config_class,
@@ -311,12 +311,12 @@ class TestHandler:
         assert sl_args[1] == mock_config
         # Third argument is log, which we don't need to assert
 
-        # Verify SendReportsProcessor was created with correct parameters
+        # Verify ReportSenderProcessor was created with correct parameters
         mock_processor_class.assert_called_once()
         mock_processor_args = mock_processor_class.call_args[1]
         assert mock_processor_args['config'] == mock_config
         assert mock_processor_args['sender_lookup'] == mock_sender_lookup
-        assert isinstance(mock_processor_args['mesh_reports_sender'], MeshReportsSender)
+        assert isinstance(mock_processor_args['mesh_report_sender'], MeshReportsSender)
         assert isinstance(mock_processor_args['reports_store'], ReportsStore)
         assert mock_processor_args['event_publisher'] == mock_event_publisher
         assert mock_processor_args['send_metric'] == mock_config.send_metric
