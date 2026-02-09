@@ -38,7 +38,6 @@ export async function handleCli(
     if (indexResult.exitCode !== 0) {
       return indexResult;
     }
-    console.log("");
 
     // Step 2: Render README
     const renderResult = renderReadmeCli(rootDir);
@@ -64,10 +63,11 @@ export async function handleCli(
 // istanbul ignore next - CLI entry point, difficult to test in Jest
 // @ts-ignore
 try {
-  const importMeta = eval('import.meta');
-  if (importMeta && importMeta.url === `file://${process.argv[1]}`) {
+    console.log(">>> Starting README update CLI...");
+//  const importMeta = eval('import.meta');
+//  if (importMeta && importMeta.url === `file://${process.argv[1]}`) {
     // Get the root directory (3 levels up from this file: tools/generator/readme-generator)
-    const rootDir = new URL("../../../", importMeta.url).pathname;
+    const rootDir = new URL("../../../", `file://${process.argv[1]}`).pathname;
     const args = process.argv.slice(2);
 
     handleCli(args, rootDir)
@@ -78,7 +78,7 @@ try {
         console.error("Unexpected error:", err);
         process.exit(1);
       });
-  }
+//   }
 } catch {
   // Intentionally ignoring exception: import.meta not available in CommonJS/Jest environments.
   // This is expected when the module is imported rather than executed directly.

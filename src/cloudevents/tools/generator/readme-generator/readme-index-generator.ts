@@ -255,11 +255,14 @@ export class ReadmeIndexGenerator {
    * Find all example event JSON files in docs
    */
   private findExampleEvents(docsDir: string): ExampleEvent[] {
+    docsDir = "/home/tdroza/dev/nhs-notify-digital-letters/output/digital-letters/2025-10-draft";
+    console.log(">>> Searching for example events in:", docsDir, fs.existsSync(docsDir));
     const results: ExampleEvent[] = [];
 
     if (!fs.existsSync(docsDir)) return results;
 
     const exampleEventsDir = path.join(docsDir, "example-events");
+    console.log(">>> Looking for example events in:", exampleEventsDir, fs.existsSync(exampleEventsDir));
     if (!fs.existsSync(exampleEventsDir)) return results;
 
     const entries = fs.readdirSync(exampleEventsDir);
