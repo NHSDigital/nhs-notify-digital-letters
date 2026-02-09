@@ -11,6 +11,7 @@ architecture-beta
     service meshInvalid(aws:res-amazon-eventbridge-event)[MESHInboxMessageInvalid Event]
     service meshAcknowledged(aws:res-amazon-eventbridge-event)[ MESHInboxMessageAcknowledged Event]
     service meshAckQueue(logos:aws-sqs)[MeshAcknowledgement Queue] in meshAcknowledger
+    service clientConfig(aws:res-aws-systems-manager-parameter-store)[Client Configuration] in meshAcknowledger
     service meshAckLambda(logos:aws-lambda)[MeshAcknowledger] in meshAcknowledger
     service mesh(server)[MESH]
 
@@ -20,6 +21,7 @@ architecture-beta
     meshInvalid:R -- L:j1
     j1:R --> L:meshAckQueue
     meshAckQueue:R --> L:meshAckLambda
+    clientConfig:B --> T:meshAckLambda
     meshAckLambda:B --> T:mesh
     meshAckLambda:R --> L:meshAcknowledged
 ```
