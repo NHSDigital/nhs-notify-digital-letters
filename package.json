@@ -67,6 +67,7 @@
     "lambdas/core-notifier-lambda",
     "lambdas/print-status-handler",
     "lambdas/print-analyser",
+    "lambdas/report-scheduler",
     "lambdas/report-event-transformer",
     "lambdas/move-scanned-files-lambda",
     "utils/utils",
