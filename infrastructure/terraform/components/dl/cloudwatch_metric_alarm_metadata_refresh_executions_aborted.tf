@@ -7,7 +7,7 @@ resource "aws_cloudwatch_metric_alarm" "metadata_refresh_executions_aborted" {
   period              = 60
   statistic           = "Sum"
   threshold           = 1
-  alarm_description   = "This metric monitors failed step function executions"
+  alarm_description   = "This metric monitors aborted step function executions"
   treat_missing_data  = "notBreaching"
 
   dimensions = {

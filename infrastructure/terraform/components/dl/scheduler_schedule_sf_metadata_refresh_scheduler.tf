@@ -7,7 +7,7 @@ resource "aws_scheduler_schedule" "sf_metadata_refresh_scheduler" {
     mode = "OFF"
   }
 
-  schedule_expression          = "cron(10 6-22 * * ? *)"
+  schedule_expression          = var.metadata_refresh_schedule
   schedule_expression_timezone = "Europe/London"
 
   target {
