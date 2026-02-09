@@ -1,5 +1,5 @@
 module "sqs_mesh_download" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-sqs.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip"
 
   aws_account_id = var.aws_account_id
   component      = local.component
@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "sqs_mesh_download" {
     ]
 
     resources = [
-      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${var.project}-${var.environment}-${local.component}-mesh-download-queue"
+      "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-mesh-download-queue"
     ]
   }
 }

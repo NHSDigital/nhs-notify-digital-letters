@@ -140,7 +140,6 @@ variable "apim_base_url" {
   default     = "https://int.api.service.nhs.uk"
 }
 
-
 variable "core_notify_url" {
   type        = string
   description = "The URL used to send requests to Notify"
@@ -169,6 +168,11 @@ variable "force_destroy" {
   type        = bool
   description = "Flag to force deletion of S3 buckets"
   default     = false
+
+  validation {
+    condition     = !(var.force_destroy && var.environment == "prod")
+    error_message = "force_destroy must not be set to true when environment is 'prod'."
+  }
 }
 
 variable "enable_pdm_mock" {
@@ -190,4 +194,22 @@ variable "eventpub_control_plane_bus_arn" {
 variable "eventpub_data_plane_bus_arn" {
   type        = string
   description = "Event publisher data plane"
+}
+
+variable "report_scheduler_schedule" {
+  type        = string
+  description = "Schedule to trigger sender reports"
+  default     = "cron(30 4 * * ? *)" # Daily at 04:30
+}
+
+variable "pii_data_retention_policy_days" {
+  type        = number
+  description = "The number of days for data retention policy for PII"
+  default     = 534
+}
+
+variable "default_cloudwatch_event_bus_name" {
+  type        = string
+  description = "The name of the default cloudwatch event bus. This is needed as GuardDuty Scan Result events are sent to the default bus"
+  default     = "default"
 }

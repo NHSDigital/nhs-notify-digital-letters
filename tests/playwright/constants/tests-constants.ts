@@ -1,6 +1,6 @@
 // senderIds
 export const SENDER_ID_VALID_FOR_NOTIFY_SANDBOX =
-  'componentTestSender_RoutingConfig';
+  '2b8ebb33-8b33-49bd-949e-c12e22d25320';
 export const SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX =
-  'componentTestSender_RoutingConfigInvalid';
-export const SENDER_ID_SKIPS_NOTIFY = 'test-sender-1';
+  'f017669b-6da4-4576-9d59-3d2b7f005ae2';
+export const SENDER_ID_SKIPS_NOTIFY = '67403568-166e-41d0-900a-1f31fe93a091';
