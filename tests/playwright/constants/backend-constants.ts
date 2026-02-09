@@ -24,7 +24,6 @@ export const PRINT_STATUS_HANDLER_DLQ_NAME = `${CSI}-print-status-handler-dlq`;
 export const HANDLE_TTL_DLQ_NAME = `${CSI}-ttl-handle-expiry-errors-queue`;
 export const PRINT_ANALYSER_DLQ_NAME = `${CSI}-print-analyser-dlq`;
 export const PRINT_SENDER_DLQ_NAME = `${CSI}-print-sender-dlq`;
-export const EVENT_PUBLISHER_DLQ_NAME = `${CSI}-event-publisher-errors`;
 
 // Queue Url Prefix
 export const SQS_URL_PREFIX = `https://sqs.${REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/`;
