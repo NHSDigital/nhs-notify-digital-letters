@@ -108,7 +108,12 @@ export const createHandler = ({ logger }: HandlerDependencies) =>
       if (validated) {
         validEvents.push(generateReportEvent(validated));
       } else {
-        failedEvents.push({ ...record, result: 'ProcessingFailed' });
+        const failedEvent: FirehoseTransformationResultRecord = {
+          recordId: record.recordId,
+          result: 'ProcessingFailed',
+          data: record.data,
+        };
+        failedEvents.push(failedEvent);
       }
     }
 

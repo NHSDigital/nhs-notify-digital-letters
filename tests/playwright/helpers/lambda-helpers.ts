@@ -6,7 +6,7 @@ const lambda = new LambdaClient({
 
 async function invokeLambda(
   functionName: string,
-  payload?: Record<string, unknown>,
+  payload?: any,
 ): Promise<void> {
   await lambda.send(
     new InvokeCommand({
@@ -19,7 +19,7 @@ async function invokeLambda(
 
 async function invokeLambdaSync<T = unknown>(
   functionName: string,
-  payload?: Record<string, unknown>,
+  payload?: any,
 ): Promise<T | undefined> {
   const response = await lambda.send(
     new InvokeCommand({
