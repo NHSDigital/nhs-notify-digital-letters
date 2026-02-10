@@ -192,3 +192,15 @@ variable "default_cloudwatch_event_bus_name" {
   description = "The name of the default cloudwatch event bus. This is needed as GuardDuty Scan Result events are sent to the default bus"
   default     = "default"
 }
+
+variable "athena_query_max_polling_attemps" {
+  type        = number
+  description = "The number of times athena will be polled to check if a query is completed"
+  default     = 50
+}
+
+variable "athena_query_polling_time_seconds" {
+  type        = number
+  description = "The amount of time in seconds to wait between each athena poll"
+  default     = 15
+}

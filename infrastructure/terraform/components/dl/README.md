@@ -13,6 +13,8 @@ No requirements.
 | <a name="input_apim_auth_token_url"></a> [apim\_auth\_token\_url](#input\_apim\_auth\_token\_url) | URL to generate an APIM auth token | `string` | `"https://int.api.service.nhs.uk/oauth2/token"` | no |
 | <a name="input_apim_base_url"></a> [apim\_base\_url](#input\_apim\_base\_url) | The URL used to send requests to PDM | `string` | `"https://int.api.service.nhs.uk"` | no |
 | <a name="input_apim_keygen_schedule"></a> [apim\_keygen\_schedule](#input\_apim\_keygen\_schedule) | Schedule to refresh key pairs if necessary | `string` | `"cron(0 14 * * ? *)"` | no |
+| <a name="input_athena_query_max_polling_attemps"></a> [athena\_query\_max\_polling\_attemps](#input\_athena\_query\_max\_polling\_attemps) | The number of times athena will be polled to check if a query is completed | `number` | `50` | no |
+| <a name="input_athena_query_polling_time_seconds"></a> [athena\_query\_polling\_time\_seconds](#input\_athena\_query\_polling\_time\_seconds) | The amount of time in seconds to wait between each athena poll | `number` | `15` | no |
 | <a name="input_aws_account_id"></a> [aws\_account\_id](#input\_aws\_account\_id) | The AWS Account ID (numeric) | `string` | n/a | yes |
 | <a name="input_component"></a> [component](#input\_component) | The variable encapsulating the name of this component | `string` | `"dl"` | no |
 | <a name="input_core_notify_url"></a> [core\_notify\_url](#input\_core\_notify\_url) | The URL used to send requests to Notify | `string` | `"https://sandbox.api.service.nhs.uk"` | no |
@@ -58,6 +60,7 @@ No requirements.
 | <a name="module_print_analyser"></a> [print\_analyser](#module\_print\_analyser) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_print_status_handler"></a> [print\_status\_handler](#module\_print\_status\_handler) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_report_event_transformer"></a> [report\_event\_transformer](#module\_report\_event\_transformer) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
+| <a name="module_report_generator"></a> [report\_generator](#module\_report\_generator) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-lambda.zip | n/a |
 | <a name="module_s3bucket_cf_logs"></a> [s3bucket\_cf\_logs](#module\_s3bucket\_cf\_logs) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_file_quarantine"></a> [s3bucket\_file\_quarantine](#module\_s3bucket\_file\_quarantine) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_file_safe"></a> [s3bucket\_file\_safe](#module\_s3bucket\_file\_safe) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-s3bucket.zip | n/a |
@@ -75,6 +78,7 @@ No requirements.
 | <a name="module_sqs_pdm_uploader"></a> [sqs\_pdm\_uploader](#module\_sqs\_pdm\_uploader) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip | n/a |
 | <a name="module_sqs_print_analyser"></a> [sqs\_print\_analyser](#module\_sqs\_print\_analyser) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip | n/a |
 | <a name="module_sqs_print_status_handler"></a> [sqs\_print\_status\_handler](#module\_sqs\_print\_status\_handler) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip | n/a |
+| <a name="module_sqs_report_generator"></a> [sqs\_report\_generator](#module\_sqs\_report\_generator) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip | n/a |
 | <a name="module_sqs_scanner"></a> [sqs\_scanner](#module\_sqs\_scanner) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip | n/a |
 | <a name="module_sqs_ttl"></a> [sqs\_ttl](#module\_sqs\_ttl) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip | n/a |
 | <a name="module_sqs_ttl_handle_expiry_errors"></a> [sqs\_ttl\_handle\_expiry\_errors](#module\_sqs\_ttl\_handle\_expiry\_errors) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip | n/a |
