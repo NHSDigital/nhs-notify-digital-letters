@@ -20,7 +20,7 @@ const mockDynamoDeleteBatch = mockFn<typeof deleteDynamoBatch>();
 
 const dynamoRepository = new DynamoRepository(
   mockTableName,
-  dynamoDocumentClient,
+  mockDynamoClient as any,
   logger,
   mockDynamoDeleteBatch,
 );

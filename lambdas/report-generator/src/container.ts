@@ -47,7 +47,11 @@ export const createContainer = () => {
     logger,
   );
 
-  const reportGenerator = new ReportGenerator(logger, reportService, reportName);
+  const reportGenerator = new ReportGenerator(
+    logger,
+    reportService,
+    reportName,
+  );
 
   const eventPublisher = new EventPublisher({
     eventBusArn: eventPublisherEventBusArn,
