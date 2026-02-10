@@ -27,3 +27,9 @@ properties:
     description: Date covered by the report
     examples:
       - "2025-12-03"
+  reportReference:
+    type: string
+    minLength: 1
+    description: Reference for the report
+    examples:
+      - "33ad37e1-ebac-4ff6-b973-261ca1f69e94"
