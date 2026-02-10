@@ -8,6 +8,9 @@ properties:
     $ref: ../defs/requests.schema.yaml#/properties/senderId
   meshMailboxReportsId:
     $ref: ../defs/mesh.schema.yaml#/properties/meshMailboxReportsId
+  reportReference:
+    $ref: ../defs/mesh.schema.yaml#/properties/reportReference
 required:
   - senderId
   - meshMailboxReportsId
+  - reportReference
