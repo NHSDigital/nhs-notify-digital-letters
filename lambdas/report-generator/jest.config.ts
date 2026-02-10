@@ -1,14 +1,13 @@
 import { baseJestConfig } from '../../jest.config.base';
 
-const config = {
-  ...baseJestConfig,
-  coverageThreshold: {
-    global: {
-      branches: 0,
-      functions: 0,
-      lines: 0,
-      statements: 0,
-    },
+const config = baseJestConfig;
+
+config.coverageThreshold = {
+  global: {
+    branches: 84,
+    functions: 100,
+    lines: 95,
+    statements: -10,
   },
 };
 
