@@ -8,7 +8,7 @@ const utilsJestConfig = {
       branches: 85,
       functions: 85,
       lines: 85,
-      statements: -50,
+      statements: -10,
     },
   },
 
