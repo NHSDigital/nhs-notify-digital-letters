@@ -58,3 +58,10 @@ export const FILE_SCANNER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-file-scann
 export const PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-status-handler`;
 export const PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-analyser`;
 export const MOVE_SCANNED_FILES_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-move-scanned-files`;
+
+// Glue
+export const GLUE_DATABASE_NAME = `${CSI}-reporting`;
+export const GLUE_TABLE_NAME = 'event_record';
+
+// Athena
+export const ATHENA_WORKGROUP_NAME = CSI;
