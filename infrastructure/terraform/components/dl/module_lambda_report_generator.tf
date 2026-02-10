@@ -40,7 +40,7 @@ module "report_generator" {
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
     "MAX_POLL_LIMIT"                = var.athena_query_max_polling_attemps
-    "REPORTING_BUCKET"              = s3bucket_reporting.name
+    "REPORTING_BUCKET"              = module.s3bucket_reporting.bucket
     "REPORT_NAME"                   = "completed_communications"
     "WAIT_FOR_IN_SECONDS"           = var.athena_query_polling_time_seconds
   }
