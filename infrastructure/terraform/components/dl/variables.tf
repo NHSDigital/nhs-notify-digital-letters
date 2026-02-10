@@ -181,6 +181,12 @@ variable "enable_pdm_mock" {
   default     = true
 }
 
+variable "report_scheduler_schedule" {
+  type        = string
+  description = "Schedule to trigger sender reports"
+  default     = "cron(30 4 * * ? *)" # Daily at 04:30
+}
+
 variable "pii_data_retention_policy_days" {
   type        = number
   description = "The number of days for data retention policy for PII"

@@ -56,7 +56,7 @@ data "aws_iam_policy_document" "core_notifier_lambda" {
 
     resources = [
       "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter/${var.component}/${var.environment}/apim/*",
-      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter/${var.component}/${var.environment}/senders/*"
+      "arn:aws:ssm:${var.region}:${var.aws_account_id}:parameter${local.ssm_senders_prefix}/*"
     ]
   }
 

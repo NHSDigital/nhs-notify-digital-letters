@@ -1,0 +1,16 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: MESHInboxMessageReceived Data
+description: Data payload of the MESHInboxMessageReceived event
+type: object
+additionalProperties: false
+properties:
+  meshMessageId:
+    $ref: ../defs/mesh.schema.yaml#/properties/meshMessageId
+  senderId:
+    $ref: ../defs/requests.schema.yaml#/properties/senderId
+  failureCode:
+    $ref: ../defs/requests.schema.yaml#/properties/failureCode
+required:
+  - meshMessageId
+  - senderId
+  - failureCode

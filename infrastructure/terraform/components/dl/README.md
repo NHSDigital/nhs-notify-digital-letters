@@ -39,6 +39,7 @@ No requirements.
 | <a name="input_queue_batch_size"></a> [queue\_batch\_size](#input\_queue\_batch\_size) | maximum number of queue items to process | `number` | `10` | no |
 | <a name="input_queue_batch_window_seconds"></a> [queue\_batch\_window\_seconds](#input\_queue\_batch\_window\_seconds) | maximum time in seconds between processing events | `number` | `1` | no |
 | <a name="input_region"></a> [region](#input\_region) | The AWS Region | `string` | n/a | yes |
+| <a name="input_report_scheduler_schedule"></a> [report\_scheduler\_schedule](#input\_report\_scheduler\_schedule) | Schedule to trigger sender reports | `string` | `"cron(30 4 * * ? *)"` | no |
 | <a name="input_shared_infra_account_id"></a> [shared\_infra\_account\_id](#input\_shared\_infra\_account\_id) | The AWS Shared Infra Account ID (numeric) | `string` | n/a | yes |
 | <a name="input_ttl_poll_schedule"></a> [ttl\_poll\_schedule](#input\_ttl\_poll\_schedule) | Schedule to poll for any overdue TTL records | `string` | `"rate(10 minutes)"` | no |
 ## Modules
@@ -61,6 +62,7 @@ No requirements.
 | <a name="module_print_status_handler"></a> [print\_status\_handler](#module\_print\_status\_handler) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_report_event_transformer"></a> [report\_event\_transformer](#module\_report\_event\_transformer) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_report_generator"></a> [report\_generator](#module\_report\_generator) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-lambda.zip | n/a |
+| <a name="module_report_scheduler"></a> [report\_scheduler](#module\_report\_scheduler) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip | n/a |
 | <a name="module_s3bucket_cf_logs"></a> [s3bucket\_cf\_logs](#module\_s3bucket\_cf\_logs) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_file_quarantine"></a> [s3bucket\_file\_quarantine](#module\_s3bucket\_file\_quarantine) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-s3bucket.zip | n/a |
 | <a name="module_s3bucket_file_safe"></a> [s3bucket\_file\_safe](#module\_s3bucket\_file\_safe) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-s3bucket.zip | n/a |
