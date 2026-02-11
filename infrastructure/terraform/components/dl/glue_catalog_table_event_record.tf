@@ -25,11 +25,11 @@ resource "aws_glue_catalog_table" "event_record" {
       type = "int"
     }
     columns {
-      name = "reasonCode"
+      name = "reasoncode"
       type = "string"
     }
     columns {
-      name = "reasonText"
+      name = "reasontext"
       type = "string"
     }
     columns {
