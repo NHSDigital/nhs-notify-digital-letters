@@ -4,7 +4,6 @@ locals {
   apim_keystore_s3_bucket              = "nhs-${var.aws_account_id}-${var.region}-${var.environment}-${var.component}-static-assets"
   apim_private_key_ssm_parameter_name  = "/${var.component}/${var.environment}/apim/private_key"
   athena_reporting_database            = "${local.csi}-reporting"
-  athena_workgroup_arn                 = "arn:aws:athena:${var.region}:${var.aws_account_id}:workgroup/${aws_athena_workgroup.reporting.name}"
   aws_lambda_functions_dir_path        = "../../../../lambdas"
   deploy_pdm_mock                      = var.enable_pdm_mock
   firehose_output_path_prefix          = "kinesis-firehose-output"

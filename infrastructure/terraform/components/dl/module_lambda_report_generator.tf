@@ -89,7 +89,25 @@ data "aws_iam_policy_document" "report_generator_lambda" {
     ]
 
     resources = [
-      local.athena_workgroup_arn
+      "arn:aws:athena:${var.region}:${var.aws_account_id}:workgroup/${aws_athena_workgroup.reporting.name}"
+    ]
+  }
+
+  statement {
+    sid    = "AllowGlueAccess"
+    effect = "Allow"
+
+    actions = [
+      "glue:GetTable",
+      "glue:GetDatabase",
+      "glue:GetPartition",
+      "glue:GetPartitions",
+    ]
+
+    resources = [
+      "arn:aws:glue:${var.region}:${var.aws_account_id}:catalog",
+      "arn:aws:glue:${var.region}:${var.aws_account_id}:database/${local.athena_reporting_database}",
+      "arn:aws:glue:${var.region}:${var.aws_account_id}:table/${local.athena_reporting_database}/*"
     ]
   }
 
