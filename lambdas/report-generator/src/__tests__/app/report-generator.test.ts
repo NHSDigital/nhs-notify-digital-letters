@@ -9,7 +9,7 @@ describe('ReportGenerator', () => {
   let mockLogger: jest.Mocked<Logger>;
   let mockReportService: jest.Mocked<IReportService>;
   let reportGenerator: ReportGenerator;
-  const reportName = 'daily-summary';
+  const reportName = 'completed_communications';
 
   beforeEach(() => {
     mockLogger = {
@@ -59,7 +59,7 @@ describe('ReportGenerator', () => {
 
     it('should successfully generate a report', async () => {
       const expectedLocation =
-        's3://bucket/reports/sender-123/daily-summary/daily-summary_sender-123_2025-01-15.csv';
+        's3://bucket/reports/sender-123/completed_communications/completed_communications_sender-123_2025-01-15.csv';
       mockReportService.generateReport.mockResolvedValue(expectedLocation);
 
       const result = await reportGenerator.generate(mockEvent);
@@ -74,7 +74,7 @@ describe('ReportGenerator', () => {
       expect(mockReportService.generateReport).toHaveBeenCalledWith(
         mockQuery,
         ['2025-01-15', 'sender-123'],
-        'reports/sender-123/daily-summary/daily-summary_sender-123_2025-01-15.csv',
+        'transactional-reports/sender-123/completed_communications/completed_communications_2025-01-15.csv',
       );
       expect(result).toEqual({
         outcome: 'generated',
@@ -84,7 +84,7 @@ describe('ReportGenerator', () => {
 
     it('should construct correct report file path with report name', async () => {
       const expectedLocation =
-        's3://bucket/reports/sender-456/daily-summary/daily-summary_sender-456_2025-02-20.csv';
+        's3://bucket/transactional-reports/sender-123/completed_communications/completed_communications_2025-01-15.csv';
       mockReportService.generateReport.mockResolvedValue(expectedLocation);
 
       const customEvent: GenerateReport = {
@@ -100,7 +100,7 @@ describe('ReportGenerator', () => {
       expect(mockReportService.generateReport).toHaveBeenCalledWith(
         expect.any(String),
         ['2025-02-20', 'sender-456'],
-        'reports/sender-456/daily-summary/daily-summary_sender-456_2025-02-20.csv',
+        'transactional-reports/sender-456/completed_communications/completed_communications_2025-02-20.csv',
       );
     });
 
