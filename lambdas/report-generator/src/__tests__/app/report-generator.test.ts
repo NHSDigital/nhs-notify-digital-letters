@@ -73,7 +73,7 @@ describe('ReportGenerator', () => {
       );
       expect(mockReportService.generateReport).toHaveBeenCalledWith(
         mockQuery,
-        ['2025-01-15', 'sender-123'],
+        ["'2025-01-15'", "'sender-123'"],
         'transactional-reports/sender-123/completed_communications/completed_communications_2025-01-15.csv',
       );
       expect(result).toEqual({
@@ -99,7 +99,7 @@ describe('ReportGenerator', () => {
 
       expect(mockReportService.generateReport).toHaveBeenCalledWith(
         expect.any(String),
-        ['2025-02-20', 'sender-456'],
+        ["'2025-02-20'", "'sender-456'"],
         'transactional-reports/sender-456/completed_communications/completed_communications_2025-02-20.csv',
       );
     });
@@ -113,7 +113,7 @@ describe('ReportGenerator', () => {
 
       expect(mockReportService.generateReport).toHaveBeenCalledWith(
         mockQuery,
-        ['2025-01-15', 'sender-123'],
+        ["'2025-01-15'", "'sender-123'"],
         expect.any(String),
       );
     });

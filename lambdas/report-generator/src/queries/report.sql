@@ -1,6 +1,6 @@
 WITH vars AS (
-    SELECT DATE(CAST(? AS VARCHAR)) AS dt,
-        CAST(? AS VARCHAR) AS senderid
+    SELECT CAST(? AS DATE) AS dt,
+        ? AS senderid
 ),
 "translated_events" AS (
     SELECT e.messagereference,

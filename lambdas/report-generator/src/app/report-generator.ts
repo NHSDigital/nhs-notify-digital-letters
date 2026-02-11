@@ -29,7 +29,7 @@ export class ReportGenerator {
 
       const location = await this.reportService.generateReport(
         query,
-        [reportDate, senderId],
+        [`'${reportDate}'`, `'${senderId}'`],
         reportFilePath,
       );
 
