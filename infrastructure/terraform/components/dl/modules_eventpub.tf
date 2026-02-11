@@ -55,7 +55,7 @@ data "aws_iam_policy_document" "sns_publish" {
     condition {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
-      values   = [aws_cloudwatch_event_bus.main.arn]
+      values   = [aws_cloudwatch_event_rule.letter_prepared.arn]
     }
   }
 }
