@@ -32,7 +32,8 @@ WITH vars AS (
                 CASE
                     -- Digital Priority Order
                     WHEN te.status = 'Read' THEN 2
-                    WHEN te.status = 'Unread' THEN 1 -- Print Priority Order
+                    WHEN te.status = 'Unread' THEN 1
+                    -- Print Priority Order
                     WHEN te.status = 'Returned' THEN 4
                     WHEN te.status = 'Failed' THEN 3
                     WHEN te.status = 'Dispatched' THEN 2
