@@ -77,6 +77,21 @@ data "aws_iam_policy_document" "report_generator_lambda" {
   }
 
   statement {
+    sid    = "AllowAthenaAccess"
+    effect = "Allow"
+
+    actions = [
+      "athena:StartQueryExecution",
+      "athena:GetQueryResults",
+      "athena:GetQueryExecution"
+    ]
+
+    resources = [
+      local.athena_workgroup_arn
+    ]
+  }
+
+  statement {
     sid    = "SQSPermissionsReportGeneratorQueue"
     effect = "Allow"
 
