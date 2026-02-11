@@ -56,7 +56,7 @@ function validateRecord(
 }
 
 function generateReportEvent(validatedRecord: ValidatedRecord): ReportEvent {
-  const { messageReference, pageCount, senderId, supplierId } =
+  const { messageReference, pageCount, senderId, status, supplierId } =
     validatedRecord.event.data;
   const { time, type } = validatedRecord.event;
   const eventTime = new Date(time);
@@ -66,6 +66,7 @@ function generateReportEvent(validatedRecord: ValidatedRecord): ReportEvent {
     senderId,
     pageCount,
     supplierId,
+    letterStatus: status,
     time,
     type,
   };

@@ -21,6 +21,7 @@ const baseEvent = {
     resourceId: 'a2bcbb42-ab7e-42b6-88d6-74f8d3ca4a09',
     messageReference: 'ref1',
     senderId: 'sender1',
+    status: 'DISPATCHED',
   },
 };
 

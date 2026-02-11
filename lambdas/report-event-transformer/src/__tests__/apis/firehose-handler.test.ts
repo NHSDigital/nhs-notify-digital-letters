@@ -49,6 +49,7 @@ describe('Firehose Handler', () => {
         senderId: digitalLettersEvent.data.senderId,
         pageCount: digitalLettersEvent.data.pageCount,
         supplierId: digitalLettersEvent.data.supplierId,
+        letterStatus: digitalLettersEvent.data.status,
         time: digitalLettersEvent.time,
         type: digitalLettersEvent.type,
       });

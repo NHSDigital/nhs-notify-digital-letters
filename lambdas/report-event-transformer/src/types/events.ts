@@ -6,6 +6,7 @@ export const $DigitalLettersEvent = z.object({
     senderId: z.string(),
     pageCount: z.number().optional(),
     supplierId: z.string().optional(),
+    status: z.string().optional(),
   }),
   time: z.string(),
   type: z.string(),
@@ -18,6 +19,7 @@ export type FlatDigitalLettersEvent = {
   senderId: string;
   pageCount?: number;
   supplierId?: string;
+  letterStatus?: string;
   time: string;
   type: string;
 };
