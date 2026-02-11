@@ -21,7 +21,7 @@ export class ReportGenerator {
       const query = fs.readFileSync('/var/task/queries/report.sql', 'utf8');
       const { senderId } = event.data;
       const { reportDate } = event.data;
-      const reportFilePath = `reports/${senderId}/${this.reportName}/${this.reportName}_${senderId}_${reportDate}.csv`;
+      const reportFilePath = `transactional-reports/${senderId}/${this.reportName}/${this.reportName}_${reportDate}.csv`;
 
       this.logger.info(
         `Generating report for sender ${senderId} and date ${reportDate}`,
