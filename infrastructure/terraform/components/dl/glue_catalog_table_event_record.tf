@@ -37,8 +37,8 @@ resource "aws_glue_catalog_table" "event_record" {
       type = "string"
     }
     columns {
-      name = "type"
-      type = "letterstatus"
+      name = "letterstatus"
+      type = "string"
     }
   }
 
