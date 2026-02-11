@@ -1,6 +1,6 @@
 WITH vars AS (
-    SELECT CAST(? AS DATE) AS dt,
-        ? AS senderid
+    SELECT DATE(CAST(? AS VARCHAR)) AS dt,
+        CAST(? AS VARCHAR) AS senderid
 ),
 "translated_events" AS (
     SELECT e.messagereference,
@@ -27,7 +27,7 @@ WITH vars AS (
 ),
 "ordered_events" AS (
     SELECT ROW_NUMBER() OVER (
-            PARTITION BY te.messagereference
+            PARTITION BY te.messagereference, te.communicationtype
             ORDER BY te.time DESC,
                 CASE
                     -- Digital Priority Order
