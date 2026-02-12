@@ -6,14 +6,14 @@ title: c4code-mesh-downloader
 
 ```mermaid
 architecture-beta
-    group meshRetriever(cloud)[MeshDownloader]
+    group meshDownloader(cloud)[MeshDownloader]
     service meshReceived(aws:res-amazon-eventbridge-event)[MESHInboxMessageReceived Event]
     service meshDownloaded(aws:res-amazon-eventbridge-event)[ MESHInboxMessageDownloaded Event]
     service meshInvalid(aws:res-amazon-eventbridge-event)[ MESHInboxMessageInvalid Event]
-    service meshDownloadQueue(logos:aws-sqs)[MeshDownload Queue] in meshRetriever
-    service meshDownloadLambda(logos:aws-lambda)[MeshDownload] in meshRetriever
+    service meshDownloadQueue(logos:aws-sqs)[MeshDownload Queue] in meshDownloader
+    service meshDownloadLambda(logos:aws-lambda)[MeshDownload] in meshDownloader
     service mesh(server)[MESH]
-    service s3(logos:aws-s3)[DocumentReference] in meshRetriever
+    service s3(logos:aws-s3)[DocumentReference] in meshDownloader
     junction j1
 
     meshReceived:R --> L:meshDownloadQueue
