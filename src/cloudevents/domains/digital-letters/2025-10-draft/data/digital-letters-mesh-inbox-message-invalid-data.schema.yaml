@@ -1,6 +1,6 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-title: MESHInboxMessageReceived Data
-description: Data payload of the MESHInboxMessageReceived event
+title: MESHInboxMessageInvalid Data
+description: Data payload of the MESHInboxMessageInvalid event
 type: object
 additionalProperties: false
 properties:
