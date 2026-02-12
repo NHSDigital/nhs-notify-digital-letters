@@ -34,6 +34,41 @@ export const acceptedLetterEvent = {
   },
 } as LetterEvent;
 
+export const failedLetterEvent = {
+  id: '550e8400-e29b-41d4-a716-446655440002',
+  specversion: '1.0',
+  source: '/data-plane/supplier-api/prod/update-status',
+  subject:
+    'letter-origin/digital-letters/letter/f47ac10b-58cc-4372-a567-0e02b2c3d480',
+  type: 'uk.nhs.notify.supplier-api.letter.FAILED.v1',
+  dataschema:
+    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.FAILED.1.0.0.schema.json',
+  dataschemaversion: '1.0.0',
+  time: '2023-06-20T13:00:00Z',
+  recordedtime: '2023-06-20T13:00:00.250Z',
+  severitynumber: 3,
+  traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203332-01',
+  datacontenttype: 'application/json',
+  severitytext: 'WARN',
+  plane: 'data',
+  data: {
+    domainId: 'f47ac10b-58cc-4372-a567-0e02b2c3d480',
+    groupId: 'client_template',
+    origin: {
+      domain: 'letter-rendering',
+      event: 'f47ac10b-58cc-4372-a567-0e02b2c3d480',
+      source: '/data-plane/letter-rendering/prod/render-pdf',
+      subject:
+        'client/00f3b388-bbe9-41c9-9e76-052d37ee8988/digital-letters/c8d1d8g9-9305-511e-9459-8f8eeg886ebf',
+    },
+    specificationId: '1y3q9v1zzzz',
+    supplierId: 'supplier-1',
+    status: 'FAILED',
+    reasonCode: 'FAILURE001',
+    reasonText: 'Letter has too many pages',
+  },
+} as LetterEvent;
+
 const busEvent = {
   version: '0',
   id: 'ab07d406-0797-e919-ff9b-3ad9c5498114',
