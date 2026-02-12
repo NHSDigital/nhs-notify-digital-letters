@@ -12,6 +12,7 @@ export const MESH_POLL_LAMBDA_NAME = `${CSI}-mesh-poll`;
 export const TTL_CREATE_LAMBDA_NAME = `${CSI}-ttl-create`;
 export const TTL_POLL_LAMBDA_NAME = `${CSI}-ttl-poll`;
 export const CORE_NOTIFIER_LAMBDA_NAME = `${CSI}-core-notifier`;
+export const REPORT_EVENT_TRANSFORMER_LAMBDA_NAME = `${CSI}-report-event-transformer`;
 export const REPORT_SCHEDULER_LAMBDA_NAME = `${CSI}-report-scheduler`;
 
 // Queue Names

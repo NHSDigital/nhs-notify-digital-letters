@@ -213,3 +213,9 @@ variable "default_cloudwatch_event_bus_name" {
   description = "The name of the default cloudwatch event bus. This is needed as GuardDuty Scan Result events are sent to the default bus"
   default     = "default"
 }
+
+variable "metadata_refresh_schedule" {
+  type        = string
+  description = "Schedule for refreshing reporting metadata."
+  default     = "cron(10 6-22 * * ? *)" # 10 minutes past the hour, between 06:00 - 22:00
+}
