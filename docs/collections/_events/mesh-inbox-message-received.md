@@ -7,4 +7,4 @@ schema_envelope:  https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025
 schema_data: https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json
 ---
 
-This is an event.
+This event is published when the MESHPoller detects a new message in the MESH mailbox that is available to be downloaded.

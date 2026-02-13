@@ -3,8 +3,10 @@ import { z } from 'zod';
 export const $DigitalLettersEvent = z.object({
   data: z.object({
     messageReference: z.string(),
-    senderId: z.string(),
     pageCount: z.number().optional(),
+    reasonCode: z.string().optional(),
+    reasonText: z.string().optional(),
+    senderId: z.string(),
     supplierId: z.string().optional(),
     status: z.string().optional(),
   }),
@@ -16,10 +18,12 @@ export type DigitalLettersEvent = z.infer<typeof $DigitalLettersEvent>;
 
 export type FlatDigitalLettersEvent = {
   messageReference: string;
-  senderId: string;
   pageCount?: number;
+  senderId: string;
   supplierId?: string;
   letterStatus?: string;
+  reasonCode?: string;
+  reasonText?: string;
   time: string;
   type: string;
 };

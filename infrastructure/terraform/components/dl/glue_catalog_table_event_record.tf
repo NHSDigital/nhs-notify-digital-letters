@@ -25,6 +25,14 @@ resource "aws_glue_catalog_table" "event_record" {
       type = "int"
     }
     columns {
+      name = "reasoncode"
+      type = "string"
+    }
+    columns {
+      name = "reasontext"
+      type = "string"
+    }
+    columns {
       name = "supplierid"
       type = "string"
     }

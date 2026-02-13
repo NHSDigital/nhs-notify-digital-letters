@@ -1,7 +1,7 @@
 import { FirehoseTransformationEvent } from 'aws-lambda';
 import { DigitalLettersEvent } from 'types/events';
 
-const baseEvent = {
+export const digitalLettersEvent = {
   id: '550e8400-e29b-41d4-a716-446655440001',
   specversion: '1.0',
   source:
@@ -15,21 +15,18 @@ const baseEvent = {
   traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
   datacontenttype: 'application/json',
   dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10/digital-letter-base-data.schema.json',
+    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.json',
   severitytext: 'INFO',
   data: {
     resourceId: 'a2bcbb42-ab7e-42b6-88d6-74f8d3ca4a09',
     messageReference: 'ref1',
+    pageCount: 5,
+    reasonCode: 'FAILURE001',
+    reasonText: 'Letter has too many pages',
     senderId: 'sender1',
     status: 'DISPATCHED',
+    supplierId: 'supplier1',
   },
-};
-
-export const digitalLettersEvent = {
-  ...baseEvent,
-  type: 'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
-  dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submitted-data.schema.json',
 } as DigitalLettersEvent;
 
 export const firehoseEvent = (

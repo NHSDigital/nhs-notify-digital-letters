@@ -10,7 +10,7 @@
     "@aws-sdk/lib-dynamodb": "^3.984.0",
     "@aws-sdk/lib-storage": "^3.984.0",
     "async-mutex": "^0.4.0",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "date-fns": "^4.1.0",
     "node-jose": "^2.2.0",
     "winston": "^3.17.0",
