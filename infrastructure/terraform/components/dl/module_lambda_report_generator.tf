@@ -36,7 +36,7 @@ module "report_generator" {
 
   lambda_env_vars = {
     "ATHENA_WORKGROUP"              = aws_athena_workgroup.reporting.name
-    "ATHENA_DATABASE"               = local.athena_reporting_database
+    "ATHENA_DATABASE"               = aws_glue_catalog_database.reporting.name
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
     "MAX_POLL_LIMIT"                = var.athena_query_max_polling_attempts
@@ -106,8 +106,8 @@ data "aws_iam_policy_document" "report_generator_lambda" {
 
     resources = [
       "arn:aws:glue:${var.region}:${var.aws_account_id}:catalog",
-      "arn:aws:glue:${var.region}:${var.aws_account_id}:database/${local.athena_reporting_database}",
-      "arn:aws:glue:${var.region}:${var.aws_account_id}:table/${local.athena_reporting_database}/*"
+      "arn:aws:glue:${var.region}:${var.aws_account_id}:database/${aws_glue_catalog_database.reporting.name}",
+      "arn:aws:glue:${var.region}:${var.aws_account_id}:table/${aws_glue_catalog_database.reporting.name}/*"
     ]
   }
 

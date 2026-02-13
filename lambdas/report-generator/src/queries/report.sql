@@ -47,9 +47,9 @@ WITH vars AS (
     FROM "translated_events" AS te
     where te.status IS NOT NULL
 )
-SELECT oe.messagereference,
-    oe.time,
-    oe.communicationtype,
-    oe.status
+SELECT oe.messagereference as "Message Reference",
+    oe.time as "Time",
+    oe.communicationtype as "Communication Type",
+    oe.status as "Status"
 FROM "ordered_events" AS oe
 WHERE oe.row_number = 1
