@@ -12,7 +12,7 @@ title: c4component-mesh
         Container_Boundary(inbound, "Inbound"){
          Component(timer, "Mesh Timer")
          Component(poller, "Mesh Poller")
-         Component(retriever, "Mesh Retriever")
+         Component(downloader, "Mesh Downloader")
         }
 
 
@@ -23,7 +23,7 @@ title: c4component-mesh
         }
 
         Rel(timer, poller, "Produced", "TimeExipred")
-        Rel(poller, retriever, "Sends File", "FileFound")
+        Rel(poller, downloader, "Sends File", "FileFound")
 
 
          UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")

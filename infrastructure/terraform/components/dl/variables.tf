@@ -181,6 +181,21 @@ variable "enable_pdm_mock" {
   default     = true
 }
 
+variable "aws_account_type" {
+  type        = string
+  description = "The AWS Account Type"
+}
+
+variable "eventpub_control_plane_bus_arn" {
+  type        = string
+  description = "Event publisher control plane"
+}
+
+variable "eventpub_data_plane_bus_arn" {
+  type        = string
+  description = "Event publisher data plane"
+}
+
 variable "report_scheduler_schedule" {
   type        = string
   description = "Schedule to trigger sender reports"
@@ -197,4 +212,10 @@ variable "default_cloudwatch_event_bus_name" {
   type        = string
   description = "The name of the default cloudwatch event bus. This is needed as GuardDuty Scan Result events are sent to the default bus"
   default     = "default"
+}
+
+variable "metadata_refresh_schedule" {
+  type        = string
+  description = "Schedule for refreshing reporting metadata."
+  default     = "cron(10 6-22 * * ? *)" # 10 minutes past the hour, between 06:00 - 22:00
 }

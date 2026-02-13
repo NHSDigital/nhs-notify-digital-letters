@@ -32,5 +32,11 @@ data "aws_iam_policy_document" "sqs_print_status_handler" {
     resources = [
       "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-print-status-handler-queue"
     ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_cloudwatch_event_rule.print_status_changed.arn]
+    }
   }
 }
