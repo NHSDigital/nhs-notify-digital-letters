@@ -67,7 +67,8 @@ jobs:
     if: |
       needs.detect-doc-changes.outputs.docs_changed == 'true' ||
       needs.detect-doc-changes.outputs.schemas_changed == 'true' ||
-      needs.detect-doc-changes.outputs.eventcatalog_changed == 'true'
+      needs.detect-doc-changes.outputs.eventcatalog_changed == 'true' ||
+      github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
