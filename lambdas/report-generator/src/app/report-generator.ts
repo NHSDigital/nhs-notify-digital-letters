@@ -4,10 +4,14 @@ import fs from 'node:fs';
 
 export type ReportGeneratorOutcome = 'generated' | 'failed';
 
-export type ReportGeneratorResult = {
-  outcome: ReportGeneratorOutcome;
-  reportUri?: string;
-};
+export type ReportGeneratorResult =
+  | {
+      outcome: 'generated';
+      reportUri: string;
+    }
+  | {
+      outcome: 'failed';
+    };
 
 export class ReportGenerator {
   constructor(
@@ -17,10 +21,10 @@ export class ReportGenerator {
   ) {}
 
   async generate(event: GenerateReport): Promise<ReportGeneratorResult> {
+    const { reportDate, senderId } = event.data;
+
     try {
       const query = fs.readFileSync('/var/task/queries/report.sql', 'utf8');
-      const { senderId } = event.data;
-      const { reportDate } = event.data;
       const reportFilePath = `transactional-reports/${senderId}/${this.reportName}/${this.reportName}_${reportDate}.csv`;
 
       this.logger.info(
@@ -38,8 +42,8 @@ export class ReportGenerator {
       this.logger.error({
         err: error,
         description: 'Error generating report',
-        senderId: event.data.senderId,
-        reportDate: event.data.reportDate,
+        senderId,
+        reportDate,
       });
       return { outcome: 'failed' };
     }

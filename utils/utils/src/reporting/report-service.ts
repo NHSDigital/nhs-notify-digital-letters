@@ -47,12 +47,12 @@ export class ReportService implements IReportService {
     );
 
     if (!queryExecutionId) {
-      throw new Error('failed to obtained a query executionId from Athena');
+      throw new Error('failed to obtain a query executionId from Athena');
     }
 
     const logger = this.logger.child({ queryExecutionId });
 
-    logger.info(`Athena query started with execution id: ${queryExecutionId}`);
+    logger.info('Athena query started.');
 
     const status = await this.poll(
       queryExecutionId,
@@ -64,7 +64,7 @@ export class ReportService implements IReportService {
       throw new Error(`Failed to generate report. Query status: ${status}`);
     }
 
-    logger.info(`Athena query ${queryExecutionId} finished`);
+    logger.info('Athena query finished.');
 
     return this.storageRepository.publishReport(
       queryExecutionId,

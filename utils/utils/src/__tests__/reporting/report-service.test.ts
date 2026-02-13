@@ -74,12 +74,8 @@ describe('ReportService', () => {
       );
       expect(result).toBe(reportFilePath);
       expect(mockLogger.child).toHaveBeenCalledWith({ queryExecutionId });
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        `Athena query started with execution id: ${queryExecutionId}`,
-      );
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        `Athena query ${queryExecutionId} finished`,
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith('Athena query started.');
+      expect(mockLogger.info).toHaveBeenCalledWith('Athena query finished.');
     });
 
     it('should throw error when query fails', async () => {
@@ -196,6 +192,36 @@ describe('ReportService', () => {
       );
 
       expect(sleep).toHaveBeenCalledWith(customWaitTime);
+    });
+
+    it('should throw an error if the query is not started successfully', async () => {
+      // eslint-disable-next-line unicorn/no-useless-undefined -- We want to explicitly set the return value.
+      mockDataRepository.startQuery.mockResolvedValue(undefined);
+
+      await expect(
+        reportService.generateReport(
+          query,
+          executionParameters,
+          reportFilePath,
+        ),
+      ).rejects.toThrow('failed to obtain a query executionId from Athena');
+    });
+
+    it('should continue polling if getQueryStatus returns undefined', async () => {
+      mockDataRepository.startQuery.mockResolvedValue(queryExecutionId);
+      mockDataRepository.getQueryStatus
+        // eslint-disable-next-line unicorn/no-useless-undefined -- We want to explicitly set the return value.
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce('SUCCEEDED');
+      mockStorageRepository.publishReport.mockResolvedValue(reportFilePath);
+
+      await reportService.generateReport(
+        query,
+        executionParameters,
+        reportFilePath,
+      );
+
+      expect(mockDataRepository.getQueryStatus).toHaveBeenCalledTimes(2);
     });
   });
 });

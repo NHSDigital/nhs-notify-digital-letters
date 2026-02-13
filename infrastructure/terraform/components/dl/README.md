@@ -13,7 +13,7 @@ No requirements.
 | <a name="input_apim_auth_token_url"></a> [apim\_auth\_token\_url](#input\_apim\_auth\_token\_url) | URL to generate an APIM auth token | `string` | `"https://int.api.service.nhs.uk/oauth2/token"` | no |
 | <a name="input_apim_base_url"></a> [apim\_base\_url](#input\_apim\_base\_url) | The URL used to send requests to PDM | `string` | `"https://int.api.service.nhs.uk"` | no |
 | <a name="input_apim_keygen_schedule"></a> [apim\_keygen\_schedule](#input\_apim\_keygen\_schedule) | Schedule to refresh key pairs if necessary | `string` | `"cron(0 14 * * ? *)"` | no |
-| <a name="input_athena_query_max_polling_attemps"></a> [athena\_query\_max\_polling\_attemps](#input\_athena\_query\_max\_polling\_attemps) | The number of times athena will be polled to check if a query is completed | `number` | `50` | no |
+| <a name="input_athena_query_max_polling_attempts"></a> [athena\_query\_max\_polling\_attempts](#input\_athena\_query\_max\_polling\_attempts) | The number of times athena will be polled to check if a query is completed | `number` | `50` | no |
 | <a name="input_athena_query_polling_time_seconds"></a> [athena\_query\_polling\_time\_seconds](#input\_athena\_query\_polling\_time\_seconds) | The amount of time in seconds to wait between each athena poll | `number` | `15` | no |
 | <a name="input_aws_account_id"></a> [aws\_account\_id](#input\_aws\_account\_id) | The AWS Account ID (numeric) | `string` | n/a | yes |
 | <a name="input_component"></a> [component](#input\_component) | The variable encapsulating the name of this component | `string` | `"dl"` | no |

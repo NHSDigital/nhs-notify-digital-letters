@@ -16,7 +16,7 @@ import { EventPublisher, Logger } from 'utils';
 
 interface ProcessingResult {
   result: ReportGeneratorResult;
-  item?: GenerateReport;
+  item: GenerateReport;
 }
 
 interface CreateHandlerDependencies {
@@ -68,7 +68,6 @@ async function processRecord(
 
     if (result.outcome === 'failed') {
       batchItemFailures.push({ itemIdentifier: messageId });
-      return { result: { outcome: 'failed' }, item: event };
     }
 
     return { result, item: event };
@@ -78,14 +77,13 @@ async function processRecord(
       description: 'Error during SQS trigger handler',
     });
     batchItemFailures.push({ itemIdentifier: messageId });
-    return { result: { outcome: 'failed' } };
+    return { result: { outcome: 'failed' }, item: event };
   }
 }
 
 interface CategorizedResults {
   processed: Record<ReportGeneratorOutcome | 'retrieved', number>;
   successfulItems: { event: GenerateReport; reportUri: string }[];
-  failedItems: GenerateReport[];
 }
 
 function categorizeResults(
@@ -102,22 +100,17 @@ function categorizeResults(
     event: GenerateReport;
     reportUri: string;
   }[] = [];
-  const failedItems: GenerateReport[] = [];
 
   for (const result of results) {
     if (result.status === 'fulfilled') {
       const { item, result: itemResult } = result.value;
       processed[itemResult.outcome] += 1;
 
-      if (item) {
-        if (itemResult.outcome === 'generated' && itemResult.reportUri) {
-          successfulItems.push({
-            event: item,
-            reportUri: itemResult.reportUri,
-          });
-        } else {
-          failedItems.push(item);
-        }
+      if (itemResult.outcome === 'generated') {
+        successfulItems.push({
+          event: item,
+          reportUri: itemResult.reportUri,
+        });
       }
     } else {
       logger.error({ err: result.reason });
@@ -125,7 +118,7 @@ function categorizeResults(
     }
   }
 
-  return { processed, successfulItems, failedItems };
+  return { processed, successfulItems };
 }
 
 async function publishSuccessfulEvents(

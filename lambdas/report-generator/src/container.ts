@@ -5,6 +5,7 @@ import {
   createStorageRepository,
   eventBridgeClient,
   logger,
+  region,
   s3Client,
   sqsClient,
 } from 'utils';
@@ -25,7 +26,7 @@ export const createContainer = () => {
   } = loadConfig();
 
   const athenaClient = new AthenaClient({
-    region: 'eu-west-2',
+    region: region(),
   });
 
   const dataRepository = new AthenaRepository(athenaClient, {

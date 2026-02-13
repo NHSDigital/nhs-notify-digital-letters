@@ -13,7 +13,7 @@ WITH vars AS (
         CASE
             WHEN e.type LIKE '%.item.dequeued.%' THEN 'Unread'
             WHEN e.type LIKE '%.item.removed.%' THEN 'Read'
-            WHEN e.letterstatus = 'REJECTED' THEN 'Rejected'
+            WHEN e.letterstatus = 'RETURNED' THEN 'Returned'
             WHEN e.letterstatus = 'FAILED' THEN 'Failed'
             WHEN e.letterstatus = 'DISPATCHED' THEN 'Dispatched'
             WHEN e.letterstatus = 'REJECTED' THEN 'Rejected' ELSE NULL

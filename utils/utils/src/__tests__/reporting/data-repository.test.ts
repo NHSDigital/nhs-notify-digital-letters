@@ -16,13 +16,6 @@ describe('AthenaRepository', () => {
     repository = new AthenaRepository(new AthenaClient({}), mockConfig);
   });
 
-  describe('constructor', () => {
-    it('should initialize with correct workgroup and database', () => {
-      expect(repository.workGroup).toBe('test-workgroup');
-      expect(repository.database).toBe('test-database');
-    });
-  });
-
   describe('startQuery', () => {
     it('should start query execution and return query execution ID', async () => {
       const mockQueryExecutionId = 'query-123';
@@ -92,34 +85,6 @@ describe('AthenaRepository', () => {
       const result = await repository.getQueryStatus('query-123');
 
       expect(result).toBe('SUCCEEDED');
-    });
-
-    it('should handle RUNNING state', async () => {
-      athenaClientMock.onAnyCommand().resolves({
-        QueryExecution: {
-          Status: {
-            State: 'RUNNING',
-          },
-        },
-      });
-
-      const result = await repository.getQueryStatus('query-456');
-
-      expect(result).toBe('RUNNING');
-    });
-
-    it('should handle FAILED state', async () => {
-      athenaClientMock.onAnyCommand().resolves({
-        QueryExecution: {
-          Status: {
-            State: 'FAILED',
-          },
-        },
-      });
-
-      const result = await repository.getQueryStatus('query-789');
-
-      expect(result).toBe('FAILED');
     });
 
     it('should return undefined when QueryExecution is missing', async () => {

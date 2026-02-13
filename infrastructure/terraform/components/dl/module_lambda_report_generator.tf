@@ -2,7 +2,7 @@ module "report_generator" {
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-lambda.zip"
 
   function_name = "report-generator"
-  description   = "A function to generator reports from an event"
+  description   = "A function to generate reports from an event"
 
   aws_account_id = var.aws_account_id
   component      = local.component
@@ -39,7 +39,7 @@ module "report_generator" {
     "ATHENA_DATABASE"               = local.athena_reporting_database
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
-    "MAX_POLL_LIMIT"                = var.athena_query_max_polling_attemps
+    "MAX_POLL_LIMIT"                = var.athena_query_max_polling_attempts
     "REPORTING_BUCKET"              = module.s3bucket_reporting.bucket
     "REPORT_NAME"                   = "completed_communications"
     "WAIT_FOR_IN_SECONDS"           = var.athena_query_polling_time_seconds

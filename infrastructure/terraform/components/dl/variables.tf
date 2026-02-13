@@ -199,7 +199,7 @@ variable "default_cloudwatch_event_bus_name" {
   default     = "default"
 }
 
-variable "athena_query_max_polling_attemps" {
+variable "athena_query_max_polling_attempts" {
   type        = number
   description = "The number of times athena will be polled to check if a query is completed"
   default     = 50

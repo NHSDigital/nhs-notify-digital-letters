@@ -68,7 +68,7 @@ describe('sqs-trigger-lambda', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (randomUUID as jest.Mock).mockReturnValue(mockUuid);
+    jest.mocked(randomUUID).mockReturnValue(mockUuid);
 
     mockReportGenerator = {
       generate: jest.fn(),
@@ -103,7 +103,7 @@ describe('sqs-trigger-lambda', () => {
         logger: mockLogger,
       });
 
-      const response: SQSBatchResponse = await handler(sqsEvent);
+      const response = await handler(sqsEvent);
 
       expect(response.batchItemFailures).toEqual([]);
       expect(mockReportGenerator.generate).toHaveBeenCalledTimes(1);

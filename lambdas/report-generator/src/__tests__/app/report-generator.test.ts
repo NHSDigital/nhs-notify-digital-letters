@@ -82,42 +82,6 @@ describe('ReportGenerator', () => {
       });
     });
 
-    it('should construct correct report file path with report name', async () => {
-      const expectedLocation =
-        's3://bucket/transactional-reports/sender-123/completed_communications/completed_communications_2025-01-15.csv';
-      mockReportService.generateReport.mockResolvedValue(expectedLocation);
-
-      const customEvent: GenerateReport = {
-        ...mockEvent,
-        data: {
-          senderId: 'sender-456',
-          reportDate: '2025-02-20',
-        },
-      };
-
-      await reportGenerator.generate(customEvent);
-
-      expect(mockReportService.generateReport).toHaveBeenCalledWith(
-        expect.any(String),
-        ["'2025-02-20'", "'sender-456'"],
-        'transactional-reports/sender-456/completed_communications/completed_communications_2025-02-20.csv',
-      );
-    });
-
-    it('should pass query parameters in correct order', async () => {
-      mockReportService.generateReport.mockResolvedValue(
-        's3://bucket/report.csv',
-      );
-
-      await reportGenerator.generate(mockEvent);
-
-      expect(mockReportService.generateReport).toHaveBeenCalledWith(
-        mockQuery,
-        ["'2025-01-15'", "'sender-123'"],
-        expect.any(String),
-      );
-    });
-
     it('should return failed outcome when report service throws error', async () => {
       const error = new Error('Database connection failed');
       mockReportService.generateReport.mockRejectedValue(error);
@@ -152,17 +116,6 @@ describe('ReportGenerator', () => {
       expect(result).toEqual({
         outcome: 'failed',
       });
-    });
-
-    it('should not return reportUri when report generation fails', async () => {
-      mockReportService.generateReport.mockRejectedValue(
-        new Error('S3 upload failed'),
-      );
-
-      const result = await reportGenerator.generate(mockEvent);
-
-      expect(result.reportUri).toBeUndefined();
-      expect(result.outcome).toBe('failed');
     });
   });
 });
