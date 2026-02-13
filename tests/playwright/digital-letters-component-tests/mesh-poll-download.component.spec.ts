@@ -200,9 +200,9 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
         [
           '$.message_type = "EVENT_RECEIPT"',
           '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1"',
-          `$.details.event_detail = "*\\"meshMessageId\\":\\"${meshMessageId}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
-          '$.details.event_detail = "*\\"failureCode\\":\\"LID_MESH_0001\\"*"',
+          String.raw`$.details.event_detail = "*\"meshMessageId\":\"${meshMessageId}\"*"`,
+          String.raw`$.details.event_detail = "*\"senderId\":\"${senderId}\"*"`,
+          String.raw`$.details.event_detail = "*\"failureCode\":\"LID_MESH_0001\"*"`,
         ],
       );
 
