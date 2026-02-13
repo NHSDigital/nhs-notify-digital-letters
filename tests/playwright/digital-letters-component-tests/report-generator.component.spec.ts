@@ -28,7 +28,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'csv-parse/sync';
 
 test.describe('Digital Letters - Report Generator', () => {
-  test.only('should generate a report containing the expected statuses', async () => {
+  test('should generate a report containing the expected statuses', async () => {
     // We need to wait for events to make their way from EventBridge -> Firehose -> S3 -> Glue
     test.setTimeout(700_000);
 
