@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { GenerateReport } from 'digital-letters-events';
 import { EventPublisher, Logger } from 'utils';
-import type { SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
+import type { SQSEvent, SQSRecord } from 'aws-lambda';
 import type {
   ReportGenerator,
   ReportGeneratorResult,
@@ -268,6 +268,69 @@ describe('sqs-trigger-lambda', () => {
           }),
         ],
         expect.any(Function),
+      );
+    });
+
+    it('should log a warning if some events fail to publish', async () => {
+      const reportUri = 's3://bucket/report.csv';
+      mockReportGenerator.generate.mockResolvedValue({
+        outcome: 'generated',
+        reportUri,
+      });
+      mockEventPublisher.sendEvents.mockResolvedValue([
+        {
+          id: 'event-1',
+          source: 'event-source',
+          type: 'event-type',
+        },
+      ]);
+
+      const record = createMockSQSRecord('msg-1', {});
+      const sqsEvent = createMockSQSEvent([record]);
+
+      const handler = createHandler({
+        reportGenerator: mockReportGenerator,
+        eventPublisher: mockEventPublisher,
+        logger: mockLogger,
+      });
+
+      await handler(sqsEvent);
+
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Some successful events failed to publish',
+          failedCount: 1,
+          totalAttempted: 1,
+        }),
+      );
+    });
+
+    it('should log a warning if publishing events throws an exception', async () => {
+      const reportUri = 's3://bucket/report.csv';
+      const error = new Error('Publish error');
+      mockReportGenerator.generate.mockResolvedValue({
+        outcome: 'generated',
+        reportUri,
+      });
+      mockEventPublisher.sendEvents.mockRejectedValue(error);
+
+      const record = createMockSQSRecord('msg-1', {});
+      const sqsEvent = createMockSQSEvent([record]);
+
+      const handler = createHandler({
+        reportGenerator: mockReportGenerator,
+        eventPublisher: mockEventPublisher,
+        logger: mockLogger,
+      });
+
+      await handler(sqsEvent);
+
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          err: error,
+          description: 'Failed to send successful events to EventBridge',
+          eventCount: 1,
+        }),
       );
     });
   });

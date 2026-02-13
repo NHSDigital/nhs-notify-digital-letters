@@ -4,10 +4,10 @@ const config = baseJestConfig;
 
 config.coverageThreshold = {
   global: {
-    branches: 84,
+    branches: 88,
     functions: 100,
-    lines: 95,
-    statements: -10,
+    lines: 97,
+    statements: 97,
   },
 };
 
