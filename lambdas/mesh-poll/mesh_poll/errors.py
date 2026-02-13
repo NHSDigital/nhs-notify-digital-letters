@@ -23,6 +23,12 @@ class InvalidEnvironmentVariableError(Exception):
     """
 
 
+class ValidationError(Exception):
+    """
+    Error representing validation failures for MESH messages
+    """
+
+
 def format_exception(exception):
     """
     Returns a nicely formatted exception string

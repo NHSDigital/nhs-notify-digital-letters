@@ -1,8 +1,9 @@
 """
 Tests for Lambda handler
 """
-import pytest
 from unittest.mock import Mock, patch, MagicMock
+
+import pytest
 
 
 def setup_mocks():
@@ -39,7 +40,13 @@ class TestHandler:
     @patch('mesh_poll.handler.SenderLookup')
     @patch('mesh_poll.handler.MeshMessageProcessor')
     @patch('mesh_poll.handler.client')
-    def test_handler_success(self, mock_boto_client, mock_processor_class, mock_sender_lookup_class, mock_config_class):
+    def test_handler_success(
+        self,
+        mock_boto_client,
+        mock_processor_class,
+        mock_sender_lookup_class,
+        mock_config_class
+    ):
         """Test successful handler execution"""
         from mesh_poll.handler import handler
 
@@ -75,7 +82,10 @@ class TestHandler:
         assert call_kwargs['config'] == mock_config
         assert call_kwargs['sender_lookup'] == mock_sender_lookup
         assert call_kwargs['mesh_client'] == mock_config.mesh_client
-        assert call_kwargs['get_remaining_time_in_millis'] == mock_context.get_remaining_time_in_millis
+        assert (
+            call_kwargs['get_remaining_time_in_millis']
+            == mock_context.get_remaining_time_in_millis
+        )
         assert call_kwargs['polling_metric'] == mock_config.polling_metric
         assert 'log' in call_kwargs
 
@@ -86,7 +96,13 @@ class TestHandler:
     @patch('mesh_poll.handler.SenderLookup')
     @patch('mesh_poll.handler.MeshMessageProcessor')
     @patch('mesh_poll.handler.client')
-    def test_handler_config_cleanup_on_exception(self, mock_boto_client, mock_processor_class, mock_sender_lookup_class, mock_config_class):
+    def test_handler_config_cleanup_on_exception(
+        self,
+        mock_boto_client,
+        mock_processor_class,
+        mock_sender_lookup_class,
+        mock_config_class
+    ):
         """Test that Config context manager cleanup is called even on exception"""
         from mesh_poll.handler import handler
 

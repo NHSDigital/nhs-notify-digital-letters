@@ -2,7 +2,8 @@
 Tests for mesh-poll MeshMessageProcessor
 Following the pattern from backend comms-mgr mesh-poll tests
 """
-from unittest.mock import Mock, call, patch
+from unittest.mock import Mock, patch
+
 from mesh_client import MeshClient
 from mesh_poll.processor import MeshMessageProcessor
 
@@ -166,10 +167,13 @@ class TestMeshMessageProcessor:
 
         sender_lookup.is_valid_sender.assert_called_once_with(message.sender)
         message.acknowledge.assert_called_once()
-        mock_event_publisher.send_events.assert_not_called()  # No event published for invalid sender
+        mock_event_publisher.send_events.assert_not_called()
 
     def test_process_message_logs_error_on_event_publish_failure(self, mock_event_publisher_class):
-        """Test that processor logs error when event publishing fails and does not acknowledge message"""
+        """
+        Test that processor logs error when event publishing fails
+        and does not acknowledge message
+        """
         (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
         message = setup_message_data("1")
 
@@ -224,5 +228,89 @@ class TestMeshMessageProcessor:
         mesh_client.handshake.assert_called_once()
         assert mesh_client.iterate_all_messages.call_count == 1
         assert sender_lookup.is_valid_sender.call_count == 3
-        assert mock_event_publisher.send_events.call_count == 3  # Events published for all 3 messages
+        assert mock_event_publisher.send_events.call_count == 3
         polling_metric.record.assert_called_once()
+
+    def test_process_message_rejects_missing_local_id(self, mock_event_publisher_class):
+        """Test that processor publishes MESHInboxMessageInvalid event for missing local_id"""
+        (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
+        message = setup_message_data("1")
+        message.local_id = None
+
+        mock_event_publisher = Mock()
+        mock_event_publisher.send_events.return_value = []
+        mock_event_publisher_class.return_value = mock_event_publisher
+
+        sender_lookup.is_valid_sender.return_value = True
+        sender_lookup.get_sender_id.return_value = "test-sender-id"
+
+        processor = MeshMessageProcessor(
+            config=config,
+            sender_lookup=sender_lookup,
+            mesh_client=mesh_client,
+            get_remaining_time_in_millis=get_remaining_time_in_millis,
+            log=log,
+            polling_metric=polling_metric
+        )
+
+        processor.process_message(message)
+
+        message.acknowledge.assert_called_once()
+        mock_event_publisher.send_events.assert_called_once()
+
+    def test_process_message_rejects_empty_local_id(self, mock_event_publisher_class):
+        """Test that processor publishes MESHInboxMessageInvalid event for empty local_id"""
+        (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
+        message = setup_message_data("1")
+        message.local_id = ""
+
+        mock_event_publisher = Mock()
+        mock_event_publisher.send_events.return_value = []  # Success
+        mock_event_publisher_class.return_value = mock_event_publisher
+
+        sender_lookup.is_valid_sender.return_value = True
+        sender_lookup.get_sender_id.return_value = "test-sender-id"
+
+        processor = MeshMessageProcessor(
+            config=config,
+            sender_lookup=sender_lookup,
+            mesh_client=mesh_client,
+            get_remaining_time_in_millis=get_remaining_time_in_millis,
+            log=log,
+            polling_metric=polling_metric
+        )
+
+        processor.process_message(message)
+
+        message.acknowledge.assert_called_once()
+        mock_event_publisher.send_events.assert_called_once()
+
+    def test_process_message_rejects_whitespace_only_local_id(self, mock_event_publisher_class):
+        """
+        Test that processor publishes MESHInboxMessageInvalid event
+        for whitespace-only local_id
+        """
+        (config, sender_lookup, mesh_client, log, polling_metric) = setup_mocks()
+        message = setup_message_data("1")
+        message.local_id = "   "
+
+        mock_event_publisher = Mock()
+        mock_event_publisher.send_events.return_value = []  # Success
+        mock_event_publisher_class.return_value = mock_event_publisher
+
+        sender_lookup.is_valid_sender.return_value = True
+        sender_lookup.get_sender_id.return_value = "test-sender-id"
+
+        processor = MeshMessageProcessor(
+            config=config,
+            sender_lookup=sender_lookup,
+            mesh_client=mesh_client,
+            get_remaining_time_in_millis=get_remaining_time_in_millis,
+            log=log,
+            polling_metric=polling_metric
+        )
+
+        processor.process_message(message)
+
+        message.acknowledge.assert_called_once()
+        mock_event_publisher.send_events.assert_called_once()
