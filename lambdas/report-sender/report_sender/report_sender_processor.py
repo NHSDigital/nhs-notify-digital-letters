@@ -1,5 +1,5 @@
 """
-Module for processing messages from a MESH mailbox
+Module for processing messages from an SQS queue.
 """
 
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ from digital_letters_events import ReportGenerated, ReportSent
 
 class ReportSenderProcessor:  # pylint: disable=too-many-instance-attributes
     """
-    Class that processes messages from a MESH inbox
+    Class that processes messages from the SQS queue and publish a Report Sent Event to the event bus.
     """
 
     def __init__(self, **kwargs):
@@ -53,7 +53,7 @@ class ReportSenderProcessor:  # pylint: disable=too-many-instance-attributes
 
     def process_sqs_message(self, sqs_record):
         """
-        Iterates over and processes messages in a MESH inbox
+        Iterates over and processes messages in the SQS queue
         """
         self.__log.info('Extract data from SQS record')
 

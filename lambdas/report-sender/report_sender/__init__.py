@@ -1,7 +1,7 @@
 """
-MESH Poll Lambda
+Report Sender Lambda
 
-This module handles polling MESH inbox for new messages and publishing events.
+This module handles Generated Report events and fetches the reports from S3 bucket and sends to the reporting mailbox using MESH.
 """
 
 __version__ = '0.1.0'
