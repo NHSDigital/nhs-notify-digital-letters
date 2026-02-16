@@ -2,7 +2,7 @@ import { Logger } from '../../logger';
 import { ReportService } from '../../reporting/report-service';
 import { IDataRepository } from '../../reporting/data-repository';
 import { IStorageRepository } from '../../reporting/storage-repository';
-import { sleep } from '../../util-retry/sleep';
+import { sleepMs } from '../../util-retry/sleep';
 
 jest.mock('../../util-retry/sleep');
 
@@ -122,8 +122,8 @@ describe('ReportService', () => {
       );
 
       expect(mockDataRepository.getQueryStatus).toHaveBeenCalledTimes(4);
-      expect(sleep).toHaveBeenCalledTimes(4);
-      expect(sleep).toHaveBeenCalledWith(defaultWaitForInSeconds);
+      expect(sleepMs).toHaveBeenCalledTimes(3);
+      expect(sleepMs).toHaveBeenCalledWith(defaultWaitForInSeconds * 1000);
     });
 
     it('should throw error when max poll limit is reached', async () => {
@@ -191,7 +191,7 @@ describe('ReportService', () => {
         reportFilePath,
       );
 
-      expect(sleep).toHaveBeenCalledWith(customWaitTime);
+      expect(sleepMs).toHaveBeenCalledWith(customWaitTime * 1000);
     });
 
     it('should throw an error if the query is not started successfully', async () => {

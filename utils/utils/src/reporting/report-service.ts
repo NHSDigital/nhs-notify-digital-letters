@@ -1,5 +1,5 @@
 import type { Logger } from '../logger';
-import { sleep } from '../util-retry/sleep';
+import { retryUntil } from '../util-retry/retry';
 import { IDataRepository } from './data-repository';
 import { IStorageRepository } from './storage-repository';
 
@@ -77,20 +77,19 @@ export class ReportService implements IReportService {
     maxPollLimit: number,
     waitForInSeconds: number,
   ) {
-    let count = 0;
-    let status = 'QUEUED';
-
-    while (
-      count < maxPollLimit &&
-      ['QUEUED', 'RUNNING', 'UNKNOWN'].includes(status)
-    ) {
-      status = (await this.dataRepository.getQueryStatus(queryId)) || 'UNKNOWN';
-
-      count += 1;
-
-      await sleep(waitForInSeconds);
-    }
-
-    return status;
+    return retryUntil(
+      async () => {
+        const status =
+          (await this.dataRepository.getQueryStatus(queryId)) || 'UNKNOWN';
+        return status;
+      },
+      (status) => !['QUEUED', 'RUNNING', 'UNKNOWN'].includes(status),
+      {
+        maxAttempts: maxPollLimit,
+        intervalMs: waitForInSeconds * 1000,
+        exponentialRate: 1,
+        useJitter: false,
+      },
+    );
   }
 }

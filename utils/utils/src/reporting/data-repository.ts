@@ -3,12 +3,11 @@ import {
   GetQueryExecutionCommand,
   StartQueryExecutionCommand,
 } from '@aws-sdk/client-athena';
-import type { Logger } from '../logger';
 
-export type DataRepositoryDependencies = {
+export type AthenaRepositoryDependencies = {
   athenaClient: AthenaClient;
-  config: Record<string, string>;
-  logger: Logger;
+  athenaWorkgroup: string;
+  athenaDatabase: string;
 };
 
 export type IDataRepository = {
@@ -26,10 +25,10 @@ export class AthenaRepository implements IDataRepository {
 
   readonly database: string;
 
-  constructor(athenaClient: AthenaClient, config: Record<string, string>) {
-    this.athenaClient = athenaClient;
-    this.workGroup = config.athenaWorkgroup;
-    this.database = config.athenaDatabase;
+  constructor(dependencies: AthenaRepositoryDependencies) {
+    this.athenaClient = dependencies.athenaClient;
+    this.workGroup = dependencies.athenaWorkgroup;
+    this.database = dependencies.athenaDatabase;
   }
 
   /**

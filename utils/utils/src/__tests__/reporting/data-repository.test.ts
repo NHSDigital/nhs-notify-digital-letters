@@ -7,13 +7,14 @@ const athenaClientMock = mockClient(AthenaClient);
 describe('AthenaRepository', () => {
   let repository: AthenaRepository;
   const mockConfig = {
+    athenaClient: new AthenaClient({}),
     athenaWorkgroup: 'test-workgroup',
     athenaDatabase: 'test-database',
   };
 
   beforeEach(() => {
     athenaClientMock.reset();
-    repository = new AthenaRepository(new AthenaClient({}), mockConfig);
+    repository = new AthenaRepository(mockConfig);
   });
 
   describe('startQuery', () => {
