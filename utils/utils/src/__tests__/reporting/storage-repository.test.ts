@@ -1,6 +1,6 @@
 import { CopyObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
-import { createStorageRepository } from '../../reporting/storage-repository';
+import { S3StorageRepository } from '../../reporting/storage-repository';
 import { Logger } from '../../logger';
 
 const s3Mock = mockClient(S3Client);
@@ -13,11 +13,11 @@ describe('StorageRepository', () => {
     warn: jest.fn(),
   } as unknown as jest.Mocked<Logger>;
   const reportingBucketName = 'test-reporting-bucket';
-  let storageRepository: ReturnType<typeof createStorageRepository>;
+  let storageRepository: S3StorageRepository;
 
   beforeEach(() => {
     s3Mock.reset();
-    storageRepository = createStorageRepository({
+    storageRepository = new S3StorageRepository({
       s3Client: new S3Client({}),
       reportingBucketName,
       logger: mockLogger,

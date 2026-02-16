@@ -8,32 +8,42 @@ export type IStorageRepository = {
   ) => Promise<string>;
 };
 
-type StorageRepositoryDependencies = {
+type S3StorageRepositoryDependencies = {
   s3Client: S3Client;
   reportingBucketName: string;
   logger: Logger;
 };
 
-export const createStorageRepository = ({
-  logger,
-  reportingBucketName,
-  s3Client,
-}: StorageRepositoryDependencies): IStorageRepository => ({
+export class S3StorageRepository implements IStorageRepository {
+  private readonly s3Client: S3Client;
+
+  private readonly reportingBucketName: string;
+
+  private readonly logger: Logger;
+
+  constructor(dependencies: S3StorageRepositoryDependencies) {
+    this.s3Client = dependencies.s3Client;
+    this.reportingBucketName = dependencies.reportingBucketName;
+    this.logger = dependencies.logger;
+  }
+
   async publishReport(reportQueryId: string, reportFilePath: string) {
-    logger.debug(
+    this.logger.debug(
       `Publishing report data to ${reportFilePath} for query ${reportQueryId}`,
     );
 
     const copyObjectCommand = new CopyObjectCommand({
-      CopySource: `${reportingBucketName}/athena-output/${reportQueryId}.csv`,
-      Bucket: reportingBucketName,
+      CopySource: `${this.reportingBucketName}/athena-output/${reportQueryId}.csv`,
+      Bucket: this.reportingBucketName,
       Key: reportFilePath,
     });
 
-    await s3Client.send(copyObjectCommand);
+    await this.s3Client.send(copyObjectCommand);
 
-    logger.info(`Report stored at ${reportingBucketName}/${reportFilePath}.`);
+    this.logger.info(
+      `Report stored at ${this.reportingBucketName}/${reportFilePath}.`,
+    );
 
-    return `s3://${reportingBucketName}/${reportFilePath}`;
-  },
-});
+    return `s3://${this.reportingBucketName}/${reportFilePath}`;
+  }
+}

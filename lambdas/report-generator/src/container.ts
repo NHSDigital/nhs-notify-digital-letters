@@ -3,7 +3,7 @@ import {
   AthenaRepositoryDependencies,
   EventPublisher,
   ReportService,
-  createStorageRepository,
+  S3StorageRepository,
   eventBridgeClient,
   logger,
   region,
@@ -38,7 +38,7 @@ export const createContainer = () => {
 
   const dataRepository = new AthenaRepository(dataRepositoryDependencies);
 
-  const storageRepository = createStorageRepository({
+  const storageRepository = new S3StorageRepository({
     s3Client,
     reportingBucketName: reportingBucket,
     logger,
