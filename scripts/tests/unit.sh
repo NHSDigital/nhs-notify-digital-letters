@@ -45,6 +45,11 @@ echo "Setting up and running py-utils tests..."
 make -C ./utils/py-utils install-dev
 make -C ./utils/py-utils coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
+# Python projects - python-schema-generator
+echo "Setting up and running python-schema-generator tests..."
+make -C ./src/python-schema-generator install-dev
+make -C ./src/python-schema-generator coverage  # Run with coverage to generate coverage.xml for SonarCloud
+
 # Python Lambda - mesh-acknowledge
 echo "Setting up and running mesh-acknowledge tests..."
 make -C ./lambdas/mesh-acknowledge install-dev
@@ -60,10 +65,10 @@ echo "Setting up and running mesh-download tests..."
 make -C ./lambdas/mesh-download install-dev
 make -C ./lambdas/mesh-download coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
-# Python projects - python-schema-generator
-echo "Setting up and running python-schema-generator tests..."
-make -C ./src/python-schema-generator install-dev
-make -C ./src/python-schema-generator coverage  # Run with coverage to generate coverage.xml for SonarCloud
+# Python Lambda - report-sender
+echo "Setting up and running report-sender tests..."
+make -C ./lambdas/report-sender install-dev
+make -C ./lambdas/report-sender coverage  # Run with coverage to generate coverage.xml for SonarCloud
 
 # merge coverage reports
 mkdir -p .reports
