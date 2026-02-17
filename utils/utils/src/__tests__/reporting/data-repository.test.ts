@@ -1,12 +1,15 @@
 import { AthenaClient } from '@aws-sdk/client-athena';
 import { mockClient } from 'aws-sdk-client-mock';
-import { AthenaRepository } from '../../reporting/data-repository';
+import {
+  AthenaDataRepository,
+  AthenaDataRepositoryDependencies,
+} from '../../reporting/data-repository';
 
 const athenaClientMock = mockClient(AthenaClient);
 
-describe('AthenaRepository', () => {
-  let repository: AthenaRepository;
-  const mockConfig = {
+describe('AthenaDataRepository', () => {
+  let repository: AthenaDataRepository;
+  const config: AthenaDataRepositoryDependencies = {
     athenaClient: new AthenaClient({}),
     athenaWorkgroup: 'test-workgroup',
     athenaDatabase: 'test-database',
@@ -14,7 +17,7 @@ describe('AthenaRepository', () => {
 
   beforeEach(() => {
     athenaClientMock.reset();
-    repository = new AthenaRepository(mockConfig);
+    repository = new AthenaDataRepository(config);
   });
 
   describe('startQuery', () => {

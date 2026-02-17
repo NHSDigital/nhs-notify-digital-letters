@@ -15,7 +15,7 @@ jest.mock('infra/config', () => ({
 
 jest.mock('utils', () => ({
   ...jest.requireActual('utils'),
-  AthenaRepository: jest.fn(() => ({})),
+  AthenaDataRepository: jest.fn(() => ({})),
   ReportService: jest.fn(() => ({})),
   createStorageRepository: jest.fn(() => ({})),
   s3Client: {},

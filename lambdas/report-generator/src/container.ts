@@ -1,6 +1,6 @@
 import {
-  AthenaRepository,
-  AthenaRepositoryDependencies,
+  AthenaDataRepository,
+  AthenaDataRepositoryDependencies,
   EventPublisher,
   ReportService,
   S3StorageRepository,
@@ -30,13 +30,13 @@ export const createContainer = () => {
     region: region(),
   });
 
-  const dataRepositoryDependencies: AthenaRepositoryDependencies = {
+  const dataRepositoryDependencies: AthenaDataRepositoryDependencies = {
     athenaClient,
     athenaDatabase,
     athenaWorkgroup,
   };
 
-  const dataRepository = new AthenaRepository(dataRepositoryDependencies);
+  const dataRepository = new AthenaDataRepository(dataRepositoryDependencies);
 
   const storageRepository = new S3StorageRepository({
     s3Client,

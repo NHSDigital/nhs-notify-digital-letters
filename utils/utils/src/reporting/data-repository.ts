@@ -4,7 +4,7 @@ import {
   StartQueryExecutionCommand,
 } from '@aws-sdk/client-athena';
 
-export type AthenaRepositoryDependencies = {
+export type AthenaDataRepositoryDependencies = {
   athenaClient: AthenaClient;
   athenaWorkgroup: string;
   athenaDatabase: string;
@@ -18,14 +18,14 @@ export type IDataRepository = {
   getQueryStatus(reportQueryId: string): Promise<string | undefined>;
 };
 
-export class AthenaRepository implements IDataRepository {
+export class AthenaDataRepository implements IDataRepository {
   readonly athenaClient: AthenaClient;
 
   readonly workGroup: string;
 
   readonly database: string;
 
-  constructor(dependencies: AthenaRepositoryDependencies) {
+  constructor(dependencies: AthenaDataRepositoryDependencies) {
     this.athenaClient = dependencies.athenaClient;
     this.workGroup = dependencies.athenaWorkgroup;
     this.database = dependencies.athenaDatabase;
