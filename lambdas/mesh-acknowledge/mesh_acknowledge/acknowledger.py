@@ -3,7 +3,7 @@
 import json
 from mesh_client import MeshClient
 
-NOTIFY_ACK_WORKFLOW_ID = "NHS_NOTIFY_SEND_REQUEST_ACK"
+NOTIFY_ACK_WORKFLOW_ID = "NHS_NOTIFY_FHIR_ACK"
 ACK_SUBJECT = "202"
 
 
