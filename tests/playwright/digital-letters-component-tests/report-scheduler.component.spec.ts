@@ -4,6 +4,7 @@ import {
   REPORT_SCHEDULER_LAMBDA_NAME,
 } from 'constants/backend-constants';
 import {
+  EXISTING_SENDER_IDS,
   SENDER_ID_SKIPS_NOTIFY,
   SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX,
   SENDER_ID_VALID_FOR_NOTIFY_SANDBOX,
@@ -24,10 +25,13 @@ test.describe('Digital Letters - Report Scheduler', () => {
           '$.details.detail_type = "uk.nhs.notify.digital.letters.reporting.generate.report.v1"',
         ],
       );
-
-      const parsedEvents = eventLogEntries.map((entry: any) =>
-        JSON.parse(entry.details.event_detail),
-      );
+      // to avoid conflicts with other tests, we filter the events to only include those with senderIds we know exist in the system, which will produce generation day of yesterday.
+      const parsedEvents = eventLogEntries
+        .map((entry: any) => JSON.parse(entry.details.event_detail))
+        .filter(
+          (event: any) =>
+            event.data && EXISTING_SENDER_IDS.includes(event.data.senderId),
+        );
 
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
