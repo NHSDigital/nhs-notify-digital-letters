@@ -31,14 +31,16 @@ import { downloadFromS3, existsInS3 } from 'helpers/s3-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'csv-parse/sync';
 
-function buildBaseEvent(sourceComponent : string, time : string ) {
+const senderId = `report-generator-test-${uuidv4()}`;
+const unknownSenderId = `unknown-sender-${uuidv4()}`;
+
+function buildBaseEvent(sourceComponent: string, time: string) {
   return {
     specversion: '1.0',
-    source:
-      `/nhs/england/notify/production/primary/data-plane/digitalletters/${sourceComponent}`,
+    source: `/nhs/england/notify/production/primary/data-plane/digitalletters/${sourceComponent}`,
     subject:
       'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-    time: time,
+    time,
     recordedtime: time,
     severitynumber: 2,
     traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
@@ -47,51 +49,221 @@ function buildBaseEvent(sourceComponent : string, time : string ) {
   };
 }
 
-function buildItemRemovedEvent(eventId : string, time: string, messageReference: string): ItemRemoved {
-  let baseEvent = buildBaseEvent('queue', time);
-  return {...baseEvent,
-        id: eventId,
-        type: 'uk.nhs.notify.digital.letters.queue.item.removed.v1',
-        dataschema:
-            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-removed-data.schema.json',
-        data: {
-            messageReference: messageReference,
-            senderId,
-            messageUri: `https://example.com/ttl/resource/${eventId}`,
-          },
+function buildItemRemovedEvent(
+  eventId: string,
+  time: string,
+  messageReference: string,
+): ItemRemoved {
+  const baseEvent = buildBaseEvent('queue', time);
+  return {
+    ...baseEvent,
+    id: eventId,
+    type: 'uk.nhs.notify.digital.letters.queue.item.removed.v1',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-removed-data.schema.json',
+    data: {
+      messageReference,
+      senderId,
+      messageUri: `https://example.com/ttl/resource/${eventId}`,
+    },
   } as ItemRemoved;
 }
 
-function buildItemDequeuedEvent(eventId : string, time: string, messageReference: string): ItemDequeued {
-  let baseEvent = buildBaseEvent('queue', time);
-  return {...baseEvent,
-        id: eventId,
-        type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
-        dataschema:
-            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
-        data: {
-            messageReference: messageReference,
-            senderId,
-            messageUri: `https://example.com/ttl/resource/${eventId}`,
-          },
+function buildItemDequeuedEvent(
+  eventId: string,
+  time: string,
+  messageReference: string,
+): ItemDequeued {
+  const baseEvent = buildBaseEvent('queue', time);
+  return {
+    ...baseEvent,
+    id: eventId,
+    type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-dequeued-data.schema.json',
+    data: {
+      messageReference,
+      senderId,
+      messageUri: `https://example.com/ttl/resource/${eventId}`,
+    },
   } as ItemDequeued;
 }
 
-function buildPrintLetterTransitionedEvent(eventId : string, time: string, messageReference: string, status: string): PrintLetterTransitioned {
-  let baseEvent = buildBaseEvent('print', time);
-  return {...baseEvent,
-        id: eventId,
-        type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
-        dataschema:
-            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-letter-transitioned-data.schema.json',
-        data: {
-            messageReference: messageReference,
-            senderId,
-            status: status,
-            supplierId: 'supplier-1',
-            time: time,
-          },
+function buildPrintLetterTransitionedEvent(
+  eventId: string,
+  time: string,
+  messageReference: string,
+  status: string,
+): PrintLetterTransitioned {
+  const baseEvent = buildBaseEvent('print', time);
+  return {
+    ...baseEvent,
+    id: eventId,
+    type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-letter-transitioned-data.schema.json',
+    data: {
+      messageReference,
+      senderId,
+      status,
+      supplierId: 'supplier-1',
+      time,
+    },
   } as PrintLetterTransitioned;
+}
+
+async function publishGenerateReport(
+  generateReportEventId: string,
+  generateReportEventTime: string,
+  reportDate: string,
+  generateForSenderId: string,
+) {
+  await eventPublisher.sendEvents<GenerateReport>(
+    [
+      {
+        id: generateReportEventId,
+        specversion: '1.0',
+        source:
+          '/nhs/england/notify/production/primary/data-plane/digitalletters/reporting',
+        subject:
+          'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+        type: 'uk.nhs.notify.digital.letters.reporting.generate.report.v1',
+        time: generateReportEventTime,
+        recordedtime: generateReportEventTime,
+        severitynumber: 2,
+        traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+        datacontenttype: 'application/json',
+        dataschema:
+          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-generate-report-data.schema.json',
+        severitytext: 'INFO',
+        data: {
+          senderId: generateForSenderId,
+          reportDate,
+        },
+      },
+    ],
+    generateReportValidator,
+  );
+}
+
+/**
+ * Checks that the events published to EventBridge have made their way through Firehose and are now in S3, before proceeding with the test.
+ * This is necessary because there can be a significant delay between when events are published to EventBridge and when they are available in S3 for Athena to query,
+ * and we want to avoid starting the report generation process before the data is available, which would cause the test to fail.
+ */
+async function prerequisiteAssertFirehoseEventsInS3(expectedSenderId: string) {
+  await expectToPassEventually(
+    async () => {
+      // eslint-disable-next-line no-console
+      console.log(
+        'Checking for events in S3 with prefix:',
+        `${REPORTING_S3_FIREHOSE_OUTPUT_KEY_PREFIX}/senderid=${expectedSenderId}`,
+      );
+      const eventsHaveBeenWrittenToS3 = await existsInS3(
+        REPORTING_S3_BUCKET_NAME,
+        `${REPORTING_S3_FIREHOSE_OUTPUT_KEY_PREFIX}/senderid=${expectedSenderId}`,
+      );
+
+      expect(eventsHaveBeenWrittenToS3).toBeTruthy();
+    },
+    600_000,
+    10,
+  );
+}
+
+/**
+ * Trigger a metadata refresh for the Glue table, which will cause it to pick up any new files in S3.
+ */
+async function prerequisiteTriggerAndAssertGlueTableRefresh() {
+  const refreshQueryExecutionId = await triggerTableMetadataRefresh(
+    GLUE_DATABASE_NAME,
+    GLUE_TABLE_NAME,
+    ATHENA_WORKGROUP_NAME,
+  );
+
+  await expectToPassEventually(async () => {
+    // eslint-disable-next-line no-console
+    console.log(
+      'Waiting for Glue table metadata refresh to complete, query execution ID:',
+      refreshQueryExecutionId,
+    );
+    const refreshQueryState = await getQueryState(refreshQueryExecutionId);
+
+    expect(refreshQueryState).toEqual(QueryExecutionState.SUCCEEDED);
+  });
+}
+
+/**
+ * Publishes an event which should not be included in the report, to prove that only the expected events are included in the report.
+ */
+async function publishEventNotInReports() {
+  const downloadedEventId = uuidv4();
+  const downloadedEventTime = new Date().toISOString();
+  await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
+    [
+      {
+        id: downloadedEventId,
+        specversion: '1.0',
+        source:
+          '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
+        subject:
+          'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+        type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
+        time: downloadedEventTime,
+        recordedtime: downloadedEventTime,
+        severitynumber: 2,
+        traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+        datacontenttype: 'application/json',
+        dataschema:
+          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
+        severitytext: 'INFO',
+        data: {
+          meshMessageId: '12345',
+          messageUri: `https://example.com/ttl/resource/${downloadedEventId}`,
+          messageReference: 'component-test-messageDownloaded',
+          senderId,
+        },
+      },
+    ],
+    messageDownloadedValidator,
+  );
+}
+
+async function assertReportIsPublishedInReportingBucket(reportKey: string) {
+  await expectToPassEventually(
+    async () => {
+      // eslint-disable-next-line no-console
+      console.log(`Looking for report with prefix: ${reportKey}`);
+
+      const reportHasBeenWrittenToS3 = await existsInS3(
+        REPORTING_S3_BUCKET_NAME,
+        reportKey,
+      );
+
+      expect(reportHasBeenWrittenToS3).toBeTruthy();
+    },
+    300_000,
+    10,
+  );
+}
+
+async function assertReportGeneratedEventIsPublished(
+  expectedSenderId: string,
+  expectedReportUri: string,
+) {
+  await expectToPassEventually(async () => {
+    const eventLogEntry = await getLogsFromCloudwatch(
+      `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+      [
+        '$.message_type = "EVENT_RECEIPT"',
+        '$.details.detail_type = "uk.nhs.notify.digital.letters.reporting.report.generated.v1"',
+        `$.details.event_detail = "*\\"senderId\\":\\"${expectedSenderId}\\"*"`,
+        `$.details.event_detail = "*\\"reportUri\\":\\"${expectedReportUri}\\"*"`,
+      ],
+    );
+
+    expect(eventLogEntry.length).toEqual(1);
+  });
 }
 
 enum CommunicationType {
@@ -110,15 +282,26 @@ enum EventStatus {
   Returned = 'RETURNED',
   Pending = 'PENDING',
 }
-
+/**
+ * Utility class to proof the SQL logic to determine which status should be reported for a given message reference, based on the events received for that message reference.
+ */
 class ReportScenario {
   readonly messageReference: string;
+
   readonly communicationType: CommunicationType;
+
   readonly eventStatuses: EventStatus[];
+
   readonly expectedStatus: string;
+
   time: string;
 
-  constructor(messageReference: string, communicationType: CommunicationType, eventStatuses: EventStatus[], expectedStatus: string) {
+  constructor(
+    messageReference: string,
+    communicationType: CommunicationType,
+    eventStatuses: EventStatus[],
+    expectedStatus: string,
+  ) {
     this.messageReference = messageReference;
     this.communicationType = communicationType;
     this.eventStatuses = eventStatuses;
@@ -132,46 +315,136 @@ class ReportScenario {
       Time: this.time,
       'Communication Type': this.communicationType,
       Status: this.expectedStatus,
-    }
+    };
   }
 
-  initialiseTime(){
+  initialiseTime() {
     this.time = new Date().toISOString();
   }
 }
 
 function publishEventForScenario(scenario: ReportScenario) {
   scenario.initialiseTime();
-  scenario.eventStatuses.forEach(status => {
-    switch(scenario.communicationType) {
-      case CommunicationType.Digital:
+  for (const status of scenario.eventStatuses) {
+    switch (scenario.communicationType) {
+      case CommunicationType.Digital: {
         if (EventStatus.Read === status) {
           eventPublisher.sendEvents<ItemRemoved>(
             [
-              buildItemRemovedEvent(uuidv4(), scenario.time, scenario.messageReference),
+              buildItemRemovedEvent(
+                uuidv4(),
+                scenario.time,
+                scenario.messageReference,
+              ),
             ],
             itemRemovedValidator,
           );
         } else if (EventStatus.Unread === status) {
           eventPublisher.sendEvents<ItemDequeued>(
             [
-              buildItemDequeuedEvent(uuidv4(), scenario.time, scenario.messageReference),
+              buildItemDequeuedEvent(
+                uuidv4(),
+                scenario.time,
+                scenario.messageReference,
+              ),
             ],
             itemDequeuedValidator,
           );
         }
         break;
-      case CommunicationType.Print:
-          eventPublisher.sendEvents<PrintLetterTransitioned>(
-            [
-              buildPrintLetterTransitionedEvent(uuidv4(), scenario.time, scenario.messageReference, status),
-            ],
-            printLetterTransitionedValidator,
-          );
+      }
+      case CommunicationType.Print: {
+        eventPublisher.sendEvents<PrintLetterTransitioned>(
+          [
+            buildPrintLetterTransitionedEvent(
+              uuidv4(),
+              scenario.time,
+              scenario.messageReference,
+              status,
+            ),
+          ],
+          printLetterTransitionedValidator,
+        );
         break;
       }
-    });
+      default: {
+        throw new Error(
+          `Unknown communication type: ${scenario.communicationType}`,
+        );
+      }
+    }
   }
+}
+
+const scenarios = [
+  new ReportScenario(
+    'component-test-itemRemoved',
+    CommunicationType.Digital,
+    [EventStatus.Read],
+    'Read',
+  ),
+  new ReportScenario(
+    'component-test-itemDequeued',
+    CommunicationType.Digital,
+    [EventStatus.Unread],
+    'Unread',
+  ),
+  // Scenarios for communication type Print where there is a single event per message reference.
+  new ReportScenario(
+    'component-test-rejected',
+    CommunicationType.Print,
+    [EventStatus.Rejected],
+    'Rejected',
+  ),
+  new ReportScenario(
+    'component-test-failed',
+    CommunicationType.Print,
+    [EventStatus.Failed],
+    'Failed',
+  ),
+  new ReportScenario(
+    'component-test-returned',
+    CommunicationType.Print,
+    [EventStatus.Returned],
+    'Returned',
+  ),
+  new ReportScenario(
+    'component-test-dispatched',
+    CommunicationType.Print,
+    [EventStatus.Dispatched],
+    'Dispatched',
+  ),
+  // multiple events for the same message reference, should take the one with highest priority status (returned > failed > dispatched > rejected)
+  new ReportScenario(
+    'component-test-rejected-pending',
+    CommunicationType.Print,
+    [EventStatus.Rejected, EventStatus.Pending],
+    'Rejected',
+  ), // pending is ignored.
+  new ReportScenario(
+    'component-test-rejected-dispatched',
+    CommunicationType.Print,
+    [EventStatus.Rejected, EventStatus.Dispatched],
+    'Dispatched',
+  ),
+  new ReportScenario(
+    'component-test-rejected-dispatched-failed',
+    CommunicationType.Print,
+    [EventStatus.Rejected, EventStatus.Dispatched, EventStatus.Failed],
+    'Failed',
+  ),
+  new ReportScenario(
+    'component-test-rejected-dispatched-failed-returned',
+    CommunicationType.Print,
+    [
+      EventStatus.Rejected,
+      EventStatus.Dispatched,
+      EventStatus.Failed,
+      EventStatus.Returned,
+    ],
+    'Returned',
+  ),
+];
 
 /**
  * To test the report generator lambda requires a set of steps for the lambda to consume the data so it can generate reports. The steps are as follows:
@@ -192,10 +465,6 @@ function publishEventForScenario(scenario: ReportScenario) {
  *
  * Keeping console.log through the test to make it easier to debug in case of error.
  */
-
-
-const senderId = `report-generator-test-${uuidv4()}`;
-
 test.describe('Digital Letters - Report Generator', () => {
   test('should generate a report containing the expected statuses', async () => {
     // We need to wait for events to make their way from EventBridge -> Firehose -> S3 -> Glue
@@ -207,271 +476,81 @@ test.describe('Digital Letters - Report Generator', () => {
     // eslint-disable-next-line no-console
     console.log(`Using senderId: ${senderId}`);
 
-    const scenarios = [
-      new ReportScenario('component-test-itemRemoved', CommunicationType.Digital, [EventStatus.Read], 'Read'),
-      new ReportScenario('component-test-itemDequeued', CommunicationType.Digital, [EventStatus.Unread], 'Unread'),
-      // Scenarios for communication type Print where there is a single event per message reference.
-      new ReportScenario('component-test-rejected', CommunicationType.Print, [EventStatus.Rejected], 'Rejected'),
-      new ReportScenario('component-test-failed', CommunicationType.Print, [EventStatus.Failed], 'Failed'),
-      new ReportScenario('component-test-returned', CommunicationType.Print, [EventStatus.Returned], 'Returned'),
-      new ReportScenario('component-test-dispatched', CommunicationType.Print, [EventStatus.Dispatched], 'Dispatched'),
-      // multiple events for the same message reference, should take the one with highest priority status (returned > failed > dispatched > rejected)
-      new ReportScenario('component-test-rejected-pending', CommunicationType.Print, [EventStatus.Rejected, EventStatus.Pending], 'Rejected'), // pending is ignored.
-      new ReportScenario('component-test-rejected-dispatched', CommunicationType.Print, [EventStatus.Rejected, EventStatus.Dispatched], 'Dispatched'),
-      new ReportScenario('component-test-rejected-dispatched-failed', CommunicationType.Print, [EventStatus.Rejected, EventStatus.Dispatched, EventStatus.Failed], 'Failed'),
-      new ReportScenario('component-test-rejected-dispatched-failed-returned', CommunicationType.Print, [EventStatus.Rejected, EventStatus.Dispatched, EventStatus.Failed, EventStatus.Returned], 'Returned'),
-    ];
-    scenarios.forEach(scenario => publishEventForScenario(scenario));
-
-    // Communication type should be Digital, and the status should be Read
-    // const itemRemovedEventTime = new Date().toISOString();
-    // await eventPublisher.sendEvents<ItemRemoved>(
-    //   [
-    //     buildItemRemovedEvent(uuidv4(), itemRemovedEventTime, 'component-test-itemRemoved'),
-    //   ],
-    //   itemRemovedValidator,
-    // );
-    // // Communication type should be Digital, and the status should be Unread
-    // const itemDequeuedEventTime = new Date().toISOString();
-    // await eventPublisher.sendEvents<ItemDequeued>(
-    //   [
-    //     buildItemDequeuedEvent(uuidv4(), itemDequeuedEventTime, 'component-test-itemDequeued'),
-    //   ],
-    //   itemDequeuedValidator,
-    // );
-
-    // const printLetterEventTime = new Date().toISOString();
-    // await eventPublisher.sendEvents<PrintLetterTransitioned>(
-    //   [
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTime, 'component-test-transition-rejected', 'PENDING'),
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTime, 'component-test-transition-rejected', 'REJECTED'),
-    //     // accepted should not be displayed
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTime, 'component-test-transition-dispatched', 'ACCEPTED'),
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTime, 'component-test-transition-dispatched', 'DISPATCHED'),
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTime, 'component-test-transition-failed', 'FAILED'),
-    //     // printed should not be displayed
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTime, 'component-test-transition-returned', 'PRINTED'),
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTime, 'component-test-transition-returned', 'RETURNED'),
-    //   ],
-    //   printLetterTransitionedValidator,
-    // );
-    // const printLetterEventTimeOrderedEvent = new Date().toISOString();
-    // await eventPublisher.sendEvents<PrintLetterTransitioned>(
-    //   [
-    //     // should display dispatched
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTimeOrderedEvent, 'component-test-transition-rejected-dispatched', 'REJECTED'),
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTimeOrderedEvent, 'component-test-transition-rejected-dispatched', 'DISPATCHED'),
-    //     // should display failed
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTimeOrderedEvent, 'component-test-transition-rejected-dispatched-failed', 'REJECTED'),
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTimeOrderedEvent, 'component-test-transition-rejected-dispatched-failed', 'DISPATCHED'),
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTimeOrderedEvent, 'component-test-transition-rejected-dispatched-failed', 'FAILED'),
-    //     // should display returned
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTimeOrderedEvent, 'component-test-transition-rejected-dispatched-failed-returned', 'REJECTED'),
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTimeOrderedEvent, 'component-test-transition-rejected-dispatched-failed-returned', 'DISPATCHED'),
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTimeOrderedEvent, 'component-test-transition-rejected-dispatched-failed-returned', 'FAILED'),
-    //     buildPrintLetterTransitionedEvent(uuidv4(), printLetterEventTimeOrderedEvent, 'component-test-transition-rejected-dispatched-failed-returned', 'RETURNED'),
-    //   ],
-    //   printLetterTransitionedValidator,
-    // );
-
-    // Send a MESHInboxMessageDownloaded event (to prove it isn't included in the report)
-    const downloadedEventId = uuidv4();
-    const downloadedEventTime = new Date().toISOString();
-    await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
-      [
-        {
-          id: downloadedEventId,
-          specversion: '1.0',
-          source:
-            '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
-          subject:
-            'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-          type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
-          time: downloadedEventTime,
-          recordedtime: downloadedEventTime,
-          severitynumber: 2,
-          traceparent:
-            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-          datacontenttype: 'application/json',
-          dataschema:
-            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
-          severitytext: 'INFO',
-          data: {
-            meshMessageId: '12345',
-            messageUri: `https://example.com/ttl/resource/${downloadedEventId}`,
-            messageReference: 'component-test-messageDownloaded',
-            senderId,
-          },
-        },
-      ],
-      messageDownloadedValidator,
-    );
-
-    await expectToPassEventually(
-      async () => {
-        // eslint-disable-next-line no-console
-        console.log(
-          'Checking for events in S3 with prefix:',
-          `${REPORTING_S3_FIREHOSE_OUTPUT_KEY_PREFIX}/senderid=${senderId}`,
-        );
-        const eventsHaveBeenWrittenToS3 = await existsInS3(
-          REPORTING_S3_BUCKET_NAME,
-          `${REPORTING_S3_FIREHOSE_OUTPUT_KEY_PREFIX}/senderid=${senderId}`,
-        );
-
-        expect(eventsHaveBeenWrittenToS3).toBeTruthy();
-      },
-      600_000,
-      10,
-    );
-
-    // Trigger a metadata refresh for the Glue table, which will cause it to pick up any new files in S3
-    const refreshQueryExecutionId = await triggerTableMetadataRefresh(
-      GLUE_DATABASE_NAME,
-      GLUE_TABLE_NAME,
-      ATHENA_WORKGROUP_NAME,
-    );
-
-    await expectToPassEventually(async () => {
-      // eslint-disable-next-line no-console
-      console.log(
-        'Waiting for Glue table metadata refresh to complete, query execution ID:',
-        refreshQueryExecutionId,
-      );
-      const refreshQueryState = await getQueryState(refreshQueryExecutionId);
-
-      expect(refreshQueryState).toEqual(QueryExecutionState.SUCCEEDED);
-    });
+    for (const scenario of scenarios) publishEventForScenario(scenario);
+    // At this stage we published all the events used for test data.
+    await publishEventNotInReports();
+    // Asserts step 1.2
+    await prerequisiteAssertFirehoseEventsInS3(senderId);
+    // Asserts step 2.1
+    await prerequisiteTriggerAndAssertGlueTableRefresh();
 
     const generateReportEventId = uuidv4();
     const generateReportEventTime = new Date().toISOString();
     const reportDate = new Date().toISOString().split('T')[0];
-    await eventPublisher.sendEvents<GenerateReport>(
-      [
-        {
-          id: generateReportEventId,
-          specversion: '1.0',
-          source:
-            '/nhs/england/notify/production/primary/data-plane/digitalletters/reporting',
-          subject:
-            'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-          type: 'uk.nhs.notify.digital.letters.reporting.generate.report.v1',
-          time: generateReportEventTime,
-          recordedtime: generateReportEventTime,
-          severitynumber: 2,
-          traceparent:
-            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-          datacontenttype: 'application/json',
-          dataschema:
-            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-generate-report-data.schema.json',
-          severitytext: 'INFO',
-          data: {
-            senderId,
-            reportDate,
-          },
-        },
-      ],
-      generateReportValidator,
+
+    // Step 4, start of the test.
+    await publishGenerateReport(
+      generateReportEventId,
+      generateReportEventTime,
+      reportDate,
+      senderId,
     );
 
+    // Perform assertions that the report generation and publishing the ReportGenerated are ok.
     const reportKey = `transactional-reports/${senderId}/completed_communications/completed_communications_${reportDate}.csv`;
 
-    await expectToPassEventually(
-      async () => {
-        // eslint-disable-next-line no-console
-        console.log(`Looking for report with prefix: ${reportKey}`);
-
-        const reportHasBeenWrittenToS3 = await existsInS3(
-          REPORTING_S3_BUCKET_NAME,
-          reportKey,
-        );
-
-        expect(reportHasBeenWrittenToS3).toBeTruthy();
-      },
-      300_000,
-      10,
-    );
+    await assertReportIsPublishedInReportingBucket(reportKey);
 
     const report = await downloadFromS3(REPORTING_S3_BUCKET_NAME, reportKey);
     // eslint-disable-next-line no-console
     console.log('Received report:', report.body);
-
     const reportRows = parse(report.body, { columns: true });
-    // reportRows.sort((a, b) => a.Time.localeCompare(b.Time)); // Sort the report rows by time, to match the order of the scenarios
-    //  const expectedReportRows = scenarios.map(scenario => scenario.getExpectedReportRow()).sort((a, b) => a.Time.localeCompare(b.Time)); // The report is in descending order, so reverse the expected rows to match that order
-    const expectedReportRows = scenarios.map(scenario => scenario.getExpectedReportRow());
-    console.log('Expected report rows:', expectedReportRows);
-    expect(reportRows.length).toEqual(expectedReportRows.length);
+    const expectedReportRows = scenarios.map((scenario) =>
+      scenario.getExpectedReportRow(),
+    );
+    expect(reportRows.length).toEqual(10);
     expect(reportRows).toEqual(expect.arrayContaining(expectedReportRows));
-    // expect(reportRows).toEqual([
-    //   {
-    //     'Message Reference': 'component-test-itemRemoved',
-    //     Time: itemRemovedEventTime,
-    //     'Communication Type': 'Digital',
-    //     Status: 'Read',
-    //   },
-    //   {
-    //     'Message Reference': 'component-test-itemDequeued',
-    //     Time: itemDequeuedEventTime,
-    //     'Communication Type': 'Digital',
-    //     Status: 'Unread',
-    //   },
-    //   {
-    //     'Message Reference': 'component-test-transition-returned',
-    //     Time: printLetterEventTime,
-    //     'Communication Type': 'Print',
-    //     Status: 'Returned',
-    //   },
-    //   {
-    //     'Message Reference': 'component-test-transition-rejected',
-    //     Time: printLetterEventTime,
-    //     'Communication Type': 'Print',
-    //     Status: 'Rejected',
-    //   },
-    //   {
-    //     'Message Reference': 'component-test-transition-failed',
-    //     Time: printLetterEventTime,
-    //     'Communication Type': 'Print',
-    //     Status: 'Failed',
-    //   },
-    //   {
-    //     'Message Reference': 'component-test-transition-dispatched',
-    //     Time: printLetterEventTime,
-    //     'Communication Type': 'Print',
-    //     Status: 'Dispatched',
-    //   },
-    //   {
-    //     'Message Reference': 'component-test-transition-rejected-dispatched',
-    //     Time: printLetterEventTimeOrderedEvent,
-    //     'Communication Type': 'Print',
-    //     Status: 'Dispatched',
-    //   },
-    //   {
-    //     'Message Reference': 'component-test-transition-rejected-dispatched-failed',
-    //     Time: printLetterEventTimeOrderedEvent,
-    //     'Communication Type': 'Print',
-    //     Status: 'Failed',
-    //   },
-    //   {
-    //     'Message Reference': 'component-test-transition-rejected-dispatched-failed-returned',
-    //     Time: printLetterEventTimeOrderedEvent,
-    //     'Communication Type': 'Print',
-    //     Status: 'Returned',
-    //   },
-    // ]);
 
+    const expectedReportUri = `s3://${REPORTING_S3_BUCKET_NAME}/${reportKey}`;
     // Verify ReportGenerated event published
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.reporting.report.generated.v1"',
-          `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
-        ],
-      );
+    await assertReportGeneratedEventIsPublished(senderId, expectedReportUri);
+  });
 
-      expect(eventLogEntry.length).toEqual(1);
-    });
+  test('should generate a report even when there are not any events', async () => {
+    // We need to wait for events to make their way from EventBridge -> Firehose -> S3 -> Glue
+    test.setTimeout(120_000);
+
+    // eslint-disable-next-line no-console
+    console.log(`Using unknownSenderId: ${unknownSenderId}`);
+
+    const generateReportEventId = uuidv4();
+    const generateReportEventTime = new Date().toISOString();
+    const reportDate = new Date().toISOString().split('T')[0];
+
+    // Step 4, start of the test.
+    await publishGenerateReport(
+      generateReportEventId,
+      generateReportEventTime,
+      reportDate,
+      unknownSenderId,
+    );
+
+    // Perform assertions that the report generation and publishing the ReportGenerated are ok.
+    const reportKey = `transactional-reports/${unknownSenderId}/completed_communications/completed_communications_${reportDate}.csv`;
+
+    await assertReportIsPublishedInReportingBucket(reportKey);
+
+    const report = await downloadFromS3(REPORTING_S3_BUCKET_NAME, reportKey);
+    // eslint-disable-next-line no-console
+    console.log('Received report:', report.body);
+    const reportRows = parse(report.body, { columns: true });
+    expect(reportRows.length).toEqual(0);
+
+    const expectedReportUri = `s3://${REPORTING_S3_BUCKET_NAME}/${reportKey}`;
+    // Verify ReportGenerated event published
+    await assertReportGeneratedEventIsPublished(
+      unknownSenderId,
+      expectedReportUri,
+    );
   });
 });
