@@ -20,6 +20,10 @@
   },
   "main": "tools/generator/example-generator/generate-example.ts",
   "name": "digital-letters-cloudevents-schemas",
+  "overrides": {
+    "glob": "13.0.3",
+    "minimatch": "10.2.1"
+  },
   "scripts": {
     "build": "tsx tools/builder/build-schema.ts",
     "build-docs": "tsx tools/generator/docs-generator/generate-docs-cli.ts",
