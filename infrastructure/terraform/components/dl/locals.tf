@@ -12,6 +12,10 @@ locals {
     current_days     = var.pii_data_retention_policy_days,
     non_current_days = 14
   }
+  reports_retention_config = {
+    current_days     = var.reports_data_retention_policy_days,
+    non_current_days = 14
+  }
   root_domain_id         = local.acct.route53_zone_ids["digital-letters"]
   root_domain_name       = "${var.environment}.${local.acct.route53_zone_names["digital-letters"]}"
   ssm_mesh_prefix        = "${local.ssm_prefix}/mesh"
