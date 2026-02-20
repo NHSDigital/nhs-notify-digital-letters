@@ -36,10 +36,10 @@
   },
   "name": "nhs-notify-digital-letters",
   "overrides": {
-    "fast-xml-parser": "5.3.6",
-    "minimatch": "10.2.1",
+    "fast-xml-parser": "^5.3.7",
+    "minimatch": "^10.2.2",
     "pretty-format": {
-      "react-is": "19.0.0"
+      "react-is": "^19.0.0"
     },
     "react": "^19.0.0"
   },

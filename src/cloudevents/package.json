@@ -22,7 +22,7 @@
   "name": "digital-letters-cloudevents-schemas",
   "overrides": {
     "glob": "13.0.3",
-    "minimatch": "10.2.1"
+    "minimatch": "^10.2.2"
   },
   "scripts": {
     "build": "tsx tools/builder/build-schema.ts",
