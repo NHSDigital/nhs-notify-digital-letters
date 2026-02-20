@@ -18,9 +18,6 @@
     }
   },
   "name": "digital-letters-events",
-  "overrides": {
-    "minimatch": "10.2.1"
-  },
   "scripts": {
     "clean": "rimraf types validators",
     "lint": "echo \"No linter has been implemented for this package.\"",
