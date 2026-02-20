@@ -38,11 +38,15 @@
   "overrides": {
     "@eslint/config-array": "0.23.1",
     "fast-xml-parser": "5.3.6",
+    "glob": {
+      "minimatch": "10.2.2"
+    },
     "minimatch": "10.2.2",
     "pretty-format": {
       "react-is": "19.0.0"
     },
-    "react": "^19.0.0"
+    "react": "^19.0.0",
+    "rimraf": "6.1.2"
   },
   "scripts": {
     "build-schemas": "make -C src/cloudevents/domains/digital-letters build-no-bundle publish-bundled-json",
