@@ -37,7 +37,7 @@
   "name": "nhs-notify-digital-letters",
   "overrides": {
     "@eslint/config-array": "0.23.1",
-    "fast-xml-parser": "5.3.4",
+    "fast-xml-parser": "5.3.6",
     "minimatch": "10.2.2",
     "pretty-format": {
       "react-is": "19.0.0"

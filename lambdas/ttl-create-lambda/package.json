@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@aws-sdk/lib-dynamodb": "^3.908.0",
+    "@aws-sdk/lib-dynamodb": "^3.973.10",
     "digital-letters-events": "^0.0.1",
     "sender-management": "^0.0.1",
     "utils": "^0.0.1"
