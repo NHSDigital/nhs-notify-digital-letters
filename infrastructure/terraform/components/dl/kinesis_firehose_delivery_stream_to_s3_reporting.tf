@@ -7,7 +7,7 @@ resource "aws_kinesis_firehose_delivery_stream" "to_s3_reporting" {
     role_arn   = aws_iam_role.firehose_role.arn
     bucket_arn = module.s3bucket_reporting.arn
 
-    prefix              = "${local.firehose_output_path_prefix}/reporting/parquet/${aws_glue_catalog_table.event_record.name}/senderid=!{partitionKeyFromLambda:senderId}/__year=!{partitionKeyFromLambda:year}/__month=!{partitionKeyFromLambda:month}/__day=!{partitionKeyFromLambda:day}/"
+    prefix              = "${local.firehose_output_path_prefix}/reporting/parquet/${aws_glue_catalog_table.event_record.name}/senderid=!{partitionKeyFromQuery:senderId}/__year=!{partitionKeyFromQuery:year}/__month=!{partitionKeyFromQuery:month}/__day=!{partitionKeyFromQuery:day}/"
     error_output_prefix = "${local.firehose_output_path_prefix}/errors/!{timestamp:yyyy}-!{timestamp:MM}-!{timestamp:dd}-!{timestamp:HH}/!{firehose:error-output-type}/"
 
     buffering_size     = 128
@@ -21,23 +21,15 @@ resource "aws_kinesis_firehose_delivery_stream" "to_s3_reporting" {
       enabled = "true"
 
       processors {
-        type = "Lambda"
+        type = "MetadataExtraction"
 
         parameters {
-          parameter_name  = "LambdaArn"
-          parameter_value = "${module.report_event_transformer.function_arn}:$LATEST"
+          parameter_name  = "JsonParsingEngine"
+          parameter_value = "JQ-1.6"
         }
         parameters {
-          parameter_name  = "RoleArn"
-          parameter_value = aws_iam_role.firehose_role.arn
-        }
-        parameters {
-          parameter_name  = "BufferSizeInMBs"
-          parameter_value = 1
-        }
-        parameters {
-          parameter_name  = "BufferIntervalInSeconds"
-          parameter_value = 301
+          parameter_name  = "MetadataExtractionQuery"
+          parameter_value = "{senderId:.data.senderId, year:.event_timestamp| strftime(\"%Y\"), month:.event_timestamp| strftime(\"%m\"), day:.event_timestamp| strftime(\"%d\")}"
         }
       }
     }
