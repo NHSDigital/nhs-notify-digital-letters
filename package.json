@@ -41,7 +41,8 @@
     "pretty-format": {
       "react-is": "^19.0.0"
     },
-    "react": "^19.0.0"
+    "react": "^19.0.0",
+    "test-exclude": "^7.0.0"
   },
   "scripts": {
     "build-schemas": "make -C src/cloudevents/domains/digital-letters build-no-bundle publish-bundled-json",
