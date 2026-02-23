@@ -160,7 +160,7 @@ export async function publishGenerateReport(
   generateReportEventId: string,
   generateReportEventTime: string,
   reportDate: string,
-  generateForSenderId: string,
+  senderId: string,
 ) {
   await eventPublisher.sendEvents<GenerateReport>(
     [
@@ -181,7 +181,7 @@ export async function publishGenerateReport(
           'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-generate-report-data.schema.json',
         severitytext: 'INFO',
         data: {
-          senderId: generateForSenderId,
+          senderId,
           reportDate,
         },
       },

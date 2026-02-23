@@ -229,7 +229,7 @@ variable "metadata_refresh_schedule" {
 variable "athena_query_max_polling_attempts" {
   type        = number
   description = "The number of times athena will be polled to check if a query is completed"
-  default     = 50
+  default     = 3
 }
 
 variable "athena_query_polling_time_seconds" {
