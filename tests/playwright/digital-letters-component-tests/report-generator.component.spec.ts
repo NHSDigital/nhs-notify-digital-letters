@@ -116,7 +116,7 @@ const scenarios = [
  * 1.2. Firehose outputs the transformed event to S3 reporting bucket under prefix /kinesis-firehose-output/reporting/parquet/event_record and partitioned by client ID and date
  * 2. The data in S3 is exposed as an external table using AWS Glue with a schema and partitions.
  * 2.1. To update the data in Glue, a step function is used to trigger a metadata refresh on the Glue table event_record (partitioned by client ID and date), which causes it to pick up any new files in S3.
- * 3. In Athena there is a database called {csi}-reporting, which has the table event_record.
+ * 3. In Athena there is a database called {csi}-reporting.
  * 4. The GenerateReport event triggers the execution of the report-generator lambda for a specific senderId and date.
  * 4.1 The report-generator lambda sends a query to Athena (StartQueryExecutionCommand) and polls for the result until the query has completed. The query reads from the Glue table, which surfaces the data in S3.
  * 4.2 The output from the Athena workgroup is under s3-reporting bucket, prefix /athena-output/
