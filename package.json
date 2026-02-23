@@ -36,6 +36,7 @@
   },
   "name": "nhs-notify-digital-letters",
   "overrides": {
+    "brace-expansion": "^5.0.2",
     "fast-xml-parser": "^5.3.7",
     "minimatch": "^10.2.2",
     "pretty-format": {
