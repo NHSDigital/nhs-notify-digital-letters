@@ -11,9 +11,12 @@
     "build": "npx eventcatalog build --",
     "dev": "npx eventcatalog dev --",
     "generate": "eventcatalog generate",
+    "lint": "echo \"No linter has been implemented for this package.\"",
+    "lint:fix": "echo \"No linter has been implemented for this package.\"",
     "preview": "eventcatalog preview",
     "start": "eventcatalog start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test:unit": "echo \"No unit tests have been implemented for this package.\"",
+    "typecheck": "echo 'no typechecking configured'"
   },
   "version": "0.1.0"
 }
