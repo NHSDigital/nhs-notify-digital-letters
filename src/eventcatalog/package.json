@@ -5,10 +5,7 @@
   "devDependencies": {
     "http-server": "^14.1.1"
   },
-  "name": "digital-letters",
-  "overrides": {
-    "minimatch": "^10.2.2"
-  },
+  "name": "eventcatalog",
   "private": true,
   "scripts": {
     "build": "npx eventcatalog build --",
