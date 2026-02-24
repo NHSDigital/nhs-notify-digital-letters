@@ -84,7 +84,7 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
       const messageHeaders = messageContent.metadata ?? {};
       expect(messageHeaders.subject).toEqual('202');
       expect(messageHeaders.local_id).toEqual(messageReference);
-      expect(messageHeaders.workflow_id).toEqual('NHS_NOTIFY_SEND_REQUEST_ACK');
+      expect(messageHeaders.workflow_id).toEqual('NHS_NOTIFY_FHIR_ACK');
 
       const messageBody = JSON.parse(messageContent.body);
       expect(messageBody).toEqual({
