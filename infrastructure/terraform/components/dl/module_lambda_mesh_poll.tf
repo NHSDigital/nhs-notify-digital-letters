@@ -1,5 +1,5 @@
 module "mesh_poll" {
-  source = "../../../modules/wrappers/lambda"
+  source = "../../modules/wrappers/lambda"
 
   function_name = "mesh-poll"
   description   = "A lambda function for polling MESH inbox for new messages"
