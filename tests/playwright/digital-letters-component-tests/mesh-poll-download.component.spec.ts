@@ -179,4 +179,55 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
       await expectMeshInboxMessageReceivedEvent(msg.meshMessageId);
     }
   });
+
+  test('should publish MESHInboxMessageInvalid event when local_id is missing', async () => {
+    const meshMessageId = `${Date.now()}_INVALID_${uuidv4().slice(0, 8)}`;
+    const messageContent = JSON.stringify({
+      senderId,
+      testData: 'This message has no local_id',
+      timestamp: new Date().toISOString(),
+    });
+
+    await uploadMeshMessage(meshMessageId, '', messageContent, {
+      local_id: '',
+    });
+
+    await invokeLambda(MESH_POLL_LAMBDA_NAME);
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1"',
+          String.raw`$.details.event_detail = "*\"meshMessageId\":\"${meshMessageId}\"*"`,
+          String.raw`$.details.event_detail = "*\"senderId\":\"${senderId}\"*"`,
+          String.raw`$.details.event_detail = "*\"failureCode\":\"LID_MESH_0001\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
+    }, 120_000);
+
+    await expectToPassEventually(async () => {
+      await expect(async () => {
+        await downloadFromS3(
+          NON_PII_S3_BUCKET_NAME,
+          `mock-mesh/${meshMailboxId}/in/${meshMessageId}`,
+        );
+      }).rejects.toThrow('No objects found');
+    }, 60_000);
+
+    await expectToPassEventually(async () => {
+      const receivedEvents = await getLogsFromCloudwatch(
+        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1"',
+          `$.details.event_detail = "*\\"meshMessageId\\":\\"${meshMessageId}\\"*"`,
+        ],
+      );
+      expect(receivedEvents.length).toBe(0);
+    }, 15_000);
+  });
 });
