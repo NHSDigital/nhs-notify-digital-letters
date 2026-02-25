@@ -65,6 +65,7 @@ export const failedLetterEvent = {
     specificationId: '1y3q9v1zzzz',
     supplierId: 'supplier-1',
     status: 'FAILED',
+    billingRef: '1y3q9v1zzzz',
     reasonCode: 'FAILURE001',
     reasonText: 'Letter has too many pages',
   },
