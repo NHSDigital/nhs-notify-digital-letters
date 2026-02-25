@@ -35,6 +35,7 @@ const baseLetterEvent = {
     },
     specificationId: '1y3q9v1zzzz',
     supplierId: 'supplier-1',
+    billingRef: '1y3q9v1zzzz',
   },
 } as LetterEvent;
 
