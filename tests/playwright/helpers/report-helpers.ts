@@ -10,14 +10,14 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  DigitalLetterRead,
   GenerateReport,
   ItemDequeued,
-  ItemRemoved,
   MESHInboxMessageDownloaded,
   PrintLetterTransitioned,
 } from 'digital-letters-events';
 import generateReportValidator from 'digital-letters-events/GenerateReport.js';
-import itemRemovedValidator from 'digital-letters-events/ItemRemoved.js';
+import digitalLetterReadValidator from 'digital-letters-events/DigitalLetterRead.js';
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
 import printLetterTransitionedValidator from 'digital-letters-events/PrintLetterTransitioned.js';
@@ -30,8 +30,8 @@ import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import {
+  buildDigitalLetterReadEvent,
   buildItemDequeuedEvent,
-  buildItemRemovedEvent,
   buildPrintLetterTransitionedEvent,
 } from 'helpers/event-builders';
 import { existsInS3 } from 'helpers/s3-helpers';
@@ -106,16 +106,16 @@ export function publishEventForScenario(scenario: ReportScenario) {
     switch (scenario.communicationType) {
       case CommunicationType.Digital: {
         if (EventStatus.Read === status) {
-          eventPublisher.sendEvents<ItemRemoved>(
+          eventPublisher.sendEvents<DigitalLetterRead>(
             [
-              buildItemRemovedEvent(
+              buildDigitalLetterReadEvent(
                 uuidv4(),
                 scenario.time,
                 scenario.messageReference,
                 scenario.senderId,
               ),
             ],
-            itemRemovedValidator,
+            digitalLetterReadValidator,
           );
         } else if (EventStatus.Unread === status) {
           eventPublisher.sendEvents<ItemDequeued>(

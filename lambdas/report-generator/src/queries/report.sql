@@ -7,12 +7,12 @@ WITH vars AS (
         e.time,
         CASE
             WHEN e.type LIKE '%.item.dequeued.%'
-            OR e.type LIKE '%.item.removed.%' THEN 'Digital'
+            OR e.type LIKE '%.queue.digital.letter.read.%' THEN 'Digital'
             WHEN e.type LIKE '%.print.letter.transitioned.%' THEN 'Print' ELSE NULL
         END as communicationtype,
         CASE
             WHEN e.type LIKE '%.item.dequeued.%' THEN 'Unread'
-            WHEN e.type LIKE '%.item.removed.%' THEN 'Read'
+            WHEN e.type LIKE '%.queue.digital.letter.read.%' THEN 'Read'
             WHEN e.letterstatus = 'RETURNED' THEN 'Returned'
             WHEN e.letterstatus = 'FAILED' THEN 'Failed'
             WHEN e.letterstatus = 'DISPATCHED' THEN 'Dispatched'

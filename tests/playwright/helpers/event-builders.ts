@@ -1,6 +1,6 @@
 import {
+  DigitalLetterRead,
   ItemDequeued,
-  ItemRemoved,
   PrintLetterTransitioned,
 } from 'digital-letters-events';
 
@@ -19,25 +19,24 @@ function buildBaseEvent(sourceComponent: string, time: string) {
   };
 }
 
-export function buildItemRemovedEvent(
+export function buildDigitalLetterReadEvent(
   eventId: string,
   time: string,
   messageReference: string,
   senderId: string,
-): ItemRemoved {
+): DigitalLetterRead {
   const baseEvent = buildBaseEvent('queue', time);
   return {
     ...baseEvent,
     id: eventId,
-    type: 'uk.nhs.notify.digital.letters.queue.item.removed.v1',
+    type: 'uk.nhs.notify.digital.letters.queue.digital.letter.read.v1',
     dataschema:
-      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-removed-data.schema.json',
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-queue-digital-letter-read-data.schema.json',
     data: {
       messageReference,
       senderId,
-      messageUri: `https://example.com/ttl/resource/${eventId}`,
     },
-  } as ItemRemoved;
+  } as DigitalLetterRead;
 }
 
 export function buildItemDequeuedEvent(
