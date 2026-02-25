@@ -31,5 +31,11 @@ data "aws_iam_policy_document" "sqs_pdm_poll" {
     resources = [
       "arn:aws:sqs:${var.region}:${var.aws_account_id}:${local.csi}-pdm-poll-queue"
     ]
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [aws_cloudwatch_event_rule.pdm_resource_submitted.arn, aws_cloudwatch_event_rule.pdm_resource_unavailable.arn]
+    }
   }
 }

@@ -31,6 +31,7 @@ export const acceptedLetterEvent = {
     specificationId: '1y3q9v1zzzz',
     supplierId: 'supplier-1',
     status: 'ACCEPTED',
+    billingRef: '1y3q9v1zzzz',
   },
 } as LetterEvent;
 

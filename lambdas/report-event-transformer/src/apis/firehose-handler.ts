@@ -56,16 +56,24 @@ function validateRecord(
 }
 
 function generateReportEvent(validatedRecord: ValidatedRecord): ReportEvent {
-  const { messageReference, pageCount, senderId, supplierId } =
-    validatedRecord.event.data;
+  const {
+    messageReference,
+    pageCount,
+    reasonCode,
+    reasonText,
+    senderId,
+    supplierId,
+  } = validatedRecord.event.data;
   const { time, type } = validatedRecord.event;
   const eventTime = new Date(time);
 
   const flattenedEvent: FlatDigitalLettersEvent = {
     messageReference,
-    senderId,
     pageCount,
+    senderId,
     supplierId,
+    reasonCode,
+    reasonText,
     time,
     type,
   };
@@ -100,7 +108,12 @@ export const createHandler = ({ logger }: HandlerDependencies) =>
       if (validated) {
         validEvents.push(generateReportEvent(validated));
       } else {
-        failedEvents.push({ ...record, result: 'ProcessingFailed' });
+        const failedEvent: FirehoseTransformationResultRecord = {
+          recordId: record.recordId,
+          result: 'ProcessingFailed',
+          data: record.data,
+        };
+        failedEvents.push(failedEvent);
       }
     }
 

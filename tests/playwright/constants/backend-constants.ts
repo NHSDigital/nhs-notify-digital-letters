@@ -12,6 +12,7 @@ export const MESH_POLL_LAMBDA_NAME = `${CSI}-mesh-poll`;
 export const TTL_CREATE_LAMBDA_NAME = `${CSI}-ttl-create`;
 export const TTL_POLL_LAMBDA_NAME = `${CSI}-ttl-poll`;
 export const CORE_NOTIFIER_LAMBDA_NAME = `${CSI}-core-notifier`;
+export const REPORT_EVENT_TRANSFORMER_LAMBDA_NAME = `${CSI}-report-event-transformer`;
 export const REPORT_SCHEDULER_LAMBDA_NAME = `${CSI}-report-scheduler`;
 
 // Queue Names
@@ -26,6 +27,7 @@ export const FILE_SCANNER_DLQ_NAME = `${CSI}-scanner-dlq`;
 export const PRINT_STATUS_HANDLER_DLQ_NAME = `${CSI}-print-status-handler-dlq`;
 export const HANDLE_TTL_DLQ_NAME = `${CSI}-ttl-handle-expiry-errors-queue`;
 export const PRINT_ANALYSER_DLQ_NAME = `${CSI}-print-analyser-dlq`;
+export const PRINT_SENDER_DLQ_NAME = `${CSI}-print-sender-dlq`;
 export const MOVE_SCANNED_FILES_NAME = `${CSI}-move-scanned-files-queue`;
 export const MOVE_SCANNED_FILES_DLQ_NAME = `${CSI}-move-scanned-files-dlq`;
 
@@ -57,4 +59,5 @@ export const CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-core-noti
 export const FILE_SCANNER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-file-scanner`;
 export const PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-status-handler`;
 export const PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-analyser`;
+export const PRINT_SENDER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-sender`;
 export const MOVE_SCANNED_FILES_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-move-scanned-files`;

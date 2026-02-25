@@ -36,11 +36,14 @@
   },
   "name": "nhs-notify-digital-letters",
   "overrides": {
-    "fast-xml-parser": "5.3.4",
+    "brace-expansion": "^5.0.2",
+    "fast-xml-parser": "^5.3.7",
+    "minimatch": "^10.2.2",
     "pretty-format": {
-      "react-is": "19.0.0"
+      "react-is": "^19.0.0"
     },
-    "react": "^19.0.0"
+    "react": "^19.0.0",
+    "test-exclude": "^7.0.0"
   },
   "scripts": {
     "build-schemas": "make -C src/cloudevents/domains/digital-letters build-no-bundle publish-bundled-json",
@@ -64,6 +67,7 @@
     "lambdas/ttl-handle-expiry-lambda",
     "lambdas/ttl-poll-lambda",
     "lambdas/pdm-uploader-lambda",
+    "lambdas/print-sender-lambda",
     "lambdas/core-notifier-lambda",
     "lambdas/print-status-handler",
     "lambdas/print-analyser",
