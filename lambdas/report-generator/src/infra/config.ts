@@ -9,6 +9,7 @@ export type ReportGeneratorConfig = {
   reportingBucket: string;
   reportName: string;
   waitForInSeconds: number;
+  dlqUrl: string;
 };
 
 export function loadConfig(): ReportGeneratorConfig {
@@ -25,5 +26,6 @@ export function loadConfig(): ReportGeneratorConfig {
     reportingBucket: defaultConfigReader.getValue('REPORTING_BUCKET'),
     reportName: defaultConfigReader.getValue('REPORT_NAME'),
     waitForInSeconds: defaultConfigReader.getInt('WAIT_FOR_IN_SECONDS'),
+    dlqUrl: defaultConfigReader.getValue('DLQ_URL'),
   };
 }

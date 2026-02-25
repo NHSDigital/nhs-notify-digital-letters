@@ -13,6 +13,7 @@ import generateReportValidator from 'digital-letters-events/GenerateReport.js';
 import reportGeneratedValidator from 'digital-letters-events/ReportGenerated.js';
 import { GenerateReport, ReportGenerated } from 'digital-letters-events';
 import { EventPublisher, Logger } from 'utils';
+import { Dlq } from 'app/dlq';
 
 interface ProcessingResult {
   result: ReportGeneratorResult;
@@ -23,6 +24,7 @@ interface CreateHandlerDependencies {
   reportGenerator: ReportGenerator;
   eventPublisher: EventPublisher;
   logger: Logger;
+  dlq: Dlq;
 }
 
 interface ValidatedRecord {
@@ -125,24 +127,32 @@ async function publishSuccessfulEvents(
   successfulItems: { event: GenerateReport; reportUri: string }[],
   eventPublisher: EventPublisher,
   logger: Logger,
+  dlq: Dlq,
 ): Promise<void> {
   if (successfulItems.length === 0) return;
 
+  // Map ReportGenerated event IDs to their original GenerateReport events
+  const reportGeneratedIdToOriginalEvent = new Map<string, GenerateReport>();
   try {
     const reportGeneratedEvents: ReportGenerated[] = successfulItems.map(
-      ({ event, reportUri }) => ({
-        ...event,
-        id: randomUUID(),
-        time: new Date().toISOString(),
-        recordedtime: new Date().toISOString(),
-        type: 'uk.nhs.notify.digital.letters.reporting.report.generated.v1',
-        dataschema:
-          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-report-generated-data.schema.json',
-        data: {
-          senderId: event.data.senderId,
-          reportUri,
-        },
-      }),
+      ({ event, reportUri }) => {
+        const generatedEventId = randomUUID();
+        const reportGeneratedEvent: ReportGenerated = {
+          ...event,
+          id: generatedEventId,
+          time: new Date().toISOString(),
+          recordedtime: new Date().toISOString(),
+          type: 'uk.nhs.notify.digital.letters.reporting.report.generated.v1',
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-report-generated-data.schema.json',
+          data: {
+            senderId: event.data.senderId,
+            reportUri,
+          },
+        };
+        reportGeneratedIdToOriginalEvent.set(generatedEventId, event);
+        return reportGeneratedEvent;
+      },
     );
 
     const submittedFailedEvents =
@@ -151,11 +161,12 @@ async function publishSuccessfulEvents(
         reportGeneratedValidator,
       );
     if (submittedFailedEvents.length > 0) {
-      logger.warn({
-        description: 'Some successful events failed to publish',
-        failedCount: submittedFailedEvents.length,
-        totalAttempted: successfulItems.length,
-      });
+      // Map failed ReportGenerated events back to their original GenerateReport events
+      const originalEventsToSendToDlq = submittedFailedEvents.map(
+        (failedEvent) => reportGeneratedIdToOriginalEvent.get(failedEvent.id),
+      ) as GenerateReport[];
+
+      await dlq.send(originalEventsToSendToDlq);
     }
   } catch (error) {
     logger.warn({
@@ -167,6 +178,7 @@ async function publishSuccessfulEvents(
 }
 
 export const createHandler = ({
+  dlq,
   eventPublisher,
   logger,
   reportGenerator,
@@ -191,7 +203,7 @@ export const createHandler = ({
     const results = await Promise.allSettled(promises);
     const { processed, successfulItems } = categorizeResults(results, logger);
 
-    await publishSuccessfulEvents(successfulItems, eventPublisher, logger);
+    await publishSuccessfulEvents(successfulItems, eventPublisher, logger, dlq);
 
     logger.info({
       description: 'Processed SQS Event.',

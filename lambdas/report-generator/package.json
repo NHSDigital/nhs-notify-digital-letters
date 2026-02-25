@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@aws-sdk/client-athena": "^3.984.0",
+    "@aws-sdk/client-sqs": "^3.984.0",
     "digital-letters-events": "^0.0.1",
     "utils": "^0.0.1"
   },

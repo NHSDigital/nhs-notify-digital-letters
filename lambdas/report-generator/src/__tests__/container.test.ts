@@ -10,6 +10,7 @@ jest.mock('infra/config', () => ({
     reportName: 'test-report',
     reportingBucket: 'test-bucket',
     waitForInSeconds: 5,
+    dlqUrl: 'test-dlq-url',
   })),
 }));
 
