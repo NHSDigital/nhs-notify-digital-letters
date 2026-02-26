@@ -83,6 +83,8 @@ function generateUpdatedEvent(event: LetterEvent): PrintLetterTransitioned {
   const {
     data: {
       origin: { subject },
+      reasonCode,
+      reasonText,
       specificationId,
       status,
       supplierId,
@@ -111,6 +113,8 @@ function generateUpdatedEvent(event: LetterEvent): PrintLetterTransitioned {
       status,
       supplierId,
       time,
+      ...(reasonCode && { reasonCode }),
+      ...(reasonText && { reasonText }),
     },
   };
 }
