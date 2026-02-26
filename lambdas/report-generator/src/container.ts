@@ -13,7 +13,7 @@ import {
 import { loadConfig } from 'infra/config';
 import { ReportGenerator } from 'app/report-generator';
 import { AthenaClient } from '@aws-sdk/client-athena';
-import { Dlq } from 'app/dlq';
+import { Dlq, DlqDependencies } from 'app/dlq';
 
 export const createContainer = () => {
   const {
@@ -28,11 +28,13 @@ export const createContainer = () => {
     waitForInSeconds,
   } = loadConfig();
 
-  const dlq = new Dlq({
+  const dlqDependencies: DlqDependencies = {
     dlqUrl,
     logger,
     sqsClient,
-  });
+  };
+
+  const dlq = new Dlq(dlqDependencies);
 
   const athenaClient = new AthenaClient({
     region: region(),

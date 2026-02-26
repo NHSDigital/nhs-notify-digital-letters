@@ -17,16 +17,6 @@ export class Dlq {
   private readonly logger: Logger;
 
   constructor(config: DlqDependencies) {
-    if (!config.dlqUrl) {
-      throw new Error('dlqUrl has not been specified');
-    }
-    if (!config.logger) {
-      throw new Error('logger has not been provided');
-    }
-    if (!config.sqsClient) {
-      throw new Error('sqsClient has not been provided');
-    }
-
     this.dlqUrl = config.dlqUrl;
     this.logger = config.logger;
     this.sqs = config.sqsClient;

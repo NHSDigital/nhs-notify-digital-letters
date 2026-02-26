@@ -61,24 +61,6 @@ describe('Dlq', () => {
       const dlq = new Dlq(dlqConfig);
       expect(dlq).toBeInstanceOf(Dlq);
     });
-
-    it('should throw error if dlqUrl is not provided', () => {
-      expect(() => {
-        return new Dlq({ ...dlqConfig, dlqUrl: '' });
-      }).toThrow('dlqUrl has not been specified');
-    });
-
-    it('should throw error if logger is not provided', () => {
-      expect(() => {
-        return new Dlq({ ...dlqConfig, logger: undefined as any });
-      }).toThrow('logger has not been provided');
-    });
-
-    it('should throw error if sqsClient is not provided', () => {
-      expect(() => {
-        return new Dlq({ ...dlqConfig, sqsClient: undefined as any });
-      }).toThrow('sqsClient has not been provided');
-    });
   });
 
   describe('send', () => {
