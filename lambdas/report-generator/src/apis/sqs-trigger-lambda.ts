@@ -128,33 +128,33 @@ async function publishSuccessfulEvents(
   eventPublisher: EventPublisher,
   logger: Logger,
   dlq: Dlq,
-): Promise<void> {
-  if (successfulItems.length === 0) return;
+): Promise<GenerateReport[]> {
+  if (successfulItems.length === 0) return [];
 
   // Map ReportGenerated event IDs to their original GenerateReport events
   const reportGeneratedIdToOriginalEvent = new Map<string, GenerateReport>();
-  try {
-    const reportGeneratedEvents: ReportGenerated[] = successfulItems.map(
-      ({ event, reportUri }) => {
-        const generatedEventId = randomUUID();
-        const reportGeneratedEvent: ReportGenerated = {
-          ...event,
-          id: generatedEventId,
-          time: new Date().toISOString(),
-          recordedtime: new Date().toISOString(),
-          type: 'uk.nhs.notify.digital.letters.reporting.report.generated.v1',
-          dataschema:
-            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-report-generated-data.schema.json',
-          data: {
-            senderId: event.data.senderId,
-            reportUri,
-          },
-        };
-        reportGeneratedIdToOriginalEvent.set(generatedEventId, event);
-        return reportGeneratedEvent;
-      },
-    );
+  const reportGeneratedEvents: ReportGenerated[] = successfulItems.map(
+    ({ event, reportUri }) => {
+      const generatedEventId = randomUUID();
+      const reportGeneratedEvent: ReportGenerated = {
+        ...event,
+        id: generatedEventId,
+        time: new Date().toISOString(),
+        recordedtime: new Date().toISOString(),
+        type: 'uk.nhs.notify.digital.letters.reporting.report.generated.v1',
+        dataschema:
+          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-report-generated-data.schema.json',
+        data: {
+          senderId: event.data.senderId,
+          reportUri,
+        },
+      };
+      reportGeneratedIdToOriginalEvent.set(generatedEventId, event);
+      return reportGeneratedEvent;
+    },
+  );
 
+  try {
     const submittedFailedEvents =
       await eventPublisher.sendEvents<ReportGenerated>(
         reportGeneratedEvents,
@@ -166,14 +166,18 @@ async function publishSuccessfulEvents(
         (failedEvent) => reportGeneratedIdToOriginalEvent.get(failedEvent.id),
       ) as GenerateReport[];
 
-      await dlq.send(originalEventsToSendToDlq);
+      return await dlq.send(originalEventsToSendToDlq);
     }
+    return [];
   } catch (error) {
     logger.warn({
       err: error,
       description: 'Failed to send successful events to EventBridge',
       eventCount: successfulItems.length,
     });
+    // Try to send all original events to DLQ since we couldn't publish any
+    const allOriginalEvents = successfulItems.map(({ event }) => event);
+    return dlq.send(allOriginalEvents);
   }
 }
 
@@ -203,10 +207,25 @@ export const createHandler = ({
     const results = await Promise.allSettled(promises);
     const { processed, successfulItems } = categorizeResults(results, logger);
 
-    await publishSuccessfulEvents(successfulItems, eventPublisher, logger, dlq);
+    const eventsFailedToPublish = await publishSuccessfulEvents(
+      successfulItems,
+      eventPublisher,
+      logger,
+      dlq,
+    );
+
+    // we have the GenerateReport but we need to report back the messageId of the record.
+    for (const event of eventsFailedToPublish) {
+      for (const record of validatedRecords) {
+        if (record.event.id === event.id) {
+          batchItemFailures.push({ itemIdentifier: record.messageId });
+        }
+      }
+    }
 
     logger.info({
       description: 'Processed SQS Event.',
+      failedToPublish: eventsFailedToPublish.length,
       ...processed,
     });
 

@@ -370,6 +370,106 @@ describe('sqs-trigger-lambda', () => {
           eventCount: 1,
         }),
       );
+      expect(mockDlq.send).toHaveBeenCalledWith([
+        expect.objectContaining({
+          type: 'uk.nhs.notify.digital.letters.reporting.generate.report.v1',
+        }),
+      ]);
+    });
+
+    it('should add to batch failures when DLQ send fails for some events', async () => {
+      const reportUri1 = 's3://bucket/report1.csv';
+      const reportUri2 = 's3://bucket/report2.csv';
+      const mockUuid1 = '123e4567-e89b-12d3-a456-426614174001';
+      const mockUuid2 = '123e4567-e89b-12d3-a456-426614174002';
+      const event1Id = 'event-1-id';
+      const event2Id = 'event-2-id';
+
+      jest
+        .mocked(randomUUID)
+        .mockReturnValueOnce(mockUuid1)
+        .mockReturnValueOnce(mockUuid2);
+
+      mockReportGenerator.generate
+        .mockResolvedValueOnce({ outcome: 'generated', reportUri: reportUri1 })
+        .mockResolvedValueOnce({ outcome: 'generated', reportUri: reportUri2 });
+
+      const failedReportGeneratedEvents = [
+        { id: mockUuid1, source: 'event-source', type: 'event-type' },
+        { id: mockUuid2, source: 'event-source', type: 'event-type' },
+      ];
+      mockEventPublisher.sendEvents.mockResolvedValue(
+        failedReportGeneratedEvents,
+      );
+
+      // Simulate DLQ failing to send the first event but succeeding for the second
+      const record1 = createMockSQSRecord('msg-1', {
+        id: event1Id,
+        data: { senderId: 'sender-1', reportDate: '2025-01-01' } as any,
+      });
+      const record2 = createMockSQSRecord('msg-2', {
+        id: event2Id,
+        data: { senderId: 'sender-2', reportDate: '2025-05-02' } as any,
+      });
+
+      // DLQ.send returns the events that failed to send to DLQ
+      mockDlq.send.mockImplementation(async (events: GenerateReport[]) => {
+        // Return only the first event as failed to send to DLQ
+        return [events[0]];
+      });
+
+      const sqsEvent = createMockSQSEvent([record1, record2]);
+
+      const handler = createHandler({
+        reportGenerator: mockReportGenerator,
+        eventPublisher: mockEventPublisher,
+        logger: mockLogger,
+        dlq: mockDlq,
+      });
+
+      const response = await handler(sqsEvent);
+
+      expect(mockDlq.send).toHaveBeenCalledTimes(1);
+      expect(response.batchItemFailures).toContainEqual({
+        itemIdentifier: 'msg-1',
+      });
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.objectContaining({
+          failedToPublish: 1,
+        }),
+      );
+    });
+
+    it('should handle promise rejection during processing', async () => {
+      const error = new Error('Unexpected processing error');
+      mockReportGenerator.generate.mockImplementation(() => {
+        throw error;
+      });
+
+      const record = createMockSQSRecord('msg-1', {});
+      const sqsEvent = createMockSQSEvent([record]);
+
+      const handler = createHandler({
+        reportGenerator: mockReportGenerator,
+        eventPublisher: mockEventPublisher,
+        logger: mockLogger,
+        dlq: mockDlq,
+      });
+
+      const response = await handler(sqsEvent);
+
+      expect(response.batchItemFailures).toEqual([{ itemIdentifier: 'msg-1' }]);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          err: error,
+        }),
+      );
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.objectContaining({
+          failed: 1,
+          generated: 0,
+        }),
+      );
     });
   });
 });

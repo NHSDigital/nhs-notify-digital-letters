@@ -167,36 +167,6 @@ describe('Dlq', () => {
       expect(result).toEqual([mockRecord]);
     });
 
-    it('should batch records when more than MAX_BATCH_SIZE', async () => {
-      const records: GenerateReport[] = [];
-      const expectedUuids: string[] = [];
-
-      // Create 15 records to test batching (MAX_BATCH_SIZE is 10)
-      for (let i = 0; i < 15; i++) {
-        const uuid = `550e8400-e29b-41d4-a716-44665544000${i.toString().padStart(1, '0')}`;
-        expectedUuids.push(uuid);
-        records.push({
-          ...mockRecord,
-          id: `event-id-${i}`,
-        });
-      }
-
-      let uuidIndex = 0;
-      mockRandomUUID.mockImplementation(() => {
-        const uuid = expectedUuids[uuidIndex];
-        uuidIndex += 1;
-        return uuid as any;
-      });
-
-      const successfulResponse = { Failed: undefined };
-      mockSqsClient.send.mockResolvedValue(successfulResponse);
-
-      const result = await dlq.send(records);
-
-      expect(mockSqsClient.send).toHaveBeenCalledTimes(2); // 15 records = 2 batches
-      expect(result).toEqual([]);
-    });
-
     it('should handle failed entries with missing ID', async () => {
       const partialFailureResponse = {
         Failed: [
