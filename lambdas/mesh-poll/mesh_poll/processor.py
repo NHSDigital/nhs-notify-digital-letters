@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from dl_utils import EventPublisher
-from digital_letters_events import MESHInboxMessageReceived
+from digital_letters_events import MESHInboxMessageReceived, MESHInboxMessageInvalid
 
 from .errors import AuthorizationError, format_exception
 
@@ -31,7 +31,10 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         environment = 'development'
         deployment = 'primary'
         plane = 'data-plane'
-        self.__cloud_event_source = f'/nhs/england/notify/{environment}/{deployment}/{plane}/digitalletters/mesh'
+        self.__cloud_event_source = (
+            f'/nhs/england/notify/{environment}/{deployment}/{plane}/'
+            'digitalletters/mesh'
+        )
 
         # Initialize EventPublisher
         self.__event_publisher = EventPublisher(
@@ -97,13 +100,32 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         logger.info(PROCESSING_MESSAGE)
 
         try:
-            # Basic sender validation - only publish events for known senders
+            # Basic sender validation - only process messages from known senders
             if not self.__sender_lookup.is_valid_sender(sender_mailbox_id):
                 raise AuthorizationError(
                     f'Cannot authorize sender with mailbox ID "{sender_mailbox_id}"')
 
             # Get the corresponding sender ID
             sender_id = self.__sender_lookup.get_sender_id(sender_mailbox_id)
+
+            if not message_reference or message_reference.strip() == "":
+                logger.error('Message has missing or empty local_id')
+
+                # Publish MESHInboxMessageInvalid event
+                message_id = message.id()
+                event_detail = {
+                    "data": {
+                        "meshMessageId": message_id,
+                        "senderId": sender_id,
+                        "failureCode": "LID_MESH_0001"
+                    }
+                }
+
+                self._publish_mesh_inbox_message_invalid_event(event_detail)
+
+                message.acknowledge()  # Remove from inbox
+                logger.info(ACKNOWLEDGED_MESSAGE)
+                return
 
             # Publish event for valid sender
             message_id = message.id()
@@ -136,14 +158,20 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
             'id': str(uuid4()),
             'specversion': '1.0',
             'source': self.__cloud_event_source,
-            'subject': f'customer/{event_detail["data"]["senderId"]}/recipient/{event_detail["data"]["messageReference"]}',
+            'subject': (
+                f'customer/{event_detail["data"]["senderId"]}/recipient/'
+                f'{event_detail["data"]["messageReference"]}'
+            ),
             'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
             'time': now,
             'recordedtime': now,
             'severitynumber': 2,
             'severitytext': 'INFO',
             'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-            'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json',
+            'dataschema': (
+                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/'
+                '2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json'
+            ),
             'datacontenttype': 'application/json',
             'data': event_detail.get('data', {}),
         }
@@ -158,3 +186,40 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
         self.__log.info("Published MESHInboxMessageReceived event",
                         mesh_message_id=event_detail["data"]["meshMessageId"],
                         sender_id=event_detail["data"]["senderId"])
+
+    def _publish_mesh_inbox_message_invalid_event(self, event_detail):
+        """
+        Publishes a MESHInboxMessageInvalid event when a message fails validation.
+        """
+        now = datetime.now(timezone.utc).isoformat()
+
+        cloud_event = {
+            'id': str(uuid4()),
+            'specversion': '1.0',
+            'source': self.__cloud_event_source,
+            'subject': f'customer/{event_detail["data"]["senderId"]}',
+            'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1',
+            'time': now,
+            'recordedtime': now,
+            'severitynumber': 3,
+            'severitytext': 'WARN',
+            'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+            'dataschema': (
+                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/'
+                '2025-10-draft/data/digital-letters-mesh-inbox-message-invalid-data.schema.json'
+            ),
+            'datacontenttype': 'application/json',
+            'data': event_detail.get('data', {})
+        }
+
+        failed_events = self.__event_publisher.send_events([cloud_event], MESHInboxMessageInvalid)
+
+        if failed_events:
+            error_msg = f"Failed to publish MESHInboxMessageInvalid event: {failed_events}"
+            self.__log.error(error_msg, failed_count=len(failed_events))
+            raise RuntimeError(error_msg)
+
+        self.__log.info("Published MESHInboxMessageInvalid event",
+                        mesh_message_id=event_detail["data"]["meshMessageId"],
+                        sender_id=event_detail["data"]["senderId"],
+                        failure_code=event_detail["data"]["failureCode"])
