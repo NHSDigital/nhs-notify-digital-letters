@@ -178,8 +178,7 @@ test.describe('Digital Letters - Report Generator', () => {
   });
 
   test('should generate a report even when there are not any events', async () => {
-    // We need to wait for events to make their way from EventBridge -> Firehose -> S3 -> Glue
-    test.setTimeout(120_000);
+    test.setTimeout(360_000);
 
     // eslint-disable-next-line no-console
     console.log(`Using unknownSenderId: ${unknownSenderId}`);
