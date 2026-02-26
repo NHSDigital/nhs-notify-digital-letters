@@ -4,7 +4,7 @@ import {
   QueryCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
-import { Logger, deleteDynamoBatch, dynamoDocumentClient } from 'utils';
+import { Logger, deleteDynamoBatch } from 'utils';
 import { mock, mockFn } from 'jest-mock-extended';
 import { DynamoRepository } from 'infra/dynamo-repository';
 import 'aws-sdk-client-mock-jest';
@@ -20,7 +20,7 @@ const mockDynamoDeleteBatch = mockFn<typeof deleteDynamoBatch>();
 
 const dynamoRepository = new DynamoRepository(
   mockTableName,
-  dynamoDocumentClient,
+  mockDynamoClient as any,
   logger,
   mockDynamoDeleteBatch,
 );

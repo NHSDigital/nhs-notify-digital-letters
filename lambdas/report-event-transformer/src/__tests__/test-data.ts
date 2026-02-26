@@ -24,6 +24,7 @@ export const digitalLettersEvent = {
     reasonCode: 'FAILURE001',
     reasonText: 'Letter has too many pages',
     senderId: 'sender1',
+    status: 'DISPATCHED',
     supplierId: 'supplier1',
   },
 } as DigitalLettersEvent;

@@ -17,7 +17,7 @@ module "s3bucket_reporting" {
 
   lifecycle_rules = [
     {
-      prefix  = ""
+      prefix  = "kinesis-firehose-output"
       enabled = true
 
       expiration = {
@@ -26,6 +26,30 @@ module "s3bucket_reporting" {
 
       noncurrent_version_expiration = {
         noncurrent_days = local.pii_retention_config.non_current_days
+      }
+    },
+    {
+      prefix  = "athena-output"
+      enabled = true
+
+      expiration = {
+        days = local.reports_retention_config.current_days
+      }
+
+      noncurrent_version_expiration = {
+        noncurrent_days = local.reports_retention_config.non_current_days
+      }
+    },
+    {
+      prefix  = "transactional-reports"
+      enabled = true
+
+      expiration = {
+        days = local.reports_retention_config.current_days
+      }
+
+      noncurrent_version_expiration = {
+        noncurrent_days = local.reports_retention_config.non_current_days
       }
     }
   ]

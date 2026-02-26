@@ -24,9 +24,9 @@ domains:
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letter-base-data.schema.md
           - type: Digital Letters Digital Letter Read Data
             category: data
-            source: src/digital-letters/2025-10-draft/data/digital-letters-digital-letter-read-data.schema.yaml
-            published: schemas/digital-letters/2025-10-draft/data/digital-letters-digital-letter-read-data.schema.json
-            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-digital-letter-read-data.schema.md
+            source: src/digital-letters/2025-10-draft/data/digital-letters-queue-digital-letter-read-data.schema.yaml
+            published: schemas/digital-letters/2025-10-draft/data/digital-letters-queue-digital-letter-read-data.schema.json
+            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-queue-digital-letter-read-data.schema.md
           - type: Digital Letters Mesh Inbox Message Acknowledged Data
             category: data
             source: src/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-acknowledged-data.schema.yaml
@@ -117,11 +117,6 @@ domains:
             source: src/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.yaml
             published: schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.json
             docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-queue-item-enqueued-data.schema.md
-          - type: Digital Letters Queue Item Removed Data
-            category: data
-            source: src/digital-letters/2025-10-draft/data/digital-letters-queue-item-removed-data.schema.yaml
-            published: schemas/digital-letters/2025-10-draft/data/digital-letters-queue-item-removed-data.schema.json
-            docs: ../../docs/cloudevents/digital-letters/2025-10-draft/data/digital-letters-queue-item-removed-data.schema.md
           - type: Digital Letters Reporting Generate Report Data
             category: data
             source: src/digital-letters/2025-10-draft/data/digital-letters-reporting-generate-report-data.schema.yaml
