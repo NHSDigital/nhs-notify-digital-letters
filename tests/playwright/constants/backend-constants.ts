@@ -30,6 +30,7 @@ export const PRINT_ANALYSER_DLQ_NAME = `${CSI}-print-analyser-dlq`;
 export const PRINT_SENDER_DLQ_NAME = `${CSI}-print-sender-dlq`;
 export const MOVE_SCANNED_FILES_NAME = `${CSI}-move-scanned-files-queue`;
 export const MOVE_SCANNED_FILES_DLQ_NAME = `${CSI}-move-scanned-files-dlq`;
+export const REPORT_SENDER_DLQ_NAME = `${CSI}-report-sender-dlq`;
 
 // Queue Url Prefix
 export const SQS_URL_PREFIX = `https://sqs.${REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/`;
@@ -55,6 +56,7 @@ export const REPORTING_S3_FIREHOSE_OUTPUT_KEY_PREFIX = `kinesis-firehose-output/
 export const FILE_SAFE_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-file-safe`;
 export const UNSCANNED_FILES_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-main-acct-digi-unscanned-files`;
 export const FILE_QUARANTINE_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-file-quarantine`;
+export const REPORTING_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-reporting`;
 // Files that are scanned by Guardduty are in a bucket prefixed by the environment.
 export const PREFIX_DL_FILES = `${CSI}/`;
 

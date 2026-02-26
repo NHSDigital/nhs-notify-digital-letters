@@ -26,3 +26,4 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 make -C "$ROOT/lambdas/mesh-acknowledge" package
 make -C "$ROOT/lambdas/mesh-poll" package
 make -C "$ROOT/lambdas/mesh-download" package
+make -C "$ROOT/lambdas/report-sender" package
