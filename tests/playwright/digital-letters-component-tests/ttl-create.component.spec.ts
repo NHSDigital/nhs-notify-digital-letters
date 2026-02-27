@@ -89,6 +89,7 @@ test.describe('Digital Letters - Create TTL', () => {
 
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
+    const unexpectedField = uuidv4();
 
     await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
       [
@@ -98,7 +99,7 @@ test.describe('Digital Letters - Create TTL', () => {
           data: {
             ...baseEvent.data,
             messageUri,
-            unexpectedField: 'I should not be here',
+            [unexpectedField]: 'I should not be here',
           },
         } as MESHInboxMessageDownloaded,
       ],
@@ -108,7 +109,10 @@ test.describe('Digital Letters - Create TTL', () => {
     await expectToPassEventually(async () => {
       const eventLogEntry = await getLogsFromCloudwatch(
         CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
-        ['$.message.err[0].message = "Error parsing ttl queue entry"'],
+        [
+          '$.message.description = "Error parsing ttl queue entry"',
+          `$.message.err[0].params.additionalProperty = "${unexpectedField}"`,
+        ],
       );
 
       expect(eventLogEntry.length).toEqual(1);
