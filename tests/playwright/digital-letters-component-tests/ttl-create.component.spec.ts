@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { CREATE_TTL_DLQ_NAME, CREATE_TTL_LAMBDA_LOG_GROUP_NAME, ENV } from 'constants/backend-constants';
+import {
+  CREATE_TTL_DLQ_NAME,
+  CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
+  ENV,
+} from 'constants/backend-constants';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
@@ -26,8 +30,7 @@ test.describe('Digital Letters - Create TTL', () => {
     time: '2023-06-20T12:00:00Z',
     recordedtime: '2023-06-20T12:00:00.250Z',
     severitynumber: 2,
-    traceparent:
-      '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+    traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
     datacontenttype: 'application/json',
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
@@ -52,8 +55,8 @@ test.describe('Digital Letters - Create TTL', () => {
           data: {
             ...baseEvent.data,
             messageUri,
-          }
-        }
+          },
+        },
       ],
       messageDownloadedValidator,
     );
@@ -97,7 +100,7 @@ test.describe('Digital Letters - Create TTL', () => {
             messageUri,
             unexpectedField: 'I should not be here',
           },
-        } as MESHInboxMessageDownloaded
+        } as MESHInboxMessageDownloaded,
       ],
       () => true,
     );
@@ -105,9 +108,7 @@ test.describe('Digital Letters - Create TTL', () => {
     await expectToPassEventually(async () => {
       const eventLogEntry = await getLogsFromCloudwatch(
         CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
-        [
-          '$.message.err[0].message = "Error parsing ttl queue entry"',
-        ],
+        ['$.message.err[0].message = "Error parsing ttl queue entry"'],
       );
 
       expect(eventLogEntry.length).toEqual(1);
