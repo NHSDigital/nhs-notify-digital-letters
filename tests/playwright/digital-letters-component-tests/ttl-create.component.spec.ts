@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ENV } from 'constants/backend-constants';
+import { CREATE_TTL_DLQ_NAME, CREATE_TTL_LAMBDA_LOG_GROUP_NAME, ENV } from 'constants/backend-constants';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
@@ -7,9 +7,39 @@ import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import { getTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
+import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Create TTL', () => {
+  test.beforeAll(async () => {
+    await purgeQueue(CREATE_TTL_DLQ_NAME);
+  });
+
+  const baseEvent: MESHInboxMessageDownloaded = {
+    id: 'id',
+    specversion: '1.0',
+    source:
+      '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
+    subject:
+      'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
+    type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
+    time: '2023-06-20T12:00:00Z',
+    recordedtime: '2023-06-20T12:00:00.250Z',
+    severitynumber: 2,
+    traceparent:
+      '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+    datacontenttype: 'application/json',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
+    severitytext: 'INFO',
+    data: {
+      meshMessageId: '12345',
+      messageUri: 'uri',
+      messageReference: 'ref1',
+      senderId: SENDER_ID_SKIPS_NOTIFY,
+    },
+  };
+
   test('should create TTL and publish item enqueued event following message downloaded event', async () => {
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
@@ -17,29 +47,13 @@ test.describe('Digital Letters - Create TTL', () => {
     await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
       [
         {
+          ...baseEvent,
           id: letterId,
-          specversion: '1.0',
-          source:
-            '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
-          subject:
-            'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-          type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
-          time: '2023-06-20T12:00:00Z',
-          recordedtime: '2023-06-20T12:00:00.250Z',
-          severitynumber: 2,
-          traceparent:
-            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
-          datacontenttype: 'application/json',
-          dataschema:
-            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
-          severitytext: 'INFO',
           data: {
-            meshMessageId: '12345',
+            ...baseEvent.data,
             messageUri,
-            messageReference: 'ref1',
-            senderId: SENDER_ID_SKIPS_NOTIFY,
-          },
-        },
+          }
+        }
       ],
       messageDownloadedValidator,
     );
@@ -64,5 +78,41 @@ test.describe('Digital Letters - Create TTL', () => {
 
       expect(eventLogEntry.length).toEqual(1);
     });
+  });
+
+  test('should send invalid event to dlq', async () => {
+    // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
+    test.setTimeout(550_000);
+
+    const letterId = uuidv4();
+    const messageUri = `https://example.com/ttl/resource/${letterId}`;
+
+    await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
+      [
+        {
+          ...baseEvent,
+          id: letterId,
+          data: {
+            ...baseEvent.data,
+            messageUri,
+            unexpectedField: 'I should not be here',
+          },
+        } as MESHInboxMessageDownloaded
+      ],
+      () => true,
+    );
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
+        [
+          '$.message.err[0].message = "Error parsing ttl queue entry"',
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    }, 120);
+
+    await expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 420);
   });
 });
