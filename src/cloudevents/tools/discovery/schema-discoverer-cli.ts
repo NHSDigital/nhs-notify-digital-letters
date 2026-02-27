@@ -48,7 +48,7 @@ export function handleCli(
   }
 
   // Convert to array and sort for consistent output
-  const sortedDeps = Array.from(result.dependencies).sort();
+  const sortedDeps = Array.from(result.dependencies).sort((a, b) => a.localeCompare(b));
 
   // Output each dependency on a new line (for easy consumption by make)
   for (const dep of sortedDeps) {
