@@ -250,7 +250,7 @@ export class DocsGenerator {
     // Load external schema function
     const loadExternalSchema = async (uri: string) => {
       try {
-        const cached = getCachedSchema(uri);
+        const cached = await getCachedSchema(uri);
         if (cached) {
           return cached;
         }

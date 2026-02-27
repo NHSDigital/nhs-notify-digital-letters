@@ -208,7 +208,7 @@ export class MoveFileHandler {
       subkey: getLastCharactersOfKey(objectDetails.objectKey),
     });
 
-    if (!(await this.isEventForDigitalLetters(scanDetail))) {
+    if (!this.isEventForDigitalLetters(scanDetail)) {
       this.logger.warn({
         description: 'Scan result event is not valid, skipping processing.',
         sourceBucket: objectDetails.bucketName,
