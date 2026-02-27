@@ -1,5 +1,5 @@
 module "core_notifier" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v3.0.1/terraform-lambda.zip"
 
   function_name = "core-notifier"
   description   = "A function to send messages to core Notify when a PDM resource is available"

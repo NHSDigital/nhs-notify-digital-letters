@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { ENV, REGION } from 'constants/backend-constants';
+import { ENV, FILE_SCANNER_DLQ_NAME, REGION } from 'constants/backend-constants';
 import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
+import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import {
   getS3ObjectBufferFromUri,
@@ -15,7 +16,12 @@ const UNSCANNED_FILES_BUCKET = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-main
 
 test.describe('File Scanner', () => {
   test.beforeAll(async () => {
+    await purgeQueue(FILE_SCANNER_DLQ_NAME);
     test.setTimeout(250_000);
+  });
+
+  test.afterAll(async () => {
+    await purgeQueue(FILE_SCANNER_DLQ_NAME);
   });
 
   test('should extract PDF from DocumentReference and store in unscanned bucket with metadata', async () => {
@@ -93,6 +99,7 @@ test.describe('File Scanner', () => {
   });
 
   test('should handle validation errors by sending messages to DLQ', async () => {
+    test.setTimeout(60_000);
     const messageReference = uuidv4();
     const senderId = 'TEST_SENDER_002';
     const documentReferenceKey = `document-reference/${messageReference}`;
@@ -139,10 +146,13 @@ test.describe('File Scanner', () => {
       itemDequeuedValidator,
     );
 
+    // Verify the file was NOT processed successfully
     await expectToPassEventually(async () => {
       const expectedKey = `${ENV}/${messageReference}.pdf`;
       const expectedUri = `s3://${UNSCANNED_FILES_BUCKET}/${expectedKey}`;
       await expect(getS3ObjectBufferFromUri(expectedUri)).rejects.toThrow();
-    }, 120);
+    }, 20);
+    // Verify there is a message in the DLQ
+    await expectMessageContainingString(FILE_SCANNER_DLQ_NAME, eventId, 40);
   });
 });

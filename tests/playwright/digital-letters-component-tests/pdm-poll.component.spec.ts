@@ -236,8 +236,7 @@ test.describe('PDM Poll', () => {
   });
 
   test('should send invalid event to poll dlq', async () => {
-    // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
-    test.setTimeout(550_000);
+    test.setTimeout(60_000);
 
     const eventId = uuidv4();
     const resourceId = 'b8f2b194-31e1-3719-aaf9-a9195e35e692';
@@ -272,8 +271,8 @@ test.describe('PDM Poll', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    }, 120);
+    }, 20);
 
-    await expectMessageContainingString(PDM_POLL_DLQ_NAME, eventId, 420);
+    await expectMessageContainingString(PDM_POLL_DLQ_NAME, eventId, 40);
   });
 });

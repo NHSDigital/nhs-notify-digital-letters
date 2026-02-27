@@ -1,5 +1,5 @@
 module "print_sender" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v3.0.1/terraform-lambda.zip"
 
   function_name = "print-sender"
   description   = "A function to trigger letter prints"

@@ -1,5 +1,5 @@
 module "kms" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.24/terraform-kms.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v3.0.1/terraform-kms.zip"
 
 
   providers = {

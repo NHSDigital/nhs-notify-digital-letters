@@ -1,5 +1,5 @@
 module "report_event_transformer" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v3.0.1/terraform-lambda.zip"
 
   function_name = "report-event-transformer"
   description   = "A function for transforming all digital letter events"

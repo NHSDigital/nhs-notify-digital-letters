@@ -1,5 +1,5 @@
 module "sqs_pdm_poll" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v3.0.1/terraform-sqs.zip"
 
   aws_account_id             = var.aws_account_id
   component                  = local.component
@@ -11,6 +11,7 @@ module "sqs_pdm_poll" {
   visibility_timeout_seconds = 60
   delay_seconds              = 5
   create_dlq                 = true
+  max_receive_count          = var.sqs_max_receive_count
   sqs_policy_overload        = data.aws_iam_policy_document.sqs_pdm_poll.json
 }
 

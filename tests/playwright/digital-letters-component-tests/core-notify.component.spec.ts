@@ -188,7 +188,7 @@ test.describe('Digital Letters - Core Notify', () => {
   });
 
   test('given PDMResourceAvailable event, when client does NOT exist then it goes to DLQ', async () => {
-    test.setTimeout(550_000);
+    test.setTimeout(60_000);
     const eventId = uuidv4();
     const messageReference = uuidv4();
 
@@ -217,8 +217,8 @@ test.describe('Digital Letters - Core Notify', () => {
       );
 
       expect(filteredLogs.length).toBeGreaterThanOrEqual(1);
-    }, 240);
+    }, 20);
     // Verify there is a message in the DLQ
-    await expectMessageContainingString(CORE_NOTIFIER_DLQ_NAME, eventId, 420);
+    await expectMessageContainingString(CORE_NOTIFIER_DLQ_NAME, eventId, 40);
   });
 });

@@ -1,5 +1,5 @@
 module "s3bucket_cf_logs" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-s3bucket.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v3.0.1/terraform-s3bucket.zip"
   providers = {
     aws = aws.us-east-1
   }

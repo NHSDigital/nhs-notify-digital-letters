@@ -1,5 +1,5 @@
 module "mesh_acknowledge" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v3.0.1/terraform-lambda.zip"
 
   function_name  = "mesh-acknowledge"
   description    = "A lambda function for acknowledging MESH messages"

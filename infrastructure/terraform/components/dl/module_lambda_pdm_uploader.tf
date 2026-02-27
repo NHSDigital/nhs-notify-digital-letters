@@ -1,5 +1,5 @@
 module "pdm_uploader" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v3.0.1/terraform-lambda.zip"
 
   function_name = "pdm-uploader"
   description   = "A function to upload documents to PDM"

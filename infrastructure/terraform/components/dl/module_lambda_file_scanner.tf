@@ -1,5 +1,5 @@
 module "file_scanner" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v3.0.1/terraform-lambda.zip"
 
   function_name = "file-scanner"
   description   = "A function for extracting PDFs from DocumentReference and storing in UnscannedFiles bucket for virus scanning"

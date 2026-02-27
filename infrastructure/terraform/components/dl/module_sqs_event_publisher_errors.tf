@@ -1,5 +1,5 @@
 module "sqs_event_publisher_errors" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-sqs.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v3.0.1/terraform-sqs.zip"
 
   aws_account_id = var.aws_account_id
   component      = local.component
