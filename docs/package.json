@@ -25,6 +25,9 @@
   "keywords": [],
   "license": "ISC",
   "name": "nhs-notify",
+  "overrides": {
+    "serialize-javascript": "^7.0.3"
+  },
   "private": true,
   "scripts": {
     "build": "webpack && bundle config set --local path 'vendor/bundle' && bundle install && bundle exec just-the-docs rake search:init && JEKYLL_ENV=production bundle exec jekyll build --trace --config _config.yml,_config.version.yml",
