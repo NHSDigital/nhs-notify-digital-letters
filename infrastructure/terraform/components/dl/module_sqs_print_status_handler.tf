@@ -11,7 +11,7 @@ module "sqs_print_status_handler" {
   visibility_timeout_seconds = 60
   delay_seconds              = 5
   create_dlq                 = true
-  max_receive_count          = var.sqs_max_receive_count
+  max_receive_count          = 1
   sqs_policy_overload        = data.aws_iam_policy_document.sqs_print_status_handler.json
 }
 

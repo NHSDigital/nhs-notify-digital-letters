@@ -10,7 +10,7 @@ module "sqs_print_sender" {
   sqs_kms_key_arn            = module.kms.key_arn
   visibility_timeout_seconds = 60
   create_dlq                 = true
-  max_receive_count          = var.sqs_max_receive_count
+  max_receive_count          = 1
   sqs_policy_overload        = data.aws_iam_policy_document.sqs_print_sender.json
 }
 
