@@ -181,9 +181,9 @@ test.describe('Digital Letters - Create TTL', () => {
             messageUri,
             senderId,
           },
-        } as MESHInboxMessageDownloaded,
+        },
       ],
-      () => true,
+      messageDownloadedValidator,
     );
 
     await expectToPassEventually(async () => {
