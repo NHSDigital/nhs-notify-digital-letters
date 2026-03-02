@@ -4,7 +4,10 @@ import {
   CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
   ENV,
 } from 'constants/backend-constants';
-import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
+import {
+  SENDER_ID_SKIPS_NOTIFY,
+  SENDER_ID_VALID_FOR_NOTIFY_SANDBOX,
+} from 'constants/tests-constants';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
@@ -39,7 +42,7 @@ test.describe('Digital Letters - Create TTL', () => {
       meshMessageId: '12345',
       messageUri: 'uri',
       messageReference: 'ref1',
-      senderId: SENDER_ID_SKIPS_NOTIFY,
+      senderId: SENDER_ID_VALID_FOR_NOTIFY_SANDBOX,
     },
   };
 
@@ -83,9 +86,49 @@ test.describe('Digital Letters - Create TTL', () => {
     });
   });
 
+  test('should create TTL and publish item enqueued event following message downloaded event - direct to print', async () => {
+    const letterId = uuidv4();
+    const messageUri = `https://example.com/ttl/resource/${letterId}`;
+
+    await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
+      [
+        {
+          ...baseEvent,
+          id: letterId,
+          data: {
+            ...baseEvent.data,
+            messageUri,
+            senderId: SENDER_ID_SKIPS_NOTIFY,
+          },
+        },
+      ],
+      messageDownloadedValidator,
+    );
+
+    // Verify TTL created
+    await expectToPassEventually(async () => {
+      const ttl = await getTtl(messageUri);
+
+      expect(ttl.length).toBe(1);
+    });
+
+    // Verify item enqueued event published
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.queue.item.enqueued.v1"',
+          `$.details.event_detail = "*\\"messageUri\\":\\"${messageUri}\\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    });
+  });
+
   test('should send invalid event to dlq', async () => {
-    // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
-    test.setTimeout(550_000);
+    test.setTimeout(250_000);
 
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
@@ -118,6 +161,40 @@ test.describe('Digital Letters - Create TTL', () => {
       expect(eventLogEntry.length).toEqual(1);
     }, 120);
 
-    await expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 420);
+    await expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 120);
+  });
+
+  test('should send events from unknown sender to dlq', async () => {
+    test.setTimeout(250_000);
+
+    const letterId = uuidv4();
+    const messageUri = `https://example.com/ttl/resource/${letterId}`;
+    const senderId = uuidv4();
+
+    await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
+      [
+        {
+          ...baseEvent,
+          id: letterId,
+          data: {
+            ...baseEvent.data,
+            messageUri,
+            senderId,
+          },
+        } as MESHInboxMessageDownloaded,
+      ],
+      () => true,
+    );
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
+        [`$.message.description = "Sender ${senderId} could not be retrieved"`],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    }, 120);
+
+    await expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 120);
   });
 });
