@@ -2,6 +2,18 @@ import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals
 import { parseArgs, handleCli } from '../schema-discoverer-cli.ts';
 import type { CliArgs } from '../schema-discoverer-types.ts';
 
+const mockSchemaDiscoverer = {
+  discover: jest.fn(),
+};
+
+jest.mock('../schema-discoverer.ts', () => {
+  return {
+    SchemaDiscoverer: jest.fn().mockImplementation(() => {
+      return mockSchemaDiscoverer;
+    }),
+  };
+});
+
 // Mock console methods
 let consoleLogSpy: jest.SpiedFunction<typeof console.log>;
 let consoleErrorSpy: jest.SpiedFunction<typeof console.error>;
@@ -68,6 +80,11 @@ describe('parseArgs', () => {
 
 describe('handleCli', () => {
   it('should return 1 on discovery failure for nonexistent file', () => {
+    mockSchemaDiscoverer.discover.mockReturnValue({
+      success: false,
+      errorMessage: 'File not found',
+    });
+
     const args: CliArgs = {
       rootSchemaPath: '/nonexistent/schema.yaml',
       baseOutputDir: '/output',
@@ -81,6 +98,23 @@ describe('handleCli', () => {
     );
   });
 
+  it('should return 0 and output dependencies on success', () => {
+    mockSchemaDiscoverer.discover.mockReturnValue({
+      success: true,
+      dependencies: new Set(['dep1.yaml', 'dep2.yaml']),
+    });
+
+    const args: CliArgs = {
+      rootSchemaPath: 'source.yaml',
+      baseOutputDir: '/output',
+    };
+
+    const exitCode = handleCli(args);
+
+    expect(exitCode).toBe(0);
+    expect(consoleLogSpy).toHaveBeenCalledWith('dep1.yaml');
+    expect(consoleLogSpy).toHaveBeenCalledWith('dep2.yaml');
+  });
   // Integration test - tests with real file system are in discover-schema-dependencies.test.ts
   // These tests verify the CLI argument parsing and output formatting
 });
