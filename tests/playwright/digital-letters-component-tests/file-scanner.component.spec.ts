@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { ENV, FILE_SCANNER_DLQ_NAME, REGION } from 'constants/backend-constants';
+import {
+  ENV,
+  FILE_SCANNER_DLQ_NAME,
+  REGION,
+} from 'constants/backend-constants';
 import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
