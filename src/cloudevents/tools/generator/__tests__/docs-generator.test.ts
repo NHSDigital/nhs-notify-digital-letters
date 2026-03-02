@@ -621,6 +621,30 @@ describe('DocsGenerator', () => {
       expect(result.success).toBe(true);
       expect(result.schemasProcessed).toBe(3);
     });
+
+    it('should handle schema files with HTTP references', async () => {
+      // Create schema file with HTTP reference
+      fs.writeFileSync(
+        path.join(INPUT_DIR, 'test.schema.json'),
+        JSON.stringify({
+          $id: 'test.schema.json',
+          type: 'object',
+          $ref: 'https://notify.nhs.uk/cloudevents/schemas/common/2025-11-draft/nhs-notify-profile.schema.json',
+        }),
+      );
+
+      const config: DocsGeneratorConfig = {
+        inputDir: INPUT_DIR,
+        outputDir: OUTPUT_DIR,
+        verbose: false,
+      };
+
+      const generator = new DocsGenerator(config);
+      const result = await generator.generate();
+
+      expect(result.success).toBe(true);
+      expect(result.schemasProcessed).toBeGreaterThanOrEqual(1);
+    });
   });
 
   describe('verbose logging', () => {
