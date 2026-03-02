@@ -1,4 +1,4 @@
-import { SQSRecord } from 'aws-lambda';
+import type { SQSRecord } from 'aws-lambda';
 import { Logger } from 'utils';
 import { PDMResourceAvailable } from 'digital-letters-events';
 import { InvalidPdmResourceAvailableEvent } from 'domain/invalid-pdm-resource-available-event';

@@ -1,7 +1,7 @@
 import { Logger } from 'utils/logger';
 import { S3Location, copyAndDeleteObjectS3, getS3ObjectMetadata } from 'utils';
 import { MoveScannedFilesConfig } from 'infra/config';
-import { GuardDutyScanResultNotificationEventDetail } from 'aws-lambda';
+import type { GuardDutyScanResultNotificationEventDetail } from 'aws-lambda';
 import { FileQuarantined, FileSafe } from 'digital-letters-events';
 import { createFileQuarantinedEvent, createFileSafeEvent } from 'domain/mapper';
 
