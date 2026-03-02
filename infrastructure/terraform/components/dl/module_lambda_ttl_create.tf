@@ -1,5 +1,5 @@
 module "ttl_create" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
 
   function_name = "ttl-create"
   description   = "A function for creating TTL records"
@@ -27,7 +27,6 @@ module "ttl_create" {
   memory                  = 128
   timeout                 = 60
   log_level               = var.log_level
-  max_receive_count       = var.sqs_max_receive_count
 
   force_lambda_code_deploy = var.force_lambda_code_deploy
   enable_lambda_insights   = false
