@@ -26,14 +26,14 @@ USAGE:
   npx ts-node scripts/terraform/bump-shared-modules.ts <version> [options]
 
 ARGUMENTS:
-  <version>     New version tag (e.g., v3.0.1)
+  <version>     New version tag (e.g., 3.0.1 or v3.0.1)
 
 OPTIONS:
   -h, --help    Show this help message
   --dry-run     Preview changes without modifying files
 
 EXAMPLES:
-  npx ts-node scripts/terraform/bump-shared-modules.ts v3.0.1
+  npx ts-node scripts/terraform/bump-shared-modules.ts 3.0.1
   npx ts-node scripts/terraform/bump-shared-modules.ts v3.0.1 --dry-run
 `);
 }
@@ -42,16 +42,16 @@ const args = process.argv.slice(2);
 const NEW_VERSION = args[0];
 const isDryRun = args.includes("--dry-run");
 
-const VERSION_FORMAT = /^v\d+\.\d+\.\d+$/;
-
-if (!VERSION_FORMAT.test(NEW_VERSION)) {
-  console.error("Version must match format vX.Y.Z");
-  process.exit(1);
-}
+const VERSION_FORMAT = /^v?\d+\.\d+\.\d+$/;
 
 if (!NEW_VERSION || NEW_VERSION === "-h" || NEW_VERSION === "--help") {
   showHelp();
   process.exit(NEW_VERSION ? 0 : 1);
+}
+
+if (!VERSION_FORMAT.test(NEW_VERSION)) {
+  console.error("Version must match format X.Y.Z or vX.Y.Z");
+  process.exit(1);
 }
 
 const TARGET_DIR = path.resolve(
