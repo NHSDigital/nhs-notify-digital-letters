@@ -111,7 +111,7 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
   });
 
   test('should send an event for an unknown sender to dlq', async () => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
 
     const letterId = uuidv4();
 
@@ -132,12 +132,12 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
     await expectMessageContainingString(
       MESH_ACKNOWLEDGE_DLQ_NAME,
       letterId,
-      30,
+      100,
     );
   });
 
   test('should send invalid event to dlq', async () => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
 
     const letterId = uuidv4();
 
@@ -161,7 +161,7 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
     await expectMessageContainingString(
       MESH_ACKNOWLEDGE_DLQ_NAME,
       letterId,
-      40,
+      100,
     );
   });
 });

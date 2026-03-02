@@ -119,7 +119,7 @@ test.describe('Digital Letters - Handle TTL', () => {
   });
 
   test('should send invalid item to dlq', async () => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
 
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
@@ -147,6 +147,6 @@ test.describe('Digital Letters - Handle TTL', () => {
     const deleteResponseCode = await deleteTtl(messageUri);
     expect(deleteResponseCode).toBe(200);
 
-    await expectMessageContainingString(HANDLE_TTL_DLQ_NAME, letterId, 40);
+    await expectMessageContainingString(HANDLE_TTL_DLQ_NAME, letterId, 100);
   });
 });

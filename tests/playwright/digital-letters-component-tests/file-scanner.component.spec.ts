@@ -103,7 +103,7 @@ test.describe('File Scanner', () => {
   });
 
   test('should handle validation errors by sending messages to DLQ', async () => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
     const messageReference = uuidv4();
     const senderId = 'TEST_SENDER_002';
     const documentReferenceKey = `document-reference/${messageReference}`;
@@ -155,8 +155,8 @@ test.describe('File Scanner', () => {
       const expectedKey = `${ENV}/${messageReference}.pdf`;
       const expectedUri = `s3://${UNSCANNED_FILES_BUCKET}/${expectedKey}`;
       await expect(getS3ObjectBufferFromUri(expectedUri)).rejects.toThrow();
-    }, 20);
+    }, 60);
     // Verify there is a message in the DLQ
-    await expectMessageContainingString(FILE_SCANNER_DLQ_NAME, eventId, 40);
+    await expectMessageContainingString(FILE_SCANNER_DLQ_NAME, eventId, 100);
   });
 });

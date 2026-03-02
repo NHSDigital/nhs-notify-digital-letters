@@ -23,7 +23,7 @@ Updates all Terraform module source URLs to use a new version
 of the nhs-notify-shared-modules repository.
 
 USAGE:
-  npx ts-node scripts/terraform/bump-shared-modules.ts <version> [options]
+  npm run bump-terraform-modules <version> [options]
 
 ARGUMENTS:
   <version>     New version tag (e.g., 3.0.1 or v3.0.1)
@@ -33,8 +33,8 @@ OPTIONS:
   --dry-run     Preview changes without modifying files
 
 EXAMPLES:
-  npx ts-node scripts/terraform/bump-shared-modules.ts 3.0.1
-  npx ts-node scripts/terraform/bump-shared-modules.ts v3.0.1 --dry-run
+  npm run bump-terraform-modules 3.0.1
+  npm run bump-terraform-modules 3.0.1 --dry-run
 `);
 }
 
@@ -54,8 +54,9 @@ if (!VERSION_FORMAT.test(NEW_VERSION)) {
   process.exit(1);
 }
 
-const TARGET_DIR = path.resolve(
-  process.cwd(),
+const REPO_ROOT = path.resolve(__dirname, "../..");
+const TARGET_DIR = path.join(
+  REPO_ROOT,
   "infrastructure/terraform/components/dl"
 );
 
@@ -99,7 +100,7 @@ for (const file of tfFiles) {
     const uniqueVersions = new Set(matches);
 
     fileChanges.push({
-      file: path.relative(process.cwd(), file),
+      file: path.relative(REPO_ROOT, file),
       versions: uniqueVersions,
       count: matches.length,
     });

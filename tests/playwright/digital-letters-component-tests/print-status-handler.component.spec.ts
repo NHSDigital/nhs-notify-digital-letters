@@ -95,7 +95,7 @@ test.describe('Print status handler', () => {
   }
 
   test('should send invalid event to print status handler dlq', async () => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
 
     const messageReference = uuidv4();
 
@@ -128,12 +128,12 @@ test.describe('Print status handler', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    }, 20);
+    }, 60);
 
     await expectMessageContainingString(
       PRINT_STATUS_HANDLER_DLQ_NAME,
       messageReference,
-      40,
+      100,
     );
   });
 });

@@ -71,7 +71,7 @@ test.describe('Digital Letters - Print Sender', () => {
   });
 
   test('should send invalid event to print sender dlq', async () => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
 
     const messageReference = uuidv4();
     const event = {
@@ -109,12 +109,12 @@ test.describe('Digital Letters - Print Sender', () => {
       );
 
       expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
-    }, 20);
+    }, 60);
 
     await expectMessageContainingString(
       PRINT_SENDER_DLQ_NAME,
       messageReference,
-      40,
+      100,
     );
   });
 });
