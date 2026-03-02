@@ -3,6 +3,7 @@ Module for configuring Mesh Poll application
 """
 from dl_utils import BaseMeshConfig, Metric, log
 
+__all__ = ['Config', 'log']
 
 _REQUIRED_ENV_VAR_MAP = {
     "ssm_senders_prefix": "SSM_SENDERS_PREFIX",
