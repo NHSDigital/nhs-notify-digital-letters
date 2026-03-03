@@ -41,7 +41,7 @@ module "s3bucket_reporting" {
       }
     },
     {
-      prefix  = "transactional-reports"
+      prefix  = "event-reports"
       enabled = true
 
       expiration = {

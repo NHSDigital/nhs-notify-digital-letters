@@ -74,7 +74,7 @@ describe('ReportGenerator', () => {
       expect(mockReportService.generateReport).toHaveBeenCalledWith(
         mockQuery,
         ["'2025-01-15'", "'sender-123'"],
-        'transactional-reports/sender-123/completed_communications/completed_communications_2025-01-15.csv',
+        'event-reports/sender-123/completed_communications/completed_communications_2025-01-15.csv',
       );
       expect(result).toEqual({
         outcome: 'generated',

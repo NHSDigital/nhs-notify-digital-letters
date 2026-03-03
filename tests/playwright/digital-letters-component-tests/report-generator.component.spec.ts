@@ -158,7 +158,7 @@ test.describe('Digital Letters - Report Generator', () => {
     );
 
     // Perform assertions that the report generation and publishing the ReportGenerated are ok.
-    const reportKey = `transactional-reports/${senderId}/completed_communications/completed_communications_${reportDate}.csv`;
+    const reportKey = `event-reports/${senderId}/completed_communications/completed_communications_${reportDate}.csv`;
 
     await assertReportIsPublishedInReportingBucket(reportKey);
 
@@ -196,7 +196,7 @@ test.describe('Digital Letters - Report Generator', () => {
     );
 
     // Perform assertions that the report generation and publishing the ReportGenerated are ok.
-    const reportKey = `transactional-reports/${unknownSenderId}/completed_communications/completed_communications_${reportDate}.csv`;
+    const reportKey = `event-reports/${unknownSenderId}/completed_communications/completed_communications_${reportDate}.csv`;
 
     await assertReportIsPublishedInReportingBucket(reportKey);
 

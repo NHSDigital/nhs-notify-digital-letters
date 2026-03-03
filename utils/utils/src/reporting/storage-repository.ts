@@ -28,7 +28,7 @@ export class S3StorageRepository implements IStorageRepository {
   }
 
   async publishReport(reportQueryId: string, reportFilePath: string) {
-    this.logger.debug(
+    this.logger.info(
       `Publishing report data to ${reportFilePath} for query ${reportQueryId}`,
     );
 
