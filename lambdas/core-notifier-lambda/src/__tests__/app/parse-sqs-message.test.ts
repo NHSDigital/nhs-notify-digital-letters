@@ -1,4 +1,4 @@
-import { SQSRecord } from 'aws-lambda';
+import type { SQSRecord } from 'aws-lambda';
 import { mock } from 'jest-mock-extended';
 import { Logger } from 'utils';
 import { parseSqsRecord } from 'app/parse-sqs-message';

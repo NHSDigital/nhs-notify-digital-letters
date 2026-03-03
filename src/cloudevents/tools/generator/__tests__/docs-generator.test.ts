@@ -3,11 +3,12 @@
  * Tests the core documentation generation logic
  */
 
-import { beforeEach, afterEach, describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import fs from 'fs';
+import nock from 'nock';
 import path from 'path';
-import { DocsGenerator } from '../docs-generator/docs-generator.ts';
 import type { DocsGeneratorConfig } from '../docs-generator/docs-generator-types.ts';
+import { DocsGenerator } from '../docs-generator/docs-generator.ts';
 
 const TEST_DIR = path.join(__dirname, 'temp-docs-generator-test');
 const INPUT_DIR = path.join(TEST_DIR, 'input');
@@ -620,6 +621,40 @@ describe('DocsGenerator', () => {
       }
       expect(result.success).toBe(true);
       expect(result.schemasProcessed).toBe(3);
+    });
+
+    it('should handle schema files with HTTP references', async () => {
+      const externalSchemaUrl =
+        "http://example.com/schema.json";
+
+      nock('http://example.com')
+        .get('/schema.json')
+        .reply(200, {
+          $id: 'external.schema.json',
+          type: 'object',
+        });
+
+      // Create schema file with HTTP reference
+      fs.writeFileSync(
+        path.join(INPUT_DIR, 'test.schema.json'),
+        JSON.stringify({
+          $id: 'test.schema.json',
+          type: 'object',
+          $ref: externalSchemaUrl,
+        }),
+      );
+
+      const config: DocsGeneratorConfig = {
+        inputDir: INPUT_DIR,
+        outputDir: OUTPUT_DIR,
+        verbose: false,
+      };
+
+      const generator = new DocsGenerator(config);
+      const result = await generator.generate();
+
+      expect(result.success).toBe(true);
+      expect(result.schemasProcessed).toBeGreaterThanOrEqual(1);
     });
   });
 

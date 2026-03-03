@@ -1,4 +1,4 @@
-import { ScheduledEvent } from 'aws-lambda';
+import type { ScheduledEvent } from 'aws-lambda';
 import { Logger } from 'utils';
 import { mock } from 'jest-mock-extended';
 import { EventDetail, createHandler } from 'apis/scheduled-event-handler';
