@@ -33,8 +33,8 @@ OPTIONS:
   --dry-run     Preview changes without modifying files
 
 EXAMPLES:
-  npm run bump-terraform-modules 3.0.1
-  npm run bump-terraform-modules 3.0.1 --dry-run
+  npm run bump-terraform-modules -- 3.0.1
+  npm run bump-terraform-modules -- 3.0.1 --dry-run
 `);
 }
 
@@ -65,7 +65,7 @@ if (!fs.existsSync(TARGET_DIR)) {
   process.exit(1);
 }
 
-const VERSION_REGEX = /releases\/download\/v\d+\.\d+\.\d+/g;
+const VERSION_REGEX = /releases\/download\/v?\d+\.\d+\.\d+/g;
 
 function getTfFiles(dir: string, files: string[] = []): string[] {
   for (const entry of fs.readdirSync(dir)) {
