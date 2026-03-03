@@ -262,17 +262,19 @@ test.describe('PDM Poll', () => {
       () => true,
     );
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        PDM_POLL_LAMBDA_LOG_GROUP_NAME,
-        [
-          `$.message.err[0].message = "must have required property 'retryCount'"`,
-        ],
-      );
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          PDM_POLL_LAMBDA_LOG_GROUP_NAME,
+          [
+            `$.message.err[0].message = "must have required property 'retryCount'"`,
+          ],
+        );
 
-      expect(eventLogEntry.length).toEqual(1);
-    }, 100);
+        expect(eventLogEntry.length).toEqual(1);
+      }, 100),
 
-    await expectMessageContainingString(PDM_POLL_DLQ_NAME, eventId, 100);
+      expectMessageContainingString(PDM_POLL_DLQ_NAME, eventId, 100),
+    ])
   });
 });

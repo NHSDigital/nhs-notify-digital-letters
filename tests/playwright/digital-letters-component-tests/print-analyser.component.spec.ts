@@ -99,23 +99,25 @@ test.describe('Print analyser', () => {
 
     await eventPublisher.sendEvents<FileSafe>([event], () => true);
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME,
-        [
-          '$.message.description = "Error parsing print analyser queue entry"',
-          `$.message.err[0].message = "must have required property 'senderId'"`,
-          `$.message.messageReference = "${messageReference}"`,
-        ],
-      );
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME,
+          [
+            '$.message.description = "Error parsing print analyser queue entry"',
+            `$.message.err[0].message = "must have required property 'senderId'"`,
+            `$.message.messageReference = "${messageReference}"`,
+          ],
+        );
 
-      expect(eventLogEntry.length).toEqual(1);
-    }, 100);
+        expect(eventLogEntry.length).toEqual(1);
+      }, 100),
 
-    await expectMessageContainingString(
-      PRINT_ANALYSER_DLQ_NAME,
-      messageReference,
-      100,
-    );
+      expectMessageContainingString(
+        PRINT_ANALYSER_DLQ_NAME,
+        messageReference,
+        100,
+      ),
+    ]);
   });
 });

@@ -200,19 +200,21 @@ test.describe('Digital Letters - Upload to PDM', () => {
       () => true,
     );
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        EVENT_BUS_LOG_GROUP_NAME,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-        ],
-      );
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          EVENT_BUS_LOG_GROUP_NAME,
+          [
+            '$.message_type = "EVENT_RECEIPT"',
+            '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1"',
+            `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+          ],
+        );
 
-      expect(eventLogEntry.length).toEqual(1);
-    }, 100);
+        expect(eventLogEntry.length).toEqual(1);
+      }, 100),
 
-    await expectMessageContainingString(PDM_UPLOADER_DLQ_NAME, eventId, 100);
+      expectMessageContainingString(PDM_UPLOADER_DLQ_NAME, eventId, 100),
+    ]);
   });
 });

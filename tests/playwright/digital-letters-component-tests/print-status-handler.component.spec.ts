@@ -118,22 +118,24 @@ test.describe('Print status handler', () => {
       () => true,
     );
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
-        [
-          String.raw`$.message.err.message = "*Invalid option: expected one of \\\"PENDING\\\"*"`,
-          '$.message.description = "Error parsing queue item"',
-        ],
-      );
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
+          [
+            String.raw`$.message.err.message = "*Invalid option: expected one of \\\"PENDING\\\"*"`,
+            '$.message.description = "Error parsing queue item"',
+          ],
+        );
 
-      expect(eventLogEntry.length).toEqual(1);
-    }, 100);
+        expect(eventLogEntry.length).toEqual(1);
+      }, 100),
 
-    await expectMessageContainingString(
-      PRINT_STATUS_HANDLER_DLQ_NAME,
-      messageReference,
-      100,
-    );
+      expectMessageContainingString(
+        PRINT_STATUS_HANDLER_DLQ_NAME,
+        messageReference,
+        100,
+      ),
+    ]);
   });
 });
