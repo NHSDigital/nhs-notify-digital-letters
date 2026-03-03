@@ -13,7 +13,6 @@ import generateReportValidator from 'digital-letters-events/GenerateReport.js';
 import reportGeneratedValidator from 'digital-letters-events/ReportGenerated.js';
 import { GenerateReport, ReportGenerated } from 'digital-letters-events';
 import { EventPublisher, Logger } from 'utils';
-import { Dlq } from 'app/dlq';
 
 interface ProcessingResult {
   result: ReportGeneratorResult;
@@ -24,7 +23,6 @@ interface CreateHandlerDependencies {
   reportGenerator: ReportGenerator;
   eventPublisher: EventPublisher;
   logger: Logger;
-  dlq: Dlq;
 }
 
 interface ValidatedRecord {
@@ -126,13 +124,8 @@ function categorizeResults(
 async function publishSuccessfulEvents(
   successfulItems: { event: GenerateReport; reportUri: string }[],
   eventPublisher: EventPublisher,
-  logger: Logger,
-  dlq: Dlq,
-): Promise<GenerateReport[]> {
+): Promise<ReportGenerated[]> {
   if (successfulItems.length === 0) return [];
-
-  // Map ReportGenerated event IDs to their original GenerateReport events
-  const reportGeneratedIdToOriginalEvent = new Map<string, GenerateReport>();
   const reportGeneratedEvents: ReportGenerated[] = successfulItems.map(
     ({ event, reportUri }) => {
       const generatedEventId = randomUUID();
@@ -149,40 +142,20 @@ async function publishSuccessfulEvents(
           reportUri,
         },
       };
-      reportGeneratedIdToOriginalEvent.set(generatedEventId, event);
       return reportGeneratedEvent;
     },
   );
 
-  try {
-    const submittedFailedEvents =
-      await eventPublisher.sendEvents<ReportGenerated>(
-        reportGeneratedEvents,
-        reportGeneratedValidator,
-      );
-    if (submittedFailedEvents.length > 0) {
-      // Map failed ReportGenerated events back to their original GenerateReport events
-      const originalEventsToSendToDlq = submittedFailedEvents.map(
-        (failedEvent) => reportGeneratedIdToOriginalEvent.get(failedEvent.id),
-      ) as GenerateReport[];
+  const submittedFailedEvents =
+    await eventPublisher.sendEvents<ReportGenerated>(
+      reportGeneratedEvents,
+      reportGeneratedValidator,
+    );
 
-      return await dlq.send(originalEventsToSendToDlq);
-    }
-    return [];
-  } catch (error) {
-    logger.warn({
-      err: error,
-      description: 'Failed to send successful events to EventBridge',
-      eventCount: successfulItems.length,
-    });
-    // Try to send all original events to DLQ since we couldn't publish any
-    const allOriginalEvents = successfulItems.map(({ event }) => event);
-    return dlq.send(allOriginalEvents);
-  }
+  return submittedFailedEvents;
 }
 
 export const createHandler = ({
-  dlq,
   eventPublisher,
   logger,
   reportGenerator,
@@ -210,8 +183,6 @@ export const createHandler = ({
     const eventsFailedToPublish = await publishSuccessfulEvents(
       successfulItems,
       eventPublisher,
-      logger,
-      dlq,
     );
 
     // we have the GenerateReport but we need to report back the messageId of the record.

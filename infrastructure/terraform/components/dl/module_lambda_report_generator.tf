@@ -43,7 +43,6 @@ module "report_generator" {
     "REPORTING_BUCKET"              = module.s3bucket_reporting.bucket
     "REPORT_NAME"                   = "completed_communications"
     "WAIT_FOR_IN_SECONDS"           = var.athena_query_polling_time_seconds
-    "DLQ_URL"                       = module.sqs_report_generator.sqs_dlq_arn
   }
 }
 

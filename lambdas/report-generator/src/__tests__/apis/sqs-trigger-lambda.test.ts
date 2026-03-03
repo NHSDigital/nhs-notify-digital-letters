@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { GenerateReport } from 'digital-letters-events';
+import { GenerateReport, ReportGenerated } from 'digital-letters-events';
 import { EventPublisher, Logger } from 'utils';
 import type { SQSEvent, SQSRecord } from 'aws-lambda';
 import type {
@@ -7,7 +7,6 @@ import type {
   ReportGeneratorResult,
 } from 'app/report-generator';
 import { createHandler } from 'apis/sqs-trigger-lambda';
-import type { Dlq } from 'app/dlq';
 
 jest.mock('node:crypto');
 
@@ -66,7 +65,6 @@ describe('sqs-trigger-lambda', () => {
   let mockReportGenerator: jest.Mocked<ReportGenerator>;
   let mockEventPublisher: jest.Mocked<EventPublisher>;
   let mockLogger: jest.Mocked<Logger>;
-  let mockDlq: jest.Mocked<Dlq>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -85,10 +83,6 @@ describe('sqs-trigger-lambda', () => {
       warn: jest.fn(),
       error: jest.fn(),
     } as unknown as jest.Mocked<Logger>;
-
-    mockDlq = {
-      send: jest.fn().mockResolvedValue([]),
-    } as unknown as jest.Mocked<Dlq>;
   });
 
   describe('createHandler', () => {
@@ -107,7 +101,6 @@ describe('sqs-trigger-lambda', () => {
         reportGenerator: mockReportGenerator,
         eventPublisher: mockEventPublisher,
         logger: mockLogger,
-        dlq: mockDlq,
       });
 
       const response = await handler(sqsEvent);
@@ -125,6 +118,43 @@ describe('sqs-trigger-lambda', () => {
       );
     });
 
+    it('should return batch item failures when report generated event failed to be published', async () => {
+      const reportUri = 's3://bucket/report.csv';
+      const mockResult: ReportGeneratorResult = {
+        outcome: 'generated',
+        reportUri,
+      };
+      mockReportGenerator.generate.mockResolvedValue(mockResult);
+
+      const record = createMockSQSRecord('msg-1', { id: 'event-id-1' });
+      const record2 = createMockSQSRecord('msg-2', { id: 'event-id-2' });
+      const record3 = createMockSQSRecord('msg-3', { id: 'event-id-3' });
+      const sqsEvent = createMockSQSEvent([record, record2, record3]);
+
+      mockEventPublisher.sendEvents.mockResolvedValue([
+        {
+          id: 'event-id-1',
+        } as unknown as ReportGenerated,
+        {
+          id: 'event-id-3',
+        } as unknown as ReportGenerated,
+      ]);
+
+      const handler = createHandler({
+        reportGenerator: mockReportGenerator,
+        eventPublisher: mockEventPublisher,
+        logger: mockLogger,
+      });
+
+      const response = await handler(sqsEvent);
+
+      expect(response.batchItemFailures).toEqual([
+        { itemIdentifier: 'msg-1' },
+        { itemIdentifier: 'msg-3' },
+      ]);
+      expect(mockEventPublisher.sendEvents).toHaveBeenCalledTimes(1);
+    });
+
     it('should handle invalid JSON in SQS record body', async () => {
       const sqsEvent: SQSEvent = {
         Records: [
@@ -139,7 +169,6 @@ describe('sqs-trigger-lambda', () => {
         reportGenerator: mockReportGenerator,
         eventPublisher: mockEventPublisher,
         logger: mockLogger,
-        dlq: mockDlq,
       });
 
       const response = await handler(sqsEvent);
@@ -164,7 +193,6 @@ describe('sqs-trigger-lambda', () => {
         reportGenerator: mockReportGenerator,
         eventPublisher: mockEventPublisher,
         logger: mockLogger,
-        dlq: mockDlq,
       });
 
       const response = await handler(sqsEvent);
@@ -189,7 +217,6 @@ describe('sqs-trigger-lambda', () => {
         reportGenerator: mockReportGenerator,
         eventPublisher: mockEventPublisher,
         logger: mockLogger,
-        dlq: mockDlq,
       });
 
       const response = await handler(sqsEvent);
@@ -214,7 +241,6 @@ describe('sqs-trigger-lambda', () => {
         reportGenerator: mockReportGenerator,
         eventPublisher: mockEventPublisher,
         logger: mockLogger,
-        dlq: mockDlq,
       });
 
       const response = await handler(sqsEvent);
@@ -240,7 +266,6 @@ describe('sqs-trigger-lambda', () => {
         reportGenerator: mockReportGenerator,
         eventPublisher: mockEventPublisher,
         logger: mockLogger,
-        dlq: mockDlq,
       });
 
       await handler(sqsEvent);
@@ -262,7 +287,6 @@ describe('sqs-trigger-lambda', () => {
         reportGenerator: mockReportGenerator,
         eventPublisher: mockEventPublisher,
         logger: mockLogger,
-        dlq: mockDlq,
       });
 
       await handler(sqsEvent);
@@ -282,162 +306,6 @@ describe('sqs-trigger-lambda', () => {
         ],
         expect.any(Function),
       );
-      expect(mockDlq.send).not.toHaveBeenCalled();
-    });
-
-    it('should send multiple original events to DLQ when multiple ReportGenerated events fail', async () => {
-      const reportUri1 = 's3://bucket/report1.csv';
-      const reportUri2 = 's3://bucket/report2.csv';
-      const mockUuid1 = '123e4567-e89b-12d3-a456-426614174001';
-      const mockUuid2 = '123e4567-e89b-12d3-a456-426614174002';
-
-      jest
-        .mocked(randomUUID)
-        .mockReturnValueOnce(mockUuid1)
-        .mockReturnValueOnce(mockUuid2);
-
-      mockReportGenerator.generate
-        .mockResolvedValueOnce({ outcome: 'generated', reportUri: reportUri1 })
-        .mockResolvedValueOnce({ outcome: 'generated', reportUri: reportUri2 });
-
-      const failedReportGeneratedEvents = [
-        { id: mockUuid1, source: 'event-source', type: 'event-type' },
-        { id: mockUuid2, source: 'event-source', type: 'event-type' },
-      ];
-      mockEventPublisher.sendEvents.mockResolvedValue(
-        failedReportGeneratedEvents,
-      );
-
-      const record1 = createMockSQSRecord('msg-1', {
-        data: { senderId: 'sender-1', reportDate: '2025-01-01' } as any,
-      });
-      const record2 = createMockSQSRecord('msg-2', {
-        data: { senderId: 'sender-2', reportDate: '2025-05-02' } as any,
-      });
-
-      const record3 = createMockSQSRecord('msg-3', {});
-      const sqsEvent = createMockSQSEvent([record1, record2, record3]);
-
-      const handler = createHandler({
-        reportGenerator: mockReportGenerator,
-        eventPublisher: mockEventPublisher,
-        logger: mockLogger,
-        dlq: mockDlq,
-      });
-
-      await handler(sqsEvent);
-
-      expect(mockDlq.send).toHaveBeenCalledTimes(1);
-      expect(mockDlq.send).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({
-            type: 'uk.nhs.notify.digital.letters.reporting.generate.report.v1',
-            data: { senderId: 'sender-1', reportDate: '2025-01-01' },
-          }),
-          expect.objectContaining({
-            type: 'uk.nhs.notify.digital.letters.reporting.generate.report.v1',
-            data: { senderId: 'sender-2', reportDate: '2025-05-02' },
-          }),
-        ]),
-      );
-    });
-
-    it('should log a warning if publishing events throws an exception', async () => {
-      const reportUri = 's3://bucket/report.csv';
-      const error = new Error('Publish error');
-      mockReportGenerator.generate.mockResolvedValue({
-        outcome: 'generated',
-        reportUri,
-      });
-      mockEventPublisher.sendEvents.mockRejectedValue(error);
-
-      const record = createMockSQSRecord('msg-1', {});
-      const sqsEvent = createMockSQSEvent([record]);
-
-      const handler = createHandler({
-        reportGenerator: mockReportGenerator,
-        eventPublisher: mockEventPublisher,
-        logger: mockLogger,
-        dlq: mockDlq,
-      });
-
-      await handler(sqsEvent);
-
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        expect.objectContaining({
-          err: error,
-          description: 'Failed to send successful events to EventBridge',
-          eventCount: 1,
-        }),
-      );
-      expect(mockDlq.send).toHaveBeenCalledWith([
-        expect.objectContaining({
-          type: 'uk.nhs.notify.digital.letters.reporting.generate.report.v1',
-        }),
-      ]);
-    });
-
-    it('should add to batch failures when DLQ send fails for some events', async () => {
-      const reportUri1 = 's3://bucket/report1.csv';
-      const reportUri2 = 's3://bucket/report2.csv';
-      const mockUuid1 = '123e4567-e89b-12d3-a456-426614174001';
-      const mockUuid2 = '123e4567-e89b-12d3-a456-426614174002';
-      const event1Id = 'event-1-id';
-      const event2Id = 'event-2-id';
-
-      jest
-        .mocked(randomUUID)
-        .mockReturnValueOnce(mockUuid1)
-        .mockReturnValueOnce(mockUuid2);
-
-      mockReportGenerator.generate
-        .mockResolvedValueOnce({ outcome: 'generated', reportUri: reportUri1 })
-        .mockResolvedValueOnce({ outcome: 'generated', reportUri: reportUri2 });
-
-      const failedReportGeneratedEvents = [
-        { id: mockUuid1, source: 'event-source', type: 'event-type' },
-        { id: mockUuid2, source: 'event-source', type: 'event-type' },
-      ];
-      mockEventPublisher.sendEvents.mockResolvedValue(
-        failedReportGeneratedEvents,
-      );
-
-      // Simulate DLQ failing to send the first event but succeeding for the second
-      const record1 = createMockSQSRecord('msg-1', {
-        id: event1Id,
-        data: { senderId: 'sender-1', reportDate: '2025-01-01' } as any,
-      });
-      const record2 = createMockSQSRecord('msg-2', {
-        id: event2Id,
-        data: { senderId: 'sender-2', reportDate: '2025-05-02' } as any,
-      });
-
-      // DLQ.send returns the events that failed to send to DLQ
-      mockDlq.send.mockImplementation(async (events: GenerateReport[]) => {
-        // Return only the first event as failed to send to DLQ
-        return [events[0]];
-      });
-
-      const sqsEvent = createMockSQSEvent([record1, record2]);
-
-      const handler = createHandler({
-        reportGenerator: mockReportGenerator,
-        eventPublisher: mockEventPublisher,
-        logger: mockLogger,
-        dlq: mockDlq,
-      });
-
-      const response = await handler(sqsEvent);
-
-      expect(mockDlq.send).toHaveBeenCalledTimes(1);
-      expect(response.batchItemFailures).toContainEqual({
-        itemIdentifier: 'msg-1',
-      });
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.objectContaining({
-          failedToPublish: 1,
-        }),
-      );
     });
 
     it('should handle promise rejection during processing', async () => {
@@ -453,7 +321,6 @@ describe('sqs-trigger-lambda', () => {
         reportGenerator: mockReportGenerator,
         eventPublisher: mockEventPublisher,
         logger: mockLogger,
-        dlq: mockDlq,
       });
 
       const response = await handler(sqsEvent);
