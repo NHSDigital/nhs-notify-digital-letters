@@ -275,6 +275,6 @@ test.describe('PDM Poll', () => {
       }, 100),
 
       expectMessageContainingString(PDM_POLL_DLQ_NAME, eventId, 100),
-    ])
+    ]);
   });
 });
