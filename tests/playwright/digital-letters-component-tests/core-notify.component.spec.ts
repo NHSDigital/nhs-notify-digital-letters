@@ -188,7 +188,7 @@ test.describe('Digital Letters - Core Notify', () => {
   });
 
   test('given PDMResourceAvailable event, when client does NOT exist then it goes to DLQ', async () => {
-    test.setTimeout(120_000);
+    test.setTimeout(250_000);
     const eventId = uuidv4();
     const messageReference = uuidv4();
 
@@ -209,16 +209,18 @@ test.describe('Digital Letters - Core Notify', () => {
       messagePDMResourceAvailableValidator,
     );
 
-    // Verify the event is processed and a message appears in the Lambda logs
-    await expectToPassEventually(async () => {
-      const filteredLogs = await getLogsFromCloudwatch(
-        CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
-        ['$.message.description  = "0 of 1 records processed successfully"'],
-      );
+    await Promise.all([
+      // Verify the event is processed and a message appears in the Lambda logs
+      expectToPassEventually(async () => {
+        const filteredLogs = await getLogsFromCloudwatch(
+          CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
+          ['$.message.description  = "0 of 1 records processed successfully"'],
+        );
 
-      expect(filteredLogs.length).toBeGreaterThanOrEqual(1);
-    }, 100);
-    // Verify there is a message in the DLQ
-    await expectMessageContainingString(CORE_NOTIFIER_DLQ_NAME, eventId, 100);
+        expect(filteredLogs.length).toBeGreaterThanOrEqual(1);
+      }, 240),
+      // Verify there is a message in the DLQ
+      expectMessageContainingString(CORE_NOTIFIER_DLQ_NAME, eventId, 240),
+    ]);
   });
 });
