@@ -1,4 +1,4 @@
-import { GuardDutyScanResultNotificationEvent } from 'aws-lambda';
+import type { GuardDutyScanResultNotificationEvent } from 'aws-lambda';
 
 const baseEvent: GuardDutyScanResultNotificationEvent = {
   id: '72c7d362-737a-6dce-fc78-9e27a0171419',

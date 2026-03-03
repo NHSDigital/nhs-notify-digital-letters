@@ -4,14 +4,14 @@
     "@fontsource/source-sans-pro": "^5.0.8",
     "canvg": "^4.0.1",
     "jquery": "^3.7.0",
-    "mermaid": "11.12.0",
+    "mermaid": "^11.12.0",
     "nhsuk-frontend": "^8.1.1",
     "reveal.js": "^4.5.0",
     "reveal.js-menu": "^2.1.0"
   },
   "description": "",
   "devDependencies": {
-    "copy-webpack-plugin": "^11.0.0",
+    "copy-webpack-plugin": "^13.0.1",
     "css-loader": "^6.8.1",
     "mini-css-extract-plugin": "^2.7.6",
     "saas": "^1.0.0",

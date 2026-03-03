@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.908.0",
-    "aws-lambda": "^1.0.7",
     "utils": "^0.0.1"
   },
   "description": "Lambda function to mock PDM (Patient Data Manager) API endpoints",

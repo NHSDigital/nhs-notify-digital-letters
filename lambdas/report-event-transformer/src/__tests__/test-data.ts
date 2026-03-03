@@ -1,4 +1,4 @@
-import { FirehoseTransformationEvent } from 'aws-lambda';
+import type { FirehoseTransformationEvent } from 'aws-lambda';
 import { DigitalLettersEvent } from 'types/events';
 
 export const digitalLettersEvent = {

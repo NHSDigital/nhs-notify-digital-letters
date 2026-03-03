@@ -243,30 +243,6 @@ export class DocsGenerator {
   async generateDocs(schemaLoadResult: SchemaLoadResult): Promise<void> {
     const JsonSchemaStaticDocs = (await import('json-schema-static-docs')).default;
 
-    // Dynamic import of the schema cache for external schema loading
-    const cacheModule = await import('../../cache/schema-cache.ts');
-    const { getCachedSchema } = cacheModule;
-
-    // Load external schema function
-    const loadExternalSchema = async (uri: string) => {
-      try {
-        const cached = getCachedSchema(uri);
-        if (cached) {
-          return cached;
-        }
-
-        // If not cached, fetch it
-        const response = await fetch(uri);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch ${uri}: ${response.statusText}`);
-        }
-        return await response.json();
-      } catch (error) {
-        console.error(`Failed to load external schema from ${uri}:`, error);
-        throw error;
-      }
-    };
-
     const generator = new JsonSchemaStaticDocs({
       inputPath: this.config.inputDir,
       outputPath: this.config.outputDir,
@@ -281,7 +257,6 @@ export class DocsGenerator {
         strictRequired: false,
         validateSchema: false,
         addUsedSchema: false,
-        loadSchema: loadExternalSchema,
         schemas: Object.entries(schemaLoadResult.schemas).map(([uri, schema]) => {
           return { ...schema, $id: uri };
         }),

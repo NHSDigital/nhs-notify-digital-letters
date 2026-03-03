@@ -1,4 +1,4 @@
-import {
+import type {
   GuardDutyScanResultNotificationEventDetail,
   SQSRecord,
 } from 'aws-lambda';
