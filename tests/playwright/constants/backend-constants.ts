@@ -43,10 +43,15 @@ export const EVENT_BUS_LOG_GROUP_NAME = `/aws/vendedlogs/events/event-bus/${CSI}
 // DynamoDB
 export const TTL_TABLE_NAME = `${CSI}-ttl`;
 
+// Glue
+export const GLUE_DATABASE_NAME = `${CSI}-reporting`;
+export const GLUE_TABLE_NAME = 'event_record';
+
 // S3
 export const LETTERS_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-letters`;
 export const NON_PII_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-non-pii-data`;
 export const PII_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-pii-data`;
+export const REPORTING_S3_FIREHOSE_OUTPUT_KEY_PREFIX = `kinesis-firehose-output/reporting/parquet/${GLUE_TABLE_NAME}`;
 export const FILE_SAFE_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-file-safe`;
 export const UNSCANNED_FILES_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-main-acct-digi-unscanned-files`;
 export const FILE_QUARANTINE_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-file-quarantine`;
@@ -63,3 +68,13 @@ export const PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pr
 export const PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-analyser`;
 export const PRINT_SENDER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-sender`;
 export const MOVE_SCANNED_FILES_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-move-scanned-files`;
+
+// Data Firehose
+export const FIREHOSE_STREAM_NAME = `${CSI}-to-s3-reporting`;
+export const TERRAFORM_DESTINATION_BUFFER_INTERVAL = 300;
+export const TERRAFORM_PROCESSOR_BUFFER_INTERVAL = 301;
+export const MINIMUM_DESTINATION_BUFFER_INTERVAL = 60;
+export const MINIMUM_PROCESSOR_BUFFER_INTERVAL = 0;
+
+// Athena
+export const ATHENA_WORKGROUP_NAME = CSI;

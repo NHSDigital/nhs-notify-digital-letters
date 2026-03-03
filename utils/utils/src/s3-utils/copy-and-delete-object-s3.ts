@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { CopyObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import type { S3Location } from './get-object-s3';
 import { s3Client } from './s3-client';

@@ -93,6 +93,7 @@
       { "name": "python-schema-generator", "rootPath": "src/python-schema-generator" },
       { "name": "refresh-apim-access-token", "rootPath": "lambdas/refresh-apim-access-token" },
       { "name": "report-event-transformer", "rootPath": "lambdas/report-event-transformer" },
+      { "name": "report-generator", "rootPath": "lambdas/report-generator" },
       { "name": "report-scheduler", "rootPath": "lambdas/report-scheduler" },
       { "name": "sender-management", "rootPath": "utils/sender-management" },
       { "name": "ttl-create-lambda", "rootPath": "lambdas/ttl-create-lambda/" },

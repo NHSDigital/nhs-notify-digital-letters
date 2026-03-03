@@ -132,7 +132,7 @@ jobs:
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 6
     permissions:
       contents: read
       packages: read

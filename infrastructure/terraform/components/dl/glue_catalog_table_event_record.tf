@@ -44,6 +44,10 @@ resource "aws_glue_catalog_table" "event_record" {
       name = "type"
       type = "string"
     }
+    columns {
+      name = "letterstatus"
+      type = "string"
+    }
   }
 
   partition_keys {
