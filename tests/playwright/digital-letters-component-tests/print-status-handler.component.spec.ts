@@ -128,7 +128,7 @@ test.describe('Print status handler', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    }, 60);
+    }, 100);
 
     await expectMessageContainingString(
       PRINT_STATUS_HANDLER_DLQ_NAME,

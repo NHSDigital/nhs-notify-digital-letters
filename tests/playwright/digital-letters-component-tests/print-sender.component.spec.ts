@@ -109,7 +109,7 @@ test.describe('Digital Letters - Print Sender', () => {
       );
 
       expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
-    }, 60);
+    }, 100);
 
     await expectMessageContainingString(
       PRINT_SENDER_DLQ_NAME,

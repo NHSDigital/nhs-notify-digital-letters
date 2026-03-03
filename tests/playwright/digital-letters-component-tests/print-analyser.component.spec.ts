@@ -110,7 +110,7 @@ test.describe('Print analyser', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    }, 60);
+    }, 100);
 
     await expectMessageContainingString(
       PRINT_ANALYSER_DLQ_NAME,

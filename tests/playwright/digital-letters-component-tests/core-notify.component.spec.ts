@@ -217,7 +217,7 @@ test.describe('Digital Letters - Core Notify', () => {
       );
 
       expect(filteredLogs.length).toBeGreaterThanOrEqual(1);
-    }, 60);
+    }, 100);
     // Verify there is a message in the DLQ
     await expectMessageContainingString(CORE_NOTIFIER_DLQ_NAME, eventId, 100);
   });

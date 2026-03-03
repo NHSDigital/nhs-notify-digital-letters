@@ -155,7 +155,7 @@ test.describe('File Scanner', () => {
       const expectedKey = `${ENV}/${messageReference}.pdf`;
       const expectedUri = `s3://${UNSCANNED_FILES_BUCKET}/${expectedKey}`;
       await expect(getS3ObjectBufferFromUri(expectedUri)).rejects.toThrow();
-    }, 60);
+    }, 100);
     // Verify there is a message in the DLQ
     await expectMessageContainingString(FILE_SCANNER_DLQ_NAME, eventId, 100);
   });

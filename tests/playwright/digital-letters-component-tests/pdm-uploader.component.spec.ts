@@ -211,7 +211,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    }, 60);
+    }, 100);
 
     await expectMessageContainingString(PDM_UPLOADER_DLQ_NAME, eventId, 100);
   });

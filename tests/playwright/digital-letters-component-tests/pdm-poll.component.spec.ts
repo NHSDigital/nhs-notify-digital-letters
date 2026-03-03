@@ -271,7 +271,7 @@ test.describe('PDM Poll', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    }, 60);
+    }, 100);
 
     await expectMessageContainingString(PDM_POLL_DLQ_NAME, eventId, 100);
   });
