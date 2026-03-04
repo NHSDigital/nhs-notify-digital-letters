@@ -19,7 +19,7 @@ resource "aws_cloudwatch_metric_alarm" "core_notifier_subscriber_anomaly" {
       stat        = "Sum"
 
       dimensions = {
-        QueueName = module.sqs_core_notifier.sqs_queue_name
+        QueueName = module.sqs_print_status_handler.sqs_queue_name
       }
     }
   }
