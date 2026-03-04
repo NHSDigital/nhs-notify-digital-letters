@@ -1,5 +1,5 @@
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
-import { DynamoDBRecord } from 'aws-lambda';
+import type { DynamoDBRecord } from 'aws-lambda';
 import { randomUUID } from 'node:crypto';
 import { Logger } from 'utils';
 
