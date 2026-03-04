@@ -69,6 +69,7 @@ const VERSION_REGEX = /releases\/download\/v?\d+\.\d+\.\d+/g;
 
 function getTfFiles(dir: string, files: string[] = []): string[] {
   for (const entry of fs.readdirSync(dir)) {
+    if (entry.startsWith(".")) continue;
     const fullPath = path.join(dir, entry);
     const stat = fs.statSync(fullPath);
 
