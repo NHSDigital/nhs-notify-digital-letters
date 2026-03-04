@@ -104,7 +104,6 @@ No requirements.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_core_notifier_subscriber_anomaly_alarm"></a> [core\_notifier\_subscriber\_anomaly\_alarm](#output\_core\_notifier\_subscriber\_anomaly\_alarm) | Core notifier subscriber anomaly detection alarm details |
 | <a name="output_deployment"></a> [deployment](#output\_deployment) | Deployment details used for post-deployment scripts |
 <!-- vale on -->
 <!-- markdownlint-enable -->
