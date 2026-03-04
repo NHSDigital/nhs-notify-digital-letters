@@ -219,3 +219,9 @@ variable "metadata_refresh_schedule" {
   description = "Schedule for refreshing reporting metadata."
   default     = "cron(10 6-22 * * ? *)" # 10 minutes past the hour, between 06:00 - 22:00
 }
+
+variable "sqs_max_receive_count" {
+  type        = string
+  description = "Maximum number of times a message can be received before being sent to the DLQ"
+  default     = "3"
+}
