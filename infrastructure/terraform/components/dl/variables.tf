@@ -226,6 +226,24 @@ variable "sqs_max_receive_count" {
   default     = "3"
 }
 
+variable "enable_event_cache" {
+  type        = bool
+  description = "Enable caching of events to an S3 bucket"
+  default     = true
+}
+
+variable "enable_sns_delivery_logging" {
+  type        = bool
+  description = "Enable SNS Delivery Failure Notifications"
+  default     = true
+}
+
+variable "sns_success_logging_sample_percent" {
+  type        = number
+  description = "Enable SNS Delivery Successful Sample Percentage"
+  default     = 0
+}
+
 variable "enable_event_anomaly_detection" {
   type        = bool
   description = "Enable CloudWatch anomaly detection alarm for core notifier queue message reception"
