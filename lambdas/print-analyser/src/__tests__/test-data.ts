@@ -1,4 +1,4 @@
-import { SQSEvent, SQSRecord } from 'aws-lambda';
+import type { SQSEvent, SQSRecord } from 'aws-lambda';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { FileSafe } from 'digital-letters-events';

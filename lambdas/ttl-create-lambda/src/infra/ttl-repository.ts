@@ -22,9 +22,9 @@ export class TtlRepository {
     });
     if (!sender) {
       this.logger.error({
-        description: `Sender not found for sender ID ${item.data.senderId}`,
+        description: `Sender ${item.data.senderId} could not be retrieved`,
       });
-      throw new Error(`Sender not found for sender ID ${item.data.senderId}`);
+      throw new Error(`Sender ${item.data.senderId} could not be retrieved`);
     }
 
     const ttlTime =
