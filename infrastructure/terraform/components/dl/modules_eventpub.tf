@@ -1,5 +1,5 @@
 module "eventpub" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-eventpub.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.5/terraform-eventpub.zip"
 
   name = "eventpub"
 
@@ -27,6 +27,8 @@ module "eventpub" {
 
   data_plane_bus_arn    = var.eventpub_data_plane_bus_arn
   control_plane_bus_arn = var.eventpub_control_plane_bus_arn
+
+  access_logging_bucket = local.acct.s3_buckets["access_logs"]["id"]
 }
 
 resource "aws_sns_topic_policy" "eventbridge_publish" {

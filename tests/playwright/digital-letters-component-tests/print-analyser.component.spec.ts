@@ -86,7 +86,7 @@ test.describe('Print analyser', () => {
   });
 
   test('should send invalid event to print analyser dlq', async () => {
-    test.setTimeout(250_000);
+    test.setTimeout(120_000);
 
     // Send file.safe event with missing data properties
     const messageReference = uuidv4();
@@ -99,23 +99,25 @@ test.describe('Print analyser', () => {
 
     await eventPublisher.sendEvents<FileSafe>([event], () => true);
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME,
-        [
-          '$.message.description = "Error parsing print analyser queue entry"',
-          `$.message.err[0].message = "must have required property 'senderId'"`,
-          `$.message.messageReference = "${messageReference}"`,
-        ],
-      );
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME,
+          [
+            '$.message.description = "Error parsing print analyser queue entry"',
+            `$.message.err[0].message = "must have required property 'senderId'"`,
+            `$.message.messageReference = "${messageReference}"`,
+          ],
+        );
 
-      expect(eventLogEntry.length).toEqual(1);
-    }, 120);
+        expect(eventLogEntry.length).toEqual(1);
+      }, 100),
 
-    await expectMessageContainingString(
-      PRINT_ANALYSER_DLQ_NAME,
-      messageReference,
-      120,
-    );
+      expectMessageContainingString(
+        PRINT_ANALYSER_DLQ_NAME,
+        messageReference,
+        100,
+      ),
+    ]);
   });
 });
