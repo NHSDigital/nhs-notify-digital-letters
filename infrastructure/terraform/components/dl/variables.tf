@@ -220,9 +220,11 @@ variable "metadata_refresh_schedule" {
   default     = "cron(10 6-22 * * ? *)" # 10 minutes past the hour, between 06:00 - 22:00
 }
 
-##
-# CloudWatch Anomaly Detection Variables
-##
+variable "sqs_max_receive_count" {
+  type        = string
+  description = "Maximum number of times a message can be received before being sent to the DLQ"
+  default     = "3"
+}
 
 variable "enable_event_anomaly_detection" {
   type        = bool
