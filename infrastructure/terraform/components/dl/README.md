@@ -40,8 +40,6 @@ No requirements.
 | <a name="input_mesh_poll_schedule"></a> [mesh\_poll\_schedule](#input\_mesh\_poll\_schedule) | Schedule to poll MESH for messages | `string` | `"rate(5 minutes)"` | no |
 | <a name="input_metadata_refresh_schedule"></a> [metadata\_refresh\_schedule](#input\_metadata\_refresh\_schedule) | Schedule for refreshing reporting metadata. | `string` | `"cron(10 6-22 * * ? *)"` | no |
 | <a name="input_parent_acct_environment"></a> [parent\_acct\_environment](#input\_parent\_acct\_environment) | Name of the environment responsible for the acct resources used, affects things like DNS zone. Useful for named dev environments | `string` | `"main"` | no |
-| <a name="input_pdm_mock_access_token"></a> [pdm\_mock\_access\_token](#input\_pdm\_mock\_access\_token) | Mock access token for PDM API authentication (used in local/dev environments) | `string` | `"mock-pdm-token"` | no |
-| <a name="input_pdm_use_non_mock_token"></a> [pdm\_use\_non\_mock\_token](#input\_pdm\_use\_non\_mock\_token) | Whether to use the shared APIM access token from SSM (/component/environment/apim/access\_token) instead of the mock token | `bool` | `false` | no |
 | <a name="input_pii_data_retention_policy_days"></a> [pii\_data\_retention\_policy\_days](#input\_pii\_data\_retention\_policy\_days) | The number of days for data retention policy for PII | `number` | `534` | no |
 | <a name="input_project"></a> [project](#input\_project) | The name of the tfscaffold project | `string` | n/a | yes |
 | <a name="input_queue_batch_size"></a> [queue\_batch\_size](#input\_queue\_batch\_size) | maximum number of queue items to process | `number` | `10` | no |
