@@ -7,7 +7,11 @@
   },
   "name": "digital-letters",
   "overrides": {
-    "minimatch": "^10.2.4"
+    "astro-compress": {
+      "svgo": "^4.0.1"
+    },
+    "minimatch": "^10.2.4",
+    "underscore": "^1.13.8"
   },
   "private": true,
   "scripts": {
