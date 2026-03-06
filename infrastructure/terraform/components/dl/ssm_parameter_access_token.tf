@@ -2,8 +2,13 @@ resource "aws_ssm_parameter" "access_token" {
   name        = local.apim_access_token_ssm_parameter_name
   description = "Access token for APIM"
   type        = "SecureString"
-  value       = ""
-  tags        = merge(local.default_tags, { Backup = "true" })
+  value = jsonencode({
+    "access_token" : "PLACEHOLDER",
+    "expires_at" : 1772810483,
+    "token_type" : "Bearer"
+  })
+
+  tags = merge(local.default_tags, { Backup = "true" })
 
   lifecycle {
     ignore_changes = [
