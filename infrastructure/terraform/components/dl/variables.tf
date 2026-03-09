@@ -134,6 +134,17 @@ variable "core_notify_url" {
   default     = "https://sandbox.api.service.nhs.uk"
 }
 
+variable "enable_core_notify_auth" {
+  type        = bool
+  description = "Whether to send auth tokens with core notify API calls."
+  default     = true
+
+  validation {
+    condition     = var.environment == "prod" ? var.enable_core_notify_auth == true : true
+    error_message = "enable_core_notify_auth must be set to true when environment is 'prod'."
+  }
+}
+
 variable "apim_auth_token_url" {
   type        = string
   description = "URL to generate an APIM auth token"
