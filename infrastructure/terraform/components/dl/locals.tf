@@ -4,7 +4,7 @@ locals {
   apim_keystore_s3_bucket              = "nhs-${var.aws_account_id}-${var.region}-${var.environment}-${var.component}-static-assets"
   apim_private_key_ssm_parameter_name  = "/${var.component}/${var.environment}/apim/private_key"
   aws_lambda_functions_dir_path        = "../../../../lambdas"
-  pdm_access_token_ssm_parameter_name  = var.enable_pdm_mock ? "" : "${local.apim_access_token_ssm_parameter_name}"
+  pdm_access_token_ssm_parameter_name  = var.enable_pdm_mock ? "" : local.apim_access_token_ssm_parameter_name
   pdm_url                              = var.enable_pdm_mock ? aws_api_gateway_stage.pdm_mock[0].invoke_url : var.apim_base_url
   firehose_output_path_prefix          = "kinesis-firehose-output"
   log_destination_arn                  = "arn:aws:logs:${var.region}:${var.shared_infra_account_id}:destination:nhs-main-obs-firehose-logs"
