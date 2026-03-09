@@ -26,6 +26,7 @@ export const CORE_NOTIFIER_DLQ_NAME = `${CSI}-core-notifier-dlq`;
 export const FILE_SCANNER_DLQ_NAME = `${CSI}-scanner-dlq`;
 export const PRINT_STATUS_HANDLER_DLQ_NAME = `${CSI}-print-status-handler-dlq`;
 export const HANDLE_TTL_DLQ_NAME = `${CSI}-ttl-handle-expiry-errors-queue`;
+export const CREATE_TTL_DLQ_NAME = `${CSI}-ttl-dlq`;
 export const PRINT_ANALYSER_DLQ_NAME = `${CSI}-print-analyser-dlq`;
 export const PRINT_SENDER_DLQ_NAME = `${CSI}-print-sender-dlq`;
 export const MOVE_SCANNED_FILES_NAME = `${CSI}-move-scanned-files-queue`;
@@ -78,3 +79,4 @@ export const MINIMUM_PROCESSOR_BUFFER_INTERVAL = 0;
 
 // Athena
 export const ATHENA_WORKGROUP_NAME = CSI;
+export const CREATE_TTL_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-ttl-create`;

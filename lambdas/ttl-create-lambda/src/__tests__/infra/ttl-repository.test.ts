@@ -100,15 +100,15 @@ describe('TtlRepository', () => {
     expect(gsiPk).toMatch(/^\d{4}-\d{2}-\d{2}#\d{1,2}$/);
   });
 
-  it('throws and logs error when sender not found', async () => {
+  it('throws and logs error when sender not retrieved', async () => {
     senderRepository.getSender.mockResolvedValue(null);
 
     await expect(repo.insertTtlRecord(messageDownloadedEvent)).rejects.toThrow(
-      `Sender not found for sender ID ${messageDownloadedEvent.data.senderId}`,
+      `Sender ${messageDownloadedEvent.data.senderId} could not be retrieved`,
     );
 
     expect(logger.error).toHaveBeenCalledWith({
-      description: `Sender not found for sender ID ${messageDownloadedEvent.data.senderId}`,
+      description: `Sender ${messageDownloadedEvent.data.senderId} could not be retrieved`,
     });
   });
 });

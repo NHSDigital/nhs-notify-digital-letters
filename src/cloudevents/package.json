@@ -22,7 +22,7 @@
   "main": "tools/generator/example-generator/generate-example.ts",
   "name": "digital-letters-cloudevents-schemas",
   "overrides": {
-    "glob": "13.0.6",
+    "glob": "^13.0.6",
     "minimatch": "^10.2.4"
   },
   "scripts": {
