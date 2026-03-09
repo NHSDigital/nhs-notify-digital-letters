@@ -166,7 +166,7 @@ variable "force_destroy" {
 variable "enable_pdm_mock" {
   type        = bool
   description = "Flag indicating whether to deploy PDM mock API (should be false in production environments)"
-  default     = true
+  default     = false
 }
 
 variable "aws_account_type" {
