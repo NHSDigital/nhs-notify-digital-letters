@@ -8,7 +8,6 @@ import { createContainer } from 'container';
 import { handler } from '..';
 
 jest.mock('container', () => {
-  const mockAuthenticator = jest.fn();
   const mockGetResourceHandler = jest.fn();
   const mockCreateResourceHandler = jest.fn();
   const mockLogger = {
@@ -21,7 +20,6 @@ jest.mock('container', () => {
 
   return {
     createContainer: jest.fn(() => ({
-      authenticator: mockAuthenticator,
       getResourceHandler: mockGetResourceHandler,
       createResourceHandler: mockCreateResourceHandler,
       logger: mockLogger,

@@ -121,8 +121,12 @@ test.describe('Digital Letters - Upload to PDM', () => {
     const messageReference = 'error-500-internal'; // This reference causes the PDM mock to return an error.
     const senderId = SENDER_ID_SKIPS_NOTIFY;
     const meshMessageId = '12345';
+    const invalidPdmRequest = {
+      ...pdmRequest,
+      unexpectedField: 'I should not be here',
+    };
 
-    await putDataS3(pdmRequest, {
+    await putDataS3(invalidPdmRequest, {
       Bucket: LETTERS_S3_BUCKET_NAME,
       Key: resourceKey,
     });
