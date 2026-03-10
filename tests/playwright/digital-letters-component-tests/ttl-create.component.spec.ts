@@ -15,7 +15,6 @@ import { getTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
-import { promiseHooks } from 'node:v8';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Create TTL', () => {
@@ -193,7 +192,9 @@ test.describe('Digital Letters - Create TTL', () => {
       expectToPassEventually(async () => {
         const eventLogEntry = await getLogsFromCloudwatch(
           CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
-          [`$.message.description = "Sender ${senderId} could not be retrieved"`],
+          [
+            `$.message.description = "Sender ${senderId} could not be retrieved"`,
+          ],
         );
 
         expect(eventLogEntry.length).toEqual(1);
