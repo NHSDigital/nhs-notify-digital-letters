@@ -140,8 +140,8 @@ variable "core_notify_include_auth_header" {
   default     = true
 
   validation {
-    condition     = var.environment != "dev" ? var.core_notify_include_auth_header == true : true
-    error_message = "core_notify_include_auth_header must be set to true when environment is not 'dev'."
+    condition     = var.environment == "prod" ? var.core_notify_include_auth_header == true : true
+    error_message = "core_notify_include_auth_header must be set to true when environment is 'prod'."
   }
 }
 
