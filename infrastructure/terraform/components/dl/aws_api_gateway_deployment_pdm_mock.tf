@@ -1,5 +1,5 @@
 resource "aws_api_gateway_deployment" "pdm_mock" {
-  count = local.deploy_pdm_mock ? 1 : 0
+  count = var.enable_pdm_mock ? 1 : 0
 
   depends_on = [
     aws_api_gateway_integration.create_document_reference,

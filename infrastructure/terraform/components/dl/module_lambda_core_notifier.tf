@@ -36,7 +36,7 @@ module "core_notifier" {
 
   lambda_env_vars = {
     "APIM_BASE_URL"                        = var.core_notify_url
-    "APIM_ACCESS_TOKEN_SSM_PARAMETER_NAME" = local.apim_access_token_ssm_parameter_name
+    "APIM_ACCESS_TOKEN_SSM_PARAMETER_NAME" = var.core_notify_include_auth_header ? local.apim_access_token_ssm_parameter_name : ""
     "EVENT_PUBLISHER_EVENT_BUS_ARN"        = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"              = module.sqs_event_publisher_errors.sqs_queue_url
     "ENVIRONMENT"                          = var.environment

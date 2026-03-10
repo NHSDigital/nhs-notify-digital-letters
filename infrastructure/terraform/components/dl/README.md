@@ -16,6 +16,7 @@ No requirements.
 | <a name="input_aws_account_id"></a> [aws\_account\_id](#input\_aws\_account\_id) | The AWS Account ID (numeric) | `string` | n/a | yes |
 | <a name="input_aws_account_type"></a> [aws\_account\_type](#input\_aws\_account\_type) | The AWS Account Type | `string` | n/a | yes |
 | <a name="input_component"></a> [component](#input\_component) | The variable encapsulating the name of this component | `string` | `"dl"` | no |
+| <a name="input_core_notify_include_auth_header"></a> [core\_notify\_include\_auth\_header](#input\_core\_notify\_include\_auth\_header) | Whether to send auth tokens with core notify API calls. | `bool` | `true` | no |
 | <a name="input_core_notify_url"></a> [core\_notify\_url](#input\_core\_notify\_url) | The URL used to send requests to Notify | `string` | `"https://sandbox.api.service.nhs.uk"` | no |
 | <a name="input_default_cloudwatch_event_bus_name"></a> [default\_cloudwatch\_event\_bus\_name](#input\_default\_cloudwatch\_event\_bus\_name) | The name of the default cloudwatch event bus. This is needed as GuardDuty Scan Result events are sent to the default bus | `string` | `"default"` | no |
 | <a name="input_default_tags"></a> [default\_tags](#input\_default\_tags) | A map of default tags to apply to all taggable resources within the component | `map(string)` | `{}` | no |
@@ -23,7 +24,7 @@ No requirements.
 | <a name="input_enable_event_anomaly_detection"></a> [enable\_event\_anomaly\_detection](#input\_enable\_event\_anomaly\_detection) | Enable CloudWatch anomaly detection alarm for core notifier queue message reception | `bool` | `true` | no |
 | <a name="input_enable_event_cache"></a> [enable\_event\_cache](#input\_enable\_event\_cache) | Enable caching of events to an S3 bucket | `bool` | `true` | no |
 | <a name="input_enable_mock_mesh"></a> [enable\_mock\_mesh](#input\_enable\_mock\_mesh) | Enable mock mesh access (dev only). Grants lambda permission to read mock-mesh prefix in non-pii bucket. | `bool` | `false` | no |
-| <a name="input_enable_pdm_mock"></a> [enable\_pdm\_mock](#input\_enable\_pdm\_mock) | Flag indicating whether to deploy PDM mock API (should be false in production environments) | `bool` | `true` | no |
+| <a name="input_enable_pdm_mock"></a> [enable\_pdm\_mock](#input\_enable\_pdm\_mock) | Flag indicating whether to deploy PDM mock API (should be false in production environments) | `bool` | `false` | no |
 | <a name="input_enable_sns_delivery_logging"></a> [enable\_sns\_delivery\_logging](#input\_enable\_sns\_delivery\_logging) | Enable SNS Delivery Failure Notifications | `bool` | `true` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | The name of the tfscaffold environment | `string` | n/a | yes |
 | <a name="input_event_anomaly_band_width"></a> [event\_anomaly\_band\_width](#input\_event\_anomaly\_band\_width) | The width of the anomaly detection band. Higher values (e.g. 4-6) reduce sensitivity and noise, lower values (e.g. 2-3) increase sensitivity. Recommended: 2-4. | `number` | `3` | no |
@@ -40,8 +41,6 @@ No requirements.
 | <a name="input_mesh_poll_schedule"></a> [mesh\_poll\_schedule](#input\_mesh\_poll\_schedule) | Schedule to poll MESH for messages | `string` | `"rate(5 minutes)"` | no |
 | <a name="input_metadata_refresh_schedule"></a> [metadata\_refresh\_schedule](#input\_metadata\_refresh\_schedule) | Schedule for refreshing reporting metadata. | `string` | `"cron(10 6-22 * * ? *)"` | no |
 | <a name="input_parent_acct_environment"></a> [parent\_acct\_environment](#input\_parent\_acct\_environment) | Name of the environment responsible for the acct resources used, affects things like DNS zone. Useful for named dev environments | `string` | `"main"` | no |
-| <a name="input_pdm_mock_access_token"></a> [pdm\_mock\_access\_token](#input\_pdm\_mock\_access\_token) | Mock access token for PDM API authentication (used in local/dev environments) | `string` | `"mock-pdm-token"` | no |
-| <a name="input_pdm_use_non_mock_token"></a> [pdm\_use\_non\_mock\_token](#input\_pdm\_use\_non\_mock\_token) | Whether to use the shared APIM access token from SSM (/component/environment/apim/access\_token) instead of the mock token | `bool` | `false` | no |
 | <a name="input_pii_data_retention_policy_days"></a> [pii\_data\_retention\_policy\_days](#input\_pii\_data\_retention\_policy\_days) | The number of days for data retention policy for PII | `number` | `534` | no |
 | <a name="input_project"></a> [project](#input\_project) | The name of the tfscaffold project | `string` | n/a | yes |
 | <a name="input_queue_batch_size"></a> [queue\_batch\_size](#input\_queue\_batch\_size) | maximum number of queue items to process | `number` | `10` | no |
