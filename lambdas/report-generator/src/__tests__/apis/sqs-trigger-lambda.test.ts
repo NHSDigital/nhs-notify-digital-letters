@@ -338,5 +338,52 @@ describe('sqs-trigger-lambda', () => {
         }),
       );
     });
+
+    it('should log and count a rejected settled result as failed', async () => {
+      const record = createMockSQSRecord('msg-1', {});
+      const sqsEvent = createMockSQSEvent([record]);
+      const error = new Error('Unexpected settled rejection');
+
+      mockReportGenerator.generate.mockImplementation(() =>
+        Promise.reject(error),
+      );
+
+      const originalAllSettled = Promise.allSettled;
+      const allSettledSpy = jest
+        .spyOn(Promise, 'allSettled')
+        .mockResolvedValueOnce([
+          {
+            status: 'rejected',
+            reason: error,
+          } as PromiseRejectedResult,
+        ]);
+
+      const handler = createHandler({
+        reportGenerator: mockReportGenerator,
+        eventPublisher: mockEventPublisher,
+        logger: mockLogger,
+      });
+
+      const response = await handler(sqsEvent);
+
+      expect(response.batchItemFailures).toEqual([
+        {
+          itemIdentifier: 'msg-1',
+        },
+      ]);
+      expect(mockLogger.error).toHaveBeenCalledWith({ err: error });
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Processed SQS Event.',
+          retrieved: 1,
+          generated: 0,
+          failed: 1,
+          failedToPublish: 0,
+        }),
+      );
+      expect(mockEventPublisher.sendEvents).not.toHaveBeenCalled();
+
+      allSettledSpy.mockImplementation(originalAllSettled);
+    });
   });
 });
