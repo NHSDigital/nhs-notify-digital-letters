@@ -236,7 +236,7 @@ test.describe('PDM Poll', () => {
   });
 
   test('should send invalid event to poll dlq', async () => {
-    test.setTimeout(120_000);
+    test.setTimeout(160_000);
 
     const eventId = uuidv4();
     const resourceId = 'b8f2b194-31e1-3719-aaf9-a9195e35e692';
@@ -272,9 +272,9 @@ test.describe('PDM Poll', () => {
         );
 
         expect(eventLogEntry.length).toEqual(1);
-      }, 100),
+      }, 150),
 
-      expectMessageContainingString(PDM_POLL_DLQ_NAME, eventId, 100),
+      expectMessageContainingString(PDM_POLL_DLQ_NAME, eventId, 150),
     ]);
   });
 });

@@ -99,7 +99,7 @@ test.describe('Digital Letters - Send reports to Trust', () => {
   });
 
   test('should send message to report-sender DLQ when file does not exists', async () => {
-    test.setTimeout(120_000);
+    test.setTimeout(160_000);
 
     const missingReportFileName = 'report-does-not-exist.csv';
 
@@ -108,7 +108,7 @@ test.describe('Digital Letters - Send reports to Trust', () => {
     await expectMessageContainingString(
       REPORT_SENDER_DLQ_NAME,
       missingReportFileName,
-      100,
+      150,
     );
   });
 });

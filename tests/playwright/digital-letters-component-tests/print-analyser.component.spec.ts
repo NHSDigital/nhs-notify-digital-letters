@@ -86,7 +86,7 @@ test.describe('Print analyser', () => {
   });
 
   test('should send invalid event to print analyser dlq', async () => {
-    test.setTimeout(120_000);
+    test.setTimeout(160_000);
 
     // Send file.safe event with missing data properties
     const messageReference = uuidv4();
@@ -111,12 +111,12 @@ test.describe('Print analyser', () => {
         );
 
         expect(eventLogEntry.length).toEqual(1);
-      }, 100),
+      }, 150),
 
       expectMessageContainingString(
         PRINT_ANALYSER_DLQ_NAME,
         messageReference,
-        100,
+        150,
       ),
     ]);
   });

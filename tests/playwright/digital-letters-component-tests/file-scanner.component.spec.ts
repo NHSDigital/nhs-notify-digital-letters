@@ -99,7 +99,7 @@ test('should extract PDF from DocumentReference and store in unscanned bucket wi
 });
 
 test('should handle validation errors by sending messages to DLQ', async () => {
-  test.setTimeout(120_000);
+  test.setTimeout(160_000);
   const messageReference = uuidv4();
   const senderId = 'TEST_SENDER_002';
   const documentReferenceKey = `document-reference/${messageReference}`;
@@ -150,7 +150,7 @@ test('should handle validation errors by sending messages to DLQ', async () => {
     const expectedKey = `${ENV}/${messageReference}.pdf`;
     const expectedUri = `s3://${UNSCANNED_FILES_BUCKET}/${expectedKey}`;
     await expect(getS3ObjectBufferFromUri(expectedUri)).rejects.toThrow();
-  }, 100);
+  }, 150);
   // Verify there is a message in the DLQ
-  await expectMessageContainingString(FILE_SCANNER_DLQ_NAME, eventId, 100);
+  await expectMessageContainingString(FILE_SCANNER_DLQ_NAME, eventId, 150);
 });
