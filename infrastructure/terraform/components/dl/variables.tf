@@ -134,14 +134,14 @@ variable "core_notify_url" {
   default     = "https://sandbox.api.service.nhs.uk"
 }
 
-variable "enable_core_notify_auth" {
+variable "core_notify_include_auth_header" {
   type        = bool
   description = "Whether to send auth tokens with core notify API calls."
   default     = true
 
   validation {
-    condition     = var.environment == "prod" ? var.enable_core_notify_auth == true : true
-    error_message = "enable_core_notify_auth must be set to true when environment is 'prod'."
+    condition     = var.environment != "dev" ? var.core_notify_include_auth_header == true : true
+    error_message = "core_notify_include_auth_header must be set to true when environment is not 'dev'."
   }
 }
 

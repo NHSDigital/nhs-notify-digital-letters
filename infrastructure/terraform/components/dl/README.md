@@ -16,10 +16,10 @@ No requirements.
 | <a name="input_aws_account_id"></a> [aws\_account\_id](#input\_aws\_account\_id) | The AWS Account ID (numeric) | `string` | n/a | yes |
 | <a name="input_aws_account_type"></a> [aws\_account\_type](#input\_aws\_account\_type) | The AWS Account Type | `string` | n/a | yes |
 | <a name="input_component"></a> [component](#input\_component) | The variable encapsulating the name of this component | `string` | `"dl"` | no |
+| <a name="input_core_notify_include_auth_header"></a> [core\_notify\_include\_auth\_header](#input\_core\_notify\_include\_auth\_header) | Whether to send auth tokens with core notify API calls. | `bool` | `true` | no |
 | <a name="input_core_notify_url"></a> [core\_notify\_url](#input\_core\_notify\_url) | The URL used to send requests to Notify | `string` | `"https://sandbox.api.service.nhs.uk"` | no |
 | <a name="input_default_cloudwatch_event_bus_name"></a> [default\_cloudwatch\_event\_bus\_name](#input\_default\_cloudwatch\_event\_bus\_name) | The name of the default cloudwatch event bus. This is needed as GuardDuty Scan Result events are sent to the default bus | `string` | `"default"` | no |
 | <a name="input_default_tags"></a> [default\_tags](#input\_default\_tags) | A map of default tags to apply to all taggable resources within the component | `map(string)` | `{}` | no |
-| <a name="input_enable_core_notify_auth"></a> [enable\_core\_notify\_auth](#input\_enable\_core\_notify\_auth) | Whether to send auth tokens with core notify API calls. | `bool` | `true` | no |
 | <a name="input_enable_dynamodb_delete_protection"></a> [enable\_dynamodb\_delete\_protection](#input\_enable\_dynamodb\_delete\_protection) | Enable DynamoDB Delete Protection on all Tables | `bool` | `true` | no |
 | <a name="input_enable_event_anomaly_detection"></a> [enable\_event\_anomaly\_detection](#input\_enable\_event\_anomaly\_detection) | Enable CloudWatch anomaly detection alarm for core notifier queue message reception | `bool` | `true` | no |
 | <a name="input_enable_event_cache"></a> [enable\_event\_cache](#input\_enable\_event\_cache) | Enable caching of events to an S3 bucket | `bool` | `true` | no |
