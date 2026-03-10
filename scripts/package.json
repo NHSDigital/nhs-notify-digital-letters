@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "name": "nhs-notify-digital-letters-scripts",
+  "private": true,
+  "scripts": {
+    "bump-terraform-modules": "ts-node terraform/bump-shared-modules.ts"
+  },
+  "version": "0.0.1"
+}
