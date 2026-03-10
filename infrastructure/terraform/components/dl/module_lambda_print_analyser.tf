@@ -1,5 +1,5 @@
 module "print_analyser" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.5/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip"
 
   function_name = "print-analyser"
   description   = "A function for processing file safe events"

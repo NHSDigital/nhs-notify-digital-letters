@@ -1,5 +1,5 @@
 module "s3bucket_pii_data" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.5/terraform-s3bucket.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-s3bucket.zip"
 
   name = "pii-data"
 

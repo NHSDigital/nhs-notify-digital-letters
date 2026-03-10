@@ -1,5 +1,5 @@
 module "move_scanned_files" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.5/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip"
 
   function_name = "move-scanned-files"
   description   = "A function that handles GuardDuty Malware Protection Object Scan Result and depending on the result moves objects from the unscanned bucket to the file safe or quarantined bucket. "

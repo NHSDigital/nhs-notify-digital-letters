@@ -1,5 +1,5 @@
 module "report_sender" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.5/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip"
 
   function_name  = "report-sender"
   description    = "A lambda function for sending reports to Trusts via MESH messages"
