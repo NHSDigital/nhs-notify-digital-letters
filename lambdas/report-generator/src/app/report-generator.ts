@@ -1,6 +1,5 @@
 import { IReportService, Logger } from 'utils';
 import { GenerateReport } from 'digital-letters-events';
-import fs from 'node:fs';
 
 export type ReportGeneratorOutcome = 'generated' | 'failed';
 
@@ -18,21 +17,25 @@ export class ReportGenerator {
     private readonly logger: Logger,
     private readonly reportService: IReportService,
     private readonly reportName: string,
+    private readonly athenaNamedQueryId: string,
   ) {}
 
   async generate(event: GenerateReport): Promise<ReportGeneratorResult> {
     const { reportDate, senderId } = event.data;
 
     try {
-      const query = fs.readFileSync('/var/task/queries/report.sql', 'utf8');
       const reportFilePath = `event-reports/${senderId}/${this.reportName}/${this.reportName}_${reportDate}.csv`;
 
-      this.logger.info(
-        `Generating report for sender ${senderId} and date ${reportDate}`,
-      );
+      this.logger.info({
+        description: 'Generating report',
+        senderId,
+        reportDate,
+        athenaNamedQueryId: this.athenaNamedQueryId,
+        reportFilePath,
+      });
 
       const location = await this.reportService.generateReport(
-        query,
+        this.athenaNamedQueryId,
         [`'${reportDate}'`, `'${senderId}'`],
         reportFilePath,
       );

@@ -35,8 +35,7 @@ module "report_generator" {
   log_subscription_role_arn = local.acct.log_subscription_role_arn
 
   lambda_env_vars = {
-    "ATHENA_WORKGROUP"              = aws_athena_workgroup.reporting.name
-    "ATHENA_DATABASE"               = aws_glue_catalog_database.reporting.name
+    "ATHENA_NAMED_QUERY_ID"         = aws_athena_named_query.daily_report.id
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
     "MAX_POLL_LIMIT"                = var.athena_query_max_polling_attempts
@@ -85,7 +84,8 @@ data "aws_iam_policy_document" "report_generator_lambda" {
     actions = [
       "athena:StartQueryExecution",
       "athena:GetQueryResults",
-      "athena:GetQueryExecution"
+      "athena:GetQueryExecution",
+      "athena:GetNamedQuery"
     ]
 
     resources = [
@@ -151,19 +151,6 @@ data "aws_iam_policy_document" "report_generator_lambda" {
 
     resources = [
       module.sqs_event_publisher_errors.sqs_queue_arn,
-    ]
-  }
-
-  statement {
-    sid    = "SQSDLQPermissions"
-    effect = "Allow"
-
-    actions = [
-      "sqs:SendMessage",
-    ]
-
-    resources = [
-      module.sqs_report_generator.sqs_dlq_arn,
     ]
   }
 }

@@ -5,7 +5,7 @@ import { IStorageRepository } from './storage-repository';
 
 export interface IReportService {
   generateReport(
-    query: string,
+    namedQuery: string,
     executionParameters: string[],
     reportFilePath: string,
   ): Promise<string>;
@@ -37,12 +37,12 @@ export class ReportService implements IReportService {
   }
 
   async generateReport(
-    query: string,
+    namedQueryId: string,
     executionParameters: string[],
     reportFilePath: string,
   ): Promise<string> {
     const queryExecutionId = await this.dataRepository.startQuery(
-      query,
+      namedQueryId,
       executionParameters,
     );
 

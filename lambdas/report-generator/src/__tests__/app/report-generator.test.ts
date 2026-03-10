@@ -10,6 +10,7 @@ describe('ReportGenerator', () => {
   let mockReportService: jest.Mocked<IReportService>;
   let reportGenerator: ReportGenerator;
   const reportName = 'completed_communications';
+  const athenaNamedQueryId = 'test-athena-named-query-id';
 
   beforeEach(() => {
     mockLogger = {
@@ -27,6 +28,7 @@ describe('ReportGenerator', () => {
       mockLogger,
       mockReportService,
       reportName,
+      athenaNamedQueryId,
     );
 
     jest.clearAllMocks();
@@ -64,15 +66,16 @@ describe('ReportGenerator', () => {
 
       const result = await reportGenerator.generate(mockEvent);
 
-      expect(fs.readFileSync).toHaveBeenCalledWith(
-        '/var/task/queries/report.sql',
-        'utf8',
-      );
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Generating report for sender sender-123 and date 2025-01-15',
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith({
+        description: 'Generating report',
+        senderId: 'sender-123',
+        reportDate: '2025-01-15',
+        athenaNamedQueryId,
+        reportFilePath:
+          'event-reports/sender-123/completed_communications/completed_communications_2025-01-15.csv',
+      });
       expect(mockReportService.generateReport).toHaveBeenCalledWith(
-        mockQuery,
+        athenaNamedQueryId,
         ["'2025-01-15'", "'sender-123'"],
         'event-reports/sender-123/completed_communications/completed_communications_2025-01-15.csv',
       );
@@ -85,25 +88,6 @@ describe('ReportGenerator', () => {
     it('should return failed outcome when report service throws error', async () => {
       const error = new Error('Database connection failed');
       mockReportService.generateReport.mockRejectedValue(error);
-
-      const result = await reportGenerator.generate(mockEvent);
-
-      expect(mockLogger.error).toHaveBeenCalledWith({
-        err: error,
-        description: 'Error generating report',
-        senderId: 'sender-123',
-        reportDate: '2025-01-15',
-      });
-      expect(result).toEqual({
-        outcome: 'failed',
-      });
-    });
-
-    it('should return failed outcome when file read throws error', async () => {
-      const error = new Error('File not found');
-      (fs.readFileSync as jest.Mock).mockImplementation(() => {
-        throw error;
-      });
 
       const result = await reportGenerator.generate(mockEvent);
 

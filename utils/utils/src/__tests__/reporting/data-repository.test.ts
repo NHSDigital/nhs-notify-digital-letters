@@ -1,4 +1,8 @@
-import { AthenaClient } from '@aws-sdk/client-athena';
+import {
+  AthenaClient,
+  GetNamedQueryCommand,
+  StartQueryExecutionCommand,
+} from '@aws-sdk/client-athena';
 import { mockClient } from 'aws-sdk-client-mock';
 import {
   AthenaDataRepository,
@@ -11,8 +15,6 @@ describe('AthenaDataRepository', () => {
   let repository: AthenaDataRepository;
   const config: AthenaDataRepositoryDependencies = {
     athenaClient: new AthenaClient({}),
-    athenaWorkgroup: 'test-workgroup',
-    athenaDatabase: 'test-database',
   };
 
   beforeEach(() => {
@@ -23,11 +25,19 @@ describe('AthenaDataRepository', () => {
   describe('startQuery', () => {
     it('should start query execution and return query execution ID', async () => {
       const mockQueryExecutionId = 'query-123';
-      athenaClientMock.onAnyCommand().resolves({
+      athenaClientMock.on(GetNamedQueryCommand).resolves({
+        NamedQuery: {
+          Name: 'Test Named Query',
+          Database: 'test-database',
+          WorkGroup: 'test-workgroup',
+          QueryString: 'SELECT * FROM table',
+        },
+      });
+      athenaClientMock.on(StartQueryExecutionCommand).resolves({
         QueryExecutionId: mockQueryExecutionId,
       });
 
-      const result = await repository.startQuery('SELECT * FROM table', [
+      const result = await repository.startQuery('testNamedQueryId', [
         'param1',
         'param2',
       ]);
@@ -38,32 +48,74 @@ describe('AthenaDataRepository', () => {
     it('should send correct parameters to Athena client', async () => {
       const query = 'SELECT * FROM table WHERE id = ?';
       const executionParameters = ['123'];
+      const namedQueryId = 'testNamedQueryId';
+      const testDatabase = 'test-database';
+      const testWorkGroup = 'test-workgroup';
 
-      athenaClientMock.onAnyCommand().resolves({
-        QueryExecutionId: 'query-456',
+      const mockQueryExecutionId = 'query-123';
+      athenaClientMock.on(GetNamedQueryCommand).resolves({
+        NamedQuery: {
+          Name: 'Test Named Query',
+          Database: testDatabase,
+          WorkGroup: testWorkGroup,
+          QueryString: query,
+        },
+      });
+      athenaClientMock.on(StartQueryExecutionCommand).resolves({
+        QueryExecutionId: mockQueryExecutionId,
       });
 
-      await repository.startQuery(query, executionParameters);
+      await repository.startQuery(namedQueryId, executionParameters);
 
       const calls = athenaClientMock.commandCalls(
-        Object.getPrototypeOf(athenaClientMock.calls()[0].args[0]).constructor,
+        Object.getPrototypeOf(athenaClientMock.calls()[1].args[0]).constructor,
       );
       expect(calls[0].args[0].input).toEqual({
         QueryString: query,
-        WorkGroup: 'test-workgroup',
-        QueryExecutionContext: { Database: 'test-database' },
+        WorkGroup: testWorkGroup,
+        QueryExecutionContext: { Database: testDatabase },
         ExecutionParameters: executionParameters,
       });
     });
 
-    it('should handle empty execution parameters', async () => {
-      athenaClientMock.onAnyCommand().resolves({
-        QueryExecutionId: 'query-789',
+    it('should throw an error if named query is not found', async () => {
+      athenaClientMock.on(GetNamedQueryCommand).resolves({});
+
+      await expect(
+        repository.startQuery('nonExistentNamedQuery', ['param']),
+      ).rejects.toThrow(
+        'Named query nonExistentNamedQuery not found or has no SQL.',
+      );
+    });
+
+    it('should throw an error if named query does not specify a database', async () => {
+      athenaClientMock.on(GetNamedQueryCommand).resolves({
+        NamedQuery: {
+          WorkGroup: 'test-workgroup',
+          QueryString: 'SELECT 1',
+        } as any,
       });
 
-      const result = await repository.startQuery('SELECT 1', []);
+      await expect(
+        repository.startQuery('namedQueryWithoutDatabase', ['param']),
+      ).rejects.toThrow(
+        'Named query namedQueryWithoutDatabase does not specify a database.',
+      );
+    });
 
-      expect(result).toBe('query-789');
+    it('should throw an error if named query does not specify a workgroup', async () => {
+      athenaClientMock.on(GetNamedQueryCommand).resolves({
+        NamedQuery: {
+          Database: 'test-database',
+          QueryString: 'SELECT 1',
+        } as any,
+      });
+
+      await expect(
+        repository.startQuery('namedQueryWithoutWorkgroup', ['param']),
+      ).rejects.toThrow(
+        'Named query namedQueryWithoutWorkgroup does not specify a workgroup.',
+      );
     });
 
     it('should propagate Athena client errors', async () => {

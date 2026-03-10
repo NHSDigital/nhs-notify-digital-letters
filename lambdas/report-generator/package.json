@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "@aws-sdk/client-athena": "^3.984.0",
-    "@aws-sdk/client-sqs": "^3.984.0",
     "digital-letters-events": "^0.0.1",
     "utils": "^0.0.1"
   },
@@ -15,7 +14,7 @@
   "name": "nhs-notify-digital-letters-report-generator",
   "private": true,
   "scripts": {
-    "lambda-build": "rm -rf dist && npx esbuild --bundle --minify --sourcemap --target=es2020 --platform=node --loader:.node=file --entry-names=[name] --outdir=dist src/index.ts && cp -r src/queries dist/",
+    "lambda-build": "rm -rf dist && npx esbuild --bundle --minify --sourcemap --target=es2020 --platform=node --loader:.node=file --entry-names=[name] --outdir=dist src/index.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test:unit": "jest",

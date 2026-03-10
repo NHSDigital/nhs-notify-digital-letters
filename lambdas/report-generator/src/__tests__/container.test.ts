@@ -2,8 +2,7 @@ import { createContainer } from 'container';
 
 jest.mock('infra/config', () => ({
   loadConfig: jest.fn(() => ({
-    athenaDatabase: 'test-database',
-    athenaWorkgroup: 'test-workgroup',
+    athenaNamedQueryId: 'test-named-query-id',
     eventPublisherDlqUrl: 'test-url',
     eventPublisherEventBusArn: 'test-arn',
     maxPollLimit: 10,

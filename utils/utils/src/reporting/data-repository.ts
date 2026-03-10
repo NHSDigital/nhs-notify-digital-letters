@@ -1,18 +1,17 @@
 import {
   AthenaClient,
+  GetNamedQueryCommand,
   GetQueryExecutionCommand,
   StartQueryExecutionCommand,
 } from '@aws-sdk/client-athena';
 
 export type AthenaDataRepositoryDependencies = {
   athenaClient: AthenaClient;
-  athenaWorkgroup: string;
-  athenaDatabase: string;
 };
 
 export type IDataRepository = {
   startQuery(
-    query: string,
+    namedQueryId: string,
     executionParameters: string[],
   ): Promise<string | undefined>;
   getQueryStatus(reportQueryId: string): Promise<string | undefined>;
@@ -21,14 +20,8 @@ export type IDataRepository = {
 export class AthenaDataRepository implements IDataRepository {
   readonly athenaClient: AthenaClient;
 
-  readonly workGroup: string;
-
-  readonly database: string;
-
   constructor(dependencies: AthenaDataRepositoryDependencies) {
     this.athenaClient = dependencies.athenaClient;
-    this.workGroup = dependencies.athenaWorkgroup;
-    this.database = dependencies.athenaDatabase;
   }
 
   /**
@@ -37,11 +30,37 @@ export class AthenaDataRepository implements IDataRepository {
    * @param {string} query - The query string to execute.
    * @return {Promise<string>} - The ID of the query execution.
    */
-  async startQuery(query: string, executionParameters: string[]) {
+  async startQuery(namedQueryId: string, executionParameters: string[]) {
+    const namedQueryResponse = await this.athenaClient.send(
+      new GetNamedQueryCommand({
+        NamedQueryId: namedQueryId,
+      }),
+    );
+
+    const queryString = namedQueryResponse.NamedQuery?.QueryString;
+    const queryDatabase = namedQueryResponse.NamedQuery?.Database;
+    const queryWorkGroup = namedQueryResponse.NamedQuery?.WorkGroup;
+
+    if (!queryString) {
+      throw new Error(`Named query ${namedQueryId} not found or has no SQL.`);
+    }
+
+    if (!queryDatabase) {
+      throw new Error(
+        `Named query ${namedQueryId} does not specify a database.`,
+      );
+    }
+
+    if (!queryWorkGroup) {
+      throw new Error(
+        `Named query ${namedQueryId} does not specify a workgroup.`,
+      );
+    }
+
     const executionCommand = new StartQueryExecutionCommand({
-      QueryString: query,
-      WorkGroup: this.workGroup,
-      QueryExecutionContext: { Database: this.database },
+      QueryString: queryString,
+      WorkGroup: queryWorkGroup,
+      QueryExecutionContext: { Database: queryDatabase },
       ExecutionParameters: executionParameters,
     });
 

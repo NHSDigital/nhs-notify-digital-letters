@@ -16,8 +16,7 @@ import { AthenaClient } from '@aws-sdk/client-athena';
 
 export const createContainer = () => {
   const {
-    athenaDatabase,
-    athenaWorkgroup,
+    athenaNamedQueryId,
     eventPublisherDlqUrl,
     eventPublisherEventBusArn,
     maxPollLimit,
@@ -32,8 +31,6 @@ export const createContainer = () => {
 
   const dataRepositoryDependencies: AthenaDataRepositoryDependencies = {
     athenaClient,
-    athenaDatabase,
-    athenaWorkgroup,
   };
 
   const dataRepository = new AthenaDataRepository(dataRepositoryDependencies);
@@ -56,6 +53,7 @@ export const createContainer = () => {
     logger,
     reportService,
     reportName,
+    athenaNamedQueryId,
   );
 
   const eventPublisher = new EventPublisher({

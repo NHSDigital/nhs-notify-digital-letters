@@ -1,8 +1,7 @@
 import { defaultConfigReader } from 'utils';
 
 export type ReportGeneratorConfig = {
-  athenaWorkgroup: string;
-  athenaDatabase: string;
+  athenaNamedQueryId: string;
   eventPublisherEventBusArn: string;
   eventPublisherDlqUrl: string;
   maxPollLimit: number;
@@ -13,8 +12,7 @@ export type ReportGeneratorConfig = {
 
 export function loadConfig(): ReportGeneratorConfig {
   return {
-    athenaWorkgroup: defaultConfigReader.getValue('ATHENA_WORKGROUP'),
-    athenaDatabase: defaultConfigReader.getValue('ATHENA_DATABASE'),
+    athenaNamedQueryId: defaultConfigReader.getValue('ATHENA_NAMED_QUERY_ID'),
     eventPublisherEventBusArn: defaultConfigReader.getValue(
       'EVENT_PUBLISHER_EVENT_BUS_ARN',
     ),
