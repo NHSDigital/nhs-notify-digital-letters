@@ -21,11 +21,11 @@ module "s3bucket_reporting" {
       enabled = true
 
       expiration = {
-        days = var.pii_retention_non_current_days
+        days = var.pii_data_retention_policy_days
       }
 
       noncurrent_version_expiration = {
-        noncurrent_days = var.pii_data_retention_policy_days
+        noncurrent_days = var.pii_data_retention_non_current_days
       }
     },
     {
@@ -37,7 +37,7 @@ module "s3bucket_reporting" {
       }
 
       noncurrent_version_expiration = {
-        noncurrent_days = var.reports_retention_non_current_days
+        noncurrent_days = var.reports_data_retention_non_current_days
       }
     },
     {
@@ -49,7 +49,7 @@ module "s3bucket_reporting" {
       }
 
       noncurrent_version_expiration = {
-        noncurrent_days = var.reports_retention_non_current_days
+        noncurrent_days = var.reports_data_retention_non_current_days
       }
     }
   ]
