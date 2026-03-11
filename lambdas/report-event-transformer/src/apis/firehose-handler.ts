@@ -62,6 +62,7 @@ function generateReportEvent(validatedRecord: ValidatedRecord): ReportEvent {
     reasonCode,
     reasonText,
     senderId,
+    status,
     supplierId,
   } = validatedRecord.event.data;
   const { time, type } = validatedRecord.event;
@@ -72,6 +73,7 @@ function generateReportEvent(validatedRecord: ValidatedRecord): ReportEvent {
     pageCount,
     senderId,
     supplierId,
+    letterStatus: status,
     reasonCode,
     reasonText,
     time,
