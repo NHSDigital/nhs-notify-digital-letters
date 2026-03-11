@@ -95,7 +95,7 @@ test.describe('Print status handler', () => {
   }
 
   test('should send invalid event to print status handler dlq', async () => {
-    test.setTimeout(250_000);
+    test.setTimeout(160_000);
 
     const messageReference = uuidv4();
 
@@ -118,22 +118,24 @@ test.describe('Print status handler', () => {
       () => true,
     );
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
-        [
-          String.raw`$.message.err.message = "*Invalid option: expected one of \\\"PENDING\\\"*"`,
-          '$.message.description = "Error parsing queue item"',
-        ],
-      );
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
+          [
+            String.raw`$.message.err.message = "*Invalid option: expected one of \\\"PENDING\\\"*"`,
+            '$.message.description = "Error parsing queue item"',
+          ],
+        );
 
-      expect(eventLogEntry.length).toEqual(1);
-    }, 120);
+        expect(eventLogEntry.length).toEqual(1);
+      }, 150),
 
-    await expectMessageContainingString(
-      PRINT_STATUS_HANDLER_DLQ_NAME,
-      messageReference,
-      120,
-    );
+      expectMessageContainingString(
+        PRINT_STATUS_HANDLER_DLQ_NAME,
+        messageReference,
+        150,
+      ),
+    ]);
   });
 });

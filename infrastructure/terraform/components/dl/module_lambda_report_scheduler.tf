@@ -1,5 +1,5 @@
 module "report_scheduler" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip"
 
   function_name = "report-scheduler"
   description   = "A function for triggering reports"

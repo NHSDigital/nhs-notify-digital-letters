@@ -128,7 +128,7 @@ test.describe('Digital Letters - Create TTL', () => {
   });
 
   test('should send invalid event to dlq', async () => {
-    test.setTimeout(250_000);
+    test.setTimeout(160_000);
 
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
@@ -149,23 +149,25 @@ test.describe('Digital Letters - Create TTL', () => {
       () => true,
     );
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
-        [
-          '$.message.description = "Error parsing ttl queue entry"',
-          `$.message.err[0].params.additionalProperty = "${unexpectedField}"`,
-        ],
-      );
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
+          [
+            '$.message.description = "Error parsing ttl queue entry"',
+            `$.message.err[0].params.additionalProperty = "${unexpectedField}"`,
+          ],
+        );
 
-      expect(eventLogEntry.length).toEqual(1);
-    }, 120);
+        expect(eventLogEntry.length).toEqual(1);
+      }, 150),
 
-    await expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 120);
+      expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 150),
+    ]);
   });
 
   test('should send events from unknown sender to dlq', async () => {
-    test.setTimeout(250_000);
+    test.setTimeout(160_000);
 
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
@@ -186,15 +188,19 @@ test.describe('Digital Letters - Create TTL', () => {
       messageDownloadedValidator,
     );
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
-        [`$.message.description = "Sender ${senderId} could not be retrieved"`],
-      );
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
+          [
+            `$.message.description = "Sender ${senderId} could not be retrieved"`,
+          ],
+        );
 
-      expect(eventLogEntry.length).toEqual(1);
-    }, 120);
+        expect(eventLogEntry.length).toEqual(1);
+      }, 150),
 
-    await expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 120);
+      expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 150),
+    ]);
   });
 });

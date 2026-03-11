@@ -71,7 +71,7 @@ test.describe('Digital Letters - Print Sender', () => {
   });
 
   test('should send invalid event to print sender dlq', async () => {
-    test.setTimeout(250_000);
+    test.setTimeout(160_000);
 
     const messageReference = uuidv4();
     const event = {
@@ -98,23 +98,25 @@ test.describe('Digital Letters - Print Sender', () => {
     // Send event bypassing validation to trigger validation error in lambda
     await eventPublisher.sendEvents<PDFAnalysed>([event], () => true);
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        PRINT_SENDER_LAMBDA_LOG_GROUP_NAME,
-        [
-          '$.message.description = "Error parsing print sender queue entry"',
-          `$.message.err[0].message = "must have required property 'senderId'"`,
-          `$.message.messageReference = "${messageReference}"`,
-        ],
-      );
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          PRINT_SENDER_LAMBDA_LOG_GROUP_NAME,
+          [
+            '$.message.description = "Error parsing print sender queue entry"',
+            `$.message.err[0].message = "must have required property 'senderId'"`,
+            `$.message.messageReference = "${messageReference}"`,
+          ],
+        );
 
-      expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
-    }, 120);
+        expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
+      }, 150),
 
-    await expectMessageContainingString(
-      PRINT_SENDER_DLQ_NAME,
-      messageReference,
-      120,
-    );
+      expectMessageContainingString(
+        PRINT_SENDER_DLQ_NAME,
+        messageReference,
+        150,
+      ),
+    ]);
   });
 });
