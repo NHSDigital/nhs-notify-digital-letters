@@ -1,5 +1,5 @@
 module "s3bucket_reporting" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.30/terraform-s3bucket.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-s3bucket.zip"
 
   name = "reporting"
 
@@ -17,15 +17,39 @@ module "s3bucket_reporting" {
 
   lifecycle_rules = [
     {
-      prefix  = ""
+      prefix  = "kinesis-firehose-output"
       enabled = true
 
       expiration = {
-        days = local.pii_retention_config.current_days
+        days = var.pii_data_retention_policy_days
       }
 
       noncurrent_version_expiration = {
-        noncurrent_days = local.pii_retention_config.non_current_days
+        noncurrent_days = var.pii_data_retention_non_current_days
+      }
+    },
+    {
+      prefix  = "athena-output"
+      enabled = true
+
+      expiration = {
+        days = var.reports_data_retention_policy_days
+      }
+
+      noncurrent_version_expiration = {
+        noncurrent_days = var.reports_data_retention_non_current_days
+      }
+    },
+    {
+      prefix  = "event-reports"
+      enabled = true
+
+      expiration = {
+        days = var.reports_data_retention_policy_days
+      }
+
+      noncurrent_version_expiration = {
+        noncurrent_days = var.reports_data_retention_non_current_days
       }
     }
   ]

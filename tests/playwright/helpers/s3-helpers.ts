@@ -61,4 +61,12 @@ async function downloadFromS3(
   };
 }
 
-export { downloadFromS3, uploadToS3 };
+async function existsInS3(bucket: string, keyPrefix: string): Promise<boolean> {
+  const objects = await s3.send(
+    new ListObjectsV2Command({ Bucket: bucket, Prefix: keyPrefix }),
+  );
+
+  return (objects.Contents?.length ?? 0) > 0;
+}
+
+export { downloadFromS3, existsInS3, uploadToS3 };

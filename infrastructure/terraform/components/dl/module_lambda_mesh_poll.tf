@@ -1,5 +1,5 @@
 module "mesh_poll" {
-  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/v2.0.29/terraform-lambda.zip"
+  source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip"
 
   function_name = "mesh-poll"
   description   = "A lambda function for polling MESH inbox for new messages"

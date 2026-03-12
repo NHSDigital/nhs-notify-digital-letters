@@ -174,8 +174,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
   });
 
   test('should send invalid event to uploader dlq', async () => {
-    // Sadly it takes longer than expected to go through the 3 retries before it's sent to the DLQ.
-    test.setTimeout(550_000);
+    test.setTimeout(160_000);
 
     const eventId = uuidv4();
     const messageUri = `not-a-valid-s3-uri`;
@@ -199,19 +198,21 @@ test.describe('Digital Letters - Upload to PDM', () => {
       () => true,
     );
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        EVENT_BUS_LOG_GROUP_NAME,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-        ],
-      );
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          EVENT_BUS_LOG_GROUP_NAME,
+          [
+            '$.message_type = "EVENT_RECEIPT"',
+            '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1"',
+            `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+          ],
+        );
 
-      expect(eventLogEntry.length).toEqual(1);
-    }, 120);
+        expect(eventLogEntry.length).toEqual(1);
+      }, 150),
 
-    await expectMessageContainingString(PDM_UPLOADER_DLQ_NAME, eventId, 420);
+      expectMessageContainingString(PDM_UPLOADER_DLQ_NAME, eventId, 150),
+    ]);
   });
 });
