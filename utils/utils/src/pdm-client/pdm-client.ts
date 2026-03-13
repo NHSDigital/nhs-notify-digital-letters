@@ -62,13 +62,22 @@ export class PdmClient implements IPdmClient {
                   Authorization: `Bearer ${accessToken}`,
                 }),
           };
-          const response = await this.client.post(
-            '/patient-data-manager/FHIR/R4/DocumentReference',
-            fhirRequest,
-            { headers },
-          );
 
-          return response.data;
+          try {
+            const response = await this.client.post(
+              '/patient-data-manager/FHIR/R4/DocumentReference',
+              fhirRequest,
+              { headers },
+            );
+            return response.data;
+          } catch (error) {
+            this.logger.warn({
+              description: 'Error response from PDM',
+              requestId,
+              err: error,
+            });
+            throw error;
+          }
         },
         (err) =>
           Boolean(

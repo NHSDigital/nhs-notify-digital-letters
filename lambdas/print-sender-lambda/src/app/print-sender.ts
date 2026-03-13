@@ -20,6 +20,8 @@ export class PrintSender {
 
   async send(item: PDFAnalysed): Promise<PrintSenderOutcome> {
     try {
+      const eventSource = `/data-plane/digital-letters/${this.accountType}/${this.environment}`;
+      const eventSubject = `client/${item.data.senderId}/letter-request/${item.data.messageReference}`;
       const letterPreparedEvent: LetterRequestPreparedEvent = {
         id: randomUUID(),
         time: new Date().toISOString(),
@@ -27,13 +29,13 @@ export class PrintSender {
         type: 'uk.nhs.notify.letter-rendering.letter-request.prepared.v1',
         dataschema:
           'https://notify.nhs.uk/cloudevents/schemas/letter-rendering/letter-request.prepared.1.1.5.schema.json',
-        source: `/data-plane/digital-letters/${this.accountType}/${this.environment}`,
+        source: eventSource,
         specversion: '1.0',
         datacontenttype: 'application/json',
         traceparent: item.traceparent,
         severitynumber: item.severitynumber,
         severitytext: 'INFO',
-        subject: `client/${item.data.senderId}/letter-request/${item.data.messageReference}`,
+        subject: eventSubject,
         dataschemaversion: '1.1.5',
         plane: 'data',
         data: {
@@ -55,6 +57,14 @@ export class PrintSender {
         [letterPreparedEvent],
         (event) => $LetterRequestPreparedEvent.safeParse(event).success,
       );
+
+      this.logger.info({
+        description: 'Sent letter prepared event',
+        messageReference: item.data.messageReference,
+        senderId: item.data.senderId,
+        eventSource,
+        eventSubject,
+      });
     } catch (error) {
       this.logger.error({
         description: 'Error sending letter prepared event',
