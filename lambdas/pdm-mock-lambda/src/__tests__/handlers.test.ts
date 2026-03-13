@@ -157,37 +157,37 @@ describe('GET Resource Handler', () => {
   describe('error scenarios', () => {
     it.each([
       {
-        id: 'error-400-invalid',
+        id: 'error-400-invalid-a1b2c3',
         expectedStatus: 400,
         expectedCode: 'INVALID_VALUE',
       },
       {
-        id: 'error-401-unauthorized',
+        id: 'error-401-unauthorized-d4e5f6',
         expectedStatus: 401,
         expectedCode: 'UNAUTHORISED',
       },
       {
-        id: 'error-403-forbidden',
+        id: 'error-403-forbidden-7g8h9i',
         expectedStatus: 403,
         expectedCode: 'FORBIDDEN',
       },
       {
-        id: 'error-404-notfound',
+        id: 'error-404-notfound-a1b2c3',
         expectedStatus: 404,
         expectedCode: 'RESOURCE_NOT_FOUND',
       },
       {
-        id: 'error-429-ratelimit',
+        id: 'error-429-ratelimit-j8f6l1',
         expectedStatus: 429,
         expectedCode: 'TOO_MANY_REQUESTS',
       },
       {
-        id: 'error-500-internal',
+        id: 'error-500-internal-i9j0k1',
         expectedStatus: 500,
         expectedCode: 'INTERNAL_ERROR',
       },
       {
-        id: 'error-503-unavailable',
+        id: 'error-503-unavailable-j1k2l3',
         expectedStatus: 503,
         expectedCode: 'SERVICE_UNAVAILABLE',
       },
