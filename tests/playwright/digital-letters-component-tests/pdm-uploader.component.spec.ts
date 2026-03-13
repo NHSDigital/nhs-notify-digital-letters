@@ -114,17 +114,22 @@ test.describe('Digital Letters - Upload to PDM', () => {
   });
 
   test('should send a pdm.resource.submission.rejected event following an error from PDM', async () => {
-    // Note: I suspect this will fail once we are using the PDM Mock and will need amending.
+    // Two mechanisms are used to trigger errors from PDM in this test
+    // - the first is a specific messageReference which the mock PDM is configured to return an error for.
+    // - the second is an unexpected field in the PDM request which causes the real PDM to return an error.
+    const messageReference = `error-500-internal-${uuidv4()}`;
+    const unexpectedField = 'I should not be here';
+
     const eventId = uuidv4();
     const letterId = uuidv4();
     const resourceKey = `test/${letterId}`;
     const messageUri = `s3://${LETTERS_S3_BUCKET_NAME}/${resourceKey}`;
-    const messageReference = uuidv4();
     const senderId = SENDER_ID_SKIPS_NOTIFY;
     const meshMessageId = '12345';
+
     const invalidPdmRequest = {
       ...pdmRequest,
-      unexpectedField: 'I should not be here',
+      unexpectedField,
     };
 
     await putDataS3(invalidPdmRequest, {
