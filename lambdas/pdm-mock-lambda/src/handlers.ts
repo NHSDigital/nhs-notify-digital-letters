@@ -226,7 +226,7 @@ export const createGetResourceHandler = (logger: Logger) => {
     }
 
     const errorScenario = ERROR_SCENARIOS.find((s) =>
-      s.id.startsWith(resourceId),
+      resourceId.startsWith(s.id),
     );
     if (errorScenario) {
       logger.debug('Triggering error scenario', {
@@ -296,7 +296,7 @@ export const createCreateResourceHandler = (logger: Logger) => {
     });
 
     const errorScenario = ERROR_SCENARIOS.find((s) =>
-      s.id.startsWith(resourceId),
+      resourceId.startsWith(s.id),
     );
     if (errorScenario) {
       logger.debug('Triggering error scenario', {
