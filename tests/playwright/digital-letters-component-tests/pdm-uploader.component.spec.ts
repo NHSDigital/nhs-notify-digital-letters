@@ -129,7 +129,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
 
     const invalidPdmRequest = {
       ...pdmRequest,
-      unexpectedField
+      unexpectedField,
     };
 
     await putDataS3(invalidPdmRequest, {
