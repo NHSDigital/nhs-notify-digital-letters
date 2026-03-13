@@ -77,7 +77,10 @@ function validateRecord(
   }
 }
 
-function generateUpdatedEvent(event: LetterEvent): PrintLetterTransitioned {
+function generateUpdatedEvent(
+  event: LetterEvent,
+  logger: Logger,
+): PrintLetterTransitioned {
   const eventTime = new Date().toISOString();
 
   const {
@@ -94,6 +97,12 @@ function generateUpdatedEvent(event: LetterEvent): PrintLetterTransitioned {
 
   const senderId = subject.split('/')[1];
   const messageReference = subject.split('/')[3];
+
+  logger.info({
+    description: 'Generating print letter transitioned event',
+    senderId,
+    messageReference,
+  });
 
   return {
     ...event,
@@ -144,7 +153,7 @@ export const createHandler = ({
       validatedRecords.map(async (validatedRecord: ValidatedRecord) => {
         try {
           const { event } = validatedRecord;
-          validEvents.push(generateUpdatedEvent(event));
+          validEvents.push(generateUpdatedEvent(event, logger));
         } catch (error: any) {
           logger.warn({
             err: error.message,
