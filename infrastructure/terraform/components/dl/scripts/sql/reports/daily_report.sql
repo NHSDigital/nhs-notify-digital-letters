@@ -55,6 +55,7 @@ WITH vars AS (
         te.status
     FROM "translated_events" AS te
     where te.status IS NOT NULL
+        AND te.communicationtype IS NOT NULL
 )
 SELECT oe.messagereference as "Message Reference",
     oe.time as "Time",
