@@ -11,9 +11,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
   DigitalLetterRead,
+  FileQuarantined,
   GenerateReport,
   ItemDequeued,
   MESHInboxMessageDownloaded,
+  MessageRequestRejected,
+  PDMResourceRetriesExceeded,
+  PDMResourceSubmissionRejected,
   PrintLetterTransitioned,
 } from 'digital-letters-events';
 import generateReportValidator from 'digital-letters-events/GenerateReport.js';
@@ -21,6 +25,10 @@ import digitalLetterReadValidator from 'digital-letters-events/DigitalLetterRead
 import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
 import printLetterTransitionedValidator from 'digital-letters-events/PrintLetterTransitioned.js';
+import pdmResourceSubmissionRejectedValidator from 'digital-letters-events/PDMResourceSubmissionRejected.js';
+import pdmResourceRetriesExceededValidator from 'digital-letters-events/PDMResourceRetriesExceeded.js';
+import messageRequestRejectedValidator from 'digital-letters-events/MessageRequestRejected.js';
+import fileQuarantinedValidator from 'digital-letters-events/FileQuarantined.js';
 import {
   QueryExecutionState,
   getQueryState,
@@ -31,7 +39,11 @@ import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import {
   buildDigitalLetterReadEvent,
+  buildFileQuarantinedEvent,
   buildItemDequeuedEvent,
+  buildMessageRequestRejectedEvent,
+  buildPDMResourceRetriesExceededEvent,
+  buildPDMResourceSubmissionRejectedEvent,
   buildPrintLetterTransitionedEvent,
 } from 'helpers/event-builders';
 import { existsInS3 } from 'helpers/s3-helpers';
@@ -51,6 +63,10 @@ export enum EventStatus {
   Failed = 'FAILED',
   Returned = 'RETURNED',
   Pending = 'PENDING',
+  DigitalPDMResourceSubmissionRejected = 'PDMResourceSubmissionRejected',
+  DigitalPDMResourceRetriesExceeded = 'PDMResourceRetriesExceeded',
+  DigitalMessageRequestRejected = 'MessageRequestRejected',
+  PrintFileQuarantined = 'FileQuarantined',
 }
 /**
  * Utility class to proof the SQL logic to determine which status should be reported for a given message reference,
@@ -105,46 +121,108 @@ export function publishEventForScenario(scenario: ReportScenario) {
   for (const status of scenario.eventStatuses) {
     switch (scenario.communicationType) {
       case CommunicationType.Digital: {
-        if (EventStatus.Read === status) {
-          eventPublisher.sendEvents<DigitalLetterRead>(
-            [
-              buildDigitalLetterReadEvent(
-                uuidv4(),
-                scenario.time,
-                scenario.messageReference,
-                scenario.senderId,
-              ),
-            ],
-            digitalLetterReadValidator,
-          );
-        } else if (EventStatus.Unread === status) {
-          eventPublisher.sendEvents<ItemDequeued>(
-            [
-              buildItemDequeuedEvent(
-                uuidv4(),
-                scenario.time,
-                scenario.messageReference,
-                scenario.senderId,
-              ),
-            ],
-            itemDequeuedValidator,
-          );
+        switch (status) {
+          case EventStatus.Read: {
+            eventPublisher.sendEvents<DigitalLetterRead>(
+              [
+                buildDigitalLetterReadEvent(
+                  uuidv4(),
+                  scenario.time,
+                  scenario.messageReference,
+                  scenario.senderId,
+                ),
+              ],
+              digitalLetterReadValidator,
+            );
+            break;
+          }
+          case EventStatus.Unread: {
+            eventPublisher.sendEvents<ItemDequeued>(
+              [
+                buildItemDequeuedEvent(
+                  uuidv4(),
+                  scenario.time,
+                  scenario.messageReference,
+                  scenario.senderId,
+                ),
+              ],
+              itemDequeuedValidator,
+            );
+            break;
+          }
+          case EventStatus.DigitalPDMResourceSubmissionRejected: {
+            eventPublisher.sendEvents<PDMResourceSubmissionRejected>(
+              [
+                buildPDMResourceSubmissionRejectedEvent(
+                  uuidv4(),
+                  scenario.time,
+                  scenario.messageReference,
+                  scenario.senderId,
+                ),
+              ],
+              pdmResourceSubmissionRejectedValidator,
+            );
+            break;
+          }
+          case EventStatus.DigitalPDMResourceRetriesExceeded: {
+            eventPublisher.sendEvents<PDMResourceRetriesExceeded>(
+              [
+                buildPDMResourceRetriesExceededEvent(
+                  uuidv4(),
+                  scenario.time,
+                  scenario.messageReference,
+                  scenario.senderId,
+                ),
+              ],
+              pdmResourceRetriesExceededValidator,
+            );
+            break;
+          }
+          case EventStatus.DigitalMessageRequestRejected: {
+            eventPublisher.sendEvents<MessageRequestRejected>(
+              [
+                buildMessageRequestRejectedEvent(
+                  uuidv4(),
+                  scenario.time,
+                  scenario.messageReference,
+                  scenario.senderId,
+                ),
+              ],
+              messageRequestRejectedValidator,
+            );
+            break;
+          }
+          default:
         }
         break;
       }
       case CommunicationType.Print: {
-        eventPublisher.sendEvents<PrintLetterTransitioned>(
-          [
-            buildPrintLetterTransitionedEvent(
-              uuidv4(),
-              scenario.time,
-              scenario.messageReference,
-              status,
-              scenario.senderId,
-            ),
-          ],
-          printLetterTransitionedValidator,
-        );
+        if (EventStatus.PrintFileQuarantined === status) {
+          eventPublisher.sendEvents<FileQuarantined>(
+            [
+              buildFileQuarantinedEvent(
+                uuidv4(),
+                scenario.time,
+                scenario.messageReference,
+                scenario.senderId,
+              ),
+            ],
+            fileQuarantinedValidator,
+          );
+        } else {
+          eventPublisher.sendEvents<PrintLetterTransitioned>(
+            [
+              buildPrintLetterTransitionedEvent(
+                uuidv4(),
+                scenario.time,
+                scenario.messageReference,
+                status,
+                scenario.senderId,
+              ),
+            ],
+            printLetterTransitionedValidator,
+          );
+        }
         break;
       }
       default: {
