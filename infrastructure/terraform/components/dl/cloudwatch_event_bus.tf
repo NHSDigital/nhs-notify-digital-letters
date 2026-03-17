@@ -34,8 +34,8 @@ data "aws_iam_policy_document" "main_event_bus_document" {
     effect = "Allow"
 
     principals {
-      type        = "Service"
-      identifiers = ["events.amazonaws.com"]
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${var.eventbus_account_id}:root"]
     }
 
     actions = [
@@ -49,7 +49,9 @@ data "aws_iam_policy_document" "main_event_bus_document" {
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = ["arn:aws:events:${var.region}:${var.eventbus_account_id}:rule/*-data-plane/*"]
+      values = [
+        "arn:aws:events:${var.region}:${var.eventbus_account_id}:rule/*-data-plane*"
+      ]
     }
   }
 }
