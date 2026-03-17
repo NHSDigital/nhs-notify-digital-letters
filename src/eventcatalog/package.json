@@ -7,9 +7,11 @@
   },
   "name": "digital-letters",
   "overrides": {
+    "flatted": "^3.4.0",
     "minimatch": "^10.2.4",
     "svgo": "^4.0.1",
-    "underscore": "^1.13.8"
+    "underscore": "^1.13.8",
+    "undici": "^7.24.0"
   },
   "private": true,
   "scripts": {
