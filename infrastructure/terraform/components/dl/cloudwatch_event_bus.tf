@@ -33,6 +33,11 @@ data "aws_iam_policy_document" "main_event_bus_document" {
     sid    = "AllowCrossDomainEventBridgeToPutEvent"
     effect = "Allow"
 
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
     actions = [
       "events:PutEvents",
     ]
