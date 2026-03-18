@@ -10,7 +10,6 @@ import {
   prerequisiteAssertFirehoseEventsInS3,
   prerequisiteTriggerAndAssertGlueTableRefresh,
   publishEventForScenario,
-  publishEventNotInReports,
   publishGenerateReport,
 } from 'helpers/report-helpers';
 
@@ -175,7 +174,6 @@ test.describe('Digital Letters - Report Generator', () => {
 
     for (const scenario of scenarios) publishEventForScenario(scenario);
     // At this stage we published all the events used for test data.
-    await publishEventNotInReports(senderId);
     // Asserts step 1.2
     await prerequisiteAssertFirehoseEventsInS3(senderId);
     // Asserts step 2.1
