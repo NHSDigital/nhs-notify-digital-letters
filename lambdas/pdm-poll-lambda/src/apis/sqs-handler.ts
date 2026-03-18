@@ -15,6 +15,7 @@ import pdmResourceSubmittedValidator from 'digital-letters-events/PDMResourceSub
 import pdmResourceUnavailableValidator from 'digital-letters-events/PDMResourceUnavailable.js';
 import pdmResourceRetriesExceededValidator from 'digital-letters-events/PDMResourceRetriesExceeded.js';
 import { randomUUID } from 'node:crypto';
+import { deriveChildTraceparent } from 'utils/trace-context';
 import { EventPublisher, Logger } from 'utils';
 
 export interface HandlerDependencies {
@@ -88,6 +89,7 @@ function generateAvailableEvent(
     id: randomUUID(),
     time: eventTime,
     recordedtime: eventTime,
+    traceparent: deriveChildTraceparent(event.traceparent),
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
@@ -112,6 +114,7 @@ function generateUnavailableEvent(
     id: randomUUID(),
     time: eventTime,
     recordedtime: eventTime,
+    traceparent: deriveChildTraceparent(event.traceparent),
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
@@ -135,6 +138,7 @@ function generateRetriesExceededEvent(
     id: randomUUID(),
     time: eventTime,
     recordedtime: eventTime,
+    traceparent: deriveChildTraceparent(event.traceparent),
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-retries-exceeded-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
@@ -184,16 +188,30 @@ export const createHandler = ({
 
           if (pdmAvailability === 'unavailable') {
             if (retries >= pollMaxRetries) {
-              retriesExceededEvents.push(
-                generateRetriesExceededEvent(event, retries),
-              );
+              const outgoing = generateRetriesExceededEvent(event, retries);
+              logger.info({
+                description: 'TraceContext hop',
+                incoming_traceparent: event.traceparent,
+                outgoing_traceparent: outgoing.traceparent,
+              });
+              retriesExceededEvents.push(outgoing);
             } else {
-              unavailableEvents.push(generateUnavailableEvent(event, retries));
+              const outgoing = generateUnavailableEvent(event, retries);
+              logger.info({
+                description: 'TraceContext hop',
+                incoming_traceparent: event.traceparent,
+                outgoing_traceparent: outgoing.traceparent,
+              });
+              unavailableEvents.push(outgoing);
             }
           } else {
-            availableEvents.push(
-              generateAvailableEvent(event, nhsNumber, odsCode),
-            );
+            const outgoing = generateAvailableEvent(event, nhsNumber, odsCode);
+            logger.info({
+              description: 'TraceContext hop',
+              incoming_traceparent: event.traceparent,
+              outgoing_traceparent: outgoing.traceparent,
+            });
+            availableEvents.push(outgoing);
           }
         } catch (error: any) {
           logger.warn({

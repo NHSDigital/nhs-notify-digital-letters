@@ -31,7 +31,8 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./logger": "./src/logger.ts"
+    "./logger": "./src/logger.ts",
+    "./trace-context": "./src/trace-context/index.ts"
   },
   "main": "src/index.ts",
   "name": "utils",

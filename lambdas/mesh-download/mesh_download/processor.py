@@ -5,6 +5,7 @@ from uuid import uuid4
 from pydantic import ValidationError
 from digital_letters_events import MESHInboxMessageDownloaded, MESHInboxMessageReceived
 from mesh_download.errors import MeshMessageNotFound
+from dl_utils import derive_child_traceparent
 
 
 class MeshDownloadProcessor:
@@ -23,7 +24,10 @@ class MeshDownloadProcessor:
     def process_sqs_message(self, sqs_record):
         try:
             validated_event = self._parse_and_validate_event(sqs_record)
-            logger = self.__log.bind(mesh_message_id=validated_event.data.meshMessageId)
+            logger = self.__log.bind(
+                mesh_message_id=validated_event.data.meshMessageId,
+                traceparent=validated_event.traceparent,
+            )
 
             logger.info("Processing MESH download request")
             self._handle_download(validated_event, logger)
@@ -106,14 +110,21 @@ class MeshDownloadProcessor:
     def _publish_downloaded_event(self, incoming_event, message_uri):
         """
         Publishes a MESHInboxMessageDownloaded event.
+
+        The outgoing event derives a child traceparent from the incoming event's
+        traceparent, preserving the same trace-id while generating a fresh span-id
+        for this service hop.
         """
         now = datetime.now(timezone.utc).isoformat()
+
+        child_traceparent = derive_child_traceparent(incoming_event.traceparent)
 
         cloud_event = {
             **incoming_event.model_dump(exclude_none=True),
             'id': str(uuid4()),
             'time': now,
             'recordedtime': now,
+            'traceparent': child_traceparent,
             'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
             'dataschema': (
                 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/'
@@ -137,5 +148,7 @@ class MeshDownloadProcessor:
             "Published MESHInboxMessageDownloaded event",
             sender_id=incoming_event.data.senderId,
             message_uri=message_uri,
-            message_reference=incoming_event.data.messageReference
+            message_reference=incoming_event.data.messageReference,
+            incoming_traceparent=incoming_event.traceparent,
+            outgoing_traceparent=child_traceparent,
         )
