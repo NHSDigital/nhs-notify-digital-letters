@@ -1,5 +1,5 @@
 resource "aws_lambda_permission" "pdm_mock_gateway" {
-  count = local.deploy_pdm_mock ? 1 : 0
+  count = var.enable_pdm_mock ? 1 : 0
 
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
