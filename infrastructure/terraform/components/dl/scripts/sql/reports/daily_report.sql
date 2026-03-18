@@ -32,6 +32,7 @@ WITH vars AS (
         AND e.__year = year(v.dt)
         AND e.__month = month(v.dt)
         AND e.__day = day(v.dt)
+        AND e.type NOT LIKE '%.mesh.%'
 ),
 "ordered_events" AS (
     SELECT ROW_NUMBER() OVER (
