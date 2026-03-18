@@ -196,11 +196,6 @@ variable "eventpub_data_plane_bus_arn" {
   description = "Event publisher data plane"
 }
 
-variable "eventbus_account_id" {
-  type        = string
-  description = "The AWS Account ID for the event bus"
-}
-
 variable "report_scheduler_schedule" {
   type        = string
   description = "Schedule to trigger sender reports"

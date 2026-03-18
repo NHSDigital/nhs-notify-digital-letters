@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "main_event_bus_document" {
 
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::${var.eventbus_account_id}:root"]
+      identifiers = ["arn:aws:iam::${var.shared_infra_account_id}:root"]
     }
 
     actions = [
@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "main_event_bus_document" {
       test     = "ArnLike"
       variable = "aws:SourceArn"
       values = [
-        "arn:aws:events:${var.region}:${var.eventbus_account_id}:rule/*-data-plane*"
+        "arn:aws:events:${var.region}:${var.shared_infra_account_id}:rule/*-data-plane*"
       ]
     }
   }
