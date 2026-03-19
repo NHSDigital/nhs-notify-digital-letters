@@ -19,7 +19,6 @@ Creates a new PDM DocumentReference.
 
 ```bash
 curl -X POST https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentReference \
-  -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/fhir+json" \
   -H "X-Request-ID: 4a0e5f18-1747-4438-ac52-5ba2c21575f5" \
   -d '{}'
@@ -27,7 +26,6 @@ curl -X POST https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentRefe
 
 **Headers:**
 
-- `Authorization: Bearer <token>` - Authentication token is not validated and can be any string value.
 - `Content-Type: application/fhir+json` - Required content type.
 - `X-Request-ID: <UUID>` - This uuid will be used as the DocumentReference `id` in the response.
 
@@ -69,14 +67,12 @@ Retrieves a specific PDM DocumentReference by ID.
 
 ```bash
 curl https://<api-gateway-url>/patient-data-manager/FHIR/R4/DocumentReference/test-id \
-  -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/fhir+json" \
   -H "X-Request-ID: 848b67ea-eeaa-3620-a388-e4e8594ff2e3"
 ```
 
 **Headers:**
 
-- `Authorization: Bearer <token>` - Authentication token is not validated and can be any string value.
 - `Content-Type: application/fhir+json` - Required content type.
 - `X-Request-ID: <uuid>` - Used for request tracking and correlation. This isn't part of the ID or response that gets returned.
 

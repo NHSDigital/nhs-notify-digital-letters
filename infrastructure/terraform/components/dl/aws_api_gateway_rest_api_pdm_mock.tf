@@ -1,5 +1,5 @@
 resource "aws_api_gateway_rest_api" "pdm_mock" {
-  count = local.deploy_pdm_mock ? 1 : 0
+  count = var.enable_pdm_mock ? 1 : 0
 
   name        = "${var.project}-${var.environment}-pdm-mock"
   description = "PDM Mock API for testing integration with Patient Data Manager"
