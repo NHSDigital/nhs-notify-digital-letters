@@ -32,7 +32,6 @@ WITH vars AS (
         AND e.__year = year(v.dt)
         AND e.__month = month(v.dt)
         AND e.__day = day(v.dt)
-        AND e.type NOT LIKE '%.mesh.%'
 ),
 "ordered_events" AS (
     SELECT ROW_NUMBER() OVER (
@@ -55,7 +54,7 @@ WITH vars AS (
         te.communicationtype,
         te.status
     FROM "translated_events" AS te
-    where te.status IS NOT NULL
+    WHERE te.status IS NOT NULL
         AND te.communicationtype IS NOT NULL
 )
 SELECT oe.messagereference as "Message Reference",
