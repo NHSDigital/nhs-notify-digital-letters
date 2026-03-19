@@ -5,6 +5,10 @@ import {
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { randomUUID } from 'node:crypto';
 import { Logger } from '../logger';
+import {
+  createTraceparent,
+  deriveChildTraceparent,
+} from '../trace-context/trace-context';
 
 type DlqReason = 'INVALID_EVENT' | 'EVENTBRIDGE_FAILURE';
 
@@ -195,6 +199,16 @@ export class EventPublisher {
     if (events.length === 0) {
       this.logger.info({ description: 'No events to send' });
       return [];
+    }
+
+    // Stamp each event with a traceparent: derive child if one exists, else create root
+    for (const event of events) {
+      const incoming = (event as any).traceparent as string | undefined;
+      if (incoming) {
+        (event as any).traceparent = deriveChildTraceparent(incoming);
+      } else {
+        (event as any).traceparent = createTraceparent();
+      }
     }
 
     const validEvents: T[] = [];
