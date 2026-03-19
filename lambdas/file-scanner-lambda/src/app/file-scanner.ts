@@ -24,6 +24,7 @@ export interface ScanFileMetadata {
   messageReference: string;
   senderId: string;
   createdAt: string;
+  traceparent: string;
 }
 
 export type ScanFileResult = {
@@ -158,6 +159,7 @@ export class FileScanner {
         messageReference: metadata.messageReference,
         senderId: metadata.senderId,
         createdAt: metadata.createdAt,
+        traceparent: metadata.traceparent,
       },
     };
 
