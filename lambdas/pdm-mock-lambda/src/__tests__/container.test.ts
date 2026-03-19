@@ -35,14 +35,9 @@ describe('Container', () => {
 
   it('should create a container with all required dependencies', () => {
     expect(container).toBeDefined();
-    expect(container.authenticator).toBeDefined();
     expect(container.getResourceHandler).toBeDefined();
     expect(container.createResourceHandler).toBeDefined();
     expect(container.logger).toBeDefined();
-  });
-
-  it('should create an authenticator function', () => {
-    expect(typeof container.authenticator).toBe('function');
   });
 
   it('should create a getResourceHandler function', () => {
@@ -73,15 +68,5 @@ describe('Container', () => {
     const result = await container.getResourceHandler(mockEvent as never);
     expect(result).toBeDefined();
     expect(result.statusCode).toBeDefined();
-  });
-
-  it('should create authenticator that can be called', async () => {
-    const mockEvent = {
-      headers: { Authorization: 'Bearer test-token' },
-    };
-
-    const result = await container.authenticator(mockEvent);
-    expect(result).toBeDefined();
-    expect(result.isValid).toBeDefined();
   });
 });

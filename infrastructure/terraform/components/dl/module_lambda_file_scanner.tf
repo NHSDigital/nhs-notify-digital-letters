@@ -37,7 +37,7 @@ module "file_scanner" {
   lambda_env_vars = {
     "DOCUMENT_REFERENCE_BUCKET"     = module.s3bucket_pii_data.bucket
     "UNSCANNED_FILES_BUCKET"        = local.unscanned_files_bucket
-    "UNSCANNED_FILES_PATH_PREFIX"   = var.environment
+    "UNSCANNED_FILES_PATH_PREFIX"   = local.csi
     "EVENT_PUBLISHER_EVENT_BUS_ARN" = aws_cloudwatch_event_bus.main.arn
     "EVENT_PUBLISHER_DLQ_URL"       = module.sqs_event_publisher_errors.sqs_queue_url
   }

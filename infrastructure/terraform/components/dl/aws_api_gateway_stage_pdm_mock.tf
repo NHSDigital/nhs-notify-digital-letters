@@ -1,5 +1,5 @@
 resource "aws_api_gateway_stage" "pdm_mock" {
-  count = local.deploy_pdm_mock ? 1 : 0
+  count = var.enable_pdm_mock ? 1 : 0
 
   deployment_id = aws_api_gateway_deployment.pdm_mock[0].id
   rest_api_id   = aws_api_gateway_rest_api.pdm_mock[0].id

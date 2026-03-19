@@ -1,5 +1,5 @@
 module "pdm_mock" {
-  count  = local.deploy_pdm_mock ? 1 : 0
+  count  = var.enable_pdm_mock ? 1 : 0
   source = "https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip"
 
   function_name = "pdm-mock"
@@ -37,7 +37,7 @@ module "pdm_mock" {
 }
 
 data "aws_iam_policy_document" "pdm_mock" {
-  count = local.deploy_pdm_mock ? 1 : 0
+  count = var.enable_pdm_mock ? 1 : 0
 
   statement {
     sid    = "KMSPermissions"
