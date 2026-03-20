@@ -74,7 +74,7 @@ describe('PrintSender', () => {
               url: mockPDFAnalysed.data.letterUri,
               clientId: mockPDFAnalysed.data.senderId,
               campaignId: 'digitalLetters',
-              letterVariantId: 'notify-digital-letter-standard',
+              letterVariantId: 'notify-digital-letters-standard',
             }),
           }),
         ]),
