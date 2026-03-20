@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_log_group" "pdm_mock_gateway" {
-  count = local.deploy_pdm_mock ? 1 : 0
+  count = var.enable_pdm_mock ? 1 : 0
 
   name              = "/aws/apigateway/${var.project}-${var.environment}-pdm-mock"
   retention_in_days = var.log_retention_in_days
