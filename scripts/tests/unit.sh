@@ -63,50 +63,60 @@ run_timed "npm ci" npm ci
 run_timed "npm run generate-dependencies" npm run generate-dependencies
 run_timed "npm run test:unit:parallel" npm run test:unit:parallel || jest_exit=$?
 
-# Python projects - asyncapigenerator
-echo "Setting up and running asyncapigenerator tests..."
-run_timed "asyncapigenerator: install-dev" make -C ./src/asyncapigenerator install-dev
-run_timed "asyncapigenerator: coverage" make -C ./src/asyncapigenerator coverage
+# Python projects - run all install-dev steps sequentially (they share the same
+# pip environment so cannot be parallelised), then run all coverage (pytest)
+# steps in parallel since each writes to its own isolated output directory.
 
-# Python projects - cloudeventjekylldocs
-echo "Setting up and running cloudeventjekylldocs tests..."
-run_timed "cloudeventjekylldocs: install-dev" make -C ./src/cloudeventjekylldocs install-dev
-run_timed "cloudeventjekylldocs: coverage" make -C ./src/cloudeventjekylldocs coverage
+# ---- Phase 1: install all Python dev dependencies (sequential, shared pip env) ----
+echo "Installing Python dev dependencies..."
+_python_projects=(
+  ./src/asyncapigenerator
+  ./src/cloudeventjekylldocs
+  ./src/eventcatalogasyncapiimporter
+  ./utils/py-utils
+  ./src/python-schema-generator
+  ./lambdas/mesh-acknowledge
+  ./lambdas/mesh-poll
+  ./lambdas/mesh-download
+  ./lambdas/report-sender
+)
+for proj in "${_python_projects[@]}"; do
+  run_timed "${proj}: install-dev" make -C "$proj" install-dev
+done
 
-# Python projects - eventcatalogasyncapiimporter
-echo "Setting up and running eventcatalogasyncapiimporter tests..."
-run_timed "eventcatalogasyncapiimporter: install-dev" make -C ./src/eventcatalogasyncapiimporter install-dev
-run_timed "eventcatalogasyncapiimporter: coverage" make -C ./src/eventcatalogasyncapiimporter coverage
+# ---- Phase 2: run all coverage steps in parallel ----
+# Each job writes output to a temp file; we print them sequentially on
+# completion so the log is readable. Non-zero exit codes are all collected and
+# the script fails at the end if any job failed.
+echo "Running Python coverage in parallel..."
 
-# Python utility packages - py-utils
-echo "Setting up and running py-utils tests..."
-run_timed "py-utils: install-dev" make -C ./utils/py-utils install-dev
-run_timed "py-utils: coverage" make -C ./utils/py-utils coverage
+_py_pids=()
+_py_labels=()
+_py_logs=()
+_py_exits=()
 
-# Python projects - python-schema-generator
-echo "Setting up and running python-schema-generator tests..."
-run_timed "python-schema-generator: install-dev" make -C ./src/python-schema-generator install-dev
-run_timed "python-schema-generator: coverage" make -C ./src/python-schema-generator coverage
+for proj in "${_python_projects[@]}"; do
+  label="${proj}: coverage"
+  logfile=$(mktemp)
+  make -C "$proj" coverage >"$logfile" 2>&1 &
+  _py_pids+=("$!")
+  _py_labels+=("$label")
+  _py_logs+=("$logfile")
+done
 
-# Python Lambda - mesh-acknowledge
-echo "Setting up and running mesh-acknowledge tests..."
-run_timed "mesh-acknowledge: install-dev" make -C ./lambdas/mesh-acknowledge install-dev
-run_timed "mesh-acknowledge: coverage" make -C ./lambdas/mesh-acknowledge coverage
-
-# Python Lambda - mesh-poll
-echo "Setting up and running mesh-poll tests..."
-run_timed "mesh-poll: install-dev" make -C ./lambdas/mesh-poll install-dev
-run_timed "mesh-poll: coverage" make -C ./lambdas/mesh-poll coverage
-
-# Python Lambda - mesh-download
-echo "Setting up and running mesh-download tests..."
-run_timed "mesh-download: install-dev" make -C ./lambdas/mesh-download install-dev
-run_timed "mesh-download: coverage" make -C ./lambdas/mesh-download coverage
-
-# Python Lambda - report-sender
-echo "Setting up and running report-sender tests..."
-run_timed "report-sender: install-dev" make -C ./lambdas/report-sender install-dev
-run_timed "report-sender: coverage" make -C ./lambdas/report-sender coverage
+# Collect results in launch order (preserves deterministic output)
+_py_start=$(date +%s)
+for i in "${!_py_pids[@]}"; do
+  wait "${_py_pids[$i]}"
+  _py_exits+=("$?")
+  echo ""
+  echo "--- ${_py_labels[$i]} ---"
+  cat "${_py_logs[$i]}"
+  rm -f "${_py_logs[$i]}"
+done
+_py_end=$(date +%s)
+_timer_labels+=("Python coverage (parallel)")
+_timer_seconds+=("$((_py_end - _py_start))")
 
 # merge coverage reports
 run_timed "lcov-result-merger" \
@@ -117,3 +127,11 @@ if [ "${jest_exit:-0}" -ne 0 ]; then
   echo "Jest tests failed with exit code ${jest_exit}"
   exit "${jest_exit}"
 fi
+
+# Propagate any Python coverage failure
+for i in "${!_py_exits[@]}"; do
+  if [ "${_py_exits[$i]}" -ne 0 ]; then
+    echo "${_py_labels[$i]} failed with exit code ${_py_exits[$i]}"
+    exit "${_py_exits[$i]}"
+  fi
+done
