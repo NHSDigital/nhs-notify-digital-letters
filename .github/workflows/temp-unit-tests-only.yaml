@@ -1,7 +1,7 @@
 name: "Temp unit tests only"
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
     inputs:
       nodejs_version:
         description: "Node.js version, set by the CI/CD pipeline workflow"
@@ -11,6 +11,9 @@ on:
         description: "Python version, set by the CI/CD pipeline workflow"
         required: true
         type: string
+  push:
+    branches:
+      - feature/CCM-14615_unit-test-quickening
 
 env:
   AWS_REGION: eu-west-2
