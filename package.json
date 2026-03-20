@@ -54,6 +54,7 @@
     "lint:fix": "npm run lint:fix --workspaces",
     "start": "npm run start --workspace frontend",
     "test:unit": "npm run test:unit --workspaces",
+    "test:unit:parallel": "cross-env NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --config jest.config.cjs",
     "typecheck": "npm run typecheck --workspaces"
   },
   "version": "0.0.1",
