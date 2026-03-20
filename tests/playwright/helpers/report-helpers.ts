@@ -14,16 +14,16 @@ import {
   FileQuarantined,
   GenerateReport,
   ItemDequeued,
-  MESHInboxMessageDownloaded,
   MessageRequestRejected,
+  MessageRequestSkipped,
   PDMResourceRetriesExceeded,
   PDMResourceSubmissionRejected,
   PrintLetterTransitioned,
 } from 'digital-letters-events';
 import generateReportValidator from 'digital-letters-events/GenerateReport.js';
 import digitalLetterReadValidator from 'digital-letters-events/DigitalLetterRead.js';
-import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
+import messageRequestSkippedValidator from 'digital-letters-events/MessageRequestSkipped.js';
 import printLetterTransitionedValidator from 'digital-letters-events/PrintLetterTransitioned.js';
 import pdmResourceSubmissionRejectedValidator from 'digital-letters-events/PDMResourceSubmissionRejected.js';
 import pdmResourceRetriesExceededValidator from 'digital-letters-events/PDMResourceRetriesExceeded.js';
@@ -272,35 +272,33 @@ export async function publishGenerateReport(
  * Publishes an event which should not be included in the report, to prove that only the expected events are included in the report.
  */
 export async function publishEventNotInReports(senderId: string) {
-  const downloadedEventId = uuidv4();
-  const downloadedEventTime = new Date().toISOString();
-  await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
+  const skippedEventId = uuidv4();
+  const skippedEventTime = new Date().toISOString();
+  await eventPublisher.sendEvents<MessageRequestSkipped>(
     [
       {
-        id: downloadedEventId,
+        id: skippedEventId,
         specversion: '1.0',
         source:
-          '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
+          '/nhs/england/notify/production/primary/data-plane/digitalletters/messages',
         subject:
           'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-        type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
-        time: downloadedEventTime,
-        recordedtime: downloadedEventTime,
+        type: 'uk.nhs.notify.digital.letters.messages.request.skipped.v1',
+        time: skippedEventTime,
+        recordedtime: skippedEventTime,
         severitynumber: 2,
         traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
         datacontenttype: 'application/json',
         dataschema:
-          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
+          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-message-request-skipped-data.schema.json',
         severitytext: 'INFO',
         data: {
-          meshMessageId: '12345',
-          messageUri: `https://example.com/ttl/resource/${downloadedEventId}`,
-          messageReference: 'component-test-messageDownloaded',
+          messageReference: 'component-test-messageSkipped',
           senderId,
         },
       },
     ],
-    messageDownloadedValidator,
+    messageRequestSkippedValidator,
   );
 }
 
