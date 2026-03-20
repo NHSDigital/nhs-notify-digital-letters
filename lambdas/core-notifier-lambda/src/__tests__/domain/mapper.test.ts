@@ -9,7 +9,13 @@ import { PDMResourceAvailable } from 'digital-letters-events';
 import { randomUUID } from 'node:crypto';
 
 jest.mock('utils');
-jest.mock('node:crypto');
+// Use a partial manual mock so that node-jose's require('crypto') still gets
+// the real crypto implementation (needed for getHashes() etc.) while
+// randomUUID is replaced with a jest.fn() for test control.
+jest.mock('node:crypto', () => ({
+  ...jest.requireActual<typeof import('node:crypto')>('node:crypto'),
+  randomUUID: jest.fn(),
+}));
 
 const mockLogger = jest.mocked(logger);
 const mockRandomUUID = jest.mocked(randomUUID);
