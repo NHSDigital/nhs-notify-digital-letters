@@ -56,31 +56,23 @@ build-no-bundle:
 	@echo "Building $(DOMAIN) schemas to output/..."
 	@if [ -n "$(PROFILE_NAMES)" ]; then \
 		echo "Building profile schemas..."; \
-		for schema in $(PROFILE_NAMES); do \
-			echo "  - $$schema"; \
-			cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/$$schema.schema.yaml $(OUTPUT_DIR) || exit 1; \
-		done; \
+		printf '%s\n' $(PROFILE_NAMES) | xargs -P 0 -I{} sh -c \
+			'cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/{}.schema.yaml $(OUTPUT_DIR) || exit 1'; \
 	fi
 	@if [ -n "$(DEFS_NAMES)" ]; then \
 		echo "Building defs schemas..."; \
-		for schema in $(DEFS_NAMES); do \
-			echo "  - $$schema"; \
-			cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/defs/$$schema.yaml $(OUTPUT_DIR)/defs || exit 1; \
-		done; \
+		printf '%s\n' $(DEFS_NAMES) | xargs -P 0 -I{} sh -c \
+			'cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/defs/{}.yaml $(OUTPUT_DIR)/defs || exit 1'; \
 	fi
 	@if [ -n "$(DATA_NAMES)" ]; then \
 		echo "Building data schemas..."; \
-		for schema in $(DATA_NAMES); do \
-			echo "  - $$schema"; \
-			cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/data/$$schema.yaml $(OUTPUT_DIR)/data || exit 1; \
-		done; \
+		printf '%s\n' $(DATA_NAMES) | xargs -P 0 -I{} sh -c \
+			'cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/data/{}.yaml $(OUTPUT_DIR)/data || exit 1'; \
 	fi
 	@if [ -n "$(EVENT_NAMES)" ]; then \
 		echo "Building event schemas..."; \
-		for schema in $(EVENT_NAMES); do \
-			echo "  - $$schema"; \
-			cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/events/$$schema.schema.yaml $(OUTPUT_DIR)/events || exit 1; \
-		done; \
+		printf '%s\n' $(EVENT_NAMES) | xargs -P 0 -I{} sh -c \
+			'cd $(CLOUD_EVENTS_DIR) && npm run build -- --root-dir $(ROOT_DIR) $(SRC_DIR)/events/{}.schema.yaml $(OUTPUT_DIR)/events || exit 1'; \
 	fi
 
 publish-json:
@@ -138,11 +130,9 @@ publish-json:
 
 publish-bundled-json:
 	@if [ -n "$(EVENT_NAMES)" ]; then \
-		@echo "Flattening published event schemas..."; \
-		for schema in $(EVENT_NAMES); do \
-			echo "  - $$schema (flatten)"; \
-			cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --flatten --root-dir $(ROOT_DIR) --base-url $(SCHEMA_BASE_URL) $(OUTPUT_DIR)/events/$$schema.schema.json $(SCHEMAS_DIR)/events/$$schema.flattened.schema.json || exit 1; \
-		done; \
+		echo "Flattening published event schemas..."; \
+		printf '%s\n' $(EVENT_NAMES) | xargs -P 0 -I{} sh -c \
+			'cd $(CLOUD_EVENTS_DIR) && npm run bundle -- --flatten --root-dir $(ROOT_DIR) --base-url $(SCHEMA_BASE_URL) $(OUTPUT_DIR)/events/{}.schema.json $(SCHEMAS_DIR)/events/{}.flattened.schema.json || exit 1'; \
 	fi
 
 publish-yaml:
