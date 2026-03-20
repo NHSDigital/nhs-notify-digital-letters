@@ -43,6 +43,34 @@ const scenarios = [
     'Read',
     senderId,
   ),
+  new ReportScenario(
+    'component-test-pdm-resource-submission-rejected',
+    CommunicationType.Digital,
+    [EventStatus.DigitalPDMResourceSubmissionRejected],
+    'Failed',
+    senderId,
+  ),
+  new ReportScenario(
+    'component-test-pdm-resource-retries-exceeded',
+    CommunicationType.Digital,
+    [EventStatus.DigitalPDMResourceRetriesExceeded],
+    'Failed',
+    senderId,
+  ),
+  new ReportScenario(
+    'component-test-message-request-rejected',
+    CommunicationType.Digital,
+    [EventStatus.DigitalMessageRequestRejected],
+    'Failed',
+    senderId,
+  ),
+  new ReportScenario(
+    'component-test-digital-failed-priority',
+    CommunicationType.Digital,
+    [EventStatus.Unread, EventStatus.DigitalPDMResourceSubmissionRejected],
+    'Failed',
+    senderId,
+  ),
   // Scenarios for communication type Print where there is a single event per message reference.
   new ReportScenario(
     'component-test-rejected',
@@ -70,6 +98,14 @@ const scenarios = [
     CommunicationType.Print,
     [EventStatus.Dispatched],
     'Dispatched',
+    senderId,
+  ),
+  // Scenario for new Print failure event: FileQuarantined
+  new ReportScenario(
+    'component-test-file-quarantined',
+    CommunicationType.Print,
+    [EventStatus.PrintFileQuarantined],
+    'Failed',
     senderId,
   ),
   // multiple events for the same message reference, should take the one with highest priority status (returned > failed > dispatched > rejected)
@@ -138,8 +174,9 @@ test.describe('Digital Letters - Report Generator', () => {
     console.log(`Using senderId: ${senderId}`);
 
     for (const scenario of scenarios) publishEventForScenario(scenario);
-    // At this stage we published all the events used for test data.
+    // Publish an event that should not appear in the report
     await publishEventNotInReports(senderId);
+    // At this stage we published all the events used for test data.
     // Asserts step 1.2
     await prerequisiteAssertFirehoseEventsInS3(senderId);
     // Asserts step 2.1

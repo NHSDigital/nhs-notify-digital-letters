@@ -1,6 +1,10 @@
 import {
   DigitalLetterRead,
+  FileQuarantined,
   ItemDequeued,
+  MessageRequestRejected,
+  PDMResourceRetriesExceeded,
+  PDMResourceSubmissionRejected,
   PrintLetterTransitioned,
 } from 'digital-letters-events';
 
@@ -82,4 +86,90 @@ export function buildPrintLetterTransitionedEvent(
       time,
     },
   } as PrintLetterTransitioned;
+}
+
+export function buildPDMResourceSubmissionRejectedEvent(
+  eventId: string,
+  time: string,
+  messageReference: string,
+  senderId: string,
+): PDMResourceSubmissionRejected {
+  const baseEvent = buildBaseEvent('pdm', time);
+  return {
+    ...baseEvent,
+    id: eventId,
+    type: 'uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-submission-rejected-data.schema.json',
+    data: {
+      messageReference,
+      senderId,
+    },
+  } as PDMResourceSubmissionRejected;
+}
+
+export function buildPDMResourceRetriesExceededEvent(
+  eventId: string,
+  time: string,
+  messageReference: string,
+  senderId: string,
+): PDMResourceRetriesExceeded {
+  const baseEvent = buildBaseEvent('pdm', time);
+  return {
+    ...baseEvent,
+    id: eventId,
+    type: 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-retries-exceeded-data.schema.json',
+    data: {
+      messageReference,
+      senderId,
+      resourceId: `resource-${eventId}`,
+      retryCount: 5,
+    },
+  } as PDMResourceRetriesExceeded;
+}
+
+export function buildMessageRequestRejectedEvent(
+  eventId: string,
+  time: string,
+  messageReference: string,
+  senderId: string,
+): MessageRequestRejected {
+  const baseEvent = buildBaseEvent('messages', time);
+  return {
+    ...baseEvent,
+    id: eventId,
+    type: 'uk.nhs.notify.digital.letters.messages.request.rejected.v1',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-message-request-rejected-data.schema.json',
+    data: {
+      messageReference,
+      senderId,
+      messageUri: `https://example.com/messages/${eventId}`,
+      failureCode: 'VALIDATION_ERROR',
+    },
+  } as MessageRequestRejected;
+}
+
+export function buildFileQuarantinedEvent(
+  eventId: string,
+  time: string,
+  messageReference: string,
+  senderId: string,
+): FileQuarantined {
+  const baseEvent = buildBaseEvent('print', time);
+  return {
+    ...baseEvent,
+    id: eventId,
+    type: 'uk.nhs.notify.digital.letters.print.file.quarantined.v1',
+    dataschema:
+      'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-file-quarantined-data.schema.json',
+    data: {
+      messageReference,
+      senderId,
+      letterUri: `s3://bucket/letters/${eventId}.pdf`,
+      createdAt: time,
+    },
+  } as FileQuarantined;
 }
