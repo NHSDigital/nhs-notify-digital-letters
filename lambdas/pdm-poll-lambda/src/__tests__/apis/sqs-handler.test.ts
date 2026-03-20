@@ -15,12 +15,23 @@ const pdm = mock<Pdm>();
 
 jest.mock('node:crypto', () => ({
   randomUUID: jest.fn(),
+  randomBytes: jest.fn(),
 }));
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { randomBytes } = require('node:crypto');
+
 const mockRandomUUID = randomUUID as jest.MockedFunction<typeof randomUUID>;
+const mockRandomBytes = randomBytes as jest.MockedFunction<
+  typeof import('node:crypto').randomBytes
+>;
 const mockDate = jest.spyOn(Date.prototype, 'toISOString');
 mockRandomUUID.mockReturnValue('550e8400-e29b-41d4-a716-446655440001');
+mockRandomBytes.mockImplementation(() => Buffer.from('aabbccdd11223344', 'hex'));
 mockDate.mockReturnValue('2023-06-20T12:00:00.250Z');
+
+const DERIVED_TRACEPARENT =
+  '00-0af7651916cd43dd8448eb211c80319c-aabbccdd11223344-01';
 
 const handler = createHandler({
   eventPublisher,
@@ -51,6 +62,7 @@ describe('SQS Handler', () => {
             id: '550e8400-e29b-41d4-a716-446655440001',
             time: '2023-06-20T12:00:00.250Z',
             recordedtime: '2023-06-20T12:00:00.250Z',
+            traceparent: DERIVED_TRACEPARENT,
             dataschema:
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
@@ -90,6 +102,7 @@ describe('SQS Handler', () => {
             id: '550e8400-e29b-41d4-a716-446655440001',
             time: '2023-06-20T12:00:00.250Z',
             recordedtime: '2023-06-20T12:00:00.250Z',
+            traceparent: DERIVED_TRACEPARENT,
             dataschema:
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-unavailable-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
@@ -132,6 +145,7 @@ describe('SQS Handler', () => {
             id: '550e8400-e29b-41d4-a716-446655440001',
             time: '2023-06-20T12:00:00.250Z',
             recordedtime: '2023-06-20T12:00:00.250Z',
+            traceparent: DERIVED_TRACEPARENT,
             dataschema:
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
@@ -174,6 +188,7 @@ describe('SQS Handler', () => {
             id: '550e8400-e29b-41d4-a716-446655440001',
             time: '2023-06-20T12:00:00.250Z',
             recordedtime: '2023-06-20T12:00:00.250Z',
+            traceparent: DERIVED_TRACEPARENT,
             type: 'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
             data: {
               messageReference:
@@ -219,6 +234,7 @@ describe('SQS Handler', () => {
             id: '550e8400-e29b-41d4-a716-446655440001',
             time: '2023-06-20T12:00:00.250Z',
             recordedtime: '2023-06-20T12:00:00.250Z',
+            traceparent: DERIVED_TRACEPARENT,
             dataschema:
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-retries-exceeded-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',

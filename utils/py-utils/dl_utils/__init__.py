@@ -22,6 +22,11 @@ from .certificate_monitor import (
     report_expiry_time
 )
 
+from .trace_context import (
+    create_traceparent,
+    derive_child_traceparent,
+)
+
 __all__ = [
     'EventPublisher',
     'BaseMeshConfig',
@@ -33,4 +38,6 @@ __all__ = [
     'Metric',
     'CertificateExpiryMonitor',
     'report_expiry_time',
+    'create_traceparent',
+    'derive_child_traceparent',
 ]

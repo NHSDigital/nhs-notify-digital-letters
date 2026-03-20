@@ -64,6 +64,7 @@ async function processRecord(
     messageReference: event.data.messageReference,
     senderId: event.data.senderId,
     createdAt: event.time,
+    traceparent: event.traceparent,
   });
 
   if (result.outcome === 'failed') {

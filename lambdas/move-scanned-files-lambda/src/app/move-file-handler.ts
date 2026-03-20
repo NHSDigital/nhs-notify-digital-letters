@@ -19,6 +19,7 @@ type ObjectMetadata = {
   senderId: string;
   messageReference: string;
   createdAt: string;
+  traceparent?: string;
 };
 
 type ObjectsFromEvent = {
@@ -34,6 +35,7 @@ const SCAN_RESULT_STATUS_NO_THREATS_FOUND = 'NO_THREATS_FOUND';
 const METADATA_CREATED_AT = 'createdat';
 const METADATA_MESSAGE_REFERENCE = 'messagereference';
 const METADATA_SENDER_ID = 'senderid';
+const METADATA_TRACEPARENT = 'traceparent';
 
 /**
  * Utility function to extract a subset of the object key for logging purposes.
@@ -121,6 +123,7 @@ export class MoveFileHandler {
     const createdAt = metadataMap.get(METADATA_CREATED_AT);
     const messageReference = metadataMap.get(METADATA_MESSAGE_REFERENCE);
     const senderId = metadataMap.get(METADATA_SENDER_ID);
+    const traceparent = metadataMap.get(METADATA_TRACEPARENT);
 
     if (!messageReference || !senderId || !createdAt) {
       return null;
@@ -137,6 +140,7 @@ export class MoveFileHandler {
       senderId,
       messageReference,
       createdAt,
+      traceparent,
     };
   }
 
@@ -160,6 +164,7 @@ export class MoveFileHandler {
         metadata.senderId,
         `s3://${destinationBucket}/${objectKey}`,
         metadata.createdAt,
+        metadata.traceparent,
       );
     } else {
       destinationBucket = this.quarantineBucketName;
@@ -176,6 +181,7 @@ export class MoveFileHandler {
         metadata.senderId,
         `s3://${destinationBucket}/${objectKey}`,
         metadata.createdAt,
+        metadata.traceparent,
       );
     }
 
