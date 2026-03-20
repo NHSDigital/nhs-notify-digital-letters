@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import {
   ENV,
   FILE_SCANNER_DLQ_NAME,
+  PREFIX_DL_FILES,
   REGION,
 } from 'constants/backend-constants';
 import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
@@ -28,7 +29,7 @@ test.describe('File Scanner', () => {
 test('should extract PDF from DocumentReference and store in unscanned bucket with metadata', async () => {
   const messageReference = uuidv4();
   const senderId = 'TEST_SENDER_001';
-  const documentReferenceKey = messageReference;
+  const documentReferenceKey = `${PREFIX_DL_FILES}${messageReference}`;
 
   const pdfContent = Buffer.from('Sample PDF content for test');
   const documentReference = {
@@ -80,7 +81,7 @@ test('should extract PDF from DocumentReference and store in unscanned bucket wi
   );
 
   await expectToPassEventually(async () => {
-    const expectedKey = `${ENV}/${messageReference}.pdf`;
+    const expectedKey = `${PREFIX_DL_FILES}${messageReference}.pdf`;
     const expectedUri = `s3://${UNSCANNED_FILES_BUCKET}/${expectedKey}`;
 
     const storedPdf = await getS3ObjectBufferFromUri(expectedUri);

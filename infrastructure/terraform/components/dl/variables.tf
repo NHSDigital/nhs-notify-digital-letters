@@ -122,18 +122,6 @@ variable "ttl_poll_schedule" {
   default     = "rate(10 minutes)" # Every 10 minutes
 }
 
-variable "pdm_mock_access_token" {
-  type        = string
-  description = "Mock access token for PDM API authentication (used in local/dev environments)"
-  default     = "mock-pdm-token"
-}
-
-variable "pdm_use_non_mock_token" {
-  type        = bool
-  description = "Whether to use the shared APIM access token from SSM (/component/environment/apim/access_token) instead of the mock token"
-  default     = false
-}
-
 variable "apim_base_url" {
   type        = string
   description = "The URL used to send requests to PDM"
@@ -144,6 +132,17 @@ variable "core_notify_url" {
   type        = string
   description = "The URL used to send requests to Notify"
   default     = "https://sandbox.api.service.nhs.uk"
+}
+
+variable "core_notify_include_auth_header" {
+  type        = bool
+  description = "Whether to send auth tokens with core notify API calls."
+  default     = true
+
+  validation {
+    condition     = var.environment == "prod" ? var.core_notify_include_auth_header == true : true
+    error_message = "core_notify_include_auth_header must be set to true when environment is 'prod'."
+  }
 }
 
 variable "apim_auth_token_url" {
@@ -178,7 +177,7 @@ variable "force_destroy" {
 variable "enable_pdm_mock" {
   type        = bool
   description = "Flag indicating whether to deploy PDM mock API (should be false in production environments)"
-  default     = true
+  default     = false
 }
 
 variable "aws_account_type" {
