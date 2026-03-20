@@ -47,7 +47,7 @@ export class PrintSender {
           url: item.data.letterUri,
           clientId: item.data.senderId,
           campaignId: 'digitalLetters',
-          letterVariantId: 'notify-digital-letter-standard',
+          letterVariantId: 'notify-digital-letters-standard',
         },
       };
 
