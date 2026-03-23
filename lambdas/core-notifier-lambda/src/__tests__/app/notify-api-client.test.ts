@@ -12,9 +12,6 @@ import { IAccessTokenRepository, NotifyClient } from 'app/notify-api-client';
 import { RequestAlreadyReceivedError } from 'domain/request-already-received-error';
 
 jest.mock('utils');
-// Use a partial manual mock so that node-jose's require('crypto') still gets
-// the real crypto implementation (needed for getHashes() etc.) while
-// randomUUID is replaced with a jest.fn() for test control.
 jest.mock('node:crypto', () => ({
   ...jest.requireActual<typeof import('node:crypto')>('node:crypto'),
   randomUUID: jest.fn(),

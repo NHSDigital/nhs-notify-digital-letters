@@ -4,21 +4,6 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-# This file is for you! Edit it to call your unit test suite. Note that the same
-# file will be called if you run it locally as if you run it on CI.
-
-# Replace the following line with something like:
-#
-#   rails test:unit
-#   python manage.py test
-#   npm run test
-#
-# or whatever is appropriate to your project. You should *only* run your fast
-# tests from here. If you want to run other test suites, see the predefined
-# tasks in scripts/test.mk.
-
-# Timing helpers — records wall-clock duration for each labelled step and prints
-# a summary table at exit so it's easy to see where the time is going.
 _timer_labels=()
 _timer_seconds=()
 
@@ -51,43 +36,26 @@ print_timing_summary() {
 
 trap print_timing_summary EXIT
 
-# run tests
-
-# TypeScript/JavaScript projects (npm workspace)
-# Runs all Jest workspaces in parallel via the root jest.config.cjs projects
-# config, which is faster than sequential `npm run test:unit --workspaces`.
-# Note: src/cloudevents is included in the projects list in jest.config.cjs.
-# Use || to capture any Jest failure so that Python tests always run; the exit
-# code is propagated at the end of the script.
 run_timed "npm ci" npm ci
 run_timed "npm run generate-dependencies" npm run generate-dependencies
-run_timed "npm run test:unit:parallel" npm run test:unit:parallel || jest_exit=$?
+run_timed "Node unit tests (parallel)" npm run test:unit:parallel || jest_exit=$?
 
-# Python projects - run all install-dev steps sequentially (they share the same
-# pip environment so cannot be parallelised), then run all coverage (pytest)
-# steps in parallel since each writes to its own isolated output directory.
-
-# ---- Phase 1: install all Python dev dependencies (sequential, shared pip env) ----
+# ---- Phase 1: install all Python dev dependencies (sequential) ----
+# Discover Python projects dynamically: any directory under src/, utils/, or
+# lambdas/ whose Makefile defines both an `install-dev` target (Python deps)
+# and a `coverage` target (pytest). This avoids maintaining a hardcoded list.
 echo "Installing Python dev dependencies..."
-_python_projects=(
-  ./src/asyncapigenerator
-  ./src/cloudeventjekylldocs
-  ./src/eventcatalogasyncapiimporter
-  ./utils/py-utils
-  ./src/python-schema-generator
-  ./lambdas/mesh-acknowledge
-  ./lambdas/mesh-poll
-  ./lambdas/mesh-download
-  ./lambdas/report-sender
+mapfile -t _python_projects < <(
+  grep -rl "^install-dev:" src/ utils/ lambdas/ --include="Makefile" 2>/dev/null \
+    | xargs grep -l "^coverage:" \
+    | xargs -I{} dirname {} \
+    | sort
 )
 for proj in "${_python_projects[@]}"; do
   run_timed "${proj}: install-dev" make -C "$proj" install-dev
 done
 
 # ---- Phase 2: run all coverage steps in parallel ----
-# Each job writes output to a temp file; we print them sequentially on
-# completion so the log is readable. Non-zero exit codes are all collected and
-# the script fails at the end if any job failed.
 echo "Running Python coverage in parallel..."
 
 _py_pids=()
@@ -115,7 +83,7 @@ for i in "${!_py_pids[@]}"; do
   rm -f "${_py_logs[$i]}"
 done
 _py_end=$(date +%s)
-_timer_labels+=("Python coverage (parallel)")
+_timer_labels+=("Python unit tests (parallel)")
 _timer_seconds+=("$((_py_end - _py_start))")
 
 # merge coverage reports
