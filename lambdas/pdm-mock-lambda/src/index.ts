@@ -11,8 +11,7 @@ export const handler: Handler<
   APIGatewayProxyEvent,
   APIGatewayProxyResult
 > = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const { authenticator, createResourceHandler, getResourceHandler, logger } =
-    container;
+  const { createResourceHandler, getResourceHandler, logger } = container;
 
   try {
     const { requestId } = event.requestContext;
@@ -25,12 +24,6 @@ export const handler: Handler<
       path,
       hasAuth: !!event.headers?.Authorization,
     });
-
-    const authResult = await authenticator(event);
-    if (!authResult.isValid) {
-      logger.warn('Authentication failed', { requestId, httpMethod, path });
-      return authResult.error;
-    }
 
     if (
       httpMethod === 'GET' &&
