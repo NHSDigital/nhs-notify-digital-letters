@@ -7,10 +7,10 @@ import { randomUUID } from 'node:crypto';
 import type { CreateTtl, CreateTtlOutcome } from 'app/create-ttl';
 import { EventPublisher, Logger } from 'utils';
 import itemEnqueuedValidator from 'digital-letters-events/ItemEnqueued.js';
-import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import {
   ItemEnqueued,
   MESHInboxMessageDownloaded,
+  validateMESHInboxMessageDownloaded,
 } from 'digital-letters-events';
 
 interface ProcessingResult {
@@ -36,19 +36,15 @@ export const createHandler = ({
       async ({ body, messageId }): Promise<ProcessingResult> => {
         try {
           const sqsEventBody = JSON.parse(body);
-          const sqsEventDetail = sqsEventBody.detail;
+          const messageDownloadedEvent = validateMESHInboxMessageDownloaded(
+            sqsEventBody.detail,
+            logger,
+          );
 
-          const isEventValid = messageDownloadedValidator(sqsEventDetail);
-          if (!isEventValid) {
-            logger.error({
-              err: messageDownloadedValidator.errors,
-              description: 'Error parsing ttl queue entry',
-            });
+          if (!messageDownloadedEvent) {
             batchItemFailures.push({ itemIdentifier: messageId });
             return { result: 'failed' };
           }
-          const messageDownloadedEvent: MESHInboxMessageDownloaded =
-            sqsEventDetail;
 
           const result = await createTtl.send(messageDownloadedEvent);
 
