@@ -36,8 +36,6 @@ print_timing_summary() {
 
 trap print_timing_summary EXIT
 
-run_timed "npm ci" npm ci
-run_timed "npm run generate-dependencies" npm run generate-dependencies
 run_timed "Node unit tests (parallel)" npm run test:unit:parallel || jest_exit=$?
 
 # ---- Phase 1: install all Python dev dependencies (sequential) ----
