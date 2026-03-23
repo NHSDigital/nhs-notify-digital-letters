@@ -85,7 +85,9 @@ describe('createHandler', () => {
     expect(res.batchItemFailures).toEqual([{ itemIdentifier: 'msg2' }]);
     expect(logger.error).toHaveBeenCalledWith(
       expect.objectContaining({
-        description: expect.stringContaining('parsing ttl queue entry'),
+        description: expect.stringContaining(
+          'Error parsing MESHInboxMessageDownloaded event',
+        ),
       }),
     );
     expect(logger.info).toHaveBeenCalledWith({
