@@ -167,7 +167,7 @@ class TestEventPublishing:
         mock_events_client.put_events.return_value = {
             'FailedEntryCount': 1,
             'Entries': [
-                {'ErrorCode': 'InternalFailure', 'ErrorMessage': 'Internal error'},
+                {'ErrorCode': 'AccessDenied', 'ErrorMessage': 'Access denied'},
                 {'EventId': 'event-2'}
             ]
         }

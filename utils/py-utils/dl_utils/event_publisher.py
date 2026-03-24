@@ -12,7 +12,6 @@ from uuid import uuid4
 import boto3
 from botocore.config import Config
 from botocore.exceptions import ClientError
-from pydantic import ValidationError
 
 
 DlqReason = Literal['INVALID_EVENT', 'EVENTBRIDGE_FAILURE']
@@ -65,7 +64,7 @@ class EventPublisher:
         try:
             validator(**event)
             return (True, None)
-        except ValidationError as e:
+        except Exception as e:
             return (False, str(e))
 
     def _classify_failed_entries(
