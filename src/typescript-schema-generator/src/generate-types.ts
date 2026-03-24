@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { createOutputDir, writeFile, writeTypesIndex } from 'file-utils';
+import { createOutputDir, writeFile } from 'file-utils';
 import { compile } from 'json-schema-to-typescript';
 import { writeFileSync } from 'node:fs';
 import path from 'node:path';
