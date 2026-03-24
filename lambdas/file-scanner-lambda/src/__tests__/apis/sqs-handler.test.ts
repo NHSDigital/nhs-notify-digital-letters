@@ -345,7 +345,7 @@ describe('SQS Handler', () => {
       );
       expect(mockLogger.warn).toHaveBeenCalledWith(
         expect.objectContaining({
-          description: 'Error parsing queue entry',
+          description: 'Error parsing SQS record',
         }),
       );
     });
@@ -405,7 +405,7 @@ describe('SQS Handler', () => {
       expect(mockFileScanner.scanFile).not.toHaveBeenCalled();
       expect(mockLogger.warn).toHaveBeenCalledWith(
         expect.objectContaining({
-          description: 'Error parsing queue entry',
+          description: 'Error parsing SQS record',
         }),
       );
       expect(mockLogger.warn).toHaveBeenCalledWith(

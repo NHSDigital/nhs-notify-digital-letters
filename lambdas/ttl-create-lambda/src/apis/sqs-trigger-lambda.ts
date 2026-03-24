@@ -36,24 +36,17 @@ export const createHandler = ({
       async ({ body, messageId }): Promise<ProcessingResult> => {
         try {
           const sqsEventBody = JSON.parse(body);
-          const messageDownloadedEvent = validateMESHInboxMessageDownloaded(
-            sqsEventBody.detail,
-            logger,
-          );
+          const sqsEventDetail = sqsEventBody.detail;
+          validateMESHInboxMessageDownloaded(sqsEventDetail, logger);
 
-          if (!messageDownloadedEvent) {
-            batchItemFailures.push({ itemIdentifier: messageId });
-            return { result: 'failed' };
-          }
-
-          const result = await createTtl.send(messageDownloadedEvent);
+          const result = await createTtl.send(sqsEventDetail);
 
           if (result === 'failed') {
             batchItemFailures.push({ itemIdentifier: messageId });
             return { result: 'failed' };
           }
 
-          return { result, item: messageDownloadedEvent };
+          return { result, item: sqsEventDetail };
         } catch (error) {
           logger.error({
             err: error,

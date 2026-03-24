@@ -247,10 +247,10 @@ describe('createHandler', () => {
 
     const result = await handler(mockInvalidEvent);
 
-    expect(logger.warn).toHaveBeenCalledWith(
+    expect(logger.error).toHaveBeenCalledWith(
       expect.objectContaining({
         err: expect.any(Object),
-        description: 'Error parsing ttl item event',
+        description: 'Error parsing MESHInboxMessageDownloaded event',
       }),
     );
 
