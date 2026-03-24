@@ -5,8 +5,11 @@ import type {
 } from 'aws-lambda';
 import { createHash, randomUUID } from 'node:crypto';
 import { PDFDocument } from 'pdf-lib';
-import { FileSafe, PDFAnalysed } from 'digital-letters-events';
-import fileSafeValidator from 'digital-letters-events/FileSafe.js';
+import {
+  FileSafe,
+  PDFAnalysed,
+  validateFileSafe,
+} from 'digital-letters-events';
 import pdfAnalysedValidator from 'digital-letters-events/PDFAnalysed.js';
 import { EventPublisher, Logger, getS3ObjectBufferFromUri } from 'utils';
 
@@ -33,17 +36,11 @@ function validateRecord(
     const sqsEventBody = JSON.parse(body);
     const sqsEventDetail = sqsEventBody.detail;
 
-    const isEventValid = fileSafeValidator(sqsEventDetail);
-    if (!isEventValid) {
-      logger.warn({
-        err: fileSafeValidator.errors,
-        description: 'Error parsing print analyser queue entry',
-        messageReference:
-          sqsEventDetail?.data?.messageReference || 'not present',
-      });
+    const messageReference =
+      sqsEventDetail?.data?.messageReference || 'not present';
+    const childLogger = logger.child({ messageReference });
 
-      return null;
-    }
+    validateFileSafe(sqsEventDetail, childLogger);
 
     return { messageId, event: sqsEventDetail };
   } catch (error) {

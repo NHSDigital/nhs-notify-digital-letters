@@ -9,9 +9,10 @@ import {
   PDMResourceRetriesExceeded,
   PDMResourceSubmitted,
   PDMResourceUnavailable,
+  validatePDMResourceSubmitted,
+  validatePDMResourceUnavailable,
 } from 'digital-letters-events';
 import pdmResourceAvailableValidator from 'digital-letters-events/PDMResourceAvailable.js';
-import pdmResourceSubmittedValidator from 'digital-letters-events/PDMResourceSubmitted.js';
 import pdmResourceUnavailableValidator from 'digital-letters-events/PDMResourceUnavailable.js';
 import pdmResourceRetriesExceededValidator from 'digital-letters-events/PDMResourceRetriesExceeded.js';
 import { randomUUID } from 'node:crypto';
@@ -43,28 +44,12 @@ function validateRecord(
       sqsEventDetail.type ===
       'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1'
     ) {
-      const isEventValid = pdmResourceSubmittedValidator(sqsEventDetail);
-      if (!isEventValid) {
-        logger.warn({
-          err: pdmResourceSubmittedValidator.errors,
-          description: 'Error parsing queue entry',
-        });
-
-        return null;
-      }
+      validatePDMResourceSubmitted(sqsEventDetail, logger);
 
       return { messageId, event: sqsEventDetail };
     }
 
-    const isEventValid = pdmResourceUnavailableValidator(sqsEventDetail);
-    if (!isEventValid) {
-      logger.warn({
-        err: pdmResourceUnavailableValidator.errors,
-        description: 'Error parsing queue entry',
-      });
-
-      return null;
-    }
+    validatePDMResourceUnavailable(sqsEventDetail, logger);
 
     return { messageId, event: sqsEventDetail };
   } catch (error) {

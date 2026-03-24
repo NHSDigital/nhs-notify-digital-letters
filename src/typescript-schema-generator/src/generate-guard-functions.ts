@@ -19,26 +19,21 @@ export async function generateGuardFunctions() {
     const validatorVariableName = `event${typeName}Validator`;
 
     let guardFunction = `import ${validatorVariableName} from 'digital-letters-events/${typeName}.js'\n`;
-    guardFunction += `import type { ${typeName} } from 'digital-letters-events';\n`;
+    guardFunction += `import { InvalidEvent, type ${typeName} } from 'digital-letters-events';`;
     guardFunction += `import { Logger } from 'utils';\n\n`;
 
     guardFunction += `export function validate${typeName}(\n`;
     guardFunction += `  event: unknown,\n`;
     guardFunction += `  logger: Logger,\n`;
-    guardFunction += `): ${typeName} | null {\n\n`;
-
-    guardFunction += `  const eventValidator = event${typeName}Validator as (d: unknown) => d is ${typeName};\n\n`;
-
-    guardFunction += `  if (!eventValidator(event)) {\n`;
+    guardFunction += `): asserts event is ${typeName} {\n`;
+    guardFunction += `  if (!${validatorVariableName}(event)) {\n`;
     guardFunction += `    logger.error({\n`;
     guardFunction += `      err: ${validatorVariableName}.errors,\n`;
     guardFunction += `      description: 'Error parsing ${typeName} event',\n`;
     guardFunction += `    });\n`;
-    guardFunction += `    return null;\n`;
-    guardFunction += `  }\n\n`;
-
-    guardFunction += `  return event;\n`;
-    guardFunction += `}\n\n`;
+    guardFunction += `    throw new InvalidEvent(${validatorVariableName}.errors);\n`;
+    guardFunction += `  }\n`;
+    guardFunction += `}\n`;
 
 
     const typeDeclarationName = `${typeName}`;

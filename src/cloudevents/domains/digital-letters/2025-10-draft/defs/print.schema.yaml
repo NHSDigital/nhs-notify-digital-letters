@@ -52,7 +52,6 @@ properties:
     examples:
       - "s3://my-bucket/path/to/my-object"
   createdAt:
-    title: "Created At DateTime"
     description: "Timestamp when the letter was created (RFC 3339)."
     examples: [
       "2025-10-01T10:15:30.000Z"
