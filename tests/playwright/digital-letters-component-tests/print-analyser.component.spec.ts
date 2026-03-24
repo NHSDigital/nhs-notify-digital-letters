@@ -104,7 +104,7 @@ test.describe('Print analyser', () => {
         const eventLogEntry = await getLogsFromCloudwatch(
           PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME,
           [
-            '$.message.description = "Error parsing print analyser queue entry"',
+            '$.message.description = "Error parsing FileSafe event"',
             `$.message.err[0].message = "must have required property 'senderId'"`,
             `$.message.messageReference = "${messageReference}"`,
           ],

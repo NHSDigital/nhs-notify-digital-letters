@@ -154,7 +154,7 @@ test.describe('Digital Letters - Create TTL', () => {
         const eventLogEntry = await getLogsFromCloudwatch(
           CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
           [
-            '$.message.description = "Error parsing ttl queue entry"',
+            '$.message.description = "Error parsing MESHInboxMessageDownloaded event"',
             `$.message.err[0].params.additionalProperty = "${unexpectedField}"`,
           ],
         );
