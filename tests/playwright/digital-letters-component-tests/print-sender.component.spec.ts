@@ -103,7 +103,7 @@ test.describe('Digital Letters - Print Sender', () => {
         const eventLogEntry = await getLogsFromCloudwatch(
           PRINT_SENDER_LAMBDA_LOG_GROUP_NAME,
           [
-            '$.message.description = "Error parsing print sender queue entry"',
+            '$.message.description = "Error parsing PDFAnalysed event"',
             `$.message.err[0].message = "must have required property 'senderId'"`,
             `$.message.messageReference = "${messageReference}"`,
           ],
