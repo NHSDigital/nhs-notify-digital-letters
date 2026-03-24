@@ -89,7 +89,7 @@ variable "parent_acct_environment" {
 variable "mesh_poll_schedule" {
   type        = string
   description = "Schedule to poll MESH for messages"
-  default     = "rate(5 minutes)" # Every 5 minutes
+  default     = "rate(2 minutes)" # Every 2 minutes
 }
 
 variable "enable_mock_mesh" {
@@ -119,7 +119,7 @@ variable "enable_dynamodb_delete_protection" {
 variable "ttl_poll_schedule" {
   type        = string
   description = "Schedule to poll for any overdue TTL records"
-  default     = "rate(10 minutes)" # Every 10 minutes
+  default     = "rate(2 minutes)" # Every 2 minutes
 }
 
 variable "apim_base_url" {
