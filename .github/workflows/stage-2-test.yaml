@@ -117,7 +117,7 @@ jobs:
             output/digital-letters/
             src/digital-letters-events/types/
             src/digital-letters-events/validators/
-            src/digital-letters-events/models/
+            src/digital-letters-events/digital_letters_events/models/
           key: generated-deps-${{ runner.os }}-${{ hashFiles('src/cloudevents/**', 'src/typescript-schema-generator/**', 'src/python-schema-generator/**') }}
       - name: "Generate dependencies"
         if: steps.schema-cache.outputs.cache-hit != 'true'
