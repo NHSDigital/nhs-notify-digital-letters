@@ -6,6 +6,7 @@ This module provides a Python equivalent of the TypeScript EventPublisher class.
 
 import json
 import logging
+import random
 import time
 from typing import List, Dict, Any, Optional, Literal, Callable
 from uuid import uuid4
@@ -19,8 +20,12 @@ MAX_BATCH_SIZE = 10
 MAX_PUBLISHER_RETRIES = 3
 TRANSIENT_ERROR_CODES = {
     'ThrottlingException',
+    'TooManyRequestsException',
+    'RequestLimitExceeded',
+    'ProvisionedThroughputExceededException',
     'InternalFailure',
-    'ServiceUnavailable'
+    'InternalError',
+    'ServiceUnavailable',
 }
 
 
@@ -95,6 +100,7 @@ class EventPublisher:
         Returns a list of events that permanently failed.
         """
         events_to_retry = batch
+        permanent_failures = []
 
         for attempt in range(MAX_PUBLISHER_RETRIES):
             entries = [
@@ -114,19 +120,68 @@ class EventPublisher:
                     response, events_to_retry
                 )
 
+                permanent_failures.extend(permanent)
+
                 if not transient:
-                    return permanent
+                    if permanent_failures:
+                        self.logger.warning(
+                            'Batch completed with failures',
+                            extra={'permanent_failure_count': len(permanent_failures)}
+                        )
+                    else:
+                        self.logger.info('Batch completed successfully')
+                    return permanent_failures
 
                 if attempt == MAX_PUBLISHER_RETRIES - 1:
-                    return transient + permanent
+                    self.logger.warning(
+                        'Retries exhausted, treating remaining transient failures as permanent',
+                        extra={
+                            'attempt': attempt + 1,
+                            'max_retries': MAX_PUBLISHER_RETRIES,
+                            'transient_failure_count': len(transient),
+                            'permanent_failure_count': len(permanent_failures),
+                        }
+                    )
+                    return permanent_failures + transient
 
+                self.logger.info(
+                    'Retrying transient failures',
+                    extra={
+                        'attempt': attempt + 1,
+                        'max_retries': MAX_PUBLISHER_RETRIES,
+                        'retry_count': len(transient),
+                        'permanent_failure_count': len(permanent_failures),
+                    }
+                )
                 events_to_retry = transient
-                time.sleep(2 ** attempt)
+                time.sleep((2 ** attempt) + random.uniform(0, 1))
 
-            except ClientError:
-                return events_to_retry
+            except ClientError as e:
+                error_code = e.response.get("Error", {}).get("Code")
 
-        return events_to_retry
+                if error_code in TRANSIENT_ERROR_CODES and attempt < MAX_PUBLISHER_RETRIES - 1:
+                    self.logger.info(
+                        'Retrying batch after transient ClientError',
+                        extra={
+                            'attempt': attempt + 1,
+                            'max_retries': MAX_PUBLISHER_RETRIES,
+                            'error_code': error_code,
+                            'retry_count': len(events_to_retry),
+                        }
+                    )
+                    time.sleep((2 ** attempt) + random.uniform(0, 1))
+                    continue
+
+                self.logger.warning(
+                    'ClientError sending batch to EventBridge, failing entire batch',
+                    extra={
+                        'error_code': error_code,
+                        'batch_size': len(events_to_retry),
+                    }
+                )
+                return permanent_failures + events_to_retry
+
+        return permanent_failures + events_to_retry
 
     def _send_to_event_bridge(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
