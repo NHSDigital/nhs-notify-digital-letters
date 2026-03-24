@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { createOutputDir, writeFile, writeTypesIndex } from 'file-utils';
+import { createOutputDir, writeFile } from 'file-utils';
 import path from 'node:path';
 import { writeFileSync } from 'node:fs';
 import { eventSchemasDir, listEventSchemas, loadSchema } from 'utils';
@@ -34,7 +34,6 @@ export async function generateGuardFunctions() {
     guardFunction += `    throw new InvalidEvent(${validatorVariableName}.errors);\n`;
     guardFunction += `  }\n`;
     guardFunction += `}\n`;
-
 
     const typeDeclarationName = `${typeName}`;
     const typeDeclarationFilename = `${typeDeclarationName}.ts`;
