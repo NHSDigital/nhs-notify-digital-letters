@@ -9,7 +9,10 @@ import {
   $LetterEvent,
   LetterEvent,
 } from '@nhsdigital/nhs-notify-event-schemas-supplier-api/src/events/letter-events';
-import { PrintLetterTransitioned, validatePrintLetterTransitioned } from 'digital-letters-events';
+import {
+  PrintLetterTransitioned,
+  validatePrintLetterTransitioned,
+} from 'digital-letters-events';
 import { EventPublisher, Logger } from 'utils';
 
 export interface HandlerDependencies {

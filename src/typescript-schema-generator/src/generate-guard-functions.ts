@@ -19,7 +19,7 @@ export async function generateGuardFunctions() {
     const validatorVariableName = `event${typeName}Validator`;
 
     let guardFunction = `import ${validatorVariableName} from 'digital-letters-events/${typeName}.js'\n`;
-    guardFunction += `import { InvalidEvent, type ${typeName} } from 'digital-letters-events';`;
+    guardFunction += `import { InvalidEvent, type ${typeName} } from 'digital-letters-events';\n`;
     guardFunction += `import { Logger } from 'utils';\n\n`;
 
     guardFunction += `export function validate${typeName}(\n`;
