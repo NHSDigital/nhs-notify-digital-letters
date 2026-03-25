@@ -253,7 +253,9 @@ describe('mapper', () => {
       );
 
       expect(result.data.reasonCode).toBe('DL_INTE_001');
-      expect(result.data.reasonText).toBe('This request has already been received');
+      expect(result.data.reasonText).toBe(
+        'This request has already been received',
+      );
     });
 
     it('generates new UUID for event', () => {
