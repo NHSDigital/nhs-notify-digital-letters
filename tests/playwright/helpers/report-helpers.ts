@@ -83,6 +83,10 @@ export class ReportScenario {
 
   readonly senderId: string;
 
+  readonly expectedReasonCode: string;
+
+  readonly expectedReason: string;
+
   time: string;
 
   constructor(
@@ -91,12 +95,16 @@ export class ReportScenario {
     eventStatuses: EventStatus[],
     expectedStatus: string,
     senderId: string,
+    expectedReasonCode = '',
+    expectedReason = '',
   ) {
     this.messageReference = messageReference;
     this.communicationType = communicationType;
     this.eventStatuses = eventStatuses;
     this.expectedStatus = expectedStatus;
     this.senderId = senderId;
+    this.expectedReasonCode = expectedReasonCode;
+    this.expectedReason = expectedReason;
     this.time = ''; // Set when publishing the event to EventBridge, otherwise all the events would have the same timestamp.
   }
 
@@ -106,6 +114,8 @@ export class ReportScenario {
       Time: this.time,
       'Communication Type': this.communicationType,
       Status: this.expectedStatus,
+      'Reason Code': this.expectedReasonCode,
+      Reason: this.expectedReason,
     };
   }
 

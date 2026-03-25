@@ -49,6 +49,8 @@ const scenarios = [
     [EventStatus.DigitalPDMResourceSubmissionRejected],
     'Failed',
     senderId,
+    'DL_PDMV_001',
+    'Letter rejected by PDM',
   ),
   new ReportScenario(
     'component-test-pdm-resource-retries-exceeded',
@@ -56,6 +58,8 @@ const scenarios = [
     [EventStatus.DigitalPDMResourceRetriesExceeded],
     'Failed',
     senderId,
+    'DL_PDMV_002',
+    'Timeout waiting for letter storage',
   ),
   new ReportScenario(
     'component-test-message-request-rejected',
@@ -63,6 +67,8 @@ const scenarios = [
     [EventStatus.DigitalMessageRequestRejected],
     'Failed',
     senderId,
+    'DL_INTE_001',
+    'Request validation failed',
   ),
   new ReportScenario(
     'component-test-digital-failed-priority',
@@ -70,6 +76,8 @@ const scenarios = [
     [EventStatus.Unread, EventStatus.DigitalPDMResourceSubmissionRejected],
     'Failed',
     senderId,
+    'DL_PDMV_001',
+    'Letter rejected by PDM',
   ),
   // Scenarios for communication type Print where there is a single event per message reference.
   new ReportScenario(
@@ -107,6 +115,8 @@ const scenarios = [
     [EventStatus.PrintFileQuarantined],
     'Failed',
     senderId,
+    'DL_CLIV_003',
+    'Attachment contains a virus',
   ),
   // multiple events for the same message reference, should take the one with highest priority status (returned > failed > dispatched > rejected)
   new ReportScenario(
