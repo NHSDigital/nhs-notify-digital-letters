@@ -184,16 +184,30 @@ export const createHandler = ({
 
           if (pdmAvailability === 'unavailable') {
             if (retries >= pollMaxRetries) {
-              retriesExceededEvents.push(
-                generateRetriesExceededEvent(event, retries),
-              );
+              const outgoing = generateRetriesExceededEvent(event, retries);
+              logger.info({
+                description: 'TraceContext hop',
+                incoming_traceparent: event.traceparent,
+                outgoing_traceparent: outgoing.traceparent,
+              });
+              retriesExceededEvents.push(outgoing);
             } else {
-              unavailableEvents.push(generateUnavailableEvent(event, retries));
+              const outgoing = generateUnavailableEvent(event, retries);
+              logger.info({
+                description: 'TraceContext hop',
+                incoming_traceparent: event.traceparent,
+                outgoing_traceparent: outgoing.traceparent,
+              });
+              unavailableEvents.push(outgoing);
             }
           } else {
-            availableEvents.push(
-              generateAvailableEvent(event, nhsNumber, odsCode),
-            );
+            const outgoing = generateAvailableEvent(event, nhsNumber, odsCode);
+            logger.info({
+              description: 'TraceContext hop',
+              incoming_traceparent: event.traceparent,
+              outgoing_traceparent: outgoing.traceparent,
+            });
+            availableEvents.push(outgoing);
           }
         } catch (error: any) {
           logger.warn({

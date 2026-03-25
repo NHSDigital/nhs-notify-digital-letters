@@ -11,6 +11,7 @@ from uuid import uuid4
 import boto3
 from botocore.exceptions import ClientError
 from pydantic import ValidationError
+from .trace_context import create_traceparent, derive_child_traceparent
 
 
 DlqReason = Literal['INVALID_EVENT', 'EVENTBRIDGE_FAILURE']
@@ -220,13 +221,21 @@ class EventPublisher:
         """
         Send CloudEvents to EventBridge with validation and DLQ support.
 
-        1. Validates events using the specified validator function
-        2. Sends valid events to EventBridge
-        3. Routes failed events to DLQ
+        1. Stamps each event with a traceparent: derives a child if one exists, otherwise creates a new root traceparent.
+        2. Validates events using the specified validator function
+        3. Sends valid events to EventBridge
+        4. Routes failed events to DLQ
         """
         if not events:
             self.logger.info('No events to send')
             return []
+
+        for event in events:
+            incoming = event.get('traceparent')
+            if incoming:
+                event['traceparent'] = derive_child_traceparent(incoming)
+            else:
+                event['traceparent'] = create_traceparent()
 
         valid_events = []
         invalid_events = []

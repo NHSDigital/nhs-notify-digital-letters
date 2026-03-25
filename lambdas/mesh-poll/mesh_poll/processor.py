@@ -151,6 +151,7 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
     def _publish_mesh_inbox_message_received_event(self, event_detail):
         """
         Publishes a MESHInboxMessageReceived event for the retriever component.
+        The EventPublisher will create a root traceparent automatically.
         """
         now = datetime.now(timezone.utc).isoformat()
 
@@ -167,7 +168,6 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
             'recordedtime': now,
             'severitynumber': 2,
             'severitytext': 'INFO',
-            'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
             'dataschema': (
                 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/'
                 '2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json'
@@ -185,11 +185,13 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
 
         self.__log.info("Published MESHInboxMessageReceived event",
                         mesh_message_id=event_detail["data"]["meshMessageId"],
-                        sender_id=event_detail["data"]["senderId"])
+                        sender_id=event_detail["data"]["senderId"],
+                        traceparent=cloud_event['traceparent'])
 
     def _publish_mesh_inbox_message_invalid_event(self, event_detail):
         """
         Publishes a MESHInboxMessageInvalid event when a message fails validation.
+        The EventPublisher will create a root traceparent automatically.
         """
         now = datetime.now(timezone.utc).isoformat()
 
@@ -203,7 +205,6 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
             'recordedtime': now,
             'severitynumber': 3,
             'severitytext': 'WARN',
-            'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
             'dataschema': (
                 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/'
                 '2025-10-draft/data/digital-letters-mesh-inbox-message-invalid-data.schema.json'

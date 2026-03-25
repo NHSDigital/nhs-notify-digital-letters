@@ -7,6 +7,7 @@ function createEventWithCommonFields(
   senderId: string,
   letterUri: string,
   createdAt: string,
+  traceparent?: string,
 ): FileSafe | FileQuarantined {
   return {
     specversion: '1.0',
@@ -14,7 +15,7 @@ function createEventWithCommonFields(
     subject: `customer/${senderId}/recipient/${messageReference}`,
     source:
       '/nhs/england/notify/production/primary/data-plane/digitalletters/print', // Note CCM-13892.
-    traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01', // Note CCM-14255.
+    traceparent: traceparent ?? '', // EventPublisher will derive child or create root
     type: isFileSafe
       ? 'uk.nhs.notify.digital.letters.print.file.safe.v1'
       : 'uk.nhs.notify.digital.letters.print.file.quarantined.v1',
@@ -36,6 +37,7 @@ export function createFileSafeEvent(
   senderId: string,
   letterUri: string,
   createdAt: string,
+  traceparent?: string,
 ): FileSafe {
   return createEventWithCommonFields(
     true,
@@ -43,6 +45,7 @@ export function createFileSafeEvent(
     senderId,
     letterUri,
     createdAt,
+    traceparent,
   ) as FileSafe;
 }
 
@@ -51,6 +54,7 @@ export function createFileQuarantinedEvent(
   senderId: string,
   letterUri: string,
   createdAt: string,
+  traceparent?: string,
 ): FileQuarantined {
   return createEventWithCommonFields(
     false,
@@ -58,5 +62,6 @@ export function createFileQuarantinedEvent(
     senderId,
     letterUri,
     createdAt,
+    traceparent,
   ) as FileQuarantined;
 }

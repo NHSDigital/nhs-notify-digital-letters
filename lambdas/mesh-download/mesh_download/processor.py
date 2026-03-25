@@ -23,7 +23,10 @@ class MeshDownloadProcessor:
     def process_sqs_message(self, sqs_record):
         try:
             validated_event = self._parse_and_validate_event(sqs_record)
-            logger = self.__log.bind(mesh_message_id=validated_event.data.meshMessageId)
+            logger = self.__log.bind(
+                mesh_message_id=validated_event.data.meshMessageId,
+                traceparent=validated_event.traceparent,
+            )
 
             logger.info("Processing MESH download request")
             self._handle_download(validated_event, logger)
@@ -106,6 +109,8 @@ class MeshDownloadProcessor:
     def _publish_downloaded_event(self, incoming_event, message_uri):
         """
         Publishes a MESHInboxMessageDownloaded event.
+        The EventPublisher will derive a child traceparent from the incoming traceparent
+        automatically, preserving the trace-id across this service hop.
         """
         now = datetime.now(timezone.utc).isoformat()
 
@@ -137,5 +142,7 @@ class MeshDownloadProcessor:
             "Published MESHInboxMessageDownloaded event",
             sender_id=incoming_event.data.senderId,
             message_uri=message_uri,
-            message_reference=incoming_event.data.messageReference
+            message_reference=incoming_event.data.messageReference,
+            incoming_traceparent=incoming_event.traceparent,
+            outgoing_traceparent=cloud_event['traceparent'],
         )
