@@ -3,7 +3,7 @@ import { EventPublisher, Logger } from 'utils';
 import { mock } from 'jest-mock-extended';
 import { createHandler } from 'apis/dynamodb-stream-handler';
 import { Dlq } from 'app/dlq';
-import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
+import { validateItemDequeued } from 'digital-letters-events';
 
 const logger = mock<Logger>();
 const eventPublisher = mock<EventPublisher>();
@@ -123,12 +123,14 @@ describe('createHandler', () => {
           }),
         }),
       ],
-      itemDequeuedValidator,
+      validateItemDequeued,
     );
 
     const publishedEvent = eventPublisher.sendEvents.mock.lastCall?.[0];
     expect(publishedEvent).toHaveLength(1);
-    expect(itemDequeuedValidator(publishedEvent?.[0])).toBeTruthy();
+    expect(() =>
+      validateItemDequeued(publishedEvent?.[0], logger),
+    ).not.toThrow();
 
     expect(result).toEqual({});
   });
@@ -396,7 +398,7 @@ describe('createHandler', () => {
           }),
         }),
       ],
-      itemDequeuedValidator,
+      validateItemDequeued,
     );
     expect(result).toEqual({});
   });

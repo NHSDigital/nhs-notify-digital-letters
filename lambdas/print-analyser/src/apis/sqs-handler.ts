@@ -9,8 +9,8 @@ import {
   FileSafe,
   PDFAnalysed,
   validateFileSafe,
+  validatePDFAnalysed,
 } from 'digital-letters-events';
-import pdfAnalysedValidator from 'digital-letters-events/PDFAnalysed.js';
 import { EventPublisher, Logger, getS3ObjectBufferFromUri } from 'utils';
 
 export interface HandlerDependencies {
@@ -130,7 +130,7 @@ export const createHandler = ({
       }),
     );
 
-    await eventPublisher.sendEvents(validEvents, pdfAnalysedValidator);
+    await eventPublisher.sendEvents(validEvents, validatePDFAnalysed);
 
     const processedItemCount = receivedItemCount - batchItemFailures.length;
     logger.info(

@@ -9,12 +9,12 @@ import type {
   UploadToPdmOutcome,
   UploadToPdmResult,
 } from 'app/upload-to-pdm';
-import pdmResourceSubmittedValidator from 'digital-letters-events/PDMResourceSubmitted.js';
-import pdmResourceSubmissionRejectedValidator from 'digital-letters-events/PDMResourceSubmissionRejected.js';
 import {
   MESHInboxMessageDownloaded,
   PDMResourceSubmitted,
   validateMESHInboxMessageDownloaded,
+  validatePDMResourceSubmissionRejected,
+  validatePDMResourceSubmitted,
 } from 'digital-letters-events';
 import { EventPublisher, Logger } from 'utils';
 
@@ -150,7 +150,7 @@ async function publishSuccessfulEvents(
             resourceId,
           },
         })),
-        pdmResourceSubmittedValidator,
+        validatePDMResourceSubmitted,
       );
     if (submittedFailedEvents.length > 0) {
       logger.warn({
@@ -191,7 +191,7 @@ async function publishFailedEvents(
           senderId: event.data.senderId,
         },
       })),
-      pdmResourceSubmissionRejectedValidator,
+      validatePDMResourceSubmissionRejected,
     );
     if (rejectedFailedEvents.length > 0) {
       logger.warn({

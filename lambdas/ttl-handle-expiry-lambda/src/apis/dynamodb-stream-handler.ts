@@ -7,9 +7,9 @@ import type {
 } from 'aws-lambda';
 import {
   ItemDequeued,
+  validateItemDequeued,
   validateMESHInboxMessageDownloaded,
 } from 'digital-letters-events';
-import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
 import { randomUUID } from 'node:crypto';
 import { $TtlDynamodbRecord, EventPublisher, Logger } from 'utils';
 
@@ -92,7 +92,7 @@ export const createHandler = ({
               },
             },
           ],
-          itemDequeuedValidator,
+          validateItemDequeued,
         );
       }
     } catch (error) {

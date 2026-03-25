@@ -9,12 +9,10 @@ import {
   PDMResourceRetriesExceeded,
   PDMResourceSubmitted,
   PDMResourceUnavailable,
+  validatePDMResourceRetriesExceeded,
   validatePDMResourceSubmitted,
   validatePDMResourceUnavailable,
 } from 'digital-letters-events';
-import pdmResourceAvailableValidator from 'digital-letters-events/PDMResourceAvailable.js';
-import pdmResourceUnavailableValidator from 'digital-letters-events/PDMResourceUnavailable.js';
-import pdmResourceRetriesExceededValidator from 'digital-letters-events/PDMResourceRetriesExceeded.js';
 import { randomUUID } from 'node:crypto';
 import { EventPublisher, Logger } from 'utils';
 
@@ -195,17 +193,17 @@ export const createHandler = ({
         availableEvents.length > 0 &&
           eventPublisher.sendEvents(
             availableEvents,
-            pdmResourceAvailableValidator,
+            validatePDMResourceUnavailable,
           ),
         unavailableEvents.length > 0 &&
           eventPublisher.sendEvents(
             unavailableEvents,
-            pdmResourceUnavailableValidator,
+            validatePDMResourceUnavailable,
           ),
         retriesExceededEvents.length > 0 &&
           eventPublisher.sendEvents(
             retriesExceededEvents,
-            pdmResourceRetriesExceededValidator,
+            validatePDMResourceRetriesExceeded,
           ),
       ].filter(Boolean),
     );
