@@ -105,7 +105,7 @@ test.describe('Digital Letters - Print Sender', () => {
           [
             '$.message.description = "Error parsing PDFAnalysed event"',
             `$.message.err[0].message = "must have required property 'senderId'"`,
-            `$.message.messageReference = "${messageReference}"`,
+            `$.messageReference = "${messageReference}"`,
           ],
         );
 

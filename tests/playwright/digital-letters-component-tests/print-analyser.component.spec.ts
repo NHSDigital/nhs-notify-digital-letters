@@ -106,7 +106,7 @@ test.describe('Print analyser', () => {
           [
             '$.message.description = "Error parsing FileSafe event"',
             `$.message.err[0].message = "must have required property 'senderId'"`,
-            `$.message.messageReference = "${messageReference}"`,
+            `$.messageReference = "${messageReference}"`,
           ],
         );
 
