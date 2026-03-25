@@ -1,19 +1,11 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
+import { generateCSV } from './generate-csv';
 import { FAILURE_CODE_DEFINITIONS } from './failure-codes';
 
 describe('generate-csv', () => {
-  const CSV_PATH = path.resolve(
-    __dirname,
-    '../../infrastructure/terraform/components/dl/data/failure_codes.csv',
-  );
-
   let csvContent: string;
 
   beforeAll(() => {
-    // Read the generated CSV file
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
-    csvContent = readFileSync(CSV_PATH, 'utf8');
+    csvContent = generateCSV();
   });
 
   describe('CSV format', () => {
@@ -93,6 +85,13 @@ describe('generate-csv', () => {
       const escaped = `"${testDescription.replaceAll('"', '""')}"`;
 
       expect(escaped).toBe('"Description with ""quotes"""');
+    });
+
+    it('should escape both commas and quotes in descriptions', () => {
+      const testDescription = 'Description with, comma and "quotes"';
+      const escaped = `"${testDescription.replaceAll('"', '""')}"`;
+
+      expect(escaped).toBe('"Description with, comma and ""quotes"""');
     });
   });
 

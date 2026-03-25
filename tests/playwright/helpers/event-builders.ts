@@ -175,7 +175,6 @@ export function buildFileQuarantinedEvent(
       letterUri: `s3://bucket/letters/${eventId}.pdf`,
       createdAt: time,
       reasonCode: 'DL_CLIV_003',
-
     },
   } as FileQuarantined;
 }

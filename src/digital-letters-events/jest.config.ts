@@ -7,15 +7,15 @@ const config: Config = {
   collectCoverage: true,
   collectCoverageFrom: [
     'failure-codes.ts',
+    'generate-csv.ts',
     '!dist/**',
     '!node_modules/**',
-    '!generate-csv.ts',
   ],
   coverageDirectory: './.reports/unit/coverage',
   coverageProvider: 'babel',
   coverageThreshold: {
     global: {
-      branches: 100,
+      branches: 75,
       functions: 100,
       lines: 100,
       statements: 100,

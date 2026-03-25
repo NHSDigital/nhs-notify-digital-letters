@@ -1,14 +1,14 @@
 #!/usr/bin/env tsx
 import { writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { FAILURE_CODE_DEFINITIONS } from './failure-codes.js';
+import { FAILURE_CODE_DEFINITIONS } from './failure-codes';
 
 const CSV_PATH = path.resolve(
   __dirname,
   '../../infrastructure/terraform/components/dl/data/failure_codes.csv',
 );
 
-function generateCSV(): string {
+export function generateCSV(): string {
   const lines = ['code,description'];
 
   for (const [code, description] of Object.entries(FAILURE_CODE_DEFINITIONS)) {
@@ -22,10 +22,12 @@ function generateCSV(): string {
   return `${lines.join('\n')}\n`;
 }
 
-const csv = generateCSV();
-writeFileSync(CSV_PATH, csv, 'utf8');
+export function main(): void {
+  const csv = generateCSV();
+  writeFileSync(CSV_PATH, csv, 'utf8');
 
-console.log(`✅ Generated ${CSV_PATH}`);
-console.log(
-  `   ${Object.keys(FAILURE_CODE_DEFINITIONS).length} failure codes exported`,
-);
+  console.log(`✅ Generated ${CSV_PATH}`);
+  console.log(
+    `   ${Object.keys(FAILURE_CODE_DEFINITIONS).length} failure codes exported`,
+  );
+}
