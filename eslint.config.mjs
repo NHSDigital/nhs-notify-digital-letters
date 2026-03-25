@@ -218,15 +218,17 @@ export default defineConfig([
     },
   },
   {
-    files: ['utils/**', '**/jest.config.ts'],
+    files: ['utils/**', '**/jest.config.ts', '**/*.test.ts', '**/*.spec.ts'],
     rules: {
       'no-relative-import-paths/no-relative-import-paths': 0,
       'import-x/no-relative-packages': 0,
     },
   },
   {
-    files: ['scripts/**'],
+    files: ['scripts/**', '**/generate-csv.ts'],
     rules: {
+      'no-relative-import-paths/no-relative-import-paths': 0,
+      'no-console': 0,
       'import-x/no-extraneous-dependencies': [
         'error',
         { devDependencies: true },

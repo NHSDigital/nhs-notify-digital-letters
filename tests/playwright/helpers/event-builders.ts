@@ -104,6 +104,7 @@ export function buildPDMResourceSubmissionRejectedEvent(
     data: {
       messageReference,
       senderId,
+      reasonCode: 'DL_PDMV_001',
     },
   } as PDMResourceSubmissionRejected;
 }
@@ -126,6 +127,7 @@ export function buildPDMResourceRetriesExceededEvent(
       senderId,
       resourceId: `resource-${eventId}`,
       retryCount: 5,
+      reasonCode: 'DL_PDMV_002',
     },
   } as PDMResourceRetriesExceeded;
 }
@@ -148,6 +150,8 @@ export function buildMessageRequestRejectedEvent(
       senderId,
       messageUri: `https://example.com/messages/${eventId}`,
       failureCode: 'VALIDATION_ERROR',
+      reasonCode: 'DL_INTE_001',
+      reasonText: 'Request validation failed',
     },
   } as MessageRequestRejected;
 }
@@ -170,6 +174,8 @@ export function buildFileQuarantinedEvent(
       senderId,
       letterUri: `s3://bucket/letters/${eventId}.pdf`,
       createdAt: time,
+      reasonCode: 'DL_CLIV_003',
+
     },
   } as FileQuarantined;
 }

@@ -25,9 +25,17 @@ WITH vars AS (
             WHEN e.letterstatus = 'FAILED' THEN 'Failed'
             WHEN e.letterstatus = 'DISPATCHED' THEN 'Dispatched'
             WHEN e.letterstatus = 'REJECTED' THEN 'Rejected' ELSE NULL
-        END as status
+        END as status,
+        e.reasoncode,
+        COALESCE(
+            CASE WHEN e.type LIKE '%.messages.request.rejected.%' THEN e.reasontext END,
+            fcl.description,
+            e.reasontext,
+            e.reasoncode
+        ) as reasontext
     FROM event_record e
         CROSS JOIN vars v
+        LEFT JOIN failure_code_lookup fcl ON e.reasoncode = fcl.code
     WHERE e.senderid = v.senderid
         AND e.__year = year(v.dt)
         AND e.__month = month(v.dt)
@@ -52,7 +60,9 @@ WITH vars AS (
         te.messagereference,
         te.time,
         te.communicationtype,
-        te.status
+        te.status,
+        te.reasoncode,
+        te.reasontext
     FROM "translated_events" AS te
     WHERE te.status IS NOT NULL
         AND te.communicationtype IS NOT NULL
@@ -60,6 +70,8 @@ WITH vars AS (
 SELECT oe.messagereference as "Message Reference",
     oe.time as "Time",
     oe.communicationtype as "Communication Type",
-    oe.status as "Status"
+    oe.status as "Status",
+    oe.reasoncode as "Reason Code",
+    oe.reasontext as "Reason"
 FROM "ordered_events" AS oe
 WHERE oe.row_number = 1

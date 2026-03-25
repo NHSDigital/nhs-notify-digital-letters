@@ -228,6 +228,7 @@ describe('SQS Handler', () => {
               senderId: pdmResourceUnavailableEvent.data.senderId,
               resourceId: pdmResourceUnavailableEvent.data.resourceId,
               retryCount: 10,
+              reasonCode: 'DL_PDMV_002',
             },
           },
         ],
