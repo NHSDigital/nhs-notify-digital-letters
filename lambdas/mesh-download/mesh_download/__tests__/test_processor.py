@@ -137,8 +137,9 @@ class TestMeshDownloadProcessor:
 
         sqs_record = create_sqs_record()
 
-        processor.process_sqs_message(sqs_record)
+        outcome = processor.process_sqs_message(sqs_record)
 
+        assert outcome == 'downloaded'
         config.mesh_client.retrieve_message.assert_called_once_with('test-message-123')
 
         mesh_message.read.assert_called_once()
@@ -322,8 +323,9 @@ class TestMeshDownloadProcessor:
         config.mesh_client.retrieve_message.return_value = mesh_message
         sqs_record = create_sqs_record()
 
-        processor.process_sqs_message(sqs_record)
+        outcome = processor.process_sqs_message(sqs_record)
 
+        assert outcome == 'downloaded'
         # Verify event was published with PII bucket in URI
         event_publisher.send_events.assert_called_once()
         published_events = event_publisher.send_events.call_args[0][0]
@@ -361,8 +363,9 @@ class TestMeshDownloadProcessor:
         config.mesh_client.retrieve_message.return_value = mesh_message
         sqs_record = create_sqs_record()
 
-        processor.process_sqs_message(sqs_record)
+        outcome = processor.process_sqs_message(sqs_record)
 
+        assert outcome == 'downloaded'
         event_publisher.send_events.assert_called_once()
         published_events = event_publisher.send_events.call_args[0][0]
         assert len(published_events) == 1
@@ -396,8 +399,9 @@ class TestMeshDownloadProcessor:
         sqs_record = create_sqs_record()
 
         # Should complete without raising
-        processor.process_sqs_message(sqs_record)
+        outcome = processor.process_sqs_message(sqs_record)
 
+        assert outcome == 'skipped'
         bound_logger.warning.assert_called_once()
         warning_msg = bound_logger.warning.call_args[0][0]
         assert "already stored" in warning_msg

@@ -28,7 +28,7 @@ class MeshDownloadProcessor:
             logger = self.__log.bind(mesh_message_id=validated_event.data.meshMessageId)
 
             logger.info("Processing MESH download request")
-            self._handle_download(validated_event, logger)
+            return self._handle_download(validated_event, logger)
 
         except Exception as exc:
             self.__log.error(
@@ -101,6 +101,8 @@ class MeshDownloadProcessor:
 
         message.acknowledge()
         logger.info("Acknowledged message")
+
+        return 'skipped' if duplicate else 'downloaded'
 
     def _store_message_content(self, sender_id, message_reference, mesh_message_id, message_content, logger):
         s3_key = self.__document_store.store_document(
