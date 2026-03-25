@@ -25,7 +25,7 @@ module "ttl_poll" {
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
   memory                  = 128
-  timeout                 = 360
+  timeout                 = var.lambda_timeout_seconds
   log_level               = var.log_level
   schedule                = var.ttl_poll_schedule
 

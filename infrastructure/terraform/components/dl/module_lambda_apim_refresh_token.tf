@@ -25,7 +25,7 @@ module "lambda_lambda_apim_refresh_token" {
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
   memory                  = 128
-  timeout                 = 5
+  timeout                 = var.lambda_timeout_seconds
   log_level               = var.log_level
   schedule                = var.apim_auth_token_schedule
 
