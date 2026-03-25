@@ -122,4 +122,36 @@ describe('generate-csv', () => {
       }
     });
   });
+
+  describe('main function', () => {
+    it('should write CSV to filesystem and log success', () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const fs = require('node:fs');
+      const writeFileSyncSpy = jest
+        .spyOn(fs, 'writeFileSync')
+        .mockImplementation();
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { main } = require('./generate-csv');
+      main();
+
+      expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
+      expect(writeFileSyncSpy).toHaveBeenCalledWith(
+        expect.stringContaining('failure_codes.csv'),
+        expect.stringContaining('code,description'),
+        'utf8',
+      );
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Generated'),
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('failure codes exported'),
+      );
+
+      writeFileSyncSpy.mockRestore();
+      consoleLogSpy.mockRestore();
+    });
+  });
 });
