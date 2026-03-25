@@ -9,11 +9,11 @@ import type {
   ReportGeneratorOutcome,
   ReportGeneratorResult,
 } from 'app/report-generator';
-import reportGeneratedValidator from 'digital-letters-events/ReportGenerated.js';
 import {
   GenerateReport,
   ReportGenerated,
   validateGenerateReport,
+  validateReportGenerated,
 } from 'digital-letters-events';
 import { EventPublisher, Logger } from 'utils';
 
@@ -145,7 +145,7 @@ async function publishSuccessfulEvents(
   const submittedFailedEvents =
     await eventPublisher.sendEvents<ReportGenerated>(
       reportGeneratedEvents,
-      reportGeneratedValidator,
+      validateReportGenerated,
     );
 
   return submittedFailedEvents;

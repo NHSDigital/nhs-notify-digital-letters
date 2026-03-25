@@ -6,10 +6,10 @@ import type {
 import { randomUUID } from 'node:crypto';
 import type { CreateTtl, CreateTtlOutcome } from 'app/create-ttl';
 import { EventPublisher, Logger } from 'utils';
-import itemEnqueuedValidator from 'digital-letters-events/ItemEnqueued.js';
 import {
   ItemEnqueued,
   MESHInboxMessageDownloaded,
+  validateItemEnqueued,
   validateMESHInboxMessageDownloaded,
 } from 'digital-letters-events';
 
@@ -102,7 +102,7 @@ export const createHandler = ({
               messageUri: event.data.messageUri,
             },
           })),
-          itemEnqueuedValidator,
+          validateItemEnqueued,
         );
         if (failedEvents.length > 0) {
           logger.warn({
