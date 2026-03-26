@@ -6,7 +6,6 @@
   "description": "Generated Typescript types and standalone validator functions for the application's event schemas.",
   "devDependencies": {
     "rimraf": "^6.1.3",
-    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },
   "exports": {
@@ -16,21 +15,14 @@
     "./*.js": {
       "default": "./validators/*.js",
       "types": "./validators/index.d.ts"
-    },
-    "./failure-codes": {
-      "default": "./dist/failure-codes.js",
-      "types": "./dist/failure-codes.d.ts"
     }
   },
   "name": "digital-letters-events",
   "scripts": {
-    "clean": "rimraf types validators dist",
-    "compile": "tsc",
-    "generate-csv": "tsx generate-csv.ts",
-    "generate-dependencies": "npm run generate-csv && npm run compile",
+    "clean": "rimraf types validators",
     "lint": "echo \"No linter has been implemented for this package.\"",
     "lint:fix": "echo \"No linter has been implemented for this package.\"",
-    "test:unit": "jest --coverage",
+    "test:unit": "echo \"No unit tests have been implemented for this package.\"",
     "typecheck": "tsc --noEmit"
   },
   "version": "0.0.1"

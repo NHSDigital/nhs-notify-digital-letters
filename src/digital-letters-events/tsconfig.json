@@ -1,21 +1,15 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "declaration": true,
     "isolatedModules": true,
     "outDir": "dist"
   },
   "exclude": [
-    "node_modules",
-    "dist"
+    "node_modules"
   ],
   "extends": "@tsconfig/node22/tsconfig.json",
   "include": [
     "validators/**/*",
-    "types/**/*",
-    "failure-codes.ts",
-    "generate-csv.ts",
-    "*.test.ts",
-    "jest.config.ts"
+    "types/**/*"
   ]
 }

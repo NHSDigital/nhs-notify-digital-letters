@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { DL_CLIV_003 } from 'digital-letters-events/failure-codes';
 import { FileQuarantined, FileSafe } from 'digital-letters-events';
 
 export function createFileSafeEvent(
@@ -48,7 +47,7 @@ export function createFileQuarantinedEvent(
       senderId,
       letterUri,
       createdAt,
-      reasonCode: DL_CLIV_003,
+      reasonCode: 'DL_CLIV_003',
     },
     recordedtime: new Date().toISOString(),
     severitynumber: 2,
