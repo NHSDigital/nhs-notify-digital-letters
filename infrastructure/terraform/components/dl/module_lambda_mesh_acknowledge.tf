@@ -24,7 +24,7 @@ module "mesh_acknowledge" {
   function_module_name    = "mesh_acknowledge"
   handler_function_name   = "handler.handler"
   runtime                 = "python3.14"
-  memory                  = 128
+  memory                  = 256
   timeout                 = var.lambda_timeout_seconds
   log_level               = var.log_level
 
