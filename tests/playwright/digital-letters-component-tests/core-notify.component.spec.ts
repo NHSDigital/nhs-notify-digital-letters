@@ -9,8 +9,10 @@ import {
   SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX,
   SENDER_ID_VALID_FOR_NOTIFY_SANDBOX,
 } from 'constants/tests-constants';
-import { PDMResourceAvailable } from 'digital-letters-events';
-import messagePDMResourceAvailableValidator from 'digital-letters-events/PDMResourceAvailable.js';
+import {
+  PDMResourceAvailable,
+  validatePDMResourceAvailable,
+} from 'digital-letters-events';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
@@ -63,7 +65,7 @@ test.describe('Digital Letters - Core Notify', () => {
           },
         },
       ],
-      messagePDMResourceAvailableValidator,
+      validatePDMResourceAvailable,
     );
 
     // Verify the event is processed and a message appears in the Lambda logs
@@ -116,7 +118,7 @@ test.describe('Digital Letters - Core Notify', () => {
           },
         },
       ],
-      messagePDMResourceAvailableValidator,
+      validatePDMResourceAvailable,
     );
 
     // Verify the event is processed and a message appears in the Lambda logs
@@ -168,7 +170,7 @@ test.describe('Digital Letters - Core Notify', () => {
           },
         },
       ],
-      messagePDMResourceAvailableValidator,
+      validatePDMResourceAvailable,
     );
 
     // Verify the event is published in the event bus
@@ -206,7 +208,7 @@ test.describe('Digital Letters - Core Notify', () => {
           },
         },
       ],
-      messagePDMResourceAvailableValidator,
+      validatePDMResourceAvailable,
     );
 
     await Promise.all([

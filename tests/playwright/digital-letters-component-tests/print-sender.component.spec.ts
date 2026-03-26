@@ -4,8 +4,7 @@ import {
   PRINT_SENDER_DLQ_NAME,
   PRINT_SENDER_LAMBDA_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
-import { PDFAnalysed } from 'digital-letters-events';
-import pdfAnalysedValidator from 'digital-letters-events/PDFAnalysed.js';
+import { PDFAnalysed, validatePDFAnalysed } from 'digital-letters-events';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
@@ -52,7 +51,7 @@ test.describe('Digital Letters - Print Sender', () => {
           },
         },
       ],
-      pdfAnalysedValidator,
+      validatePDFAnalysed,
     );
 
     // Verify letter prepared event published

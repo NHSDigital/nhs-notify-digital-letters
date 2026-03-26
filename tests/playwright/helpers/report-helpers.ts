@@ -15,12 +15,12 @@ import {
   ItemDequeued,
   MESHInboxMessageDownloaded,
   PrintLetterTransitioned,
+  validateDigitalLetterRead,
+  validateGenerateReport,
+  validateItemDequeued,
+  validateMESHInboxMessageDownloaded,
+  validatePrintLetterTransitioned,
 } from 'digital-letters-events';
-import generateReportValidator from 'digital-letters-events/GenerateReport.js';
-import digitalLetterReadValidator from 'digital-letters-events/DigitalLetterRead.js';
-import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
-import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
-import printLetterTransitionedValidator from 'digital-letters-events/PrintLetterTransitioned.js';
 import {
   QueryExecutionState,
   getQueryState,
@@ -115,7 +115,7 @@ export function publishEventForScenario(scenario: ReportScenario) {
                 scenario.senderId,
               ),
             ],
-            digitalLetterReadValidator,
+            validateDigitalLetterRead,
           );
         } else if (EventStatus.Unread === status) {
           eventPublisher.sendEvents<ItemDequeued>(
@@ -127,7 +127,7 @@ export function publishEventForScenario(scenario: ReportScenario) {
                 scenario.senderId,
               ),
             ],
-            itemDequeuedValidator,
+            validateItemDequeued,
           );
         }
         break;
@@ -143,7 +143,7 @@ export function publishEventForScenario(scenario: ReportScenario) {
               scenario.senderId,
             ),
           ],
-          printLetterTransitionedValidator,
+          validatePrintLetterTransitioned,
         );
         break;
       }
@@ -186,7 +186,7 @@ export async function publishGenerateReport(
         },
       },
     ],
-    generateReportValidator,
+    validateGenerateReport,
   );
 }
 
@@ -222,7 +222,7 @@ export async function publishEventNotInReports(senderId: string) {
         },
       },
     ],
-    messageDownloadedValidator,
+    validateMESHInboxMessageDownloaded,
   );
 }
 
