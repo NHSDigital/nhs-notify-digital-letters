@@ -56,7 +56,7 @@ export class PrintSender {
         (event, logger) => {
           const parseResult = $LetterRequestPreparedEvent.safeParse(event);
           if (!parseResult.success) {
-            logger.error({
+            logger.warn({
               err: parseResult.error,
               description: 'Error parsing LetterRequestPreparedEvent event',
             });
