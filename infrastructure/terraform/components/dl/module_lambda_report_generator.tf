@@ -25,7 +25,7 @@ module "report_generator" {
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
   memory                  = 256
-  timeout                 = var.lambda_timeout_seconds
+  timeout                 = 60
   log_level               = var.log_level
 
   force_lambda_code_deploy = var.force_lambda_code_deploy
