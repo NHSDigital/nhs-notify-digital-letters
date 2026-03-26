@@ -7,7 +7,7 @@ title: c4code-nhsapp-status-handler
 ```mermaid
 architecture-beta
     group AppStatusHandler(cloud)[NHSAppStatusHandler]
-    service optedOutEvent(aws:res-amazon-eventbridge-event)[PrintLetterOptedOut Event]
+    service optedOutEvent(aws:res-amazon-eventbridge-event)[channel status PUBLISHED v1 Event]
     service lambda(logos:aws-lambda)[App Status Handler] in AppStatusHandler
     service sqs(logos:aws-sqs)[App Status Queue] in AppStatusHandler
     service ddb(aws:arch-amazon-dynamodb)[Items With TTL] in AppStatusHandler
