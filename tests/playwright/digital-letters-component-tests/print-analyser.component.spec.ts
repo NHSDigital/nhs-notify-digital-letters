@@ -10,8 +10,7 @@ import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { fivePagePdf } from 'helpers/pdf-helpers';
 import { v4 as uuidv4 } from 'uuid';
-import fileSafeValidator from 'digital-letters-events/FileSafe.js';
-import { FileSafe } from 'digital-letters-events';
+import { FileSafe, validateFileSafe } from 'digital-letters-events';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { putFileS3 } from 'utils';
 
@@ -64,7 +63,7 @@ test.describe('Print analyser', () => {
       },
     };
 
-    await eventPublisher.sendEvents<FileSafe>([event], fileSafeValidator);
+    await eventPublisher.sendEvents<FileSafe>([event], validateFileSafe);
 
     await expectToPassEventually(async () => {
       const eventLogEntry = await getLogsFromCloudwatch(
