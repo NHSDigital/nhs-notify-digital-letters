@@ -5,6 +5,7 @@ from uuid import uuid4
 from pydantic import ValidationError
 from digital_letters_events import MESHInboxMessageDownloaded, MESHInboxMessageReceived
 from mesh_download.errors import MeshMessageNotFound
+from mesh_download.document_store import DocumentAlreadyExistsError
 
 
 class MeshDownloadProcessor:
@@ -13,6 +14,7 @@ class MeshDownloadProcessor:
         self.__log = kwargs['log']
         self.__mesh_client = kwargs['mesh_client']
         self.__download_metric = kwargs['download_metric']
+        self.__duplicate_download_metric = kwargs['duplicate_download_metric']
         self.__document_store = kwargs['document_store']
         self.__event_publisher = kwargs['event_publisher']
 
@@ -26,7 +28,7 @@ class MeshDownloadProcessor:
             logger = self.__log.bind(mesh_message_id=validated_event.data.meshMessageId)
 
             logger.info("Processing MESH download request")
-            self._handle_download(validated_event, logger)
+            return self._handle_download(validated_event, logger)
 
         except Exception as exc:
             self.__log.error(
@@ -72,27 +74,41 @@ class MeshDownloadProcessor:
         content = message.read()
         logger.info("Downloaded MESH message content")
 
-        uri = self._store_message_content(
-            sender_id=data.senderId,
-            message_reference=data.messageReference,
-            message_content=content,
-            logger=logger
-        )
+        duplicate = False
+        try:
+            uri = self._store_message_content(
+                sender_id=data.senderId,
+                message_reference=data.messageReference,
+                mesh_message_id=data.meshMessageId,
+                message_content=content,
+                logger=logger
+            )
+        except DocumentAlreadyExistsError:
+            logger.warning(
+                "Message already stored in S3, skipping publish (duplicate delivery)",
+                mesh_message_id=data.meshMessageId,
+                message_reference=data.messageReference
+            )
+            duplicate = True
+            self.__duplicate_download_metric.record(1)
 
-        self._publish_downloaded_event(
-            incoming_event=event,
-            message_uri=uri
-        )
+        if not duplicate:
+            self._publish_downloaded_event(
+                incoming_event=event,
+                message_uri=uri
+            )
+            self.__download_metric.record(1)
 
         message.acknowledge()
         logger.info("Acknowledged message")
 
-        self.__download_metric.record(1)
+        return 'skipped' if duplicate else 'downloaded'
 
-    def _store_message_content(self, sender_id, message_reference, message_content, logger):
+    def _store_message_content(self, sender_id, message_reference, mesh_message_id, message_content, logger):
         s3_key = self.__document_store.store_document(
             sender_id=sender_id,
             message_reference=message_reference,
+            mesh_message_id=mesh_message_id,
             content=message_content,
         )
 
