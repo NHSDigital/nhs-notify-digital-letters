@@ -10,11 +10,7 @@
   },
   "exports": {
     ".": {
-      "types": "./types/index.d.ts"
-    },
-    "./*.js": {
-      "default": "./validators/*.js",
-      "types": "./validators/index.d.ts"
+      "default": "./index.ts"
     }
   },
   "name": "digital-letters-events",

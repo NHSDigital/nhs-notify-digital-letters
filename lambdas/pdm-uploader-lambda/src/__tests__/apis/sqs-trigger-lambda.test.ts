@@ -222,7 +222,7 @@ describe('sqs-trigger-lambda', () => {
       expect(mockEventPublisher.sendEvents).not.toHaveBeenCalled();
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
-          description: 'Error parsing queue entry',
+          description: 'Error parsing MESHInboxMessageDownloaded event',
         }),
       );
     });

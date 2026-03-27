@@ -200,7 +200,7 @@ describe('sqs-trigger-lambda', () => {
       expect(response.batchItemFailures).toEqual([{ itemIdentifier: 'msg-1' }]);
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
-          description: 'Error parsing queue entry',
+          description: 'Error parsing GenerateReport event',
         }),
       );
       expect(mockReportGenerator.generate).not.toHaveBeenCalled();

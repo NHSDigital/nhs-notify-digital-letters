@@ -5,7 +5,6 @@ import {
   PREFIX_DL_FILES,
   REGION,
 } from 'constants/backend-constants';
-import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
@@ -15,6 +14,7 @@ import {
   getS3ObjectMetadata,
   putDataS3,
 } from 'utils';
+import { validateItemDequeued } from 'digital-letters-events';
 
 const DOCUMENT_REFERENCE_BUCKET = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-${ENV}-dl-pii-data`;
 const UNSCANNED_FILES_BUCKET = `nhs-${process.env.AWS_ACCOUNT_ID}-${REGION}-main-acct-digi-unscanned-files`;
@@ -77,7 +77,7 @@ test('should extract PDF from DocumentReference and store in unscanned bucket wi
         },
       },
     ],
-    itemDequeuedValidator,
+    validateItemDequeued,
   );
 
   await expectToPassEventually(async () => {
@@ -143,7 +143,7 @@ test('should handle validation errors by sending messages to DLQ', async () => {
         },
       },
     ],
-    itemDequeuedValidator,
+    validateItemDequeued,
   );
 
   // Verify the file was NOT processed successfully
