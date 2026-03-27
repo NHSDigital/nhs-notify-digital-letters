@@ -100,12 +100,29 @@ jobs:
         with:
           node-version: ${{ inputs.nodejs_version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Install dependencies"
+        run: npm ci
       - name: "Setup Python"
         uses: actions/setup-python@v6
         with:
           python-version: ${{ inputs.python_version }}
           cache: 'pip'
           cache-dependency-path: '**/requirements*.txt'
+      - name: "Cache generated dependencies"
+        id: schema-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            schemas/digital-letters/
+            output/digital-letters/
+            src/digital-letters-events/types/
+            src/digital-letters-events/validators/
+            src/digital-letters-events/digital_letters_events/models/
+          key: generated-deps-${{ runner.os }}-${{ hashFiles('src/cloudevents/**', 'src/typescript-schema-generator/**', 'src/python-schema-generator/**') }}
+      - name: "Generate dependencies"
+        if: steps.schema-cache.outputs.cache-hit != 'true'
+        run: |
+          npm run generate-dependencies
       - name: "Run unit test suite"
         run: |
           make test-unit

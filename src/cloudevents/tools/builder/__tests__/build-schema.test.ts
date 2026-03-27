@@ -9,6 +9,10 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
+// Resolve paths relative to this test file so the suite works whether Jest
+// runs from the workspace directory or from the repository root.
+const cloudEventsRoot = path.resolve(__dirname, '..', '..', '..');
+
 describe('build-schema CLI', () => {
   let testDir: string;
   let sourceDir: string;
@@ -16,7 +20,7 @@ describe('build-schema CLI', () => {
 
   beforeAll(() => {
     // Create test directories
-    testDir = path.join(process.cwd(), 'test-build-' + Date.now());
+    testDir = path.join(cloudEventsRoot, 'test-build-' + Date.now());
     sourceDir = path.join(testDir, 'src');
     outputDir = path.join(testDir, 'output');
 
@@ -52,7 +56,7 @@ describe('build-schema CLI', () => {
         execSync(
           `tsx tools/builder/build-schema.ts "${inputFile}" "${outputDir}"`,
           {
-            cwd: process.cwd(),
+            cwd: cloudEventsRoot,
             stdio: 'pipe'
           }
         );
@@ -91,7 +95,7 @@ properties:
         execSync(
           `tsx tools/builder/build-schema.ts "${inputFile}" "${outputDir}"`,
           {
-            cwd: process.cwd(),
+            cwd: cloudEventsRoot,
             stdio: 'pipe'
           }
         );
@@ -120,7 +124,7 @@ properties:
         const result = execSync(
           `tsx tools/builder/build-schema.ts "${inputFile}" "${outputDir}"`,
           {
-            cwd: process.cwd(),
+            cwd: cloudEventsRoot,
             stdio: 'pipe',
             encoding: 'utf-8'
           }
@@ -139,7 +143,7 @@ properties:
         execSync(
           'tsx tools/builder/build-schema.ts',
           {
-            cwd: process.cwd(),
+            cwd: cloudEventsRoot,
             stdio: 'pipe'
           }
         );
@@ -160,7 +164,7 @@ properties:
         execSync(
           `tsx tools/builder/build-schema.ts "${inputFile}" "${outputDir}" "https://example.com"`,
           {
-            cwd: process.cwd(),
+            cwd: cloudEventsRoot,
             stdio: 'pipe'
           }
         );
@@ -198,7 +202,7 @@ properties:
         execSync(
           `tsx tools/builder/build-schema.ts "${mainFile}" "${outputDir}"`,
           {
-            cwd: process.cwd(),
+            cwd: cloudEventsRoot,
             stdio: 'pipe'
           }
         );
@@ -224,7 +228,7 @@ properties:
         execSync(
           `tsx tools/builder/build-schema.ts "${yamlFile}" "${outputDir}"`,
           {
-            cwd: process.cwd(),
+            cwd: cloudEventsRoot,
             stdio: 'pipe'
           }
         );
@@ -246,7 +250,7 @@ properties:
         execSync(
           `tsx tools/builder/build-schema.ts "nonexistent.json" "${outputDir}"`,
           {
-            cwd: process.cwd(),
+            cwd: cloudEventsRoot,
             stdio: 'pipe'
           }
         );
@@ -266,7 +270,7 @@ properties:
         execSync(
           `tsx tools/builder/build-schema.ts "${invalidFile}" "${outputDir}"`,
           {
-            cwd: process.cwd(),
+            cwd: cloudEventsRoot,
             stdio: 'pipe'
           }
         );
@@ -282,7 +286,7 @@ properties:
   describe('module structure', () => {
     it('should export expected functions (if any)', () => {
       // build-schema-cli.ts contains the testable logic
-      const buildSchemaCliPath = path.join(process.cwd(), 'tools/builder/build-schema-cli.ts');
+      const buildSchemaCliPath = path.join(cloudEventsRoot, 'tools/builder/build-schema-cli.ts');
       expect(fs.existsSync(buildSchemaCliPath)).toBe(true);
 
       // Verify file has expected structure
@@ -293,7 +297,7 @@ properties:
     });
 
     it('should have proper imports', () => {
-      const buildSchemaCliPath = path.join(process.cwd(), 'tools/builder/build-schema-cli.ts');
+      const buildSchemaCliPath = path.join(cloudEventsRoot, 'tools/builder/build-schema-cli.ts');
       const content = fs.readFileSync(buildSchemaCliPath, 'utf-8');
 
       expect(content).toContain('import fs from');
