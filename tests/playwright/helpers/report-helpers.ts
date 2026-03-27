@@ -228,6 +228,8 @@ export function publishEventForScenario(scenario: ReportScenario) {
                 scenario.messageReference,
                 status,
                 scenario.senderId,
+                scenario.expectedReasonCode,
+                scenario.expectedReason,
               ),
             ],
             printLetterTransitionedValidator,

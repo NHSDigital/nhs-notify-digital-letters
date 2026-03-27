@@ -70,6 +70,8 @@ export function buildPrintLetterTransitionedEvent(
   messageReference: string,
   status: string,
   senderId: string,
+  reasonCode: string,
+  reasonText: string,
 ): PrintLetterTransitioned {
   const baseEvent = buildBaseEvent('print', time);
   return {
@@ -84,6 +86,8 @@ export function buildPrintLetterTransitionedEvent(
       status,
       supplierId: 'supplier-1',
       time,
+      reasonCode,
+      reasonText,
     },
   } as PrintLetterTransitioned;
 }

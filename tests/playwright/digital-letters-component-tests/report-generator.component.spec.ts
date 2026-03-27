@@ -86,6 +86,8 @@ const scenarios = [
     [EventStatus.Rejected],
     'Rejected',
     senderId,
+    'API_CODE_001',
+    'The letter was rejected.',
   ),
   new ReportScenario(
     'component-test-failed',
@@ -93,6 +95,8 @@ const scenarios = [
     [EventStatus.Failed],
     'Failed',
     senderId,
+    'API_CODE_002',
+    'Letter processing failed',
   ),
   new ReportScenario(
     'component-test-returned',
@@ -100,6 +104,8 @@ const scenarios = [
     [EventStatus.Returned],
     'Returned',
     senderId,
+    'API_CODE_003',
+    'The letter was returned',
   ),
   new ReportScenario(
     'component-test-dispatched',
