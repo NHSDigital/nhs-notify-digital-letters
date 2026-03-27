@@ -18,22 +18,27 @@ export async function generateGuardFunctions() {
 
     const validatorVariableName = `event${typeName}Validator`;
 
-    const guardFunction = `import ${validatorVariableName} from 'digital-letters-events/${typeName}.js';
-import { InvalidEvent, type ${typeName} } from 'digital-letters-events';
+    const guardFunction = `import ${validatorVariableName} from '../validators/${typeName}.js';
+import { type ${typeName} } from '../types';
+import { InvalidEvent } from '../errors';
 import { Logger } from 'utils';
+import { ValidateFunction } from 'ajv';
+
+const validator = ${validatorVariableName} as unknown as ValidateFunction;
 
 export function validate${typeName}(
   event: unknown,
   logger: Logger,
 ): asserts event is ${typeName} {
-  if (!${validatorVariableName}(event)) {
+  if (!validator(event)) {
     logger.error({
-      err: ${validatorVariableName}.errors,
+      err: validator.errors,
       description: 'Error parsing ${typeName} event',
     });
-    throw new InvalidEvent(${validatorVariableName}.errors);
+    throw new InvalidEvent(validator.errors);
   }
-}`;
+}
+`;
 
     const typeDeclarationFilename = `${typeName}.ts`;
     writeFile(outputDir, typeDeclarationFilename, guardFunction);
