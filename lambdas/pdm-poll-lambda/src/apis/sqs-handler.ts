@@ -9,6 +9,7 @@ import {
   PDMResourceRetriesExceeded,
   PDMResourceSubmitted,
   PDMResourceUnavailable,
+  validatePDMResourceAvailable,
   validatePDMResourceRetriesExceeded,
   validatePDMResourceSubmitted,
   validatePDMResourceUnavailable,
@@ -193,7 +194,7 @@ export const createHandler = ({
         availableEvents.length > 0 &&
           eventPublisher.sendEvents(
             availableEvents,
-            validatePDMResourceUnavailable,
+            validatePDMResourceAvailable,
           ),
         unavailableEvents.length > 0 &&
           eventPublisher.sendEvents(
