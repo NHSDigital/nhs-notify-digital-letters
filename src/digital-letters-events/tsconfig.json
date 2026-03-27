@@ -10,6 +10,9 @@
   "extends": "@tsconfig/node22/tsconfig.json",
   "include": [
     "validators/**/*",
-    "types/**/*"
+    "types/**/*",
+    "guard-functions/**/*",
+    "index.ts",
+    "errors/**/*"
   ]
 }

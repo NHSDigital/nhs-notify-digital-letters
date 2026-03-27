@@ -114,6 +114,9 @@ describe('SQS Handler', () => {
 
       const result = await handler(event);
 
+      expect(logger.child).toHaveBeenCalledWith({
+        messageReference: fileSafeEvent.data.messageReference,
+      });
       expect(mockChildLogger.error).toHaveBeenCalledWith({
         err: expect.arrayContaining([
           expect.objectContaining({

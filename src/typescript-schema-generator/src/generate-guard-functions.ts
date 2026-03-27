@@ -18,29 +18,28 @@ export async function generateGuardFunctions() {
 
     const validatorVariableName = `event${typeName}Validator`;
 
-    let guardFunction = `import ${validatorVariableName} from 'digital-letters-events/${typeName}.js'\n`;
-    guardFunction += `import { InvalidEvent, type ${typeName} } from 'digital-letters-events';\n`;
-    guardFunction += `import { Logger } from 'utils';\n\n`;
+    const guardFunction = `import ${validatorVariableName} from 'digital-letters-events/${typeName}.js';
+import { InvalidEvent, type ${typeName} } from 'digital-letters-events';
+import { Logger } from 'utils';
 
-    guardFunction += `export function validate${typeName}(\n`;
-    guardFunction += `  event: unknown,\n`;
-    guardFunction += `  logger: Logger,\n`;
-    guardFunction += `): asserts event is ${typeName} {\n`;
-    guardFunction += `  if (!${validatorVariableName}(event)) {\n`;
-    guardFunction += `    logger.error({\n`;
-    guardFunction += `      err: ${validatorVariableName}.errors,\n`;
-    guardFunction += `      description: 'Error parsing ${typeName} event',\n`;
-    guardFunction += `    });\n`;
-    guardFunction += `    throw new InvalidEvent(${validatorVariableName}.errors);\n`;
-    guardFunction += `  }\n`;
-    guardFunction += `}\n`;
+export function validate${typeName}(
+  event: unknown,
+  logger: Logger,
+): asserts event is ${typeName} {
+  if (!${validatorVariableName}(event)) {
+    logger.error({
+      err: ${validatorVariableName}.errors,
+      description: 'Error parsing ${typeName} event',
+    });
+    throw new InvalidEvent(${validatorVariableName}.errors);
+  }
+}`;
 
-    const typeDeclarationName = `${typeName}`;
-    const typeDeclarationFilename = `${typeDeclarationName}.ts`;
+    const typeDeclarationFilename = `${typeName}.ts`;
     writeFile(outputDir, typeDeclarationFilename, guardFunction);
     console.log(typeDeclarationFilename);
 
-    indexLines.push(`export * from './${typeDeclarationName}';`);
+    indexLines.push(`export * from './${typeName}';`);
   }
   console.groupEnd();
 
