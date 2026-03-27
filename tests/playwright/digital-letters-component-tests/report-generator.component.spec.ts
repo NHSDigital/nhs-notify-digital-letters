@@ -131,6 +131,8 @@ const scenarios = [
     [EventStatus.Rejected, EventStatus.Pending],
     'Rejected',
     senderId,
+    'API_CODE_001',
+    'The letter was rejected.',
   ), // pending is ignored.
   new ReportScenario(
     'component-test-rejected-dispatched',
@@ -145,6 +147,8 @@ const scenarios = [
     [EventStatus.Rejected, EventStatus.Dispatched, EventStatus.Failed],
     'Failed',
     senderId,
+    'API_CODE_002',
+    'Letter processing failed',
   ),
   new ReportScenario(
     'component-test-rejected-dispatched-failed-returned',
@@ -157,6 +161,8 @@ const scenarios = [
     ],
     'Returned',
     senderId,
+    'API_CODE_003',
+    'The letter was returned',
   ),
 ];
 
