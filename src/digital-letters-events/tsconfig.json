@@ -2,7 +2,8 @@
   "compilerOptions": {
     "allowJs": true,
     "isolatedModules": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "rootDir": "."
   },
   "exclude": [
     "node_modules"
