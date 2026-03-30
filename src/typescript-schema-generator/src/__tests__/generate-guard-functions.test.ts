@@ -43,7 +43,7 @@ describe('generate-guard-functions', () => {
 
     expect(typeDeclarationFiles.length).toBe(4);
     expect(typeDeclarationFiles).toEqual(
-      expect.arrayContaining(['index.ts', 'One.ts', 'Two.ts', 'Three.ts']),
+      expect.arrayContaining(['index.ts', 'OneGuard.ts', 'TwoGuard.ts', 'ThreeGuard.ts']),
     );
   });
 
@@ -54,8 +54,8 @@ describe('generate-guard-functions', () => {
       path.join(outputDir, 'index.ts'),
       'utf8',
     );
-    expect(indexFileContents).toContain("export * from './One';");
-    expect(indexFileContents).toContain("export * from './Two';");
-    expect(indexFileContents).toContain("export * from './Three';");
+    expect(indexFileContents).toContain("export * from './OneGuard';");
+    expect(indexFileContents).toContain("export * from './TwoGuard';");
+    expect(indexFileContents).toContain("export * from './ThreeGuard';");
   });
 });
