@@ -43,7 +43,12 @@ describe('generate-guard-functions', () => {
 
     expect(typeDeclarationFiles.length).toBe(4);
     expect(typeDeclarationFiles).toEqual(
-      expect.arrayContaining(['index.ts', 'OneGuard.ts', 'TwoGuard.ts', 'ThreeGuard.ts']),
+      expect.arrayContaining([
+        'index.ts',
+        'OneGuard.ts',
+        'TwoGuard.ts',
+        'ThreeGuard.ts',
+      ]),
     );
   });
 
