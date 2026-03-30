@@ -16,8 +16,8 @@ const baseLetterEvent = {
   specversion: '1.0',
   source: '/data-plane/supplier-api/prod/update-status',
   subject:
-    'letter-origin/digital-letters/letter/f47ac10b-58cc-4372-a567-0e02b2c3d479',
-  dataschemaversion: '1.0.0',
+    'letter-origin/letter-rendering/letter/32124dde-4b36-4a49-8686-e9da9cbff725_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
+  dataschemaversion: '1.0.16',
   time: '2023-06-20T12:00:00Z',
   recordedtime: '2023-06-20T12:00:00.250Z',
   severitynumber: 2,
@@ -26,16 +26,17 @@ const baseLetterEvent = {
   severitytext: 'INFO',
   plane: 'data',
   data: {
-    domainId: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    domainId:
+      '32124dde-4b36-4a49-8686-e9da9cbff725_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
     groupId: 'client_template',
+    specificationId: '1y3q9v1zzzz',
+    supplierId: 'supplier-1',
+    billingRef: '1y3q9v1zzzz',
     origin: {
       domain: 'letter-rendering',
       event: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
       source: '/data-plane/letter-rendering/prod/render-pdf',
     },
-    specificationId: '1y3q9v1zzzz',
-    supplierId: 'supplier-1',
-    billingRef: '1y3q9v1zzzz',
   },
 } as LetterEvent;
 
@@ -65,13 +66,13 @@ test.describe('Print status handler', () => {
       const letterEvent = {
         ...baseLetterEvent,
         type: `uk.nhs.notify.supplier-api.letter.${status}.v1`,
-        dataschema: `https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.${status}.1.0.0.schema.json`,
+        dataschema: `https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.${status}.1.0.16.schema.json`,
         data: {
           ...baseLetterEvent.data,
           status,
           origin: {
             ...baseLetterEvent.data.origin,
-            subject: `client/00f3b388-bbe9-41c9-9e76-052d37ee8988/digital-letters/${messageReference}`,
+            subject: `client/00f3b388-bbe9-41c9-9e76-052d37ee8988/letter-request/${messageReference}`,
           },
         },
       };
@@ -110,7 +111,7 @@ test.describe('Print status handler', () => {
             ...baseLetterEvent.data,
             origin: {
               ...baseLetterEvent.data.origin,
-              subject: `client/00f3b388-bbe9-41c9-9e76-052d37ee8988/digital-letters/${messageReference}`,
+              subject: `client/00f3b388-bbe9-41c9-9e76-052d37ee8988/letter-request/${messageReference}`,
             },
           },
         },

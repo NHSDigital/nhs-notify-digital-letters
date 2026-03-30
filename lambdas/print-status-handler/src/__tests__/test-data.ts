@@ -6,11 +6,11 @@ export const acceptedLetterEvent = {
   specversion: '1.0',
   source: '/data-plane/supplier-api/prod/update-status',
   subject:
-    'letter-origin/digital-letters/letter/f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    'letter-origin/digital-letters/letter/f47ac10b-58cc-4372-a567-0e02b2c3d479_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
   type: 'uk.nhs.notify.supplier-api.letter.ACCEPTED.v1',
   dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.ACCEPTED.1.0.0.schema.json',
-  dataschemaversion: '1.0.0',
+    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.ACCEPTED.1.0.16.schema.json',
+  dataschemaversion: '1.0.16',
   time: '2023-06-20T12:00:00Z',
   recordedtime: '2023-06-20T12:00:00.250Z',
   severitynumber: 2,
@@ -19,20 +19,58 @@ export const acceptedLetterEvent = {
   severitytext: 'INFO',
   plane: 'data',
   data: {
-    domainId: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    domainId:
+      'f47ac10b-58cc-4372-a567-0e02b2c3d479_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
     groupId: 'client_template',
+    specificationId: '1y3q9v1zzzz',
+    supplierId: 'supplier-1',
+    status: 'ACCEPTED',
+    billingRef: '1y3q9v1zzzz',
     origin: {
       domain: 'letter-rendering',
       event: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
       source: '/data-plane/letter-rendering/prod/render-pdf',
       subject:
-        'client/00f3b388-bbe9-41c9-9e76-052d37ee8988/digital-letters/b9c0c7f8-8204-400d-8348-7e7ddf775dae',
+        'client/f47ac10b-58cc-4372-a567-0e02b2c3d479/letter-request/2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
     },
-    specificationId: '1y3q9v1zzzz',
-    supplierId: 'supplier-1',
-    status: 'ACCEPTED',
-    billingRef: '1y3q9v1zzzz',
   },
+} as LetterEvent;
+
+export const pendingLetterEvent = {
+  specversion: '1.0',
+  id: '281d1b5f-a6d2-42c1-9ec4-d1fc26ad2a6f',
+  type: 'uk.nhs.notify.supplier-api.letter.PENDING.v1',
+  plane: 'data',
+  dataschema:
+    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.PENDING.1.0.16.schema.json',
+  dataschemaversion: '1.0.16',
+  source:
+    '/data-plane/supplier-api/nhs-supplier-api-nonprod/main/update-status',
+  subject:
+    'letter-origin/letter-rendering/letter/32124dde-4b36-4a49-8686-e9da9cbff725_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
+  data: {
+    domainId:
+      '32124dde-4b36-4a49-8686-e9da9cbff725_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
+    status: 'PENDING',
+    specificationId: 'notify-c5',
+    billingRef: 'notify-c5',
+    specificationBillingId: 'default',
+    supplierId: 'synertec',
+    groupId: '32124dde-4b36-4a49-8686-e9da9cbff725digitalLettersundefined',
+    origin: {
+      domain: 'letter-rendering',
+      source: '/data-plane/digital-letters/nonprod/main',
+      subject:
+        'client/32124dde-4b36-4a49-8686-e9da9cbff725/letter-request/2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
+      event: '281d1b5f-a6d2-42c1-9ec4-d1fc26ad2a6f',
+    },
+  },
+  time: '2026-03-27T16:59:16.515Z',
+  datacontenttype: 'application/json',
+  traceparent: '00-15c1d7050c2dbeb7f762bff8874c9a5b-a7043d96b780e5ef-01',
+  recordedtime: '2026-03-27T16:59:16.515Z',
+  severitynumber: 2,
+  severitytext: 'INFO',
 } as LetterEvent;
 
 export const failedLetterEvent = {
@@ -40,11 +78,11 @@ export const failedLetterEvent = {
   specversion: '1.0',
   source: '/data-plane/supplier-api/prod/update-status',
   subject:
-    'letter-origin/digital-letters/letter/f47ac10b-58cc-4372-a567-0e02b2c3d480',
+    'letter-origin/digital-letters/letter/f47ac10b-58cc-4372-a567-0e02b2c3d480_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
   type: 'uk.nhs.notify.supplier-api.letter.FAILED.v1',
   dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.FAILED.1.0.0.schema.json',
-  dataschemaversion: '1.0.0',
+    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.FAILED.1.0.16.schema.json',
+  dataschemaversion: '1.0.16',
   time: '2023-06-20T13:00:00Z',
   recordedtime: '2023-06-20T13:00:00.250Z',
   severitynumber: 3,
@@ -53,21 +91,22 @@ export const failedLetterEvent = {
   severitytext: 'WARN',
   plane: 'data',
   data: {
-    domainId: 'f47ac10b-58cc-4372-a567-0e02b2c3d480',
+    domainId:
+      'f47ac10b-58cc-4372-a567-0e02b2c3d480_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
     groupId: 'client_template',
-    origin: {
-      domain: 'letter-rendering',
-      event: 'f47ac10b-58cc-4372-a567-0e02b2c3d480',
-      source: '/data-plane/letter-rendering/prod/render-pdf',
-      subject:
-        'client/00f3b388-bbe9-41c9-9e76-052d37ee8988/digital-letters/c8d1d8g9-9305-511e-9459-8f8eeg886ebf',
-    },
     specificationId: '1y3q9v1zzzz',
     supplierId: 'supplier-1',
     status: 'FAILED',
     billingRef: '1y3q9v1zzzz',
     reasonCode: 'FAILURE001',
     reasonText: 'Letter has too many pages',
+    origin: {
+      domain: 'letter-rendering',
+      event: 'f47ac10b-58cc-4372-a567-0e02b2c3d480',
+      source: '/data-plane/letter-rendering/prod/render-pdf',
+      subject:
+        'client/f47ac10b-58cc-4372-a567-0e02b2c3d480/letter-request/2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
+    },
   },
 } as LetterEvent;
 

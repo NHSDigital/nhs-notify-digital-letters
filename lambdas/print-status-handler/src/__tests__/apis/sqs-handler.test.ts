@@ -5,6 +5,7 @@ import { EventPublisher, Logger } from 'utils';
 import {
   acceptedLetterEvent,
   failedLetterEvent,
+  pendingLetterEvent,
   recordEvent,
 } from '__tests__/test-data';
 
@@ -32,6 +33,43 @@ describe('SQS Handler', () => {
 
   describe('letter status transitions', () => {
     it('should send print.letter.transitioned event when letter.ACCEPTED received', async () => {
+      const response = await handler(recordEvent([pendingLetterEvent]));
+
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+        [
+          {
+            ...pendingLetterEvent,
+            id: '550e8400-e29b-41d4-a716-446655440001',
+            time: '2023-06-20T12:00:00.250Z',
+            recordedtime: '2023-06-20T12:00:00.250Z',
+            dataschema:
+              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-letter-transitioned-data.schema.json',
+            type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
+            source:
+              '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+            data: {
+              senderId: pendingLetterEvent.data.origin.subject.split('/')[1],
+              messageReference:
+                pendingLetterEvent.data.origin.subject.split('/')[3],
+              specificationId: pendingLetterEvent.data.specificationId,
+              status: pendingLetterEvent.data.status,
+              supplierId: pendingLetterEvent.data.supplierId,
+              time: pendingLetterEvent.time,
+            },
+          },
+        ],
+        expect.any(Function),
+      );
+      expect(logger.info).toHaveBeenCalledWith(
+        'Received SQS Event of 1 record(s)',
+      );
+      expect(logger.info).toHaveBeenCalledWith(
+        '1 of 1 records processed successfully',
+      );
+      expect(response).toEqual({ batchItemFailures: [] });
+    });
+
+    it('should send print.letter.transitioned event when letter.PENDING received', async () => {
       const response = await handler(recordEvent([acceptedLetterEvent]));
 
       expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
@@ -220,7 +258,7 @@ describe('SQS Handler', () => {
           issues: expect.arrayContaining([
             expect.objectContaining({
               message:
-                'Subject must be in format: client/{senderId}/digital-letters/{messageReference}',
+                'Subject must be in format: client/{senderId}/letter-request/{messageReference}',
             }),
           ]),
         }),

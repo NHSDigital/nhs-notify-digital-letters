@@ -28,8 +28,8 @@ type ValidatedRecord = {
 const originSubjectSchema = z
   .string()
   .regex(
-    /^client\/[^/]+\/digital-letters\/[^/]+$/,
-    'Subject must be in format: client/{senderId}/digital-letters/{messageReference}',
+    /^client\/[^/]+\/letter-request\/[^/]+$/,
+    'Subject must be in format: client/{senderId}/letter-request/{messageReference}',
   );
 
 function validateRecord(
@@ -67,6 +67,10 @@ function validateRecord(
 
       return null;
     }
+
+    logger.info(
+      `Successfully validated SQS record with messageId: ${messageId}, subject: ${item.data.origin.subject}`,
+    );
 
     return { messageId, event: item };
   } catch (error) {
@@ -147,6 +151,9 @@ export const createHandler = ({
         try {
           const { event } = validatedRecord;
           validEvents.push(generateUpdatedEvent(event));
+          logger.info(
+            `Generated event for incoming event with domainID: ${event.data.domainId}, subject: ${event.subject}`,
+          );
         } catch (error: any) {
           logger.warn({
             err: error.message,
