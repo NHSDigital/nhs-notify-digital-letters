@@ -18,7 +18,7 @@ export async function generateGuardFunctions() {
 
     const validatorVariableName = `event${typeName}Validator`;
 
-    const guardFunction = `import ${validatorVariableName} from '../validators/${typeName}.js';
+    const guardFunction = `import ${validatorVariableName} from 'digital-letters-events/${typeName}.js';
 import { type ${typeName} } from '../types';
 import { InvalidEvent } from '../errors';
 import { Logger } from 'utils';
@@ -40,11 +40,11 @@ export function validate${typeName}(
 }
 `;
 
-    const typeDeclarationFilename = `${typeName}.ts`;
+    const typeDeclarationFilename = `${typeName}Guard.ts`;
     writeFile(outputDir, typeDeclarationFilename, guardFunction);
     console.log(typeDeclarationFilename);
 
-    indexLines.push(`export * from './${typeName}';`);
+    indexLines.push(`export * from './${typeName}Guard';`);
   }
   console.groupEnd();
 

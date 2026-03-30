@@ -11,6 +11,10 @@
   "exports": {
     ".": {
       "default": "./index.ts"
+    },
+    "./*.js": {
+      "default": "./validators/*.js",
+      "types": "./validators/index.d.ts"
     }
   },
   "name": "digital-letters-events",
