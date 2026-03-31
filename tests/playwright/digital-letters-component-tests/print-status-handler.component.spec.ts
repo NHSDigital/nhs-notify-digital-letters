@@ -15,8 +15,6 @@ const baseLetterEvent = {
   id: '550e8400-e29b-41d4-a716-446655440001',
   specversion: '1.0',
   source: '/data-plane/supplier-api/prod/update-status',
-  subject:
-    'letter-origin/letter-rendering/letter/32124dde-4b36-4a49-8686-e9da9cbff725_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
   dataschemaversion: '1.0.16',
   time: '2023-06-20T12:00:00Z',
   recordedtime: '2023-06-20T12:00:00.250Z',
@@ -27,7 +25,7 @@ const baseLetterEvent = {
   plane: 'data',
   data: {
     domainId:
-      '32124dde-4b36-4a49-8686-e9da9cbff725_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
+      '00f3b388-bbe9-41c9-9e76-052d37ee8988_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
     groupId: 'client_template',
     specificationId: '1y3q9v1zzzz',
     supplierId: 'supplier-1',
@@ -65,6 +63,7 @@ test.describe('Print status handler', () => {
       const messageReference = uuidv4();
       const letterEvent = {
         ...baseLetterEvent,
+        subject: `letter-origin/letter-rendering/letter/00f3b388-bbe9-41c9-9e76-052d37ee8988_${messageReference}`,
         type: `uk.nhs.notify.supplier-api.letter.${status}.v1`,
         dataschema: `https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.${status}.1.0.16.schema.json`,
         data: {
@@ -105,6 +104,7 @@ test.describe('Print status handler', () => {
       [
         {
           ...baseLetterEvent,
+          subject: `letter-origin/letter-rendering/letter/00f3b388-bbe9-41c9-9e76-052d37ee8988_${messageReference}`,
           type: `uk.nhs.notify.supplier-api.letter.ACCEPTED.v1`,
           dataschema: `https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.ACCEPTED.1.0.0.schema.json`,
           data: {

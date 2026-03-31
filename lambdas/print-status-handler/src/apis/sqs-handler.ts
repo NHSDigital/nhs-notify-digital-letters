@@ -106,6 +106,7 @@ function generateUpdatedEvent(event: LetterEvent): PrintLetterTransitioned {
     id: randomUUID(),
     time: eventTime,
     recordedtime: eventTime,
+    subject: `client/${senderId}/letter-request/${messageReference}`,
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-letter-transitioned-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
@@ -155,7 +156,9 @@ export const createHandler = ({
           logger.info(
             `Generated event for incoming event with domainID: ${event.data.domainId}, subject: ${event.subject}`,
           );
-          logger.info(`From SupplierAPI: ${JSON.stringify(event)} To PrintLetterTransitioned: ${JSON.stringify(generatedEvent)}`);
+          logger.info(
+            `From SupplierAPI: ${JSON.stringify(event)} To PrintLetterTransitioned: ${JSON.stringify(generatedEvent)}`,
+          );
         } catch (error: any) {
           logger.warn({
             err: error.message,

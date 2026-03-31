@@ -9,6 +9,8 @@ import {
   recordEvent,
 } from '__tests__/test-data';
 
+import { $LetterEvent } from '@nhsdigital/nhs-notify-event-schemas-supplier-api/src/events/letter-events';
+
 const logger = mock<Logger>();
 const eventPublisher = mock<EventPublisher>();
 
@@ -47,6 +49,8 @@ describe('SQS Handler', () => {
             type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
             source:
               '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+            subject:
+              'client/32124dde-4b36-4a49-8686-e9da9cbff725/letter-request/2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
             data: {
               senderId: pendingLetterEvent.data.origin.subject.split('/')[1],
               messageReference:
@@ -69,6 +73,22 @@ describe('SQS Handler', () => {
       expect(response).toEqual({ batchItemFailures: [] });
     });
 
+    it('should throw an error', async () => {
+      const {
+        data: item,
+        error: parseError,
+        success: parseSuccess,
+      } = $LetterEvent.safeParse(pendingLetterEvent);
+
+      expect(parseSuccess).toBe(true);
+      expect(parseError).toBeUndefined();
+      expect(item).toBeDefined();
+
+      expect(item?.subject).toBe(
+        'letter-origin/letter-rendering/letter/32124dde-4b36-4a49-8686-e9da9cbff725_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
+      );
+    });
+
     it('should send print.letter.transitioned event when letter.PENDING received', async () => {
       const response = await handler(recordEvent([acceptedLetterEvent]));
 
@@ -84,6 +104,8 @@ describe('SQS Handler', () => {
             type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
             source:
               '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+            subject:
+              'client/f47ac10b-58cc-4372-a567-0e02b2c3d479/letter-request/2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
             data: {
               senderId: acceptedLetterEvent.data.origin.subject.split('/')[1],
               messageReference:
@@ -121,6 +143,8 @@ describe('SQS Handler', () => {
             type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
             source:
               '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+            subject:
+              'client/f47ac10b-58cc-4372-a567-0e02b2c3d480/letter-request/2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
             data: {
               senderId: failedLetterEvent.data.origin.subject.split('/')[1],
               messageReference:
