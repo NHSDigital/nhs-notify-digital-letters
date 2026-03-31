@@ -132,6 +132,7 @@ describe('sqs-handler', () => {
           senderId: 'sender-id-2',
           letterUri: 'https://bucket/key2',
           createdAt: '2024-01-01T00:00:00Z',
+          reasonCode: 'DL_CLIV_003',
         },
         subject: 'test-subject',
         traceparent: 'test-traceparent',
