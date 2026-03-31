@@ -25,7 +25,7 @@ module "mesh_poll" {
   function_module_name    = "mesh_poll"
   handler_function_name   = "handler.handler"
   runtime                 = "python3.14"
-  memory                  = 128
+  memory                  = 256
   timeout                 = 300
   log_level               = var.log_level
   schedule                = var.mesh_poll_schedule

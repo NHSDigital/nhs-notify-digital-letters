@@ -26,7 +26,7 @@ module "mesh_download" {
   handler_function_name   = "handler.handler"
   runtime                 = "python3.14"
   memory                  = 256
-  timeout                 = 60
+  timeout                 = var.lambda_timeout_seconds
   log_level               = var.log_level
 
   force_lambda_code_deploy = var.force_lambda_code_deploy

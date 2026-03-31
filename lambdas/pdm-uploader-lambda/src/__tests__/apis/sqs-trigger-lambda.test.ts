@@ -159,6 +159,9 @@ describe('sqs-trigger-lambda', () => {
         expect.arrayContaining([
           expect.objectContaining({
             type: 'uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1',
+            data: expect.objectContaining({
+              reasonCode: 'DL_PDMV_001',
+            }),
           }),
         ]),
         expect.anything(),

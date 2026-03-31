@@ -255,6 +255,18 @@ variable "sqs_max_receive_count" {
   default     = "3"
 }
 
+variable "sqs_visibility_timeout_seconds" {
+  type        = string
+  description = "The visibility timeout of the SQS queues. AWS recommends this timeout to be at least 6 times the function timeout (lambda_timeout_seconds), see https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-configure-lambda-function-trigger.html"
+  default     = "270"
+}
+
+variable "lambda_timeout_seconds" {
+  type        = string
+  description = "The timeout of the lambdas that are triggered by SQS. "
+  default     = "45"
+}
+
 variable "enable_event_cache" {
   type        = bool
   description = "Enable caching of events to an S3 bucket"
