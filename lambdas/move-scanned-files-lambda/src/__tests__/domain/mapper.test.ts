@@ -1,6 +1,10 @@
+import {
+  validateFileQuarantined,
+  validateFileSafe,
+} from 'digital-letters-events';
 import { createFileQuarantinedEvent, createFileSafeEvent } from 'domain/mapper';
-import fileSafeValidator from 'digital-letters-events/FileSafe.js';
-import fileQuarantinedValidator from 'digital-letters-events/FileQuarantined.js';
+import { mock } from 'jest-mock-extended';
+import { Logger } from 'utils';
 
 // Mock randomUUID to make tests deterministic
 jest.mock('node:crypto', () => ({
@@ -22,6 +26,7 @@ describe('mapper', () => {
   });
 
   describe('createFileSafeEvent', () => {
+    const mockLogger = mock<Logger>();
     it('creates a FileSafe event with correct structure', () => {
       const messageReference = 'msg-ref-123';
       const senderId = 'sender-456';
@@ -52,11 +57,7 @@ describe('mapper', () => {
         recordedtime: '2024-01-15T10:30:00.000Z',
         severitynumber: 2,
       });
-      const isValid = fileSafeValidator(result);
-      if (!isValid) {
-        throw new Error(JSON.stringify(fileSafeValidator.errors, null, 2));
-      }
-      expect(isValid).toBe(true);
+      expect(() => validateFileSafe(result, mockLogger)).not.toThrow();
     });
 
     it('handles different input values correctly', () => {
@@ -80,6 +81,8 @@ describe('mapper', () => {
   });
 
   describe('createFileQuarantinedEvent', () => {
+    const mockLogger = mock<Logger>();
+
     it('creates a FileQuarantined event with correct structure', () => {
       const messageReference = 'msg-ref-789';
       const senderId = 'sender-012';
@@ -111,13 +114,7 @@ describe('mapper', () => {
         recordedtime: '2024-01-15T10:30:00.000Z',
         severitynumber: 2,
       });
-      const isValid = fileQuarantinedValidator(result);
-      if (!isValid) {
-        throw new Error(
-          JSON.stringify(fileQuarantinedValidator.errors, null, 2),
-        );
-      }
-      expect(isValid).toBe(true);
+      expect(() => validateFileQuarantined(result, mockLogger)).not.toThrow();
     });
   });
 });

@@ -14,8 +14,8 @@ import { invokeLambda } from 'helpers/lambda-helpers';
 import { downloadFromS3, uploadToS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
-import messageMessageReceived from 'digital-letters-events/MESHInboxMessageReceived.js';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
+import { validateMESHInboxMessageReceived } from 'digital-letters-events';
 
 test.describe('Digital Letters - MESH Poll and Download', () => {
   const senderId = SENDER_ID_SKIPS_NOTIFY;
@@ -143,7 +143,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
           },
         },
       ],
-      messageMessageReceived,
+      validateMESHInboxMessageReceived,
     );
 
     await expectMessageContainingString(

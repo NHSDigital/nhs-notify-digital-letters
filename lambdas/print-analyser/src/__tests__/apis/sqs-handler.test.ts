@@ -6,6 +6,8 @@ import { fileSafeEvent, fivePagePdf, recordEvent } from '__tests__/test-data';
 import { FileSafe } from 'digital-letters-events';
 
 const logger = mock<Logger>();
+const mockChildLogger = mock<Logger>();
+logger.child.mockReturnValue(mockChildLogger);
 const eventPublisher = mock<EventPublisher>();
 
 jest.mock('node:crypto', () => ({
@@ -112,14 +114,16 @@ describe('SQS Handler', () => {
 
       const result = await handler(event);
 
-      expect(logger.warn).toHaveBeenCalledWith({
+      expect(logger.child).toHaveBeenCalledWith({
+        messageReference: fileSafeEvent.data.messageReference,
+      });
+      expect(mockChildLogger.error).toHaveBeenCalledWith({
         err: expect.arrayContaining([
           expect.objectContaining({
             instancePath: '/source',
           }),
         ]),
-        description: 'Error parsing print analyser queue entry',
-        messageReference: invalidFileSafeEvent.data.messageReference,
+        description: 'Error parsing FileSafe event',
       });
 
       expect(logger.info).toHaveBeenCalledWith(
@@ -137,14 +141,13 @@ describe('SQS Handler', () => {
 
       const result = await handler(event);
 
-      expect(logger.warn).toHaveBeenCalledWith({
+      expect(mockChildLogger.error).toHaveBeenCalledWith({
         err: expect.arrayContaining([
           expect.objectContaining({
             message: `must have required property 'specversion'`,
           }),
         ]),
-        description: 'Error parsing print analyser queue entry',
-        messageReference: 'not present',
+        description: 'Error parsing FileSafe event',
       });
 
       expect(logger.info).toHaveBeenCalledWith(

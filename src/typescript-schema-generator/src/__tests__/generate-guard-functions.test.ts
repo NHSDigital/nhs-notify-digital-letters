@@ -1,8 +1,7 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
 
 import { destinationPackageName } from 'file-utils';
-import { generateTypes } from 'generate-types';
-import { compile } from 'json-schema-to-typescript';
+import { generateGuardFunctions } from 'generate-guard-functions';
 import mockFs from 'mock-fs';
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
@@ -10,14 +9,14 @@ import { eventSchemasDir } from 'utils';
 
 jest.mock('json-schema-to-typescript');
 
-describe('generate-types', () => {
+describe('generate-guard-functions', () => {
   const outputDir = path.resolve(
     __dirname,
     '..',
     '..',
     '..',
     destinationPackageName,
-    'types',
+    'guard-functions',
   );
 
   beforeEach(() => {
@@ -29,8 +28,6 @@ describe('generate-types', () => {
       },
     });
 
-    jest.mocked(compile).mockResolvedValue('Some TS code');
-
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'group').mockImplementation(() => {});
   });
@@ -39,26 +36,31 @@ describe('generate-types', () => {
     mockFs.restore();
   });
 
-  it('should generate a type declaration file for each schema', async () => {
-    await generateTypes();
+  it('should generate a guard function file for each schema', async () => {
+    await generateGuardFunctions();
 
     const typeDeclarationFiles = readdirSync(outputDir);
 
     expect(typeDeclarationFiles.length).toBe(4);
     expect(typeDeclarationFiles).toEqual(
-      expect.arrayContaining(['index.ts', 'One.ts', 'Two.ts', 'Three.ts']),
+      expect.arrayContaining([
+        'index.ts',
+        'OneGuard.ts',
+        'TwoGuard.ts',
+        'ThreeGuard.ts',
+      ]),
     );
   });
 
-  it('should create an index file exporting all generated types', async () => {
-    await generateTypes();
+  it('should create an index file exporting all generated guard function', async () => {
+    await generateGuardFunctions();
 
     const indexFileContents = readFileSync(
       path.join(outputDir, 'index.ts'),
       'utf8',
     );
-    expect(indexFileContents).toContain("export * from './One';");
-    expect(indexFileContents).toContain("export * from './Two';");
-    expect(indexFileContents).toContain("export * from './Three';");
+    expect(indexFileContents).toContain("export * from './OneGuard';");
+    expect(indexFileContents).toContain("export * from './TwoGuard';");
+    expect(indexFileContents).toContain("export * from './ThreeGuard';");
   });
 });

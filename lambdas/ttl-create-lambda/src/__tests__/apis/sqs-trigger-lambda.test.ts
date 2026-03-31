@@ -1,8 +1,7 @@
 import { messageDownloadedEvent } from '__tests__/data';
 import { createHandler } from 'apis/sqs-trigger-lambda';
 import type { SQSEvent } from 'aws-lambda';
-import { ItemEnqueued } from 'digital-letters-events';
-import itemEnqueuedValidator from 'digital-letters-events/ItemEnqueued.js';
+import { ItemEnqueued, validateItemEnqueued } from 'digital-letters-events';
 import { randomUUID } from 'node:crypto';
 
 jest.mock('node:crypto', () => ({
@@ -60,12 +59,14 @@ describe('createHandler', () => {
     expect(createTtl.send).toHaveBeenCalledWith(messageDownloadedEvent);
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
       [itemEnqueuedEvent],
-      itemEnqueuedValidator,
+      validateItemEnqueued,
     );
 
     const publishedEvent = eventPublisher.sendEvents.mock.lastCall?.[0];
     expect(publishedEvent).toHaveLength(1);
-    expect(itemEnqueuedValidator(publishedEvent?.[0])).toBeTruthy();
+    expect(() =>
+      validateItemEnqueued(publishedEvent?.[0], logger),
+    ).not.toThrow();
 
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
@@ -85,7 +86,9 @@ describe('createHandler', () => {
     expect(res.batchItemFailures).toEqual([{ itemIdentifier: 'msg2' }]);
     expect(logger.error).toHaveBeenCalledWith(
       expect.objectContaining({
-        description: expect.stringContaining('parsing ttl queue entry'),
+        description: expect.stringContaining(
+          'Error parsing MESHInboxMessageDownloaded event',
+        ),
       }),
     );
     expect(logger.info).toHaveBeenCalledWith({
@@ -178,7 +181,7 @@ describe('createHandler', () => {
     expect(createTtl.send).toHaveBeenCalledTimes(3);
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
       [itemEnqueuedEvent, itemEnqueuedEvent, itemEnqueuedEvent],
-      itemEnqueuedValidator,
+      validateItemEnqueued,
     );
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
@@ -205,7 +208,7 @@ describe('createHandler', () => {
     expect(res.batchItemFailures).toEqual([]);
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
       [itemEnqueuedEvent, itemEnqueuedEvent],
-      itemEnqueuedValidator,
+      validateItemEnqueued,
     );
     expect(logger.warn).toHaveBeenCalledWith({
       description: 'Some events failed to publish',
@@ -228,7 +231,7 @@ describe('createHandler', () => {
     expect(res.batchItemFailures).toEqual([]);
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
       [itemEnqueuedEvent],
-      itemEnqueuedValidator,
+      validateItemEnqueued,
     );
     expect(logger.warn).toHaveBeenCalledWith({
       err: publishError,
@@ -277,7 +280,7 @@ describe('createHandler', () => {
     ]);
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
       [itemEnqueuedEvent],
-      itemEnqueuedValidator,
+      validateItemEnqueued,
     );
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',

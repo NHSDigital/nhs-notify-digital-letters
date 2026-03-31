@@ -19,16 +19,16 @@ import {
   PDMResourceRetriesExceeded,
   PDMResourceSubmissionRejected,
   PrintLetterTransitioned,
+  validateDigitalLetterRead,
+  validateFileQuarantined,
+  validateGenerateReport,
+  validateItemDequeued,
+  validateMessageRequestRejected,
+  validateMessageRequestSkipped,
+  validatePDMResourceRetriesExceeded,
+  validatePDMResourceSubmissionRejected,
+  validatePrintLetterTransitioned,
 } from 'digital-letters-events';
-import generateReportValidator from 'digital-letters-events/GenerateReport.js';
-import digitalLetterReadValidator from 'digital-letters-events/DigitalLetterRead.js';
-import itemDequeuedValidator from 'digital-letters-events/ItemDequeued.js';
-import messageRequestSkippedValidator from 'digital-letters-events/MessageRequestSkipped.js';
-import printLetterTransitionedValidator from 'digital-letters-events/PrintLetterTransitioned.js';
-import pdmResourceSubmissionRejectedValidator from 'digital-letters-events/PDMResourceSubmissionRejected.js';
-import pdmResourceRetriesExceededValidator from 'digital-letters-events/PDMResourceRetriesExceeded.js';
-import messageRequestRejectedValidator from 'digital-letters-events/MessageRequestRejected.js';
-import fileQuarantinedValidator from 'digital-letters-events/FileQuarantined.js';
 import {
   QueryExecutionState,
   getQueryState,
@@ -142,7 +142,7 @@ export function publishEventForScenario(scenario: ReportScenario) {
                   scenario.senderId,
                 ),
               ],
-              digitalLetterReadValidator,
+              validateDigitalLetterRead,
             );
             break;
           }
@@ -156,7 +156,7 @@ export function publishEventForScenario(scenario: ReportScenario) {
                   scenario.senderId,
                 ),
               ],
-              itemDequeuedValidator,
+              validateItemDequeued,
             );
             break;
           }
@@ -170,7 +170,7 @@ export function publishEventForScenario(scenario: ReportScenario) {
                   scenario.senderId,
                 ),
               ],
-              pdmResourceSubmissionRejectedValidator,
+              validatePDMResourceSubmissionRejected,
             );
             break;
           }
@@ -184,7 +184,7 @@ export function publishEventForScenario(scenario: ReportScenario) {
                   scenario.senderId,
                 ),
               ],
-              pdmResourceRetriesExceededValidator,
+              validatePDMResourceRetriesExceeded,
             );
             break;
           }
@@ -198,7 +198,7 @@ export function publishEventForScenario(scenario: ReportScenario) {
                   scenario.senderId,
                 ),
               ],
-              messageRequestRejectedValidator,
+              validateMessageRequestRejected,
             );
             break;
           }
@@ -217,7 +217,7 @@ export function publishEventForScenario(scenario: ReportScenario) {
                 scenario.senderId,
               ),
             ],
-            fileQuarantinedValidator,
+            validateFileQuarantined,
           );
         } else {
           eventPublisher.sendEvents<PrintLetterTransitioned>(
@@ -232,7 +232,7 @@ export function publishEventForScenario(scenario: ReportScenario) {
                 scenario.expectedReason,
               ),
             ],
-            printLetterTransitionedValidator,
+            validatePrintLetterTransitioned,
           );
         }
         break;
@@ -276,7 +276,7 @@ export async function publishGenerateReport(
         },
       },
     ],
-    generateReportValidator,
+    validateGenerateReport,
   );
 }
 
@@ -310,7 +310,7 @@ export async function publishEventNotInReports(senderId: string) {
         },
       },
     ],
-    messageRequestSkippedValidator,
+    validateMessageRequestSkipped,
   );
 }
 
