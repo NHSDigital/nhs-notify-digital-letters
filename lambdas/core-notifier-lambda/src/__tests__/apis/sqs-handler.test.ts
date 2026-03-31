@@ -256,11 +256,13 @@ describe('createHandler', () => {
       const handler = createHandler(dependencies);
       const { messageId } = sqsEvent.Records[0];
       const errorCode = 'VALIDATION_ERROR';
+      const failureReason = 'Request validation failed';
       const correlationId = 'corr-123';
       const error = new RequestNotifyError(
         new Error('Validation failed'),
         correlationId,
         errorCode,
+        failureReason,
       );
       // Add messageReference property dynamically to trigger the terminal error path
       (error as any).messageReference = messageReference;

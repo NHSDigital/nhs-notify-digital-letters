@@ -189,6 +189,7 @@ async function publishFailedEvents(
         data: {
           messageReference: event.data.messageReference,
           senderId: event.data.senderId,
+          reasonCode: 'DL_PDMV_001',
         },
       })),
       validatePDMResourceSubmissionRejected,

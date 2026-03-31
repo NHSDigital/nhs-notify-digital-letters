@@ -125,6 +125,7 @@ async function processSqsRecord(
         incoming,
         sender,
         error.errorCode,
+        error.failureReason,
       );
     } else {
       // this might be a transient error so we notify the queue to retry

@@ -127,6 +127,7 @@ function generateRetriesExceededEvent(
       senderId: event.data.senderId,
       resourceId: event.data.resourceId,
       retryCount: retries,
+      reasonCode: 'DL_PDMV_002',
     },
   };
 }

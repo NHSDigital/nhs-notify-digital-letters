@@ -109,6 +109,7 @@ describe('mapper', () => {
           senderId,
           letterUri,
           createdAt,
+          reasonCode: 'DL_CLIV_003',
         },
         recordedtime: '2024-01-15T10:30:00.000Z',
         severitynumber: 2,

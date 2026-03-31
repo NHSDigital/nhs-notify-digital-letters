@@ -11,14 +11,22 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
   DigitalLetterRead,
+  FileQuarantined,
   GenerateReport,
   ItemDequeued,
-  MESHInboxMessageDownloaded,
+  MessageRequestRejected,
+  MessageRequestSkipped,
+  PDMResourceRetriesExceeded,
+  PDMResourceSubmissionRejected,
   PrintLetterTransitioned,
   validateDigitalLetterRead,
+  validateFileQuarantined,
   validateGenerateReport,
   validateItemDequeued,
-  validateMESHInboxMessageDownloaded,
+  validateMessageRequestRejected,
+  validateMessageRequestSkipped,
+  validatePDMResourceRetriesExceeded,
+  validatePDMResourceSubmissionRejected,
   validatePrintLetterTransitioned,
 } from 'digital-letters-events';
 import {
@@ -31,7 +39,11 @@ import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import {
   buildDigitalLetterReadEvent,
+  buildFileQuarantinedEvent,
   buildItemDequeuedEvent,
+  buildMessageRequestRejectedEvent,
+  buildPDMResourceRetriesExceededEvent,
+  buildPDMResourceSubmissionRejectedEvent,
   buildPrintLetterTransitionedEvent,
 } from 'helpers/event-builders';
 import { existsInS3 } from 'helpers/s3-helpers';
@@ -51,6 +63,10 @@ export enum EventStatus {
   Failed = 'FAILED',
   Returned = 'RETURNED',
   Pending = 'PENDING',
+  DigitalPDMResourceSubmissionRejected = 'PDMResourceSubmissionRejected',
+  DigitalPDMResourceRetriesExceeded = 'PDMResourceRetriesExceeded',
+  DigitalMessageRequestRejected = 'MessageRequestRejected',
+  PrintFileQuarantined = 'FileQuarantined',
 }
 /**
  * Utility class to proof the SQL logic to determine which status should be reported for a given message reference,
@@ -67,6 +83,10 @@ export class ReportScenario {
 
   readonly senderId: string;
 
+  readonly expectedReasonCode: string;
+
+  readonly expectedReason: string;
+
   time: string;
 
   constructor(
@@ -75,12 +95,16 @@ export class ReportScenario {
     eventStatuses: EventStatus[],
     expectedStatus: string,
     senderId: string,
+    expectedReasonCode = '',
+    expectedReason = '',
   ) {
     this.messageReference = messageReference;
     this.communicationType = communicationType;
     this.eventStatuses = eventStatuses;
     this.expectedStatus = expectedStatus;
     this.senderId = senderId;
+    this.expectedReasonCode = expectedReasonCode;
+    this.expectedReason = expectedReason;
     this.time = ''; // Set when publishing the event to EventBridge, otherwise all the events would have the same timestamp.
   }
 
@@ -90,6 +114,8 @@ export class ReportScenario {
       Time: this.time,
       'Communication Type': this.communicationType,
       Status: this.expectedStatus,
+      'Reason Code': this.expectedReasonCode,
+      Reason: this.expectedReason,
     };
   }
 
@@ -105,46 +131,110 @@ export function publishEventForScenario(scenario: ReportScenario) {
   for (const status of scenario.eventStatuses) {
     switch (scenario.communicationType) {
       case CommunicationType.Digital: {
-        if (EventStatus.Read === status) {
-          eventPublisher.sendEvents<DigitalLetterRead>(
-            [
-              buildDigitalLetterReadEvent(
-                uuidv4(),
-                scenario.time,
-                scenario.messageReference,
-                scenario.senderId,
-              ),
-            ],
-            validateDigitalLetterRead,
-          );
-        } else if (EventStatus.Unread === status) {
-          eventPublisher.sendEvents<ItemDequeued>(
-            [
-              buildItemDequeuedEvent(
-                uuidv4(),
-                scenario.time,
-                scenario.messageReference,
-                scenario.senderId,
-              ),
-            ],
-            validateItemDequeued,
-          );
+        switch (status) {
+          case EventStatus.Read: {
+            eventPublisher.sendEvents<DigitalLetterRead>(
+              [
+                buildDigitalLetterReadEvent(
+                  uuidv4(),
+                  scenario.time,
+                  scenario.messageReference,
+                  scenario.senderId,
+                ),
+              ],
+              validateDigitalLetterRead,
+            );
+            break;
+          }
+          case EventStatus.Unread: {
+            eventPublisher.sendEvents<ItemDequeued>(
+              [
+                buildItemDequeuedEvent(
+                  uuidv4(),
+                  scenario.time,
+                  scenario.messageReference,
+                  scenario.senderId,
+                ),
+              ],
+              validateItemDequeued,
+            );
+            break;
+          }
+          case EventStatus.DigitalPDMResourceSubmissionRejected: {
+            eventPublisher.sendEvents<PDMResourceSubmissionRejected>(
+              [
+                buildPDMResourceSubmissionRejectedEvent(
+                  uuidv4(),
+                  scenario.time,
+                  scenario.messageReference,
+                  scenario.senderId,
+                ),
+              ],
+              validatePDMResourceSubmissionRejected,
+            );
+            break;
+          }
+          case EventStatus.DigitalPDMResourceRetriesExceeded: {
+            eventPublisher.sendEvents<PDMResourceRetriesExceeded>(
+              [
+                buildPDMResourceRetriesExceededEvent(
+                  uuidv4(),
+                  scenario.time,
+                  scenario.messageReference,
+                  scenario.senderId,
+                ),
+              ],
+              validatePDMResourceRetriesExceeded,
+            );
+            break;
+          }
+          case EventStatus.DigitalMessageRequestRejected: {
+            eventPublisher.sendEvents<MessageRequestRejected>(
+              [
+                buildMessageRequestRejectedEvent(
+                  uuidv4(),
+                  scenario.time,
+                  scenario.messageReference,
+                  scenario.senderId,
+                ),
+              ],
+              validateMessageRequestRejected,
+            );
+            break;
+          }
+          default:
         }
         break;
       }
       case CommunicationType.Print: {
-        eventPublisher.sendEvents<PrintLetterTransitioned>(
-          [
-            buildPrintLetterTransitionedEvent(
-              uuidv4(),
-              scenario.time,
-              scenario.messageReference,
-              status,
-              scenario.senderId,
-            ),
-          ],
-          validatePrintLetterTransitioned,
-        );
+        if (EventStatus.PrintFileQuarantined === status) {
+          eventPublisher.sendEvents<FileQuarantined>(
+            [
+              buildFileQuarantinedEvent(
+                uuidv4(),
+                scenario.time,
+                scenario.messageReference,
+                scenario.senderId,
+              ),
+            ],
+            validateFileQuarantined,
+          );
+        } else {
+          eventPublisher.sendEvents<PrintLetterTransitioned>(
+            [
+              buildPrintLetterTransitionedEvent(
+                uuidv4(),
+                scenario.time,
+                scenario.messageReference,
+                status,
+                scenario.senderId,
+                scenario.expectedReasonCode,
+                scenario.expectedReason,
+              ),
+            ],
+            validatePrintLetterTransitioned,
+          );
+        }
         break;
       }
       default: {
@@ -194,35 +284,33 @@ export async function publishGenerateReport(
  * Publishes an event which should not be included in the report, to prove that only the expected events are included in the report.
  */
 export async function publishEventNotInReports(senderId: string) {
-  const downloadedEventId = uuidv4();
-  const downloadedEventTime = new Date().toISOString();
-  await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
+  const skippedEventId = uuidv4();
+  const skippedEventTime = new Date().toISOString();
+  await eventPublisher.sendEvents<MessageRequestSkipped>(
     [
       {
-        id: downloadedEventId,
+        id: skippedEventId,
         specversion: '1.0',
         source:
-          '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
+          '/nhs/england/notify/production/primary/data-plane/digitalletters/messages',
         subject:
           'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
-        type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
-        time: downloadedEventTime,
-        recordedtime: downloadedEventTime,
+        type: 'uk.nhs.notify.digital.letters.messages.request.skipped.v1',
+        time: skippedEventTime,
+        recordedtime: skippedEventTime,
         severitynumber: 2,
         traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
         datacontenttype: 'application/json',
         dataschema:
-          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-downloaded-data.schema.json',
+          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-message-request-skipped-data.schema.json',
         severitytext: 'INFO',
         data: {
-          meshMessageId: '12345',
-          messageUri: `https://example.com/ttl/resource/${downloadedEventId}`,
-          messageReference: 'component-test-messageDownloaded',
+          messageReference: 'component-test-messageSkipped',
           senderId,
         },
       },
     ],
-    validateMESHInboxMessageDownloaded,
+    validateMessageRequestSkipped,
   );
 }
 
