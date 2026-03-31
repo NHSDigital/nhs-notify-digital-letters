@@ -151,14 +151,7 @@ export const createHandler = ({
       validatedRecords.map(async (validatedRecord: ValidatedRecord) => {
         try {
           const { event } = validatedRecord;
-          const generatedEvent = generateUpdatedEvent(event);
-          validEvents.push(generatedEvent);
-          logger.info(
-            `Generated event for incoming event with domainID: ${event.data.domainId}, subject: ${event.subject}`,
-          );
-          logger.info(
-            `From SupplierAPI: ${JSON.stringify(event)} To PrintLetterTransitioned: ${JSON.stringify(generatedEvent)}`,
-          );
+          validEvents.push(generateUpdatedEvent(event));
         } catch (error: any) {
           logger.warn({
             err: error.message,
