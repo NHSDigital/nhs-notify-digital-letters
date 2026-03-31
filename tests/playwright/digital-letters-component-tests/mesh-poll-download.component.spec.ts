@@ -276,7 +276,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
           },
         },
       ],
-      messageMessageReceived,
+      validateMESHInboxMessageReceived,
     );
 
     await expectToPassEventually(async () => {
