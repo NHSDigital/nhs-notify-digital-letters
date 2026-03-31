@@ -52,7 +52,8 @@ jobs:
       - name: "Checkout code"
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: "Check for schema changes"
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3        id: filter
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
+        id: filter
         with:
           filters: |
             schemas:
@@ -72,7 +73,8 @@ jobs:
       packages: read
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5      - uses: ./.github/actions/node-install
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - uses: ./.github/actions/node-install
         with:
           node-version: ${{ inputs.nodejs_version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -92,7 +94,8 @@ jobs:
       packages: read
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5      - uses: ./.github/actions/node-install
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - uses: ./.github/actions/node-install
         with:
           node-version: ${{ inputs.nodejs_version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -159,7 +162,8 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5      - uses: ./.github/actions/node-install
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - uses: ./.github/actions/node-install
         with:
           node-version: ${{ inputs.nodejs_version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
