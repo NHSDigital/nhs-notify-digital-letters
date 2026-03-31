@@ -9,8 +9,10 @@ import {
   $LetterEvent,
   LetterEvent,
 } from '@nhsdigital/nhs-notify-event-schemas-supplier-api/src/events/letter-events';
-import { PrintLetterTransitioned } from 'digital-letters-events';
-import printLetterTransitionedValidator from 'digital-letters-events/PrintLetterTransitioned.js';
+import {
+  PrintLetterTransitioned,
+  validatePrintLetterTransitioned,
+} from 'digital-letters-events';
 import { EventPublisher, Logger } from 'utils';
 
 export interface HandlerDependencies {
@@ -157,7 +159,7 @@ export const createHandler = ({
 
     await eventPublisher.sendEvents(
       validEvents,
-      printLetterTransitionedValidator,
+      validatePrintLetterTransitioned,
     );
 
     const processedItemCount = receivedItemCount - batchItemFailures.length;

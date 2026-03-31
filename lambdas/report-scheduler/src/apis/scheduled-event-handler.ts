@@ -1,7 +1,6 @@
 import { EventPublisher } from 'utils';
 import { ISenderManagement } from 'sender-management';
-import { GenerateReport } from 'digital-letters-events';
-import GenerateReportValidator from 'digital-letters-events/GenerateReport.js';
+import { GenerateReport, validateGenerateReport } from 'digital-letters-events';
 import { randomUUID } from 'node:crypto';
 
 export type CreateHandlerDependencies = {
@@ -37,7 +36,7 @@ export const createHandler = ({
         recordedtime: new Date().toISOString(),
         severitynumber: 2,
       })),
-      GenerateReportValidator,
+      validateGenerateReport,
     );
   };
 };

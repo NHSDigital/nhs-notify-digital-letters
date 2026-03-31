@@ -10,6 +10,9 @@ import {
   MessageRequestSkipped,
   MessageRequestSubmitted,
   PDMResourceAvailable,
+  validateMessageRequestRejected,
+  validateMessageRequestSkipped,
+  validateMessageRequestSubmitted,
 } from 'digital-letters-events';
 import {
   mapPdmEventToMessageRequestRejected,
@@ -17,9 +20,6 @@ import {
   mapPdmEventToMessageRequestSubmitted,
   mapPdmEventToSingleMessageRequest,
 } from 'domain/mapper';
-import messageRequestSubmittedValidator from 'digital-letters-events/MessageRequestSubmitted.js';
-import messageRequestRejectedValidator from 'digital-letters-events/MessageRequestRejected.js';
-import messageRequestSkippedValidator from 'digital-letters-events/MessageRequestSkipped.js';
 import { parseSqsRecord } from 'app/parse-sqs-message';
 
 import type { NotifyMessageProcessor } from 'app/notify-message-processor';
@@ -186,17 +186,17 @@ export const createHandler = ({
         submittedEvents.length > 0 &&
           eventPublisher.sendEvents<MessageRequestSubmitted>(
             submittedEvents,
-            messageRequestSubmittedValidator,
+            validateMessageRequestSubmitted,
           ),
         skippedEvents.length > 0 &&
           eventPublisher.sendEvents<MessageRequestSkipped>(
             skippedEvents,
-            messageRequestSkippedValidator,
+            validateMessageRequestSkipped,
           ),
         rejectedEvents.length > 0 &&
           eventPublisher.sendEvents<MessageRequestRejected>(
             rejectedEvents,
-            messageRequestRejectedValidator,
+            validateMessageRequestRejected,
           ),
       ].filter(Boolean),
     );

@@ -5,9 +5,12 @@ import type {
 } from 'aws-lambda';
 import { createHash, randomUUID } from 'node:crypto';
 import { PDFDocument } from 'pdf-lib';
-import { FileSafe, PDFAnalysed } from 'digital-letters-events';
-import fileSafeValidator from 'digital-letters-events/FileSafe.js';
-import pdfAnalysedValidator from 'digital-letters-events/PDFAnalysed.js';
+import {
+  FileSafe,
+  PDFAnalysed,
+  validateFileSafe,
+  validatePDFAnalysed,
+} from 'digital-letters-events';
 import { EventPublisher, Logger, getS3ObjectBufferFromUri } from 'utils';
 
 export interface HandlerDependencies {
@@ -33,17 +36,11 @@ function validateRecord(
     const sqsEventBody = JSON.parse(body);
     const sqsEventDetail = sqsEventBody.detail;
 
-    const isEventValid = fileSafeValidator(sqsEventDetail);
-    if (!isEventValid) {
-      logger.warn({
-        err: fileSafeValidator.errors,
-        description: 'Error parsing print analyser queue entry',
-        messageReference:
-          sqsEventDetail?.data?.messageReference || 'not present',
-      });
+    const messageReference =
+      sqsEventDetail?.data?.messageReference || 'not present';
+    const childLogger = logger.child({ messageReference });
 
-      return null;
-    }
+    validateFileSafe(sqsEventDetail, childLogger);
 
     return { messageId, event: sqsEventDetail };
   } catch (error) {
@@ -133,7 +130,7 @@ export const createHandler = ({
       }),
     );
 
-    await eventPublisher.sendEvents(validEvents, pdfAnalysedValidator);
+    await eventPublisher.sendEvents(validEvents, validatePDFAnalysed);
 
     const processedItemCount = receivedItemCount - batchItemFailures.length;
     logger.info(

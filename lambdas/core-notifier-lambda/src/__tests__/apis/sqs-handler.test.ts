@@ -5,10 +5,10 @@ import { NotifyMessageProcessor } from 'app/notify-message-processor';
 import { ISenderManagement } from 'sender-management';
 import { SqsHandlerDependencies, createHandler } from 'apis/sqs-handler';
 import { parseSqsRecord } from 'app/parse-sqs-message';
-import { InvalidPdmResourceAvailableEvent } from 'domain/invalid-pdm-resource-available-event';
 import { RequestNotifyError } from 'domain/request-notify-error';
 import { validPdmEvent, validSender } from '__tests__/constants';
 import {
+  InvalidEvent,
   MessageRequestRejected,
   MessageRequestSkipped,
   MessageRequestSubmitted,
@@ -195,14 +195,14 @@ describe('createHandler', () => {
     });
   });
 
-  describe('when parseSqsRecord throws InvalidPdmResourceAvailableEvent', () => {
+  describe('when parseSqsRecord throws InvalidEvent', () => {
     it('marks the message as failed for retry', async () => {
       const sqsEvent = createSqsEvent(1);
       const handler = createHandler(dependencies);
       const { messageId } = sqsEvent.Records[0];
 
       mockParseSqsRecord.mockImplementationOnce(() => {
-        throw new InvalidPdmResourceAvailableEvent(messageId);
+        throw new InvalidEvent('Some validation errors');
       });
 
       const result = await handler(sqsEvent);
@@ -211,7 +211,7 @@ describe('createHandler', () => {
         batchItemFailures: [{ itemIdentifier: messageId }],
       });
       expect(mockLogger.warn).toHaveBeenCalledWith({
-        error: 'Unable to parse PDMResourceAvailable event from SQS message',
+        error: 'Unable to parse event',
         description: 'Failed processing message',
         messageId,
         senderId: undefined,
