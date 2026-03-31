@@ -40,8 +40,7 @@ jobs:
       # skip_trivy_package: ${{ steps.skip_trivy.outputs.skip_trivy_package }}
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - name: "Set CI/CD variables"
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5      - name: "Set CI/CD variables"
         id: variables
         run: |
           datetime=$(date -u +'%Y-%m-%dT%H:%M:%S%z')
@@ -163,7 +162,7 @@ jobs:
       id-token: write
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@v5.0.0
       - name: Trigger dynamic environment creation
         env:
           APP_PEM_FILE: ${{ secrets.APP_PEM_FILE }}
