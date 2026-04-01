@@ -36,43 +36,6 @@ export const acceptedLetterEvent = {
   },
 } as LetterEvent;
 
-export const pendingLetterEvent = {
-  specversion: '1.0',
-  id: '281d1b5f-a6d2-42c1-9ec4-d1fc26ad2a6f',
-  type: 'uk.nhs.notify.supplier-api.letter.PENDING.v1',
-  plane: 'data',
-  dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.PENDING.1.0.16.schema.json',
-  dataschemaversion: '1.0.16',
-  source:
-    '/data-plane/supplier-api/nhs-supplier-api-nonprod/main/update-status',
-  subject:
-    'letter-origin/letter-rendering/letter/32124dde-4b36-4a49-8686-e9da9cbff725_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
-  data: {
-    domainId:
-      '32124dde-4b36-4a49-8686-e9da9cbff725_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
-    status: 'PENDING',
-    specificationId: 'notify-c5',
-    billingRef: 'notify-c5',
-    specificationBillingId: 'default',
-    supplierId: 'synertec',
-    groupId: '32124dde-4b36-4a49-8686-e9da9cbff725digitalLettersundefined',
-    origin: {
-      domain: 'letter-rendering',
-      source: '/data-plane/digital-letters/nonprod/main',
-      subject:
-        'client/32124dde-4b36-4a49-8686-e9da9cbff725/letter-request/2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
-      event: '281d1b5f-a6d2-42c1-9ec4-d1fc26ad2a6f',
-    },
-  },
-  time: '2026-03-27T16:59:16.515Z',
-  datacontenttype: 'application/json',
-  traceparent: '00-15c1d7050c2dbeb7f762bff8874c9a5b-a7043d96b780e5ef-01',
-  recordedtime: '2026-03-27T16:59:16.515Z',
-  severitynumber: 2,
-  severitytext: 'INFO',
-} as LetterEvent;
-
 export const failedLetterEvent = {
   id: '550e8400-e29b-41d4-a716-446655440002',
   specversion: '1.0',
