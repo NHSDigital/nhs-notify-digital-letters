@@ -158,7 +158,7 @@ jobs:
   #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   #   steps:
   #     - name: "Checkout code"
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
   #     - name: "Setup ASDF"
   #       uses: asdf-vm/actions/setup@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4
   #     - name: "Trivy IaC Scan"
@@ -175,7 +175,7 @@ jobs:
   #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   #   steps:
   #     - name: "Checkout code"
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
   #     - name: "Setup ASDF"
   #       uses: asdf-vm/actions/setup@1902764435ca0dd2f3388eea723a4f92a4eb8302
   #     - name: "Trivy Package Scan"
