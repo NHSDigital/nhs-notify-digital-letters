@@ -1,0 +1,17 @@
+# Auto-generated CSV containing failure code definitions
+# Source: src/digital-letters-events/failure-codes.ts
+# Build: make build / make generate (runs generate-dependencies)
+resource "aws_s3_object" "failure_codes" {
+  bucket       = module.s3bucket_reporting.bucket
+  key          = "reference-data/failure_codes/failure_codes.csv"
+  source       = "${path.module}/data/failure_codes.csv"
+  content_type = "text/csv"
+  etag         = filemd5("${path.module}/data/failure_codes.csv")
+
+  tags = merge(
+    local.default_tags,
+    {
+      Name = "${local.csi}-failure-codes-csv"
+    }
+  )
+}

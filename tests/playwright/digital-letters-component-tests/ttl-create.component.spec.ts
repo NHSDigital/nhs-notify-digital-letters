@@ -8,8 +8,10 @@ import {
   SENDER_ID_SKIPS_NOTIFY,
   SENDER_ID_VALID_FOR_NOTIFY_SANDBOX,
 } from 'constants/tests-constants';
-import { MESHInboxMessageDownloaded } from 'digital-letters-events';
-import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
+import {
+  MESHInboxMessageDownloaded,
+  validateMESHInboxMessageDownloaded,
+} from 'digital-letters-events';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import { getTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
@@ -61,7 +63,7 @@ test.describe('Digital Letters - Create TTL', () => {
           },
         },
       ],
-      messageDownloadedValidator,
+      validateMESHInboxMessageDownloaded,
     );
 
     // Verify TTL created
@@ -102,7 +104,7 @@ test.describe('Digital Letters - Create TTL', () => {
           },
         },
       ],
-      messageDownloadedValidator,
+      validateMESHInboxMessageDownloaded,
     );
 
     // Verify TTL created
@@ -154,7 +156,7 @@ test.describe('Digital Letters - Create TTL', () => {
         const eventLogEntry = await getLogsFromCloudwatch(
           CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
           [
-            '$.message.description = "Error parsing ttl queue entry"',
+            '$.message.description = "Error parsing MESHInboxMessageDownloaded event"',
             `$.message.err[0].params.additionalProperty = "${unexpectedField}"`,
           ],
         );
@@ -185,7 +187,7 @@ test.describe('Digital Letters - Create TTL', () => {
           },
         },
       ],
-      messageDownloadedValidator,
+      validateMESHInboxMessageDownloaded,
     );
 
     await Promise.all([

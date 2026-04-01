@@ -11,8 +11,8 @@ import expectToPassEventually from 'helpers/expectations';
 import { downloadFromS3, uploadToS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
-import reportGenerated from 'digital-letters-events/ReportGenerated.js';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
+import { validateReportGenerated } from 'digital-letters-events';
 
 test.describe('Digital Letters - Send reports to Trust', () => {
   const senderId = SENDER_ID_SKIPS_NOTIFY;
@@ -44,7 +44,7 @@ test.describe('Digital Letters - Send reports to Trust', () => {
           },
         },
       ],
-      reportGenerated,
+      validateReportGenerated,
     );
   }
 

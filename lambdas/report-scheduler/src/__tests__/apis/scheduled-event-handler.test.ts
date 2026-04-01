@@ -1,12 +1,12 @@
-import { EventPublisher, Sender } from 'utils';
+import { EventPublisher, Logger, Sender } from 'utils';
 import { ISenderManagement } from 'sender-management';
-import { GenerateReport } from 'digital-letters-events';
+import { GenerateReport, validateGenerateReport } from 'digital-letters-events';
 import { createHandler } from 'apis/scheduled-event-handler';
-import GenerateReportValidator from 'digital-letters-events/GenerateReport.js';
 
 describe('scheduled-event-handler', () => {
   let mockSenderManagement: jest.Mocked<ISenderManagement>;
   let mockEventPublisher: jest.Mocked<EventPublisher>;
+  let mockLogger: jest.Mocked<Logger>;
 
   beforeEach(() => {
     mockSenderManagement = {
@@ -16,6 +16,13 @@ describe('scheduled-event-handler', () => {
     mockEventPublisher = {
       sendEvents: jest.fn(),
     } as unknown as jest.Mocked<EventPublisher>;
+
+    mockLogger = {
+      error: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      child: jest.fn().mockReturnThis(),
+    } as unknown as jest.Mocked<Logger>;
 
     jest.useFakeTimers();
   });
@@ -101,9 +108,7 @@ describe('scheduled-event-handler', () => {
       expect(event.time).toBe('2024-01-15T12:00:00.000Z');
       expect(event.severitynumber).toBe(2);
 
-      const isEventValid = GenerateReportValidator(event);
-      expect(GenerateReportValidator.errors).toBeNull();
-      expect(isEventValid).toBe(true);
+      expect(() => validateGenerateReport(event, mockLogger)).not.toThrow();
     });
 
     it('should handle empty sender list', async () => {

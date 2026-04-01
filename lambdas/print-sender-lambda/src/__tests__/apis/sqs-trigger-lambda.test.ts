@@ -49,6 +49,7 @@ const createValidEvent = (overrides = {}): PDFAnalysed => ({
 describe('sqs-trigger-lambda', () => {
   let mockPrintSender: jest.Mocked<PrintSender>;
   let mockLogger: jest.Mocked<Logger>;
+  let mockChildLogger: jest.Mocked<Logger>;
   let handler: any;
 
   beforeEach(() => {
@@ -56,10 +57,17 @@ describe('sqs-trigger-lambda', () => {
       send: jest.fn(),
     } as unknown as jest.Mocked<PrintSender>;
 
+    mockChildLogger = {
+      info: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+    } as unknown as jest.Mocked<Logger>;
+
     mockLogger = {
       info: jest.fn(),
       error: jest.fn(),
       warn: jest.fn(),
+      child: jest.fn().mockReturnValue(mockChildLogger),
     } as unknown as jest.Mocked<Logger>;
 
     handler = createHandler({
@@ -110,10 +118,9 @@ describe('sqs-trigger-lambda', () => {
     const result = await handler(sqsEvent);
 
     expect(result.batchItemFailures).toEqual([{ itemIdentifier: 'message-1' }]);
-    expect(mockLogger.error).toHaveBeenCalledWith(
+    expect(mockChildLogger.error).toHaveBeenCalledWith(
       expect.objectContaining({
-        description: 'Error parsing print sender queue entry',
-        messageReference: 'not present',
+        description: 'Error parsing PDFAnalysed event',
       }),
     );
     expect(mockPrintSender.send).not.toHaveBeenCalled();
