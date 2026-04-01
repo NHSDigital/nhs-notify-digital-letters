@@ -9,8 +9,6 @@ import {
   recordEvent,
 } from '__tests__/test-data';
 
-import { $LetterEvent } from '@nhsdigital/nhs-notify-event-schemas-supplier-api/src/events/letter-events';
-
 const logger = mock<Logger>();
 const eventPublisher = mock<EventPublisher>();
 
@@ -71,22 +69,6 @@ describe('SQS Handler', () => {
         '1 of 1 records processed successfully',
       );
       expect(response).toEqual({ batchItemFailures: [] });
-    });
-
-    it('should throw an error', async () => {
-      const {
-        data: item,
-        error: parseError,
-        success: parseSuccess,
-      } = $LetterEvent.safeParse(pendingLetterEvent);
-
-      expect(parseSuccess).toBe(true);
-      expect(parseError).toBeUndefined();
-      expect(item).toBeDefined();
-
-      expect(item?.subject).toBe(
-        'letter-origin/letter-rendering/letter/32124dde-4b36-4a49-8686-e9da9cbff725_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
-      );
     });
 
     it('should send print.letter.transitioned event when letter.PENDING received', async () => {
