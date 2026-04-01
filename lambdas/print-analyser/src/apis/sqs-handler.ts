@@ -69,8 +69,7 @@ function generateUpdatedEvent(event: FileSafe, pdfInfo: PdfInfo): PDFAnalysed {
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-pdf-analysed-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.print.pdf.analysed.v1',
     // NOTE: CCM-13892 Generate event digital letters source property from scratch
-    source:
-      '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+    source: '/nhs/england/notify/production/primary/digitalletters/print',
     data: {
       senderId,
       messageReference,

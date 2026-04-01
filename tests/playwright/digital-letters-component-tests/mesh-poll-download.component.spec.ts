@@ -226,8 +226,10 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
         {
           id: uuidv4(),
           specversion: '1.0',
-          source:
-            '/nhs/england/notify/development/primary/data-plane/digitalletters/mesh',
+          plane: 'data',
+          dataschemaversion: '1.0.0',
+          datacontenttype: 'application/json',
+          source: '/nhs/england/notify/development/primary/digitalletters/mesh',
           subject:
             'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000',
           type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
