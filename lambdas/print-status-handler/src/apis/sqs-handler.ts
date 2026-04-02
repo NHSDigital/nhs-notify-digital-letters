@@ -68,9 +68,11 @@ function validateRecord(
       return null;
     }
 
-    logger.info(
-      `Successfully validated SQS record with messageId: ${messageId}, subject: ${item.data.origin.subject}`,
-    );
+    logger.info({
+      description: 'Successfully validated SQS record',
+      messageId,
+      subject: item.data.origin.subject,
+    });
 
     return { messageId, event: item };
   } catch (error) {

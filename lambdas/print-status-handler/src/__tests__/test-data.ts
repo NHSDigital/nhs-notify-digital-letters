@@ -9,8 +9,8 @@ export const acceptedLetterEvent = {
     'letter-origin/digital-letters/letter/f47ac10b-58cc-4372-a567-0e02b2c3d479_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
   type: 'uk.nhs.notify.supplier-api.letter.ACCEPTED.v1',
   dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.ACCEPTED.1.0.16.schema.json',
-  dataschemaversion: '1.0.16',
+    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.ACCEPTED.1.0.17.schema.json',
+  dataschemaversion: '1.0.17',
   time: '2023-06-20T12:00:00Z',
   recordedtime: '2023-06-20T12:00:00.250Z',
   severitynumber: 2,
@@ -44,8 +44,8 @@ export const failedLetterEvent = {
     'letter-origin/digital-letters/letter/f47ac10b-58cc-4372-a567-0e02b2c3d480_2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
   type: 'uk.nhs.notify.supplier-api.letter.FAILED.v1',
   dataschema:
-    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.FAILED.1.0.16.schema.json',
-  dataschemaversion: '1.0.16',
+    'https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.FAILED.1.0.17.schema.json',
+  dataschemaversion: '1.0.17',
   time: '2023-06-20T13:00:00Z',
   recordedtime: '2023-06-20T13:00:00.250Z',
   severitynumber: 3,

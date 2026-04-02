@@ -15,7 +15,7 @@ const baseLetterEvent = {
   id: '550e8400-e29b-41d4-a716-446655440001',
   specversion: '1.0',
   source: '/data-plane/supplier-api/prod/update-status',
-  dataschemaversion: '1.0.16',
+  dataschemaversion: '1.0.17',
   time: '2023-06-20T12:00:00Z',
   recordedtime: '2023-06-20T12:00:00.250Z',
   severitynumber: 2,
@@ -65,7 +65,7 @@ test.describe('Print status handler', () => {
         ...baseLetterEvent,
         subject: `letter-origin/letter-rendering/letter/00f3b388-bbe9-41c9-9e76-052d37ee8988_${messageReference}`,
         type: `uk.nhs.notify.supplier-api.letter.${status}.v1`,
-        dataschema: `https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.${status}.1.0.16.schema.json`,
+        dataschema: `https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.${status}.1.0.17.schema.json`,
         data: {
           ...baseLetterEvent.data,
           status,
