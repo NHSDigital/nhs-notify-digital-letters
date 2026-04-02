@@ -46,6 +46,8 @@ describe('SQS Handler', () => {
             type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
             source:
               '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+            subject:
+              'client/f47ac10b-58cc-4372-a567-0e02b2c3d479/letter-request/2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
             data: {
               senderId: acceptedLetterEvent.data.origin.subject.split('/')[1],
               messageReference:
@@ -83,6 +85,8 @@ describe('SQS Handler', () => {
             type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
             source:
               '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+            subject:
+              'client/f47ac10b-58cc-4372-a567-0e02b2c3d480/letter-request/2503cbd5-6722-4e90-9fbd-5f1e96d65c22',
             data: {
               senderId: failedLetterEvent.data.origin.subject.split('/')[1],
               messageReference:
@@ -220,7 +224,7 @@ describe('SQS Handler', () => {
           issues: expect.arrayContaining([
             expect.objectContaining({
               message:
-                'Subject must be in format: client/{senderId}/digital-letters/{messageReference}',
+                'Subject must be in format: client/{senderId}/letter-request/{messageReference}',
             }),
           ]),
         }),
