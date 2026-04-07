@@ -3,8 +3,9 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import ValidationError
-from digital_letters_events import MESHInboxMessageDownloaded, MESHInboxMessageReceived
+from digital_letters_events import MESHInboxMessageDownloaded, MESHInboxMessageReceived, MESHInboxMessageInvalid
 from mesh_download.errors import MeshMessageNotFound
+from nhs_notify_letters_onboarding import validate
 
 
 class MeshDownloadProcessor:
@@ -52,6 +53,10 @@ class MeshDownloadProcessor:
             )
             raise
 
+    def _validate_fhir_content(self, content):
+        json_content = json.loads(content)
+        validate(json_content)
+
     def _handle_download(self, event, logger):
         data = event.data
 
@@ -71,6 +76,18 @@ class MeshDownloadProcessor:
 
         content = message.read()
         logger.info("Downloaded MESH message content")
+
+        try:
+            self._validate_fhir_content(content)
+        except Exception as e:
+            logger.error("FHIR content is not invalid", error=str(e))
+
+            self._publish_message_invalid_event(incoming_event=event)
+
+            message.acknowledge()
+            logger.info("Acknowledged message")
+
+            return
 
         uri = self._store_message_content(
             sender_id=data.senderId,
@@ -137,5 +154,41 @@ class MeshDownloadProcessor:
             "Published MESHInboxMessageDownloaded event",
             sender_id=incoming_event.data.senderId,
             message_uri=message_uri,
+            message_reference=incoming_event.data.messageReference
+        )
+
+    def _publish_message_invalid_event(self, incoming_event):
+        """
+        Publishes a MESHInboxMessageInvalid event.
+        """
+        now = datetime.now(timezone.utc).isoformat()
+
+        cloud_event = {
+            **incoming_event.model_dump(exclude_none=True),
+            'id': str(uuid4()),
+            'time': now,
+            'recordedtime': now,
+            'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1',
+            'dataschema': (
+                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/'
+                'digital-letters-mesh-inbox-message-invalid-data.schema.json'
+            ),
+            'data': {
+                'senderId': incoming_event.data.senderId,
+                'meshMessageId': incoming_event.data.meshMessageId,
+                'failureCode': 'DL_CLIV_005',
+                'messageReference': incoming_event.data.messageReference,
+            }
+        }
+
+        failed = self.__event_publisher.send_events([cloud_event], MESHInboxMessageInvalid)
+        if failed:
+            msg = f"Failed to publish MESHInboxMessageInvalid event: {failed}"
+            self.__log.error(msg, failed_count=len(failed))
+            raise RuntimeError(msg)
+
+        self.__log.info(
+            "Published MESHInboxMessageInvalid event",
+            sender_id=incoming_event.data.senderId,
             message_reference=incoming_event.data.messageReference
         )
