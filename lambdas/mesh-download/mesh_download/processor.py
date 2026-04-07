@@ -80,7 +80,7 @@ class MeshDownloadProcessor:
         try:
             self._validate_fhir_content(content)
         except Exception as e:
-            logger.error("FHIR content is not invalid", error=str(e))
+            logger.error("FHIR content is invalid", error=str(e))
 
             self._publish_message_invalid_event(incoming_event=event)
 
