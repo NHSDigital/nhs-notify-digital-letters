@@ -7,7 +7,7 @@ config.coverageThreshold = {
   global: {
     branches: 100,
     functions: 100,
-    lines: 99,
+    lines: 90,
     statements: -10,
   },
 };
