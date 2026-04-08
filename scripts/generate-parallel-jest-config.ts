@@ -63,9 +63,22 @@ function serialise(value: unknown, indent = '  '): string {
   return String(value);
 }
 
+// Coverage-related keys that are invalid inside a `projects` entry — they must
+// live at the root level only. We strip them from project configs and hoist
+// them into the root config instead.
+const COVERAGE_PROJECT_KEYS = [
+  'collectCoverage',
+  'coverageDirectory',
+  'coverageProvider',
+  'coverageReporters',
+  'coverageThreshold',
+] as const;
+
 interface ProjectEntry {
   workspace: string;
   config: Record<string, unknown>;
+  coverageThreshold: Record<string, unknown> | undefined;
+  coverageReporters: string[] | undefined;
 }
 
 function main(): void {
@@ -108,15 +121,30 @@ function main(): void {
     }
     const wsConfig = JSON.parse(json) as Record<string, unknown>;
 
+    // Extract coverage config before building the project entry — these keys
+    // are invalid inside a `projects` entry and must live at root level.
+    const rawThreshold = wsConfig.coverageThreshold as Record<string, unknown> | undefined;
+    const rawReporters = wsConfig.coverageReporters as string[] | undefined;
+
+    // Strip all coverage keys from the project entry.
+    const strippedConfig: Record<string, unknown> = Object.fromEntries(
+      Object.entries(wsConfig).filter(([k]) => !(COVERAGE_PROJECT_KEYS as readonly string[]).includes(k)),
+    );
+
     // Inject rootDir and displayName. Jest resolves all relative paths inside a
     // project entry relative to that project's rootDir.
     const entry: Record<string, unknown> = {
-      ...wsConfig,
+      ...strippedConfig,
       rootDir: `<rootDir>/${ws}`,
       displayName: ws,
     };
 
-    projects.push({ workspace: ws, config: entry });
+    projects.push({
+      workspace: ws,
+      config: entry,
+      coverageThreshold: rawThreshold,
+      coverageReporters: rawReporters,
+    });
   }
 
   // Build the projects array source
@@ -124,6 +152,48 @@ function main(): void {
     const body = serialise(p.config, '    ');
     return `    // ${p.workspace}\n    ${body}`;
   });
+
+  // Build root-level coverageThreshold using per-workspace directory globs.
+  // Each workspace's threshold is applied to its own source files only,
+  // matching the per-workspace enforcement of the serial `npm run test:unit`.
+  const rootCoverageThreshold: Record<string, unknown> = {};
+  for (const { workspace, coverageThreshold } of projects) {
+    if (coverageThreshold) {
+      // Workspace configs use `{ global: { branches, ... } }` which is correct
+      // for a standalone per-project run. When hoisted to a root path-based key,
+      // the `global` wrapper must be unwrapped — path/glob keys take the metric
+      // values directly (branches/functions/lines/statements).
+      const thresholdValues =
+        'global' in coverageThreshold
+          ? (coverageThreshold.global as Record<string, unknown>)
+          : coverageThreshold;
+
+      // Jest matches threshold keys against absolute file paths.
+      // Using an absolute path to the workspace directory means Jest aggregates
+      // coverage across all files under that directory — matching the `global`
+      // behaviour of per-workspace serial runs (where one file's low coverage
+      // can be offset by another's high coverage).
+      rootCoverageThreshold[`${repoRoot}/${workspace}/`] = thresholdValues;
+    }
+  }
+
+  // Collect coverageReporters from all workspaces — take the union so no
+  // reporter defined in any workspace is lost. Falls back to Jest's default
+  // if no workspace defines a custom set.
+  const reporterSet = new Set<string>();
+  for (const { coverageReporters } of projects) {
+    if (coverageReporters) {
+      for (const r of coverageReporters) reporterSet.add(r);
+    }
+  }
+  // Canonical reporters for all runs: text (console), lcov (SonarCloud),
+  // html (local browsing), cobertura (CI XML). These are always present
+  // regardless of what individual workspaces declare.
+  reporterSet.add('text');
+  reporterSet.add('lcov');
+  reporterSet.add('html');
+  reporterSet.add('cobertura');
+  const rootCoverageReporters = [...reporterSet];
 
   const banner = `/**
  * Root Jest config — runs all TypeScript workspace test suites in
@@ -136,6 +206,11 @@ function main(): void {
 
 /** @type {import('jest').Config} */
 module.exports = {
+  collectCoverage: true,
+  coverageProvider: "babel",
+  coverageDirectory: ".reports/unit/coverage",
+  coverageReporters: ${serialise(rootCoverageReporters, '  ')},
+  coverageThreshold: ${serialise(rootCoverageThreshold, '  ')},
   projects: [
 ${projectLines.join(',\n\n')}
   ],

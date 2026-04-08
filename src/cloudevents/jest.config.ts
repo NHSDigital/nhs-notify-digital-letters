@@ -36,7 +36,6 @@ const config: Config = {
     '!tools/validator/validate.ts',
   ],
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html', 'cobertura'],
   coveragePathIgnorePatterns: ['/node_modules/', '/__tests__/'],
   coverageThreshold: {
     global: {
@@ -50,7 +49,6 @@ const config: Config = {
   moduleNameMapper: {
     '^(.*)\\.ts$': '$1',
   },
-  verbose: true,
   testTimeout: 10000,
 };
 
