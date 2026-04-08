@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import {
   ENV,
   MESH_DOWNLOAD_DLQ_NAME,
+  MESH_DOWNLOAD_LAMBDA_LOG_GROUP_NAME,
   MESH_POLL_LAMBDA_NAME,
   NON_PII_S3_BUCKET_NAME,
   PII_S3_BUCKET_NAME,
@@ -95,7 +96,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     await expectToPassEventually(async () => {
       const storedMessage = await downloadFromS3(
         PII_S3_BUCKET_NAME,
-        `document-reference/${senderId}_${messageReference}`,
+        `document-reference/${senderId}/${messageReference}_${meshMessageId}`,
       );
 
       expect(storedMessage.body).toContain(messageContent);
@@ -229,5 +230,87 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
       );
       expect(receivedEvents.length).toBe(0);
     }, 15_000);
+  });
+
+  test('should skip publishing downloaded event and acknowledge message when document already exists in S3', async () => {
+    test.setTimeout(200_000);
+
+    const meshMessageId = `${Date.now()}_DUPLICATE_${uuidv4().slice(0, 8)}`;
+    const messageReference = uuidv4();
+    const messageContent = JSON.stringify({
+      senderId,
+      messageReference,
+      testData: 'This is a duplicate test letter content',
+      timestamp: new Date().toISOString(),
+    });
+
+    await uploadMeshMessage(meshMessageId, messageReference, messageContent);
+
+    // Pre-upload the document to the PII bucket to simulate a previously processed message
+    const documentKey = `document-reference/${senderId}/${messageReference}_${meshMessageId}`;
+    await uploadToS3('pre-existing content', PII_S3_BUCKET_NAME, documentKey);
+
+    // Publish the MESHInboxMessageReceived event directly, skipping the poll lambda
+    await eventPublisher.sendEvents(
+      [
+        {
+          id: uuidv4(),
+          specversion: '1.0',
+          source:
+            '/nhs/england/notify/development/primary/data-plane/digitalletters/mesh',
+          subject:
+            'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000',
+          type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
+          time: new Date().toISOString(),
+          recordedtime: new Date().toISOString(),
+          severitynumber: 2,
+          severitytext: 'INFO',
+          traceparent:
+            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
+          dataschema:
+            'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json',
+          data: {
+            meshMessageId,
+            senderId,
+            messageReference,
+          },
+        },
+      ],
+      validateMESHInboxMessageReceived,
+    );
+
+    await expectToPassEventually(async () => {
+      const warnLogEntry = await getLogsFromCloudwatch(
+        MESH_DOWNLOAD_LAMBDA_LOG_GROUP_NAME,
+        [
+          '$.event = "Message already stored in S3, skipping publish (duplicate delivery)"',
+          `$.mesh_message_id = "${meshMessageId}"`,
+        ],
+      );
+      expect(warnLogEntry.length).toBeGreaterThanOrEqual(1);
+    }, 120_000);
+
+    // Assert that no MESHInboxMessageDownloaded event was published
+    await expectToPassEventually(async () => {
+      const downloadedEvents = await getLogsFromCloudwatch(
+        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"',
+          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+        ],
+      );
+      expect(downloadedEvents.length).toBe(0);
+    }, 15_000);
+
+    // Assert the MESH message was still acknowledged (deleted from mock inbox)
+    await expectToPassEventually(async () => {
+      await expect(async () => {
+        await downloadFromS3(
+          NON_PII_S3_BUCKET_NAME,
+          `mock-mesh/${meshMailboxId}/in/${meshMessageId}`,
+        );
+      }).rejects.toThrow('No objects found');
+    }, 60_000);
   });
 });

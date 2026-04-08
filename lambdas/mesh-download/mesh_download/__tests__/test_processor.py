@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 from datetime import datetime, timezone
 from pydantic import ValidationError
 from mesh_download.errors import MeshMessageNotFound
+from mesh_download.document_store import DocumentAlreadyExistsError
 
 
 def setup_mocks():
@@ -19,6 +20,7 @@ def setup_mocks():
     # Set up default config attributes
     config.mesh_client = Mock()
     config.download_metric = Mock()
+    config.duplicate_download_metric = Mock()
     config.s3_client = Mock()
     config.environment = 'development'
     config.transactional_data_bucket = 'test-pii-bucket'
@@ -48,9 +50,9 @@ def create_valid_cloud_event():
         'traceparent': '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
         'dataschema': 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json',
         'data': {
-            'meshMessageId': 'test_message_123',
-            'senderId': 'TEST_SENDER',
-            'messageReference': 'ref_001'
+            'meshMessageId': 'test-message-123',
+            'senderId': 'TEST-SENDER',
+            'messageReference': 'ref-001'
         }
     }
 
@@ -99,6 +101,7 @@ class TestMeshDownloadProcessor:
             log=log,
             mesh_client=config.mesh_client,
             download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -115,7 +118,7 @@ class TestMeshDownloadProcessor:
         fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
         mock_datetime.now.return_value = fixed_time
 
-        document_store.store_document.return_value = 'document-reference/SENDER_001_ref_001'
+        document_store.store_document.return_value = 'document-reference/SENDER-001/ref-001_test-message-123'
 
         event_publisher.send_events.return_value = []
 
@@ -124,6 +127,7 @@ class TestMeshDownloadProcessor:
             log=log,
             mesh_client=config.mesh_client,
             download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -133,15 +137,17 @@ class TestMeshDownloadProcessor:
 
         sqs_record = create_sqs_record()
 
-        processor.process_sqs_message(sqs_record)
+        outcome = processor.process_sqs_message(sqs_record)
 
-        config.mesh_client.retrieve_message.assert_called_once_with('test_message_123')
+        assert outcome == 'downloaded'
+        config.mesh_client.retrieve_message.assert_called_once_with('test-message-123')
 
         mesh_message.read.assert_called_once()
 
         document_store.store_document.assert_called_once_with(
-            sender_id='TEST_SENDER',
-            message_reference='ref_001',
+            sender_id='TEST-SENDER',
+            message_reference='ref-001',
+            mesh_message_id='test-message-123',
             content=b'Test message content'
         )
 
@@ -172,9 +178,9 @@ class TestMeshDownloadProcessor:
 
         # Verify CloudEvent data payload
         event_data = published_event['data']
-        assert event_data['senderId'] == 'TEST_SENDER'
-        assert event_data['messageReference'] == 'ref_001'
-        assert event_data['messageUri'] == 's3://test-pii-bucket/document-reference/SENDER_001_ref_001'
+        assert event_data['senderId'] == 'TEST-SENDER'
+        assert event_data['messageReference'] == 'ref-001'
+        assert event_data['messageUri'] == 's3://test-pii-bucket/document-reference/SENDER-001/ref-001_test-message-123'
         assert set(event_data.keys()) == {'senderId', 'messageReference', 'messageUri', 'meshMessageId'}
 
     def test_process_sqs_message_validation_failure(self):
@@ -188,6 +194,7 @@ class TestMeshDownloadProcessor:
             log=log,
             mesh_client=config.mesh_client,
             download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -212,6 +219,7 @@ class TestMeshDownloadProcessor:
             log=log,
             mesh_client=config.mesh_client,
             download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -239,6 +247,7 @@ class TestMeshDownloadProcessor:
             log=log,
             mesh_client=config.mesh_client,
             download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -246,10 +255,10 @@ class TestMeshDownloadProcessor:
         config.mesh_client.retrieve_message.return_value = None
         sqs_record = create_sqs_record()
 
-        with pytest.raises(MeshMessageNotFound, match="MESH message with ID test_message_123 not found"):
+        with pytest.raises(MeshMessageNotFound, match="MESH message with ID test-message-123 not found"):
             processor.process_sqs_message(sqs_record)
 
-        config.mesh_client.retrieve_message.assert_called_once_with('test_message_123')
+        config.mesh_client.retrieve_message.assert_called_once_with('test-message-123')
         document_store.store_document.assert_not_called()
         event_publisher.send_events.assert_not_called()
         config.download_metric.record.assert_not_called()
@@ -269,6 +278,7 @@ class TestMeshDownloadProcessor:
             log=log,
             mesh_client=config.mesh_client,
             download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -304,6 +314,7 @@ class TestMeshDownloadProcessor:
             log=log,
             mesh_client=config.mesh_client,
             download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -312,8 +323,9 @@ class TestMeshDownloadProcessor:
         config.mesh_client.retrieve_message.return_value = mesh_message
         sqs_record = create_sqs_record()
 
-        processor.process_sqs_message(sqs_record)
+        outcome = processor.process_sqs_message(sqs_record)
 
+        assert outcome == 'downloaded'
         # Verify event was published with PII bucket in URI
         event_publisher.send_events.assert_called_once()
         published_events = event_publisher.send_events.call_args[0][0]
@@ -342,6 +354,7 @@ class TestMeshDownloadProcessor:
             log=log,
             mesh_client=config.mesh_client,
             download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -350,10 +363,52 @@ class TestMeshDownloadProcessor:
         config.mesh_client.retrieve_message.return_value = mesh_message
         sqs_record = create_sqs_record()
 
-        processor.process_sqs_message(sqs_record)
+        outcome = processor.process_sqs_message(sqs_record)
 
+        assert outcome == 'downloaded'
         event_publisher.send_events.assert_called_once()
         published_events = event_publisher.send_events.call_args[0][0]
         assert len(published_events) == 1
         message_uri = published_events[0]['data']['messageUri']
         assert message_uri.startswith('s3://test-pii-bucket/')
+
+    def test_duplicate_delivery_skips_publish_and_acknowledge(self):
+        """When S3 signals the object already exists, processor logs a warning, skips publishing and metric, but still acknowledges"""
+        from mesh_download.processor import MeshDownloadProcessor
+
+        config, log, event_publisher, document_store = setup_mocks()
+        bound_logger = Mock()
+        log.bind.return_value = bound_logger
+
+        document_store.store_document.side_effect = DocumentAlreadyExistsError(
+            "Document already exists for key: document-reference/TEST-SENDER/ref-001_mesh-123"
+        )
+
+        processor = MeshDownloadProcessor(
+            config=config,
+            log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
+            document_store=document_store,
+            event_publisher=event_publisher
+        )
+
+        mesh_message = create_mesh_message()
+        config.mesh_client.retrieve_message.return_value = mesh_message
+        sqs_record = create_sqs_record()
+
+        # Should complete without raising
+        outcome = processor.process_sqs_message(sqs_record)
+
+        assert outcome == 'skipped'
+        bound_logger.warning.assert_called_once()
+        warning_msg = bound_logger.warning.call_args[0][0]
+        assert "already stored" in warning_msg
+        config.duplicate_download_metric.record.assert_called_once()
+
+        event_publisher.send_events.assert_not_called()
+        config.download_metric.record.assert_not_called()
+
+        # Acknowledge should still be called to remove message from MESH inbox
+        mesh_message.acknowledge.assert_called_once()
