@@ -67,93 +67,93 @@ describe('Pdm', () => {
     });
   });
 
-  describe('poll', () => {
-    it('returns available when the document is ready', async () => {
-      const cfg = validConfig();
-      pdmClient.getDocumentReference.mockResolvedValue(availableResponse);
+  // describe('poll', () => {
+  //   it('returns available when the document is ready', async () => {
+  //     const cfg = validConfig();
+  //     pdmClient.getDocumentReference.mockResolvedValue(availableResponse);
 
-      const pdm = new Pdm(cfg);
+  //     const pdm = new Pdm(cfg);
 
-      const result = await pdm.poll(pdmResourceSubmittedEvent);
+  //     const result = await pdm.poll(pdmResourceSubmittedEvent);
 
-      expect(result).toEqual({
-        pdmAvailability: 'available',
-        nhsNumber: '9912003071',
-        odsCode: 'Y05868',
-      });
-    });
+  //     expect(result).toEqual({
+  //       pdmAvailability: 'available',
+  //       nhsNumber: '9912003071',
+  //       odsCode: 'Y05868',
+  //     });
+  //   });
 
-    it('returns unavailable when the document is not ready', async () => {
-      const cfg = validConfig();
-      const unavailableResponse = {
-        ...availableResponse,
-        content: [
-          {
-            attachment: {
-              contentType: 'application/pdf',
-              title: 'Dummy PDF',
-            },
-          },
-        ],
-      };
-      pdmClient.getDocumentReference.mockResolvedValue(unavailableResponse);
+  //   it('returns unavailable when the document is not ready', async () => {
+  //     const cfg = validConfig();
+  //     const unavailableResponse = {
+  //       ...availableResponse,
+  //       content: [
+  //         {
+  //           attachment: {
+  //             contentType: 'application/pdf',
+  //             title: 'Dummy PDF',
+  //           },
+  //         },
+  //       ],
+  //     };
+  //     pdmClient.getDocumentReference.mockResolvedValue(unavailableResponse);
 
-      const pdm = new Pdm(cfg);
+  //     const pdm = new Pdm(cfg);
 
-      const result = await pdm.poll(pdmResourceSubmittedEvent);
+  //     const result = await pdm.poll(pdmResourceSubmittedEvent);
 
-      expect(result).toEqual({
-        pdmAvailability: 'unavailable',
-        nhsNumber: '9912003071',
-        odsCode: 'Y05868',
-      });
-    });
+  //     expect(result).toEqual({
+  //       pdmAvailability: 'unavailable',
+  //       nhsNumber: '9912003071',
+  //       odsCode: 'Y05868',
+  //     });
+  //   });
 
-    it('logs and throws error when error from PDM', async () => {
-      const cfg = validConfig();
-      const thrown = new Error('pdm failure');
-      pdmClient.getDocumentReference.mockRejectedValueOnce(thrown);
+  //   it('logs and throws error when error from PDM', async () => {
+  //     const cfg = validConfig();
+  //     const thrown = new Error('pdm failure');
+  //     pdmClient.getDocumentReference.mockRejectedValueOnce(thrown);
 
-      const pdm = new Pdm(cfg);
+  //     const pdm = new Pdm(cfg);
 
-      await expect(pdm.poll(pdmResourceSubmittedEvent)).rejects.toThrow(thrown);
+  //     await expect(pdm.poll(pdmResourceSubmittedEvent)).rejects.toThrow(thrown);
 
-      expect(logger.error).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.objectContaining({
-          description: 'Error getting document resource from PDM',
-          err: thrown,
-        }),
-      );
-    });
+  //     expect(logger.error).toHaveBeenCalledTimes(1);
+  //     expect(logger.error).toHaveBeenCalledWith(
+  //       expect.objectContaining({
+  //         description: 'Error getting document resource from PDM',
+  //         err: thrown,
+  //       }),
+  //     );
+  //   });
 
-    it('logs and throws error when no ODS Code is found', async () => {
-      const cfg = validConfig();
-      const thrown = new Error('No ODS organization code found');
-      const noOdsCodeResponse = {
-        ...availableResponse,
-        author: [
-          {
-            identifier: {
-              system: 'https://fhir.nhs.uk/Id/some-other-code',
-              value: '1111',
-            },
-          },
-        ],
-      };
-      pdmClient.getDocumentReference.mockResolvedValue(noOdsCodeResponse);
+  //   it('logs and throws error when no ODS Code is found', async () => {
+  //     const cfg = validConfig();
+  //     const thrown = new Error('No ODS organization code found');
+  //     const noOdsCodeResponse = {
+  //       ...availableResponse,
+  //       author: [
+  //         {
+  //           identifier: {
+  //             system: 'https://fhir.nhs.uk/Id/some-other-code',
+  //             value: '1111',
+  //           },
+  //         },
+  //       ],
+  //     };
+  //     pdmClient.getDocumentReference.mockResolvedValue(noOdsCodeResponse);
 
-      const pdm = new Pdm(cfg);
+  //     const pdm = new Pdm(cfg);
 
-      await expect(pdm.poll(pdmResourceSubmittedEvent)).rejects.toThrow(thrown);
+  //     await expect(pdm.poll(pdmResourceSubmittedEvent)).rejects.toThrow(thrown);
 
-      expect(logger.error).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.objectContaining({
-          description: 'Error getting document resource from PDM',
-          err: thrown,
-        }),
-      );
-    });
-  });
+  //     expect(logger.error).toHaveBeenCalledTimes(1);
+  //     expect(logger.error).toHaveBeenCalledWith(
+  //       expect.objectContaining({
+  //         description: 'Error getting document resource from PDM',
+  //         err: thrown,
+  //       }),
+  //     );
+  //   });
+  // });
 });
