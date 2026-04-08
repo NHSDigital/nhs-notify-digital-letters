@@ -28,8 +28,8 @@ type ValidatedRecord = {
 const originSubjectSchema = z
   .string()
   .regex(
-    /^client\/[^/]+\/digital-letters\/[^/]+$/,
-    'Subject must be in format: client/{senderId}/digital-letters/{messageReference}',
+    /^client\/[^/]+\/letter-request\/[^/]+$/,
+    'Subject must be in format: client/{senderId}/letter-request/{messageReference}',
   );
 
 function validateRecord(
@@ -68,6 +68,12 @@ function validateRecord(
       return null;
     }
 
+    logger.info({
+      description: 'Successfully validated SQS record',
+      messageId,
+      subject: item.data.origin.subject,
+    });
+
     return { messageId, event: item };
   } catch (error) {
     logger.warn({
@@ -102,6 +108,7 @@ function generateUpdatedEvent(event: LetterEvent): PrintLetterTransitioned {
     id: randomUUID(),
     time: eventTime,
     recordedtime: eventTime,
+    subject: `client/${senderId}/letter-request/${messageReference}`,
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-letter-transitioned-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
