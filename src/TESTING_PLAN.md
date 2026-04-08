@@ -2336,7 +2336,7 @@ PASS tools/generator/__tests__/generate-docs.test.ts (10.747 s)
 
 - **Author**: GitHub Copilot
 - **Activity**: Fixed CI/CD workflow to upload and download Python coverage files for SonarCloud analysis
-- **Root Cause**: Python coverage.xml files were being generated but not uploaded as artifacts. SonarCloud only had access to JavaScript coverage (.reports/lcov.info)
+- **Root Cause**: Python coverage.xml files were being generated but not uploaded as artifacts. SonarCloud only had access to JavaScript coverage (.reports/unit/coverage/lcov.info)
 - **Changes**:
   - Updated `.github/workflows/stage-2-test.yaml` in `test-unit` job:
     - Added new step "Save Python coverage reports" to upload `src/**/coverage.xml` as `python-coverage-reports` artifact
@@ -3111,14 +3111,6 @@ make -C ./src/cloudeventjekylldocs coverage  # Use coverage to generate coverage
 npm ci
 npm run test:unit --workspaces
 
-# Merge coverage reports
-mkdir -p .reports
-TMPDIR="./.reports" ./node_modules/.bin/lcov-result-merger \
-  "**/.reports/unit/coverage/lcov.info" \
-  ".reports/lcov.info" \
-  --ignore "node_modules" \
-  --prepend-source-files \
-  --prepend-path-fix "../../.."
 ```
 
 ### CI/CD Workflow Details

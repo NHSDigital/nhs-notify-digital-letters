@@ -84,10 +84,6 @@ _py_end=$(date +%s)
 _timer_labels+=("Python unit tests (parallel)")
 _timer_seconds+=("$((_py_end - _py_start))")
 
-# merge coverage reports
-run_timed "lcov-result-merger" \
-  bash -c 'mkdir -p .reports && TMPDIR="./.reports" ./node_modules/.bin/lcov-result-merger "**/.reports/unit/coverage/lcov.info" ".reports/lcov.info" --ignore "node_modules" --prepend-source-files --prepend-path-fix "../../.."'
-
 # Propagate any Jest failure now that all other test suites have completed
 if [ "${jest_exit:-0}" -ne 0 ]; then
   echo "Jest tests failed with exit code ${jest_exit}"
