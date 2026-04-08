@@ -2,7 +2,7 @@ resource "aws_sns_topic" "main" {
   name = "${local.csi}-test"
 }
 
-resource "aws_sns_topic_policy" "eventbridge_publish" {
+resource "aws_sns_topic_policy" "sns_publish" {
   arn    = aws_sns_topic.main.arn
   policy = data.aws_iam_policy_document.sns_topic_policy_document.json
 }
