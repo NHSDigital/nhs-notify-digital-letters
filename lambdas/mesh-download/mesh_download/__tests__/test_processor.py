@@ -198,8 +198,8 @@ class TestMeshDownloadProcessor:
         mesh_message.read.assert_called_once()
 
         document_store.store_document.assert_called_once_with(
-            sender_id='TEST_SENDER',
-            message_reference='ref_001',
+            sender_id='TEST-SENDER',
+            message_reference='ref-001',
             mesh_message_id='test-message-123',
             content=create_fhir_content()
         )
@@ -254,6 +254,7 @@ class TestMeshDownloadProcessor:
             log=log,
             mesh_client=config.mesh_client,
             download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
             document_store=document_store,
             event_publisher=event_publisher
         )
@@ -266,7 +267,7 @@ class TestMeshDownloadProcessor:
 
         processor.process_sqs_message(sqs_record)
 
-        config.mesh_client.retrieve_message.assert_called_once_with('test_message_123')
+        config.mesh_client.retrieve_message.assert_called_once_with('test-message-123')
 
         mesh_message.read.assert_called_once()
 
@@ -299,9 +300,9 @@ class TestMeshDownloadProcessor:
 
         # Verify CloudEvent data payload
         event_data = published_event['data']
-        assert event_data['senderId'] == 'TEST_SENDER'
-        assert event_data['messageReference'] == 'ref_001'
-        assert event_data['meshMessageId'] == 'test_message_123'
+        assert event_data['senderId'] == 'TEST-SENDER'
+        assert event_data['messageReference'] == 'ref-001'
+        assert event_data['meshMessageId'] == 'test-message-123'
         assert event_data['failureCode'] == 'DL_CLIV_005'
         assert set(event_data.keys()) == {'senderId', 'messageReference', 'meshMessageId', 'failureCode'}
 
