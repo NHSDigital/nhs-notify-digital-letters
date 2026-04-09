@@ -8,7 +8,7 @@ urllib3>=1.26.19,<2.0.0
 idna>=3.7
 requests>=2.32.0
 pyopenssl>=24.2.1
-nhs-notify-digital-letters-onboarding @ git+https://github.com/NHSDigital/nhs-notify-digital-letters-onboarding@cc12e80ee21573e49e497413cb68191763432917
+nhs-notify-digital-letters-onboarding @ git+https://github.com/NHSDigital/nhs-notify-digital-letters-onboarding@0.1.0
 -e ../../src/digital-letters-events
 -e ../../utils/py-mock-mesh
 -e ../../utils/py-utils
