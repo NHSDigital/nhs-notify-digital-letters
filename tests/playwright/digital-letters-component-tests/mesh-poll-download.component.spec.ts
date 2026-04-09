@@ -340,12 +340,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
 
     const meshMessageId = `${Date.now()}_DUPLICATE_${uuidv4().slice(0, 8)}`;
     const messageReference = uuidv4();
-    const messageContent = JSON.stringify({
-      senderId,
-      messageReference,
-      testData: 'This is a duplicate test letter content',
-      timestamp: new Date().toISOString(),
-    });
+    const messageContent = JSON.stringify(validPdmRequest);
 
     await uploadMeshMessage(meshMessageId, messageReference, messageContent);
 
