@@ -61,7 +61,6 @@ export const REPORTING_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REG
 export const PREFIX_DL_FILES = `${CSI}/`;
 
 // Cloudwatch
-export const MESH_DOWNLOAD_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-mesh-download`;
 export const PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-uploader`;
 export const PDM_POLL_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-poll`;
 export const CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-core-notifier`;
