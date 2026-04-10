@@ -200,7 +200,7 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
     await expectToPassEventually(async () => {
       const messageContent = await downloadFromS3(
         NON_PII_S3_BUCKET_NAME,
-        `mock-mesh/${meshMailboxId}/out/${sendersMeshMailboxId}/${senderId}_`,
+        `mock-mesh/${meshMailboxId}/out/${sendersMeshMailboxId}/no-local-id_`,
       );
 
       const messageHeaders = messageContent.metadata ?? {};

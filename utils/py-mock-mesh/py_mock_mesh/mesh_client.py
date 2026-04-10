@@ -82,7 +82,7 @@ class MockMeshClient:  # pylint: disable=too-many-arguments
         Sends a message to a mailbox
         """
 
-        local_id = kwargs['local_id']
+        local_id = kwargs.get('local_id') or 'no-local-id'
         message_id = f"{local_id}_{uuid.uuid1()}"
         message_key = f"{self.outbox_prefix}{recipient}/{message_id}"
 
