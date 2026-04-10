@@ -96,7 +96,9 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
 
       expect(eventLogEntry.length).toEqual(1);
 
-      const eventDetail = JSON.parse((eventLogEntry[0] as any).details.event_detail);
+      const eventDetail = JSON.parse(
+        (eventLogEntry[0] as any).details.event_detail,
+      );
       sentMeshMessageId = eventDetail.data.sentMeshMessageId;
       expect(sentMeshMessageId).toBeTruthy();
     });
@@ -222,7 +224,9 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
 
       expect(eventLogEntry.length).toEqual(1);
 
-      const eventDetail = JSON.parse((eventLogEntry[0] as any).details.event_detail);
+      const eventDetail = JSON.parse(
+        (eventLogEntry[0] as any).details.event_detail,
+      );
       sentMeshMessageId = eventDetail.data.sentMeshMessageId;
       expect(sentMeshMessageId).toBeTruthy();
     });
