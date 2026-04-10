@@ -13,7 +13,7 @@ from mesh_acknowledge.events import (
     parse_downloaded_event,
     parse_invalid_event,
     publish_acknowledged_event,
-    publish_nack_acknowledged_event,
+    publish_negative_acknowledged_event,
 )
 
 from .fixtures import create_downloaded_event_dict, create_invalid_event_dict
@@ -165,6 +165,8 @@ class TestPublishAcknowledgedEvent:
                 'messageReference': downloaded_event.data.messageReference,
                 'senderId': downloaded_event.data.senderId,
                 'meshMailboxId': mesh_mailbox_id,
+                'receivedMeshMessageId': downloaded_event.data.meshMessageId,
+                'sentMeshMessageId': 'SENT123',
                 'statusCode': 202,
             }
         }
@@ -173,7 +175,8 @@ class TestPublishAcknowledgedEvent:
             mock_logger,
             mock_event_publisher,
             downloaded_event,
-            mesh_mailbox_id
+            mesh_mailbox_id,
+            'SENT123'
         )
 
         # Verify event was sent
@@ -204,7 +207,8 @@ class TestPublishAcknowledgedEvent:
                 mock_logger,
                 mock_event_publisher,
                 downloaded_event,
-                'MAILBOX001'
+                'MAILBOX001',
+                'SENT123'
             )
 
     @patch('mesh_acknowledge.events.uuid4')
@@ -229,7 +233,8 @@ class TestPublishAcknowledgedEvent:
                 mock_logger,
                 mock_event_publisher,
                 downloaded_event,
-                'MAILBOX001'
+                'MAILBOX001',
+                'SENT123'
             )
 
 
@@ -332,7 +337,7 @@ class TestParseInvalidEvent:
 
 
 class TestPublishNackAcknowledgedEvent:
-    """Test suite for publish_nack_acknowledged_event function"""
+    """Test suite for publish_negative_acknowledged_event function"""
 
     @patch('mesh_acknowledge.events.uuid4')
     @patch('mesh_acknowledge.events.datetime')
@@ -366,18 +371,20 @@ class TestPublishNackAcknowledgedEvent:
             'data': {
                 'senderId': invalid_event.data.senderId,
                 'meshMailboxId': mesh_mailbox_id,
-                'meshMessageId': invalid_event.data.meshMessageId,
+                'receivedMeshMessageId': invalid_event.data.meshMessageId,
+                'sentMeshMessageId': 'SENT123',
                 'statusCode': 400,
                 'failureCode': invalid_event.data.failureCode,
                 'messageReference': invalid_event.data.messageReference,
             }
         }
 
-        publish_nack_acknowledged_event(
+        publish_negative_acknowledged_event(
             mock_logger,
             mock_event_publisher,
             invalid_event,
-            mesh_mailbox_id
+            mesh_mailbox_id,
+            'SENT123'
         )
 
         mock_event_publisher.send_events.assert_called_once_with(
@@ -415,17 +422,19 @@ class TestPublishNackAcknowledgedEvent:
             'data': {
                 'senderId': invalid_event_no_ref.data.senderId,
                 'meshMailboxId': mesh_mailbox_id,
-                'meshMessageId': invalid_event_no_ref.data.meshMessageId,
+                'receivedMeshMessageId': invalid_event_no_ref.data.meshMessageId,
+                'sentMeshMessageId': 'SENT123',
                 'statusCode': 400,
                 'failureCode': invalid_event_no_ref.data.failureCode,
             }
         }
 
-        publish_nack_acknowledged_event(
+        publish_negative_acknowledged_event(
             mock_logger,
             mock_event_publisher,
             invalid_event_no_ref,
-            mesh_mailbox_id
+            mesh_mailbox_id,
+            'SENT123'
         )
 
         mock_event_publisher.send_events.assert_called_once_with(
@@ -448,12 +457,13 @@ class TestPublishNackAcknowledgedEvent:
 
         mock_event_publisher.send_events.return_value = [{'error': 'send failed'}]
 
-        with pytest.raises(RuntimeError, match="Failed to publish MESHInboxMessageAcknowledged \\(NACK\\) event"):
-            publish_nack_acknowledged_event(
+        with pytest.raises(RuntimeError, match="Failed to publish MESHInboxMessageAcknowledged \\(negative acknowledgement\\) event"):
+            publish_negative_acknowledged_event(
                 mock_logger,
                 mock_event_publisher,
                 invalid_event,
-                'MAILBOX001'
+                'MAILBOX001',
+                'SENT123'
             )
 
     @patch('mesh_acknowledge.events.uuid4')
@@ -474,9 +484,10 @@ class TestPublishNackAcknowledgedEvent:
         mock_event_publisher.send_events.side_effect = Exception("Publisher error")
 
         with pytest.raises(Exception, match="Publisher error"):
-            publish_nack_acknowledged_event(
+            publish_negative_acknowledged_event(
                 mock_logger,
                 mock_event_publisher,
                 invalid_event,
-                'MAILBOX001'
+                'MAILBOX001',
+                'SENT123'
             )

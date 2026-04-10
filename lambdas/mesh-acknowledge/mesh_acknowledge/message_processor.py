@@ -10,7 +10,7 @@ from .events import (
     parse_downloaded_event,
     parse_invalid_event,
     publish_acknowledged_event,
-    publish_nack_acknowledged_event,
+    publish_negative_acknowledged_event,
 )
 
 class MessageProcessor:
@@ -119,7 +119,8 @@ class MessageProcessor:
                 logger=self.__log,
                 event_publisher=self.__event_publisher,
                 incoming_event=validated_event,
-                mesh_mailbox_id=mesh_mailbox_id
+                mesh_mailbox_id=mesh_mailbox_id,
+                sent_mesh_message_id=acknowledgement_message_id
             )
         except Exception:
             # If publishing the acknowledged event fails, we've already sent
@@ -153,7 +154,7 @@ class MessageProcessor:
                 f"Unknown sender ID '{sender_id}' for message"
             )
 
-        nack_message_id = self.__acknowledger.negative_acknowledge_message(
+        negative_acknowledgement_message_id = self.__acknowledger.negative_acknowledge_message(
             mailbox_id=mesh_mailbox_id,
             message_id=incoming_message_id,
             failure_code=failure_code,
@@ -162,16 +163,17 @@ class MessageProcessor:
         )
 
         try:
-            publish_nack_acknowledged_event(
+            publish_negative_acknowledged_event(
                 logger=self.__log,
                 event_publisher=self.__event_publisher,
                 incoming_event=validated_event,
-                mesh_mailbox_id=mesh_mailbox_id
+                mesh_mailbox_id=mesh_mailbox_id,
+                sent_mesh_message_id=negative_acknowledgement_message_id
             )
         except Exception:
             self.__dlq.send_to_queue(
                 record=record,
-                reason="Failed to publish nack acknowledged event"
+                reason="Failed to publish negative acknowledged event"
             )
 
-        return nack_message_id
+        return negative_acknowledgement_message_id

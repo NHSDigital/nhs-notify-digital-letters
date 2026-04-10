@@ -71,7 +71,7 @@ class ReportSenderProcessor:  # pylint: disable=too-many-instance-attributes
 
         self.__log.info(f'Sending MESH message to the sender: {sender_id} using mailbox: {reporting_mailbox} for date: {report_date} with reference: {report_reference}')
 
-        self.__mesh_report_sender.send_report(
+        sent_mesh_message_id = self.__mesh_report_sender.send_report(
             reporting_mailbox,
             report_bytes,
             report_date,
@@ -79,10 +79,10 @@ class ReportSenderProcessor:  # pylint: disable=too-many-instance-attributes
         )
 
         self.__log.info(f'Publishing ReportEventSent for the sender: {sender_id} using mailbox: {reporting_mailbox} for date: {report_date}')
-        self._publish_report_sent_event(sender_id, reporting_mailbox, report_reference)
+        self._publish_report_sent_event(sender_id, reporting_mailbox, report_reference, sent_mesh_message_id)
         self.__send_metric.record(1)
 
-    def _publish_report_sent_event(self, sender_id, mesh_mailbox_reports_id, report_reference):
+    def _publish_report_sent_event(self, sender_id, mesh_mailbox_reports_id, report_reference, sent_mesh_message_id):
         """
         Publishes a ReportSent event
         """
@@ -104,6 +104,7 @@ class ReportSenderProcessor:  # pylint: disable=too-many-instance-attributes
                 "senderId": sender_id,
                 "meshMailboxReportsId": mesh_mailbox_reports_id,
                 "reportReference": report_reference,
+                "sentMeshMessageId": sent_mesh_message_id,
             },
         }
 

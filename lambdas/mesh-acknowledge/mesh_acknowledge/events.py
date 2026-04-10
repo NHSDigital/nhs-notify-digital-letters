@@ -63,7 +63,7 @@ def parse_invalid_event(sqs_record, logger) -> MESHInboxMessageInvalid:
 
 def publish_acknowledged_event(
         logger, event_publisher: EventPublisher, incoming_event: MESHInboxMessageDownloaded,
-        mesh_mailbox_id: str):
+        mesh_mailbox_id: str, sent_mesh_message_id: str):
     """
     Publishes a MESHInboxMessageAcknowledged event.
     """
@@ -84,6 +84,8 @@ def publish_acknowledged_event(
                 'messageReference': incoming_event.data.messageReference,
                 'senderId': incoming_event.data.senderId,
                 'meshMailboxId': mesh_mailbox_id,
+                'receivedMeshMessageId': incoming_event.data.meshMessageId,
+                'sentMeshMessageId': sent_mesh_message_id,
                 'statusCode': 202,
             }
         }
@@ -107,11 +109,11 @@ def publish_acknowledged_event(
         raise
 
 
-def publish_nack_acknowledged_event(
+def publish_negative_acknowledged_event(
         logger, event_publisher: EventPublisher, incoming_event: MESHInboxMessageInvalid,
-        mesh_mailbox_id: str):
+        mesh_mailbox_id: str, sent_mesh_message_id: str):
     """
-    Publishes a MESHInboxMessageAcknowledged event for a negative acknowledgement (NACK),
+    Publishes a MESHInboxMessageAcknowledged event for a negative acknowledgement,
     with statusCode 400 and the failureCode from the invalid event.
     """
     now = datetime.now(timezone.utc).isoformat()
@@ -130,7 +132,8 @@ def publish_nack_acknowledged_event(
             'data': {
                 'senderId': incoming_event.data.senderId,
                 'meshMailboxId': mesh_mailbox_id,
-                'meshMessageId': incoming_event.data.meshMessageId,
+                'receivedMeshMessageId': incoming_event.data.meshMessageId,
+                'sentMeshMessageId': sent_mesh_message_id,
                 'statusCode': 400,
                 'failureCode': incoming_event.data.failureCode,
                 **(
@@ -144,12 +147,12 @@ def publish_nack_acknowledged_event(
         failed = event_publisher.send_events([nack_event], MESHInboxMessageAcknowledged)
 
         if failed:
-            msg = f"Failed to publish MESHInboxMessageAcknowledged (NACK) event: {failed}"
+            msg = f"Failed to publish MESHInboxMessageAcknowledged (negative acknowledgement) event: {failed}"
             logger.error(msg, failed_count=len(failed))
             raise RuntimeError(msg)
 
         logger.info(
-            "Published MESHInboxMessageAcknowledged (NACK) event",
+            "Published MESHInboxMessageAcknowledged (negative acknowledgement) event",
             sender_id=incoming_event.data.senderId,
             mesh_mailbox_id=mesh_mailbox_id,
             failure_code=incoming_event.data.failureCode,

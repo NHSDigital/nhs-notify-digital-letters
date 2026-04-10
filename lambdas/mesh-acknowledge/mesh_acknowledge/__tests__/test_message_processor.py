@@ -130,7 +130,8 @@ class TestMessageProcessorProcessMessage:
             logger=mock_logger,
             event_publisher=mock_event_publisher,
             incoming_event=downloaded_event,
-            mesh_mailbox_id=mesh_mailbox_id
+            mesh_mailbox_id=mesh_mailbox_id,
+            sent_mesh_message_id="ACK123"
         )
 
     @patch('mesh_acknowledge.message_processor.publish_acknowledged_event')
@@ -489,7 +490,7 @@ def create_valid_invalid_sqs_message():
 class TestMessageProcessorInvalidEvent:
     """Test suite for MessageProcessor handling of MESHInboxMessageInvalid events"""
 
-    @patch('mesh_acknowledge.message_processor.publish_nack_acknowledged_event')
+    @patch('mesh_acknowledge.message_processor.publish_negative_acknowledged_event')
     @patch('mesh_acknowledge.message_processor.parse_invalid_event')
     def test_process_invalid_event_success(
         self,
@@ -531,10 +532,11 @@ class TestMessageProcessorInvalidEvent:
             logger=mock_logger,
             event_publisher=mock_event_publisher,
             incoming_event=invalid_event,
-            mesh_mailbox_id=mesh_mailbox_id
+            mesh_mailbox_id=mesh_mailbox_id,
+            sent_mesh_message_id="NACK123"
         )
 
-    @patch('mesh_acknowledge.message_processor.publish_nack_acknowledged_event')
+    @patch('mesh_acknowledge.message_processor.publish_negative_acknowledged_event')
     @patch('mesh_acknowledge.message_processor.parse_invalid_event')
     def test_process_invalid_event_unknown_sender_returns_failure(
         self,
@@ -558,7 +560,7 @@ class TestMessageProcessorInvalidEvent:
         mock_acknowledger.negative_acknowledge_message.assert_not_called()
         mock_publish_nack.assert_not_called()
 
-    @patch('mesh_acknowledge.message_processor.publish_nack_acknowledged_event')
+    @patch('mesh_acknowledge.message_processor.publish_negative_acknowledged_event')
     @patch('mesh_acknowledge.message_processor.parse_invalid_event')
     def test_process_invalid_event_nack_error_returns_failure(
         self,
@@ -582,7 +584,7 @@ class TestMessageProcessorInvalidEvent:
 
         mock_publish_nack.assert_not_called()
 
-    @patch('mesh_acknowledge.message_processor.publish_nack_acknowledged_event')
+    @patch('mesh_acknowledge.message_processor.publish_negative_acknowledged_event')
     @patch('mesh_acknowledge.message_processor.parse_invalid_event')
     def test_process_invalid_event_publish_error_sends_to_dlq(
         self,
@@ -608,10 +610,10 @@ class TestMessageProcessorInvalidEvent:
         assert result == []
         mock_dlq.send_to_queue.assert_called_once_with(
             record=valid_invalid_sqs_message['Records'][0],
-            reason="Failed to publish nack acknowledged event"
+            reason="Failed to publish negative acknowledged event"
         )
 
-    @patch('mesh_acknowledge.message_processor.publish_nack_acknowledged_event')
+    @patch('mesh_acknowledge.message_processor.publish_negative_acknowledged_event')
     @patch('mesh_acknowledge.message_processor.parse_invalid_event')
     def test_process_invalid_event_dlq_error_returns_failure(
         self,
