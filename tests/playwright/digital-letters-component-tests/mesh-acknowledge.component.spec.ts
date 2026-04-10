@@ -7,7 +7,9 @@ import {
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import {
   MESHInboxMessageDownloaded,
+  MESHInboxMessageInvalid,
   validateMESHInboxMessageDownloaded,
+  validateMESHInboxMessageInvalid,
 } from 'digital-letters-events';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
@@ -165,5 +167,68 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
       letterId,
       150,
     );
+  });
+
+  test('should send MESH negative acknowledgement and publish message acknowledged event following message invalid event', async () => {
+    test.setTimeout(120_000);
+
+    const letterId = uuidv4();
+    const meshMessageId = `${Date.now()}_TEST_${uuidv4().slice(0, 8)}`;
+    const failureCode = 'DL_CLIV_005';
+
+    const validMessageInvalidEvent: MESHInboxMessageInvalid = {
+      ...validMessageDownloadedEvent,
+      id: letterId,
+      type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1',
+      dataschema:
+        'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-invalid-data.schema.json',
+      data: {
+        meshMessageId,
+        senderId,
+        failureCode,
+      },
+    };
+
+    await eventPublisher.sendEvents<MESHInboxMessageInvalid>(
+      [validMessageInvalidEvent],
+      validateMESHInboxMessageInvalid,
+    );
+
+    const meshMailboxId = 'mock-mailbox';
+
+    // Verify MESH negative acknowledgement message was sent.
+    await expectToPassEventually(async () => {
+      const messageContent = await downloadFromS3(
+        NON_PII_S3_BUCKET_NAME,
+        `mock-mesh/${meshMailboxId}/out/${sendersMeshMailboxId}/${senderId}_`,
+      );
+
+      const messageHeaders = messageContent.metadata ?? {};
+      expect(messageHeaders.subject).toEqual('400');
+      expect(messageHeaders.local_id).toBeUndefined();
+      expect(messageHeaders.workflow_id).toEqual('NHS_NOTIFY_FHIR_ACK');
+
+      const messageBody = JSON.parse(messageContent.body);
+      expect(messageBody.meshMessageId).toEqual(meshMessageId);
+      expect(messageBody.failureCode).toEqual(failureCode);
+      expect(messageBody.requestId).toEqual(`${senderId}_`);
+    });
+
+    // Verify message acknowledged event was published with statusCode 400.
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.acknowledged.v1"',
+          `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
+          `$.details.event_detail = "*\\"meshMailboxId\\":\\"${sendersMeshMailboxId}\\"*"`,
+          `$.details.event_detail = "*\\"statusCode\\":400*"`,
+          `$.details.event_detail = "*\\"failureCode\\":\\"${failureCode}\\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    });
   });
 });
