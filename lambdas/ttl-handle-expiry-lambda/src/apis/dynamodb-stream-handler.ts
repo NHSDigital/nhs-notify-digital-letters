@@ -70,7 +70,7 @@ export const createHandler = ({
         logger.info({
           description: 'ItemDequeued event not sent as item withdrawn',
           messageReference: itemEvent.data.messageReference,
-          messageUri: item.PK,
+          messageUri: itemEvent.data.messageUri,
           senderId: itemEvent.data.senderId,
         });
       } else {
