@@ -293,9 +293,12 @@ class TestMeshDownloadProcessor:
 
         # Verify CloudEvent envelope fields
         assert published_event['type'] == 'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1'
-        assert published_event['source'] == '/nhs/england/notify/development/primary/data-plane/digitalletters/mesh'
+        assert published_event['source'] == '/nhs/england/notify/development/primary/digitalletters/mesh'
         assert published_event['subject'] == 'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000'
         assert published_event['time'] == '2025-11-19T15:30:45+00:00'
+        assert published_event['plane'] == 'data'
+        assert published_event['dataschemaversion'] == '1.0.0'
+        assert published_event['datacontenttype'] == 'application/json'
         assert 'id' in published_event
         assert 'tracestate' not in published_event
         assert 'partitionkey' not in published_event
