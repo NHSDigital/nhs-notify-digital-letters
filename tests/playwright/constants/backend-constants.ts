@@ -61,7 +61,6 @@ export const REPORTING_S3_BUCKET_NAME = `nhs-${process.env.AWS_ACCOUNT_ID}-${REG
 export const PREFIX_DL_FILES = `${CSI}/`;
 
 // Cloudwatch
-export const MESH_DOWNLOAD_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-mesh-download`;
 export const PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-uploader`;
 export const PDM_POLL_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pdm-poll`;
 export const CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-core-notifier`;
@@ -70,6 +69,7 @@ export const PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-pr
 export const PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-analyser`;
 export const PRINT_SENDER_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-print-sender`;
 export const MOVE_SCANNED_FILES_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-move-scanned-files`;
+export const MESH_DOWNLOAD_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-mesh-download`;
 
 // Data Firehose
 export const FIREHOSE_STREAM_NAME = `${CSI}-to-s3-reporting`;

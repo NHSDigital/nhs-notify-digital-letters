@@ -17,6 +17,56 @@ import { v4 as uuidv4 } from 'uuid';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { validateMESHInboxMessageReceived } from 'digital-letters-events';
 
+const validPdmRequest = {
+  resourceType: 'DocumentReference',
+  id: '82bfb7f3-4889-4e15-b308-bbe4e3cd431f',
+  status: 'current',
+  docStatus: 'final',
+  type: {
+    coding: [
+      {
+        // eslint-disable-next-line sonarjs/no-clear-text-protocols
+        system: 'http://snomed.info/sct',
+        code: '308540004',
+        display: 'Appointment',
+      },
+    ],
+  },
+  subject: {
+    identifier: {
+      system: 'https://fhir.nhs.uk/Id/nhs-number',
+      value: '9876543210',
+    },
+  },
+  author: [
+    {
+      identifier: {
+        system: 'https://fhir.nhs.uk/Id/ods-organization-code',
+        value: 'RX809',
+      },
+      display: 'Example NHS Trust',
+    },
+  ],
+  custodian: {
+    identifier: {
+      system: 'https://fhir.nhs.uk/Id/ods-organization-code',
+      value: 'C4L8E',
+    },
+    display: 'NHS ENGLAND: NHS NOTIFY',
+  },
+  date: '2025-11-19T14:30:00Z',
+  description: 'Appointment notification letter for outpatient consultation',
+  content: [
+    {
+      attachment: {
+        contentType: 'application/pdf',
+        title: 'Appointment Letter - November 2025',
+        data: 'base64here==',
+      },
+    },
+  ],
+};
+
 test.describe('Digital Letters - MESH Poll and Download', () => {
   const senderId = SENDER_ID_SKIPS_NOTIFY;
   const sendersMeshMailboxId = 'test-mesh-sender-1';
@@ -76,15 +126,31 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     }, 180_000);
   }
 
+  async function expectMeshInboxMessageInvalidEvent(
+    meshMessageId: string,
+    messageReference: string,
+  ): Promise<void> {
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+        [
+          '$.message_type = "EVENT_RECEIPT"',
+          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1"',
+          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
+          `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
+          `$.details.event_detail = "*\\"meshMessageId\\":\\"${meshMessageId}\\"*"`,
+          `$.details.event_detail = "*\\"failureCode\\":\\"DL_CLIV_005\\"*"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
+    }, 180_000);
+  }
+
   test('should poll message from MESH inbox, publish received event, download message, and publish downloaded event', async () => {
     const meshMessageId = `${Date.now()}_TEST_${uuidv4().slice(0, 8)}`;
     const messageReference = uuidv4();
-    const messageContent = JSON.stringify({
-      senderId,
-      messageReference,
-      testData: 'This is a test letter content',
-      timestamp: new Date().toISOString(),
-    });
+    const messageContent = JSON.stringify(validPdmRequest);
 
     await uploadMeshMessage(meshMessageId, messageReference, messageContent);
 
@@ -101,6 +167,43 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
 
       expect(storedMessage.body).toContain(messageContent);
     }, 60_000);
+
+    await expectToPassEventually(async () => {
+      await expect(async () => {
+        await downloadFromS3(
+          NON_PII_S3_BUCKET_NAME,
+          `mock-mesh/${meshMailboxId}/in/${meshMessageId}`,
+        );
+      }).rejects.toThrow('No objects found');
+    }, 60_000);
+  });
+
+  test('given invalid PDM request should publish invalid event, log an error, acknowledge message', async () => {
+    const meshMessageId = `${Date.now()}_TEST_${uuidv4().slice(0, 8)}`;
+    const messageReference = uuidv4();
+    const invalidPdmRequest = { ...validPdmRequest, id: undefined };
+
+    const messageContent = JSON.stringify(invalidPdmRequest);
+
+    await uploadMeshMessage(meshMessageId, messageReference, messageContent);
+
+    await invokeLambda(MESH_POLL_LAMBDA_NAME);
+
+    await expectMeshInboxMessageReceivedEvent(meshMessageId);
+    await expectMeshInboxMessageInvalidEvent(meshMessageId, messageReference);
+
+    await expectToPassEventually(async () => {
+      const filteredLogs = await getLogsFromCloudwatch(
+        MESH_DOWNLOAD_LAMBDA_LOG_GROUP_NAME,
+        [
+          '$.event  = "FHIR content is invalid"',
+          `$.mesh_message_id = "${meshMessageId}"`,
+          '$.error = "\'id\' is a required property*"',
+        ],
+      );
+
+      expect(filteredLogs.length).toEqual(1);
+    }, 120);
 
     await expectToPassEventually(async () => {
       await expect(async () => {
@@ -237,12 +340,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
 
     const meshMessageId = `${Date.now()}_DUPLICATE_${uuidv4().slice(0, 8)}`;
     const messageReference = uuidv4();
-    const messageContent = JSON.stringify({
-      senderId,
-      messageReference,
-      testData: 'This is a duplicate test letter content',
-      timestamp: new Date().toISOString(),
-    });
+    const messageContent = JSON.stringify(validPdmRequest);
 
     await uploadMeshMessage(meshMessageId, messageReference, messageContent);
 

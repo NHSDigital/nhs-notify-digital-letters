@@ -70,6 +70,58 @@ def create_sqs_record(cloud_event=None):
         'body': json.dumps({'detail': cloud_event})
     }
 
+def create_fhir_content():
+    """
+    Create a mock FHIR JSON content for testing
+    """
+    return json.dumps({
+        "resourceType": "DocumentReference",
+        "id": "82bfb7f3-4889-4e15-b308-bbe4e3cd431f",
+        "status": "current",
+        "docStatus": "final",
+        "type": {
+            "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "308540004",
+                "display": "Appointment"
+            }
+            ]
+        },
+        "subject": {
+            "identifier": {
+            "system": "https://fhir.nhs.uk/Id/nhs-number",
+            "value": "9876543210"
+            }
+        },
+        "author": [
+            {
+            "identifier": {
+                "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+                "value": "RX809"
+            },
+            "display": "Example NHS Trust"
+            }
+        ],
+        "custodian": {
+            "identifier": {
+            "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+            "value": "C4L8E"
+            },
+            "display": "NHS ENGLAND: NHS NOTIFY"
+        },
+        "date": "2025-11-19T14:30:00Z",
+        "description": "Appointment notification letter for outpatient consultation",
+        "content": [
+            {
+                "attachment": {
+                    "contentType": "application/pdf",
+                    "title": "Appointment Letter - November 2025",
+                    "data": "base64here=="
+                    }
+            }
+        ]
+    })
 
 def create_mesh_message(message_id='test_123', sender='SENDER_001', local_id='ref_001'):
     """
@@ -82,8 +134,9 @@ def create_mesh_message(message_id='test_123', sender='SENDER_001', local_id='re
     message.subject = 'test_document.pdf'
     message.workflow_id = 'TEST_WORKFLOW'
     message.message_type = 'DATA'
-    message.read.return_value = b'Test message content'
+    message.read.return_value = create_fhir_content()
     message.acknowledge = Mock()
+
     return message
 
 
@@ -148,7 +201,7 @@ class TestMeshDownloadProcessor:
             sender_id='TEST-SENDER',
             message_reference='ref-001',
             mesh_message_id='test-message-123',
-            content=b'Test message content'
+            content=create_fhir_content()
         )
 
         mesh_message.acknowledge.assert_called_once()
@@ -182,6 +235,76 @@ class TestMeshDownloadProcessor:
         assert event_data['messageReference'] == 'ref-001'
         assert event_data['messageUri'] == 's3://test-pii-bucket/document-reference/SENDER-001/ref-001_test-message-123'
         assert set(event_data.keys()) == {'senderId', 'messageReference', 'messageUri', 'meshMessageId'}
+
+    @patch('mesh_download.processor.datetime')
+    def test_process_sqs_message_invalid_fhir_content(self, mock_datetime):
+        from mesh_download.processor import MeshDownloadProcessor
+
+        config, log, event_publisher, document_store = setup_mocks()
+
+        fixed_time = datetime(2025, 11, 19, 15, 30, 45, tzinfo=timezone.utc)
+        mock_datetime.now.return_value = fixed_time
+
+        document_store.store_document.return_value = 'document-reference/SENDER_001_ref_001'
+
+        event_publisher.send_events.return_value = []
+
+        processor = MeshDownloadProcessor(
+            config=config,
+            log=log,
+            mesh_client=config.mesh_client,
+            download_metric=config.download_metric,
+            duplicate_download_metric=config.duplicate_download_metric,
+            document_store=document_store,
+            event_publisher=event_publisher
+        )
+
+        mesh_message = create_mesh_message()
+        mesh_message.read.return_value = '{}'  # invalid FHIR content (empty JSON)}
+        config.mesh_client.retrieve_message.return_value = mesh_message
+
+        sqs_record = create_sqs_record()
+
+        processor.process_sqs_message(sqs_record)
+
+        config.mesh_client.retrieve_message.assert_called_once_with('test-message-123')
+
+        mesh_message.read.assert_called_once()
+
+        document_store.store_document.assert_not_called()
+
+        mesh_message.acknowledge.assert_called_once()
+
+        config.download_metric.record.assert_not_called()
+
+        event_publisher.send_events.assert_called_once()
+
+        # Verify the published event content
+        published_events = event_publisher.send_events.call_args[0][0]
+        assert len(published_events) == 1
+
+        published_event = published_events[0]
+
+        # Verify CloudEvent envelope fields
+        assert published_event['type'] == 'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1'
+        assert published_event['source'] == '/nhs/england/notify/development/primary/data-plane/digitalletters/mesh'
+        assert published_event['subject'] == 'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000'
+        assert published_event['time'] == '2025-11-19T15:30:45+00:00'
+        assert 'id' in published_event
+        assert 'tracestate' not in published_event
+        assert 'partitionkey' not in published_event
+        assert 'sequence' not in published_event
+        assert 'dataclassification' not in published_event
+        assert 'dataregulation' not in published_event
+        assert 'datacategory' not in published_event
+
+        # Verify CloudEvent data payload
+        event_data = published_event['data']
+        assert event_data['senderId'] == 'TEST-SENDER'
+        assert event_data['messageReference'] == 'ref-001'
+        assert event_data['meshMessageId'] == 'test-message-123'
+        assert event_data['failureCode'] == 'DL_CLIV_005'
+        assert set(event_data.keys()) == {'senderId', 'messageReference', 'meshMessageId', 'failureCode'}
 
     def test_process_sqs_message_validation_failure(self):
         """Malformed CloudEvents should be rejected by pydantic and not trigger downloads"""
