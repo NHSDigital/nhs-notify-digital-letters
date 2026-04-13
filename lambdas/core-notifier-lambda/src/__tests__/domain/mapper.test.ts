@@ -212,6 +212,7 @@ describe('mapper', () => {
   describe('mapPdmEventToMessageRequestRejected', () => {
     it('correctly maps PDM event to MessageRequestRejected', () => {
       const failureCode = 'INVALID_NHS_NUMBER';
+      const failureReason = 'NHS number is not valid';
       const mockDate = new Date('2024-01-15T12:00:00Z');
       jest.spyOn(globalThis, 'Date').mockImplementation(() => mockDate as any);
 
@@ -219,6 +220,7 @@ describe('mapper', () => {
         mockPdmEvent,
         mockSender,
         failureCode,
+        failureReason,
       );
 
       expect(result).toEqual({
@@ -235,18 +237,38 @@ describe('mapper', () => {
           failureCode: 'INVALID_NHS_NUMBER',
           messageUri:
             'https://www.nhsapp.service.nhs.uk/digital-letters?letterid=resource-789',
+          reasonCode: 'DL_INTE_001',
+          reasonText: 'NHS number is not valid',
         },
       });
 
       expect(mockRandomUUID).toHaveBeenCalled();
     });
 
+    it('includes reasonCode and reasonText for reporting', () => {
+      const failureCode = 'CM_DUPLICATE_REQUEST';
+      const failureReason = 'This request has already been received';
+      const result = mapPdmEventToMessageRequestRejected(
+        mockPdmEvent,
+        mockSender,
+        failureCode,
+        failureReason,
+      );
+
+      expect(result.data.reasonCode).toBe('DL_INTE_001');
+      expect(result.data.reasonText).toBe(
+        'This request has already been received',
+      );
+    });
+
     it('generates new UUID for event', () => {
       const failureCode = 'VALIDATION_ERROR';
+      const failureReason = 'Request validation failed';
       mapPdmEventToMessageRequestRejected(
         mockPdmEvent,
         mockSender,
         failureCode,
+        failureReason,
       );
 
       expect(mockRandomUUID).toHaveBeenCalledTimes(1);
@@ -254,10 +276,12 @@ describe('mapper', () => {
 
     it('includes failureCode in data', () => {
       const failureCode = 'ROUTING_FAILED';
+      const failureReason = 'Unable to route message';
       const result = mapPdmEventToMessageRequestRejected(
         mockPdmEvent,
         mockSender,
         failureCode,
+        failureReason,
       );
 
       expect(result.data.failureCode).toBe('ROUTING_FAILED');
@@ -265,10 +289,12 @@ describe('mapper', () => {
 
     it('includes messageUri with resource ID', () => {
       const failureCode = 'TIMEOUT';
+      const failureReason = 'Request timed out';
       const result = mapPdmEventToMessageRequestRejected(
         mockPdmEvent,
         mockSender,
         failureCode,
+        failureReason,
       );
 
       expect(result.data.messageUri).toBe(
@@ -278,10 +304,12 @@ describe('mapper', () => {
 
     it('uses sender senderId in data', () => {
       const failureCode = 'UNKNOWN_ERROR';
+      const failureReason = 'An unknown error occurred';
       const result = mapPdmEventToMessageRequestRejected(
         mockPdmEvent,
         mockSender,
         failureCode,
+        failureReason,
       );
 
       expect(result.data.senderId).toBe('test-sender-id');
@@ -289,10 +317,12 @@ describe('mapper', () => {
 
     it('uses messageReference from PDM event', () => {
       const failureCode = 'DUPLICATE_REQUEST';
+      const failureReason = 'Duplicate request detected';
       const result = mapPdmEventToMessageRequestRejected(
         mockPdmEvent,
         mockSender,
         failureCode,
+        failureReason,
       );
 
       expect(result.data.messageReference).toBe('msg-ref-123');
@@ -300,10 +330,12 @@ describe('mapper', () => {
 
     it('sets correct event type', () => {
       const failureCode = 'SYSTEM_ERROR';
+      const failureReason = 'System error occurred';
       const result = mapPdmEventToMessageRequestRejected(
         mockPdmEvent,
         mockSender,
         failureCode,
+        failureReason,
       );
 
       expect(result.type).toBe(
@@ -313,10 +345,12 @@ describe('mapper', () => {
 
     it('sets correct dataschema', () => {
       const failureCode = 'CONFIG_ERROR';
+      const failureReason = 'Configuration error';
       const result = mapPdmEventToMessageRequestRejected(
         mockPdmEvent,
         mockSender,
         failureCode,
+        failureReason,
       );
 
       expect(result.dataschema).toBe(
@@ -326,10 +360,12 @@ describe('mapper', () => {
 
     it('preserves CloudEvents properties from PDM event', () => {
       const failureCode = 'NETWORK_ERROR';
+      const failureReason = 'Network connection failed';
       const result = mapPdmEventToMessageRequestRejected(
         mockPdmEvent,
         mockSender,
         failureCode,
+        failureReason,
       );
 
       expect(result.specversion).toBe('1.0');

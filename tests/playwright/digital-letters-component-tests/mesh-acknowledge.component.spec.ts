@@ -5,8 +5,10 @@ import {
   NON_PII_S3_BUCKET_NAME,
 } from 'constants/backend-constants';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
-import { MESHInboxMessageDownloaded } from 'digital-letters-events';
-import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
+import {
+  MESHInboxMessageDownloaded,
+  validateMESHInboxMessageDownloaded,
+} from 'digital-letters-events';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
@@ -68,7 +70,7 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
           },
         },
       ],
-      messageDownloadedValidator,
+      validateMESHInboxMessageDownloaded,
     );
 
     // The mailbox ID matches the Mock MESH config in SSM.
@@ -126,7 +128,7 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
           },
         },
       ],
-      messageDownloadedValidator,
+      validateMESHInboxMessageDownloaded,
     );
 
     await expectMessageContainingString(

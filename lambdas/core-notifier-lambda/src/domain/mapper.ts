@@ -8,6 +8,8 @@ import {
 } from 'digital-letters-events';
 import type { SingleMessageRequest } from 'domain/request';
 
+const CORE_API_FAILURE_CODE = 'DL_INTE_001';
+
 const DIGITAL_LETTER_URL =
   'https://www.nhsapp.service.nhs.uk/digital-letters?letterid=';
 
@@ -99,6 +101,7 @@ export function mapPdmEventToMessageRequestRejected(
   pdmResourceAvailable: PDMResourceAvailable,
   sender: Sender,
   notifyFailureCode: string,
+  failureReason: string,
 ): MessageRequestRejected {
   const { data } = pdmResourceAvailable;
   const { messageReference } = data;
@@ -117,6 +120,8 @@ export function mapPdmEventToMessageRequestRejected(
       senderId: sender.senderId,
       failureCode: notifyFailureCode,
       messageUri: `${DIGITAL_LETTER_URL}${data.resourceId}`,
+      reasonCode: CORE_API_FAILURE_CODE,
+      reasonText: failureReason,
     },
   };
 }

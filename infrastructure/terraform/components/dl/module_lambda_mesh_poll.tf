@@ -25,7 +25,7 @@ module "mesh_poll" {
   function_module_name    = "mesh_poll"
   handler_function_name   = "handler.handler"
   runtime                 = "python3.14"
-  memory                  = 128
+  memory                  = 256
   timeout                 = 300
   log_level               = var.log_level
   schedule                = var.mesh_poll_schedule
@@ -45,8 +45,8 @@ module "mesh_poll" {
     MAXIMUM_RUNTIME_MILLISECONDS        = "240000" # 4 minutes (Lambda has 5 min timeout)
     POLLING_METRIC_NAME                 = "mesh-poll-successful-polls"
     POLLING_METRIC_NAMESPACE            = "dl-mesh-poll"
-    SSM_MESH_PREFIX                     = "${local.ssm_mesh_prefix}"
-    SSM_SENDERS_PREFIX                  = "${local.ssm_senders_prefix}"
+    SSM_MESH_PREFIX                     = local.ssm_mesh_prefix
+    SSM_SENDERS_PREFIX                  = local.ssm_senders_prefix
     USE_MESH_MOCK                       = var.enable_mock_mesh ? "true" : "false"
   }
 

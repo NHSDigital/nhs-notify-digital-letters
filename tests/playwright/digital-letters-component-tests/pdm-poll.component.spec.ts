@@ -4,8 +4,10 @@ import {
   PDM_POLL_DLQ_NAME,
   PDM_POLL_LAMBDA_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
-import pdmResourceSubmittedValidator from 'digital-letters-events/PDMResourceSubmitted.js';
-import pdmResourceUnavailableValidator from 'digital-letters-events/PDMResourceUnavailable.js';
+import {
+  validatePDMResourceSubmitted,
+  validatePDMResourceUnavailable,
+} from 'digital-letters-events';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
@@ -65,7 +67,7 @@ test.describe('PDM Poll', () => {
             },
           },
         ],
-        pdmResourceSubmittedValidator,
+        validatePDMResourceSubmitted,
       );
 
       await expectToPassEventually(async () => {
@@ -102,7 +104,7 @@ test.describe('PDM Poll', () => {
             },
           },
         ],
-        pdmResourceSubmittedValidator,
+        validatePDMResourceSubmitted,
       );
 
       await expectToPassEventually(async () => {
@@ -141,7 +143,7 @@ test.describe('PDM Poll', () => {
             },
           },
         ],
-        pdmResourceUnavailableValidator,
+        validatePDMResourceUnavailable,
       );
 
       await expectToPassEventually(async () => {
@@ -179,7 +181,7 @@ test.describe('PDM Poll', () => {
             },
           },
         ],
-        pdmResourceUnavailableValidator,
+        validatePDMResourceUnavailable,
       );
 
       await expectToPassEventually(async () => {
@@ -216,7 +218,7 @@ test.describe('PDM Poll', () => {
             },
           },
         ],
-        pdmResourceUnavailableValidator,
+        validatePDMResourceUnavailable,
       );
 
       await expectToPassEventually(async () => {

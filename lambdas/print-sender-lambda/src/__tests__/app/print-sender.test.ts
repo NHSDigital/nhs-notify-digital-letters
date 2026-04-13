@@ -74,7 +74,7 @@ describe('PrintSender', () => {
               url: mockPDFAnalysed.data.letterUri,
               clientId: mockPDFAnalysed.data.senderId,
               campaignId: 'digitalLetters',
-              letterVariantId: 'notify-digital-letter-standard',
+              letterVariantId: 'notify-digital-letters-standard',
             }),
           }),
         ]),
@@ -119,10 +119,7 @@ describe('PrintSender', () => {
 
       mockEventPublisher.sendEvents.mockImplementation(
         async (events, validator) => {
-          const isValid = validator(events[0]);
-          if (!isValid) {
-            throw new Error('Event validation failed');
-          }
+          validator(events[0], mockLogger);
           return [];
         },
       );
@@ -160,12 +157,11 @@ describe('PrintSender', () => {
       const [[events, eventValidator]] =
         mockEventPublisher.sendEvents.mock.calls;
       const event = events[0] as LetterRequestPreparedEvent;
-      const validationResult = eventValidator(event);
+      expect(() => eventValidator(event, mockLogger)).not.toThrow();
 
       expect(event.source).toBe(
         '/data-plane/digital-letters/staging-account/staging',
       );
-      expect(validationResult).toBe(true);
     });
   });
 });

@@ -3,8 +3,10 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import ValidationError
-from digital_letters_events import MESHInboxMessageDownloaded, MESHInboxMessageReceived
+from digital_letters_events import MESHInboxMessageDownloaded, MESHInboxMessageReceived, MESHInboxMessageInvalid
 from mesh_download.errors import MeshMessageNotFound
+from mesh_download.document_store import DocumentAlreadyExistsError
+from nhs_notify_letters_onboarding import validate
 
 
 class MeshDownloadProcessor:
@@ -13,6 +15,7 @@ class MeshDownloadProcessor:
         self.__log = kwargs['log']
         self.__mesh_client = kwargs['mesh_client']
         self.__download_metric = kwargs['download_metric']
+        self.__duplicate_download_metric = kwargs['duplicate_download_metric']
         self.__document_store = kwargs['document_store']
         self.__event_publisher = kwargs['event_publisher']
 
@@ -26,7 +29,7 @@ class MeshDownloadProcessor:
             logger = self.__log.bind(mesh_message_id=validated_event.data.meshMessageId)
 
             logger.info("Processing MESH download request")
-            self._handle_download(validated_event, logger)
+            return self._handle_download(validated_event, logger)
 
         except Exception as exc:
             self.__log.error(
@@ -52,6 +55,10 @@ class MeshDownloadProcessor:
             )
             raise
 
+    def _validate_fhir_content(self, content):
+        json_content = json.loads(content)
+        validate(json_content)
+
     def _handle_download(self, event, logger):
         data = event.data
 
@@ -72,27 +79,53 @@ class MeshDownloadProcessor:
         content = message.read()
         logger.info("Downloaded MESH message content")
 
-        uri = self._store_message_content(
-            sender_id=data.senderId,
-            message_reference=data.messageReference,
-            message_content=content,
-            logger=logger
-        )
+        try:
+            self._validate_fhir_content(content)
+        except Exception as e:
+            logger.error("FHIR content is invalid", error=str(e))
 
-        self._publish_downloaded_event(
-            incoming_event=event,
-            message_uri=uri
-        )
+            self._publish_message_invalid_event(incoming_event=event)
+
+            message.acknowledge()
+            logger.info("Acknowledged message")
+
+            return
+
+        duplicate = False
+        try:
+            uri = self._store_message_content(
+                sender_id=data.senderId,
+                message_reference=data.messageReference,
+                mesh_message_id=data.meshMessageId,
+                message_content=content,
+                logger=logger
+            )
+        except DocumentAlreadyExistsError:
+            logger.warning(
+                "Message already stored in S3, skipping publish (duplicate delivery)",
+                mesh_message_id=data.meshMessageId,
+                message_reference=data.messageReference
+            )
+            duplicate = True
+            self.__duplicate_download_metric.record(1)
+
+        if not duplicate:
+            self._publish_downloaded_event(
+                incoming_event=event,
+                message_uri=uri
+            )
+            self.__download_metric.record(1)
 
         message.acknowledge()
         logger.info("Acknowledged message")
 
-        self.__download_metric.record(1)
+        return 'skipped' if duplicate else 'downloaded'
 
-    def _store_message_content(self, sender_id, message_reference, message_content, logger):
+    def _store_message_content(self, sender_id, message_reference, mesh_message_id, message_content, logger):
         s3_key = self.__document_store.store_document(
             sender_id=sender_id,
             message_reference=message_reference,
+            mesh_message_id=mesh_message_id,
             content=message_content,
         )
 
@@ -137,5 +170,41 @@ class MeshDownloadProcessor:
             "Published MESHInboxMessageDownloaded event",
             sender_id=incoming_event.data.senderId,
             message_uri=message_uri,
+            message_reference=incoming_event.data.messageReference
+        )
+
+    def _publish_message_invalid_event(self, incoming_event):
+        """
+        Publishes a MESHInboxMessageInvalid event.
+        """
+        now = datetime.now(timezone.utc).isoformat()
+
+        cloud_event = {
+            **incoming_event.model_dump(exclude_none=True),
+            'id': str(uuid4()),
+            'time': now,
+            'recordedtime': now,
+            'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1',
+            'dataschema': (
+                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/'
+                'digital-letters-mesh-inbox-message-invalid-data.schema.json'
+            ),
+            'data': {
+                'senderId': incoming_event.data.senderId,
+                'meshMessageId': incoming_event.data.meshMessageId,
+                'failureCode': 'DL_CLIV_005',
+                'messageReference': incoming_event.data.messageReference,
+            }
+        }
+
+        failed = self.__event_publisher.send_events([cloud_event], MESHInboxMessageInvalid)
+        if failed:
+            msg = f"Failed to publish MESHInboxMessageInvalid event: {failed}"
+            self.__log.error(msg, failed_count=len(failed))
+            raise RuntimeError(msg)
+
+        self.__log.info(
+            "Published MESHInboxMessageInvalid event",
+            sender_id=incoming_event.data.senderId,
             message_reference=incoming_event.data.messageReference
         )

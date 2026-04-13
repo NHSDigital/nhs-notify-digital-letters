@@ -5,7 +5,6 @@ import {
   PDM_UPLOADER_DLQ_NAME,
   PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
-import messageDownloadedValidator from 'digital-letters-events/MESHInboxMessageDownloaded.js';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
@@ -13,6 +12,7 @@ import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { putDataS3 } from 'utils';
+import { validateMESHInboxMessageDownloaded } from 'digital-letters-events';
 
 const pdmRequest = {
   resourceType: 'DocumentReference',
@@ -84,7 +84,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
           },
         },
       ],
-      messageDownloadedValidator,
+      validateMESHInboxMessageDownloaded,
     );
 
     await expectToPassEventually(async () => {
@@ -150,7 +150,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
           },
         },
       ],
-      messageDownloadedValidator,
+      validateMESHInboxMessageDownloaded,
     );
 
     await expectToPassEventually(async () => {
