@@ -43,7 +43,10 @@ run_timed "Node unit tests (parallel)" npm run test:unit:parallel || jest_exit=$
 # lambdas/ whose Makefile defines both an `install-dev` target (Python deps)
 # and a `coverage` target (pytest). This avoids maintaining a hardcoded list.
 echo "Installing Python dev dependencies..."
-mapfile -t _python_projects < <(
+_python_projects=()
+while IFS= read -r _proj; do
+  _python_projects+=("$_proj")
+done < <(
   grep -rl "^install-dev:" src/ utils/ lambdas/ --include="Makefile" 2>/dev/null \
     | xargs grep -l "^coverage:" \
     | xargs -I{} dirname {} \
