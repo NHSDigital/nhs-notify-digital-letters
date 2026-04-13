@@ -36,7 +36,7 @@ print_timing_summary() {
 
 trap print_timing_summary EXIT
 
-# run_timed "Node unit tests (parallel)" npm run test:unit:parallel || jest_exit=$?
+run_timed "Node unit tests (parallel)" npm run test:unit || jest_exit=$?
 
 # ---- Phase 1: install all Python dev dependencies (sequential) ----
 # Discover Python projects dynamically: any directory under src/, utils/, or
