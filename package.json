@@ -54,7 +54,7 @@
     "generate-python-dependencies": "make -C src/python-schema-generator generate",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "test:unit": "turbo run test:unit",
+    "test:unit": "turbo run test:unit --concurrency=4",
     "test:unit:parallel": "tsx scripts/generate-parallel-jest-config.ts && cross-env NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --config jest.config.cjs",
     "typecheck": "turbo run typecheck"
   },
