@@ -8,6 +8,9 @@ resource "aws_cloudwatch_event_rule" "data_plane" {
       "plane" : [
         "data"
       ],
+      "type" : [{
+        "prefix" : "uk.nhs.notify.digital.letters."
+      }]
     }
   })
 }

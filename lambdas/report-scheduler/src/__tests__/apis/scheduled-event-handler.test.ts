@@ -108,6 +108,10 @@ describe('scheduled-event-handler', () => {
       );
       expect(event.time).toBe('2024-01-15T12:00:00.000Z');
       expect(event.severitynumber).toBe(2);
+      expect(event.dataschema).toBe(
+        'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-generate-report-data.schema.json',
+      );
+      expect(event.dataschemaversion).toBe('1.0.0');
       expect(event.datacontenttype).toBe('application/json');
 
       expect(() => validateGenerateReport(event, mockLogger)).not.toThrow();
