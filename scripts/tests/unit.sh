@@ -100,3 +100,7 @@ for i in "${!_py_exits[@]}"; do
     exit "${_py_exits[$i]}"
   fi
 done
+
+# merge coverage reports
+mkdir -p .reports
+TMPDIR="./.reports" ./node_modules/.bin/lcov-result-merger "**/.reports/unit/coverage/lcov.info" ".reports/lcov.info" --ignore "node_modules" --prepend-source-files --prepend-path-fix "../../.."

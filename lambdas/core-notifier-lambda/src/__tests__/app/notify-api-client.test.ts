@@ -12,10 +12,7 @@ import { IAccessTokenRepository, NotifyClient } from 'app/notify-api-client';
 import { RequestAlreadyReceivedError } from 'domain/request-already-received-error';
 
 jest.mock('utils');
-jest.mock('node:crypto', () => ({
-  ...jest.requireActual<typeof import('node:crypto')>('node:crypto'),
-  randomUUID: jest.fn(),
-}));
+jest.mock('node:crypto');
 jest.mock('axios', () => {
   const original: AxiosStatic = jest.requireActual('axios');
 

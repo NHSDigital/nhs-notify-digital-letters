@@ -9,10 +9,7 @@ import { PDMResourceAvailable } from 'digital-letters-events';
 import { randomUUID } from 'node:crypto';
 
 jest.mock('utils');
-jest.mock('node:crypto', () => ({
-  ...jest.requireActual<typeof import('node:crypto')>('node:crypto'),
-  randomUUID: jest.fn(),
-}));
+jest.mock('node:crypto');
 
 const mockLogger = jest.mocked(logger);
 const mockRandomUUID = jest.mocked(randomUUID);
