@@ -11,7 +11,7 @@ architecture-beta
     service analyseLambda(logos:aws-lambda)[PrintAnalyser] in printAnalyser
     service safeBucket(logos:aws-s3)[SafeFiles] in printAnalyser
     service pdfAnalysed(aws:res-amazon-eventbridge-event)[PDFAnalysed Event]
-    service invalidAttachment(aws:res-amazon-eventbridge-event)[InvalidAttachmentType Event]
+    service invalidAttachment(aws:res-amazon-eventbridge-event)[InvalidAttachmentReceived Event]
     group printAnalyser(cloud)[PrintAnalyser]
 
     junction j1
