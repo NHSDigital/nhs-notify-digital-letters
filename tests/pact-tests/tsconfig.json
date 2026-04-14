@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "isolatedModules": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "extends": "@tsconfig/node22/tsconfig.json",
+  "include": [
+    "./**/*"
+  ]
+}

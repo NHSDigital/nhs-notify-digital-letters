@@ -53,6 +53,7 @@
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",
     "start": "npm run start --workspace frontend",
+    "test:contract": "npm run test:contract --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces",
     "typecheck": "npm run typecheck --workspaces"
   },
@@ -81,6 +82,7 @@
     "src/digital-letters-events",
     "src/python-schema-generator",
     "src/typescript-schema-generator",
-    "tests/playwright"
+    "tests/playwright",
+    "tests/pact-tests"
   ]
 }

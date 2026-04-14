@@ -84,6 +84,7 @@
       { "name": "file-scanner-lambda", "rootPath": "lambdas/file-scanner-lambda" },
       { "name": "key-generation", "rootPath": "lambdas/key-generation" },
       { "name": "move-scanned-files-lambda", "rootPath": "lambdas/move-scanned-files-lambda" },
+      { "name": "pact-tests", "rootPath": "tests/pact-tests" },
       { "name": "pdm-mock-lambda", "rootPath": "lambdas/pdm-mock-lambda" },
       { "name": "pdm-poll-lambda", "rootPath": "lambdas/pdm-poll-lambda" },
       { "name": "pdm-uploader-lambda", "rootPath": "lambdas/pdm-uploader-lambda" },

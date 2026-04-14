@@ -56,6 +56,7 @@ coverage.xml
 *.coverage
 coverage/
 coverage-*/
+**/.pacts
 **/playwright-report
 **/test-results
 plugin-cache

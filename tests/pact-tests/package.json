@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "@comms/utils": "file:../../utils/comms-utils",
+    "@nhsdigital/nhs-notify-event-schemas-status-published": "^1.0.0",
+    "@pact-foundation/pact": "^16.0.4",
+    "jest": "^29.7.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "rimraf": "^6.0.1"
+  },
+  "name": "nhs-notify-digital-letters-pact-tests",
+  "private": true,
+  "scripts": {
+    "clean": "rimraf .pacts",
+    "lint": "eslint .",
+    "lint:fix": "npm run lint -- --fix",
+    "test:contract": "npm run clean && npm run test:pact:consumer && npm run test:pact:provider",
+    "test:pact:consumer": "jest consumer",
+    "test:pact:provider": "jest pact-verification",
+    "test:unit": "echo \"Unit tests not required\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "version": "0.0.1"
+}
