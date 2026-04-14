@@ -28,8 +28,10 @@ const createValidEvent = (overrides = {}): PDFAnalysed => ({
   type: 'uk.nhs.notify.digital.letters.print.pdf.analysed.v1',
   dataschema:
     'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-pdf-analysed-data.schema.json',
-  source:
-    '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+  plane: 'data',
+  dataschemaversion: '1.0.0',
+  datacontenttype: 'application/json',
+  source: '/nhs/england/notify/production/primary/digitalletters/print',
   specversion: '1.0',
   traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
   severitynumber: 2,

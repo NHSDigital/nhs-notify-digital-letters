@@ -31,13 +31,13 @@ const testConfig: EventPublisherDependencies = {
 
 const event: TestEvent = {
   id: '550e8400-e29b-41d4-a716-446655440001',
-  source: '/nhs/england/notify/production/primary/data-plane/digital-letters',
+  source: '/nhs/england/notify/production/primary/digital-letters',
   type: 'uk.nhs.notify.digital.letters.sent.v1',
 };
 
 const event2: TestEvent = {
   id: '550e8400-e29b-41d4-a716-446655440002',
-  source: '/nhs/england/notify/development/primary/data-plane/digital-letters',
+  source: '/nhs/england/notify/development/primary/digital-letters',
   type: 'uk.nhs.notify.digital.letters.sent.v2',
 };
 

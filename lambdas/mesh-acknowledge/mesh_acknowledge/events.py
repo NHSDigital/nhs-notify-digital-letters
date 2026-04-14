@@ -51,6 +51,8 @@ def publish_acknowledged_event(
             'time': now,
             'recordedtime': now,
             'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.acknowledged.v1',
+            'plane': 'data',
+            'dataschemaversion': '1.0.0',
             'dataschema': (
                 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/'
                 'digital-letters-mesh-inbox-message-acknowledged-data.schema.json'
