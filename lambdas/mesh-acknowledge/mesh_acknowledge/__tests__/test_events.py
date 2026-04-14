@@ -211,21 +211,13 @@ class TestPublishAcknowledgedEvent:
                 'SENT123'
             )
 
-    @patch('mesh_acknowledge.events.uuid4')
-    @patch('mesh_acknowledge.events.datetime')
     def test_publish_error_event_raises_error(
         self,
-        mock_datetime,
-        mock_uuid,
         mock_logger,
         mock_event_publisher,
         downloaded_event
     ):
-        """Test that if the event publisher raises an error, an error is raised"""
-        mock_uuid.return_value = str(uuid4())
-        fixed_time = datetime(2026, 1, 8, 13, 0, 0, tzinfo=timezone.utc)
-        mock_datetime.now.return_value = fixed_time
-
+        """Test that if the event publisher raises an error, it is propagated"""
         mock_event_publisher.send_events.side_effect = Exception("Publisher error")
 
         with pytest.raises(Exception, match="Publisher error"):
@@ -339,27 +331,42 @@ class TestParseInvalidEvent:
 class TestPublishNackAcknowledgedEvent:
     """Test suite for publish_negative_acknowledged_event function"""
 
+    @pytest.mark.parametrize("with_reference", [True, False], ids=["with_reference", "without_reference"])
     @patch('mesh_acknowledge.events.uuid4')
     @patch('mesh_acknowledge.events.datetime')
-    def test_publish_nack_success_with_message_reference(
+    def test_publish_nack_success(
         self,
         mock_datetime,
         mock_uuid,
+        with_reference: bool,
         mock_logger,
         mock_event_publisher,
-        invalid_event: MESHInboxMessageInvalid
+        invalid_event: MESHInboxMessageInvalid,
+        invalid_event_no_ref: MESHInboxMessageInvalid,
     ):
-        """Test successful NACK event publishing when messageReference is present"""
+        """Test successful NACK event publishing with and without messageReference"""
+        incoming_event = invalid_event if with_reference else invalid_event_no_ref
+
         new_event_id = str(uuid4())
         mock_uuid.return_value = new_event_id
         fixed_time = datetime(2026, 1, 8, 10, 30, 0, tzinfo=timezone.utc)
         mock_datetime.now.return_value = fixed_time
-
         mock_event_publisher.send_events.return_value = []
 
         mesh_mailbox_id = 'MAILBOX001'
+        expected_data = {
+            'senderId': incoming_event.data.senderId,
+            'meshMailboxId': mesh_mailbox_id,
+            'receivedMeshMessageId': incoming_event.data.meshMessageId,
+            'sentMeshMessageId': 'SENT123',
+            'statusCode': 400,
+            'failureCode': incoming_event.data.failureCode,
+        }
+        if with_reference:
+            expected_data['messageReference'] = incoming_event.data.messageReference
+
         expected_nack_event = {
-            **invalid_event.model_dump(exclude_none=True),
+            **incoming_event.model_dump(exclude_none=True),
             'id': new_event_id,
             'time': fixed_time.isoformat(),
             'recordedtime': fixed_time.isoformat(),
@@ -368,21 +375,13 @@ class TestPublishNackAcknowledgedEvent:
                 'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/'
                 'digital-letters-mesh-inbox-message-acknowledged-data.schema.json'
             ),
-            'data': {
-                'senderId': invalid_event.data.senderId,
-                'meshMailboxId': mesh_mailbox_id,
-                'receivedMeshMessageId': invalid_event.data.meshMessageId,
-                'sentMeshMessageId': 'SENT123',
-                'statusCode': 400,
-                'failureCode': invalid_event.data.failureCode,
-                'messageReference': invalid_event.data.messageReference,
-            }
+            'data': expected_data,
         }
 
         publish_negative_acknowledged_event(
             mock_logger,
             mock_event_publisher,
-            invalid_event,
+            incoming_event,
             mesh_mailbox_id,
             'SENT123'
         )
@@ -390,71 +389,13 @@ class TestPublishNackAcknowledgedEvent:
         mock_event_publisher.send_events.assert_called_once_with(
             [expected_nack_event], MESHInboxMessageAcknowledged)
 
-    @patch('mesh_acknowledge.events.uuid4')
-    @patch('mesh_acknowledge.events.datetime')
-    def test_publish_nack_success_without_message_reference(
-        self,
-        mock_datetime,
-        mock_uuid,
-        mock_logger,
-        mock_event_publisher,
-        invalid_event_no_ref: MESHInboxMessageInvalid
-    ):
-        """Test successful NACK event publishing when messageReference is absent"""
-        new_event_id = str(uuid4())
-        mock_uuid.return_value = new_event_id
-        fixed_time = datetime(2026, 1, 8, 10, 30, 0, tzinfo=timezone.utc)
-        mock_datetime.now.return_value = fixed_time
-
-        mock_event_publisher.send_events.return_value = []
-
-        mesh_mailbox_id = 'MAILBOX001'
-        expected_nack_event = {
-            **invalid_event_no_ref.model_dump(exclude_none=True),
-            'id': new_event_id,
-            'time': fixed_time.isoformat(),
-            'recordedtime': fixed_time.isoformat(),
-            'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.acknowledged.v1',
-            'dataschema': (
-                'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/'
-                'digital-letters-mesh-inbox-message-acknowledged-data.schema.json'
-            ),
-            'data': {
-                'senderId': invalid_event_no_ref.data.senderId,
-                'meshMailboxId': mesh_mailbox_id,
-                'receivedMeshMessageId': invalid_event_no_ref.data.meshMessageId,
-                'sentMeshMessageId': 'SENT123',
-                'statusCode': 400,
-                'failureCode': invalid_event_no_ref.data.failureCode,
-            }
-        }
-
-        publish_negative_acknowledged_event(
-            mock_logger,
-            mock_event_publisher,
-            invalid_event_no_ref,
-            mesh_mailbox_id,
-            'SENT123'
-        )
-
-        mock_event_publisher.send_events.assert_called_once_with(
-            [expected_nack_event], MESHInboxMessageAcknowledged)
-
-    @patch('mesh_acknowledge.events.uuid4')
-    @patch('mesh_acknowledge.events.datetime')
     def test_publish_nack_failure_raises_error(
         self,
-        mock_datetime,
-        mock_uuid,
         mock_logger,
         mock_event_publisher,
         invalid_event: MESHInboxMessageInvalid
     ):
         """Test that NACK publishing failures raise RuntimeError"""
-        mock_uuid.return_value = str(uuid4())
-        fixed_time = datetime(2026, 1, 8, 12, 0, 0, tzinfo=timezone.utc)
-        mock_datetime.now.return_value = fixed_time
-
         mock_event_publisher.send_events.return_value = [{'error': 'send failed'}]
 
         with pytest.raises(RuntimeError, match="Failed to publish MESHInboxMessageAcknowledged \\(negative acknowledgement\\) event"):
@@ -466,21 +407,13 @@ class TestPublishNackAcknowledgedEvent:
                 'SENT123'
             )
 
-    @patch('mesh_acknowledge.events.uuid4')
-    @patch('mesh_acknowledge.events.datetime')
     def test_publish_nack_publisher_raises_error(
         self,
-        mock_datetime,
-        mock_uuid,
         mock_logger,
         mock_event_publisher,
         invalid_event: MESHInboxMessageInvalid
     ):
         """Test that if the event publisher raises an error, it is propagated"""
-        mock_uuid.return_value = str(uuid4())
-        fixed_time = datetime(2026, 1, 8, 13, 0, 0, tzinfo=timezone.utc)
-        mock_datetime.now.return_value = fixed_time
-
         mock_event_publisher.send_events.side_effect = Exception("Publisher error")
 
         with pytest.raises(Exception, match="Publisher error"):

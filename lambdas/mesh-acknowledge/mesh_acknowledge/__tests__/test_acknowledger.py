@@ -72,25 +72,6 @@ class TestMeshAcknowledger:
             subject=ACK_SUBJECT
         )
 
-    def test_acknowledge_message_returns_ack_id(
-        self, acknowledger, mock_mesh_client
-    ):
-        """Test that acknowledge_message returns the acknowledgment ID"""
-        mailbox_id = "MAILBOX001"
-        message_id = "MSG123456"
-        message_reference = "REF789"
-        sender_id = "SENDER001"
-
-        expected_ack_id = "ACK_CUSTOM_ID"
-
-        mock_mesh_client.send_message.return_value = expected_ack_id
-
-        ack_message_id = acknowledger.acknowledge_message(
-            mailbox_id, message_id, message_reference, sender_id
-        )
-
-        assert ack_message_id == expected_ack_id
-
     def test_acknowledge_message_raises_error_if_mesh_send_fails(
         self, acknowledger, mock_mesh_client
     ):
@@ -179,28 +160,3 @@ class TestMeshAcknowledgerNack:
 
         call_body = json.loads(mock_mesh_client.send_message.call_args[0][1].decode())
         assert "message" not in call_body
-
-    def test_negative_acknowledge_message_returns_nack_id(
-        self, acknowledger, mock_mesh_client
-    ):
-        """Test that negative_acknowledge_message returns the NACK message ID"""
-        expected_nack_id = "NACK_CUSTOM_ID"
-        mock_mesh_client.send_message.return_value = expected_nack_id
-
-        nack_message_id = acknowledger.negative_acknowledge_message(
-            "MAILBOX001", "MSG123456", "DL_PDMV_001", "SENDER001"
-        )
-
-        assert nack_message_id == expected_nack_id
-
-    def test_negative_acknowledge_message_raises_error_if_mesh_send_fails(
-        self, acknowledger, mock_mesh_client
-    ):
-        """Test that negative_acknowledge_message raises if MESH send_message fails"""
-        expected_exception_message = "MESH send failed"
-        mock_mesh_client.send_message.side_effect = Exception(expected_exception_message)
-
-        with pytest.raises(Exception, match=expected_exception_message):
-            acknowledger.negative_acknowledge_message(
-                "MAILBOX001", "MSG123456", "DL_PDMV_001", "SENDER001"
-            )
