@@ -163,6 +163,12 @@ jobs:
       - name: "Run contract test suite"
         run: |
           make test-contract
+      - name: "Upload generated contracts"
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: pact-contracts
+          path: "tests/pact-tests/.pacts"
+          include-hidden-files: true
 
   test-lint:
     name: "Linting"
