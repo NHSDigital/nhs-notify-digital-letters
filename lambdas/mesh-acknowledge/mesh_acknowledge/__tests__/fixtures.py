@@ -9,7 +9,7 @@ def create_downloaded_event_dict(event_id: str) -> Dict[str, str | int | Dict[st
         "specversion": "1.0",
         "source": (
             "/nhs/england/notify/production/primary/"
-            'digitalletters/mesh'
+            'data-plane/digitalletters/mesh'
         ),
         "subject": (
             'customer/920fca11-596a-4eca-9c47-99f624614658/'

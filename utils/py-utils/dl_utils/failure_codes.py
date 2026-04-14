@@ -1,7 +1,5 @@
-"""Failure code descriptions loaded from the shared CSV data file.
+"""Failure code descriptions loaded from the shared CSV data file."""
 
-Source of truth: infrastructure/terraform/components/dl/data/failure_codes.csv
-"""
 import csv
 from pathlib import Path
 
