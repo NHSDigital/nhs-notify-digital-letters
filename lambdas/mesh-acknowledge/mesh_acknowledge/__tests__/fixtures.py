@@ -7,10 +7,7 @@ def create_downloaded_event_dict(event_id: str) -> Dict[str, str | int | Dict[st
     return {
         "id": event_id,
         "specversion": "1.0",
-        "source": (
-            "/nhs/england/notify/production/primary/"
-            'data-plane/digitalletters/mesh'
-        ),
+        "source": "/nhs/england/notify/production/primary/digitalletters/mesh",
         "subject": (
             'customer/920fca11-596a-4eca-9c47-99f624614658/'
             'recipient/769acdd4-6a47-496f-999f-76a6fd2c3959'
@@ -55,10 +52,7 @@ def create_invalid_event_dict(event_id: str, message_reference: str | None = "RE
     return {
         "id": event_id,
         "specversion": "1.0",
-        "source": (
-            "/nhs/england/notify/production/primary/"
-            'data-plane/digitalletters/mesh'
-        ),
+        "source": "/nhs/england/notify/production/primary/digitalletters/mesh",
         "subject": (
             'customer/920fca11-596a-4eca-9c47-99f624614658/'
             'recipient/769acdd4-6a47-496f-999f-76a6fd2c3959'
@@ -66,6 +60,7 @@ def create_invalid_event_dict(event_id: str, message_reference: str | None = "RE
         "type": (
             'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1'
         ),
+        "plane": "data",
         "time": '2026-01-08T10:00:00Z',
         "recordedtime": '2026-01-08T10:00:00Z',
         "severitynumber": 4,
@@ -76,6 +71,7 @@ def create_invalid_event_dict(event_id: str, message_reference: str | None = "RE
             'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/'
             'digital-letters-mesh-inbox-message-invalid-data.schema.json'
         ),
+        "dataschemaversion": '1.0.0',
         "datacategory": "non-sensitive",
         "dataclassification": "public",
         "dataregulation": "GDPR",
