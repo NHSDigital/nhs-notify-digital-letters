@@ -30,9 +30,8 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
 
         environment = 'development'
         deployment = 'primary'
-        plane = 'data-plane'
         self.__cloud_event_source = (
-            f'/nhs/england/notify/{environment}/{deployment}/{plane}/'
+            f'/nhs/england/notify/{environment}/{deployment}/'
             'digitalletters/mesh'
         )
 
@@ -163,6 +162,8 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
                 f'{event_detail["data"]["messageReference"]}'
             ),
             'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
+            'plane': 'data',
+            'dataschemaversion': '1.0.0',
             'time': now,
             'recordedtime': now,
             'severitynumber': 2,
@@ -199,6 +200,8 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
             'source': self.__cloud_event_source,
             'subject': f'customer/{event_detail["data"]["senderId"]}',
             'type': 'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1',
+            'plane': 'data',
+            'dataschemaversion': '1.0.0',
             'time': now,
             'recordedtime': now,
             'severitynumber': 3,

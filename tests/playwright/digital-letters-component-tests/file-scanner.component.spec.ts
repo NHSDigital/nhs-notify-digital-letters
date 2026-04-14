@@ -58,8 +58,10 @@ test('should extract PDF from DocumentReference and store in unscanned bucket wi
     [
       {
         id: eventId,
+        plane: 'data',
+        dataschemaversion: '1.0.0',
         specversion: '1.0',
-        source: `/nhs/england/notify/development/dev-1/data-plane/digitalletters/queue`,
+        source: `/nhs/england/notify/development/dev-1/digitalletters/queue`,
         subject: `message/${messageReference}`,
         type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
         time: eventTime,
@@ -125,7 +127,9 @@ test('should handle validation errors by sending messages to DLQ', async () => {
       {
         id: eventId,
         specversion: '1.0',
-        source: `/nhs/england/notify/development/dev-1/data-plane/digitalletters/queue`,
+        plane: 'data',
+        dataschemaversion: '1.0.0',
+        source: `/nhs/england/notify/development/dev-1/digitalletters/queue`,
         subject: `message/${messageReference}`,
         type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
         time: eventTime,

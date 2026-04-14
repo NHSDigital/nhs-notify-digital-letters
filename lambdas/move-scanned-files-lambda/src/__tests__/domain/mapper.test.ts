@@ -43,8 +43,12 @@ describe('mapper', () => {
         specversion: '1.0',
         id: 'mocked-uuid-12345',
         subject: `customer/${senderId}/recipient/${messageReference}`,
-        source:
-          '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+        source: '/nhs/england/notify/production/primary/digitalletters/print',
+        plane: 'data',
+        dataschema:
+          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-file-safe-data.schema.json',
+        dataschemaversion: '1.0.0',
+        datacontenttype: 'application/json',
         traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
         type: 'uk.nhs.notify.digital.letters.print.file.safe.v1',
         time: '2024-01-15T10:30:00.000Z',
@@ -99,8 +103,12 @@ describe('mapper', () => {
         specversion: '1.0',
         id: 'mocked-uuid-12345',
         subject: `customer/${senderId}/recipient/${messageReference}`,
-        source:
-          '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+        plane: 'data',
+        dataschema:
+          'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-file-quarantined-data.schema.json',
+        dataschemaversion: '1.0.0',
+        datacontenttype: 'application/json',
+        source: '/nhs/england/notify/production/primary/digitalletters/print',
         traceparent: '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
         type: 'uk.nhs.notify.digital.letters.print.file.quarantined.v1',
         time: '2024-01-15T10:30:00.000Z',

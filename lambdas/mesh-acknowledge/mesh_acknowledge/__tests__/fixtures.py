@@ -9,7 +9,7 @@ def create_downloaded_event_dict(event_id: str) -> Dict[str, str | int | Dict[st
         "specversion": "1.0",
         "source": (
             "/nhs/england/notify/production/primary/"
-            'data-plane/digitalletters/mesh'
+            'digitalletters/mesh'
         ),
         "subject": (
             'customer/920fca11-596a-4eca-9c47-99f624614658/'
@@ -18,6 +18,7 @@ def create_downloaded_event_dict(event_id: str) -> Dict[str, str | int | Dict[st
         "type": (
             'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1'
         ),
+        "plane": "data",
         "time": '2026-01-08T10:00:00Z',
         "recordedtime": '2026-01-08T10:00:00Z',
         "severitynumber": 2,
@@ -28,6 +29,7 @@ def create_downloaded_event_dict(event_id: str) -> Dict[str, str | int | Dict[st
             'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/'
             'digital-letters-mesh-inbox-message-downloaded-data.schema.json'
         ),
+        "dataschemaversion": '1.0.0',
         "datacategory": "non-sensitive",
         "dataclassification": "public",
         "dataregulation": "GDPR",

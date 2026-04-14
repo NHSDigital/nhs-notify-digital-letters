@@ -25,8 +25,10 @@ test.describe('Digital Letters - Send reports to Trust', () => {
         {
           id: uuidv4(),
           specversion: '1.0',
+          plane: 'data',
+          dataschemaversion: '1.0.0',
           source:
-            '/nhs/england/notify/development/dev-12345/data-plane/digitalletters/reporting',
+            '/nhs/england/notify/development/dev-12345/digitalletters/reporting',
           subject: `report/${uuidv4()}`,
           type: 'uk.nhs.notify.digital.letters.reporting.report.generated.v1',
           time: new Date().toISOString(),
