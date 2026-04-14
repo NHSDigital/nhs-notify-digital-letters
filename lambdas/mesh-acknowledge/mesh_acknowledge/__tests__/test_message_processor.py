@@ -3,7 +3,6 @@ Tests for MessageProcessor class in mesh_acknowledge.message_processor
 """
 from unittest.mock import Mock, patch
 from uuid import uuid4
-
 import pytest
 from digital_letters_events import MESHInboxMessageDownloaded, MESHInboxMessageInvalid
 from mesh_acknowledge.message_processor import MessageProcessor
@@ -74,13 +73,15 @@ def downloaded_event_fixture():
 
 @pytest.fixture(name='valid_sqs_message')
 def create_valid_sqs_message():
-    """Create a valid SQS message with one record"""
+    """Create a valid SQS message with one downloaded event record"""
+    event_id = str(uuid4())
+    import json
     return {
         'Records': [
             {
                 'messageId': 'sqs-msg-123',
                 'eventSource': 'aws:sqs',
-                'body': 'detail": { }',
+                'body': json.dumps({'detail': create_downloaded_event_dict(event_id)}),
             }
         ]
     }
@@ -153,11 +154,11 @@ class TestMessageProcessorProcessMessage:
         message = {
             'Records': [
                 {'messageId': 'msg-1', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'},
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'},
                 {'messageId': 'msg-2', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'},
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'},
                 {'messageId': 'msg-3', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'}
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'}
             ]
         }
 
@@ -191,11 +192,11 @@ class TestMessageProcessorProcessMessage:
         message = {
             'Records': [
                 {'messageId': 'msg-1', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'},
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'},
                 {'messageId': 'msg-2', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'},
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'},
                 {'messageId': 'msg-3', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'}
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'}
             ]
         }
 
@@ -222,11 +223,11 @@ class TestMessageProcessorProcessMessage:
             'Records': [
                 {
                     'messageId': 'msg-1', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'
                 },
                 {
                     'messageId': 'msg-2', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'
                 }
             ]
         }
@@ -444,11 +445,11 @@ class TestMessageProcessorProcessMessage:
         message = {
             'Records': [
                 {'messageId': 'msg-1', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'},
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'},
                 {'messageId': 'msg-2', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'},
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'},
                 {'messageId': 'msg-3', 'eventSource': 'aws:sqs',
-                    'body': '{"detail": {}}'}
+                    'body': '{"detail": {"type": "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"}}'}
             ]
         }
 
@@ -468,8 +469,8 @@ def invalid_event_fixture():
     return MESHInboxMessageInvalid(**create_invalid_event_dict(event_id))
 
 
-@pytest.fixture(name='valid_invalid_sqs_message')
-def create_valid_invalid_sqs_message():
+@pytest.fixture(name='invalid_sqs_message')
+def create_invalid_sqs_message():
     """Create a valid SQS message containing a MESHInboxMessageInvalid record"""
     event_id = str(uuid4())
     return {
@@ -501,7 +502,7 @@ class TestMessageProcessorInvalidEvent:
         mock_sender_lookup,
         mock_event_publisher,
         mock_logger,
-        valid_invalid_sqs_message,
+        invalid_sqs_message,
         invalid_event: MESHInboxMessageInvalid
     ):
         """Test successful processing of a MESHInboxMessageInvalid SQS record"""
@@ -511,12 +512,12 @@ class TestMessageProcessorInvalidEvent:
         mock_sender_lookup.get_mailbox_id.return_value = mesh_mailbox_id
         mock_acknowledger.negative_acknowledge_message.return_value = "NACK123"
 
-        result = message_processor.process_message(valid_invalid_sqs_message)
+        result = message_processor.process_message(invalid_sqs_message)
 
         assert result == []
 
         mock_parse_invalid.assert_called_once_with(
-            valid_invalid_sqs_message['Records'][0],
+            invalid_sqs_message['Records'][0],
             mock_logger
         )
         mock_sender_lookup.get_mailbox_id.assert_called_once_with(
@@ -545,14 +546,14 @@ class TestMessageProcessorInvalidEvent:
         message_processor,
         mock_sender_lookup,
         mock_acknowledger,
-        valid_invalid_sqs_message,
+        invalid_sqs_message,
         invalid_event: MESHInboxMessageInvalid
     ):
         """Test that an unknown senderId causes a batch failure for invalid events"""
         mock_parse_invalid.return_value = invalid_event
         mock_sender_lookup.get_mailbox_id.return_value = None
 
-        result = message_processor.process_message(valid_invalid_sqs_message)
+        result = message_processor.process_message(invalid_sqs_message)
 
         assert len(result) == 1
         assert result[0] == {"itemIdentifier": "sqs-msg-invalid-123"}
@@ -569,7 +570,7 @@ class TestMessageProcessorInvalidEvent:
         message_processor,
         mock_sender_lookup,
         mock_acknowledger,
-        valid_invalid_sqs_message,
+        invalid_sqs_message,
         invalid_event: MESHInboxMessageInvalid
     ):
         """Test that a NACK send failure causes a batch failure"""
@@ -577,7 +578,7 @@ class TestMessageProcessorInvalidEvent:
         mock_sender_lookup.get_mailbox_id.return_value = "MAILBOX001"
         mock_acknowledger.negative_acknowledge_message.side_effect = RuntimeError("NACK failed")
 
-        result = message_processor.process_message(valid_invalid_sqs_message)
+        result = message_processor.process_message(invalid_sqs_message)
 
         assert len(result) == 1
         assert result[0] == {"itemIdentifier": "sqs-msg-invalid-123"}
@@ -594,7 +595,7 @@ class TestMessageProcessorInvalidEvent:
         mock_sender_lookup,
         mock_acknowledger,
         mock_dlq,
-        valid_invalid_sqs_message,
+        invalid_sqs_message,
         invalid_event: MESHInboxMessageInvalid
     ):
         """
@@ -605,11 +606,11 @@ class TestMessageProcessorInvalidEvent:
         mock_acknowledger.negative_acknowledge_message.return_value = "NACK123"
         mock_publish_nack.side_effect = Exception("Publish failed")
 
-        result = message_processor.process_message(valid_invalid_sqs_message)
+        result = message_processor.process_message(invalid_sqs_message)
 
         assert result == []
         mock_dlq.send_to_queue.assert_called_once_with(
-            record=valid_invalid_sqs_message['Records'][0],
+            record=invalid_sqs_message['Records'][0],
             reason="Failed to publish negative acknowledged event"
         )
 
@@ -623,7 +624,7 @@ class TestMessageProcessorInvalidEvent:
         mock_sender_lookup,
         mock_acknowledger,
         mock_dlq,
-        valid_invalid_sqs_message,
+        invalid_sqs_message,
         invalid_event: MESHInboxMessageInvalid
     ):
         """Test that if both publish and DLQ fail, the record is returned as a batch failure"""
@@ -633,7 +634,7 @@ class TestMessageProcessorInvalidEvent:
         mock_publish_nack.side_effect = Exception("Publish failed")
         mock_dlq.send_to_queue.side_effect = Exception("DLQ send failed")
 
-        result = message_processor.process_message(valid_invalid_sqs_message)
+        result = message_processor.process_message(invalid_sqs_message)
 
         assert len(result) == 1
         assert result[0] == {"itemIdentifier": "sqs-msg-invalid-123"}

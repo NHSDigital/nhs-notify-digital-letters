@@ -3,6 +3,7 @@ Processes SQS messages containing MESHInboxMessageDownloaded and MESHInboxMessag
 events and sends MESH acknowledgements or negative acknowledgements for each.
 """
 from typing import Dict, Any, List
+import json
 from dl_utils import EventPublisher, SenderLookup
 from .acknowledger import MeshAcknowledger
 from .dlq import Dlq
@@ -12,6 +13,9 @@ from .events import (
     publish_acknowledged_event,
     publish_negative_acknowledged_event,
 )
+
+_DOWNLOADED_EVENT_TYPE = 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1'
+_INVALID_EVENT_TYPE = 'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1'
 
 class MessageProcessor:
     """Processes SQS messages and sends MESH acknowledgments."""
@@ -55,10 +59,12 @@ class MessageProcessor:
             try:
                 event_type = self.__get_event_type(record)
 
-                if event_type == 'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1':
+                if event_type == _INVALID_EVENT_TYPE:
                     acknowledgement_message_id = self.__process_invalid_record(record)
-                else:
+                elif event_type == _DOWNLOADED_EVENT_TYPE:
                     acknowledgement_message_id = self.__process_downloaded_record(record)
+                else:
+                    raise ValueError(f"Unknown event type: '{event_type}'")
 
                 self.__log.info("Acknowledged message ID",
                                 message_id=message_id,
@@ -82,7 +88,6 @@ class MessageProcessor:
 
     def __get_event_type(self, record: Dict[str, Any]) -> str:
         """Extract the CloudEvents type field from an SQS record body."""
-        import json
         try:
             body = json.loads(record.get('body', '{}'))
             return body.get('detail', {}).get('type', '')

@@ -166,7 +166,6 @@ class TestMeshAcknowledgerNack:
             mailbox_id,
             expected_body,
             workflow_id=NOTIFY_ACK_WORKFLOW_ID,
-            local_id=None,
             subject=NACK_SUBJECT
         )
 

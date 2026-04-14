@@ -35,7 +35,11 @@ data "aws_iam_policy_document" "sqs_mesh_acknowledge" {
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = [aws_cloudwatch_event_rule.mesh_inbox_message_downloaded.arn]
+
+      values = [
+        aws_cloudwatch_event_rule.mesh_inbox_message_downloaded.arn,
+        aws_cloudwatch_event_rule.mesh_inbox_message_invalid.arn,
+      ]
     }
   }
 }

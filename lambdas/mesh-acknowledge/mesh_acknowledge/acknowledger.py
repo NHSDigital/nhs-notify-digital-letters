@@ -117,8 +117,8 @@ class MeshAcknowledger:
                 mailbox_id,
                 message_body,
                 workflow_id=NOTIFY_ACK_WORKFLOW_ID,
-                local_id=message_reference,
-                subject=NACK_SUBJECT
+                subject=NACK_SUBJECT,
+                **({'local_id': message_reference} if message_reference is not None else {})
             )
             self.__log.info(
                 "Sent negative acknowledgement for MESH message",

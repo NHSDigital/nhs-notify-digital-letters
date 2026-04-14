@@ -5,10 +5,7 @@ Source of truth: infrastructure/terraform/components/dl/data/failure_codes.csv
 import csv
 from pathlib import Path
 
-_CSV_PATH = (
-    Path(__file__).parent.parent.parent.parent
-    / "infrastructure/terraform/components/dl/data/failure_codes.csv"
-)
+_CSV_PATH = Path(__file__).parent / "failure_codes.csv"
 
 
 def _load_failure_codes() -> dict[str, str]:

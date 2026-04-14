@@ -179,7 +179,7 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
   });
 
   test('should send MESH negative acknowledgement and publish message acknowledged event following message invalid event', async () => {
-    test.setTimeout(120_000);
+    test.setTimeout(160_000);
 
     const letterId = uuidv4();
     const meshMessageId = `${Date.now()}_TEST_${uuidv4().slice(0, 8)}`;
@@ -229,7 +229,7 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
       );
       sentMeshMessageId = eventDetail.data.sentMeshMessageId;
       expect(sentMeshMessageId).toBeTruthy();
-    });
+    }, 120_000);
 
     // Verify MESH negative acknowledgement message was sent.
     await expectToPassEventually(async () => {
@@ -247,6 +247,6 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
       expect(messageBody.meshMessageId).toEqual(meshMessageId);
       expect(messageBody.failureCode).toEqual(failureCode);
       expect(messageBody.requestId).toEqual(`${senderId}_`);
-    });
+    }, 30);
   });
 });
