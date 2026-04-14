@@ -21,11 +21,11 @@ const mockEvent: DynamoDBStreamEvent = {
       dynamodb: {
         ApproximateCreationDateTime: 1_234_567_890,
         Keys: {
-          PK: { S: 'https://example.com/ttl/resource' },
+          PK: { S: 'sender1_ref1' },
           SK: { S: 'METADATA' },
         },
         OldImage: {
-          PK: { S: 'https://example.com/ttl/resource' },
+          PK: { S: 'sender1_ref1' },
           SK: { S: 'METADATA' },
           dateOfExpiry: { S: 'dateOfExpiry' },
           event: {

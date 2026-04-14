@@ -52,6 +52,7 @@ test.describe('Digital Letters - Create TTL', () => {
   test('should create TTL and publish item enqueued event following message downloaded event', async () => {
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
+    const messageReference = letterId;
 
     await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
       [
@@ -61,6 +62,7 @@ test.describe('Digital Letters - Create TTL', () => {
           data: {
             ...baseEvent.data,
             messageUri,
+            messageReference,
           },
         },
       ],
@@ -69,7 +71,10 @@ test.describe('Digital Letters - Create TTL', () => {
 
     // Verify TTL created
     await expectToPassEventually(async () => {
-      const ttl = await getTtl(messageUri);
+      const ttl = await getTtl(
+        SENDER_ID_VALID_FOR_NOTIFY_SANDBOX,
+        messageReference,
+      );
 
       expect(ttl.length).toBe(1);
     });
@@ -92,6 +97,7 @@ test.describe('Digital Letters - Create TTL', () => {
   test('should create TTL and publish item enqueued event following message downloaded event - direct to print', async () => {
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
+    const messageReference = letterId;
 
     await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
       [
@@ -101,6 +107,7 @@ test.describe('Digital Letters - Create TTL', () => {
           data: {
             ...baseEvent.data,
             messageUri,
+            messageReference,
             senderId: SENDER_ID_SKIPS_NOTIFY,
           },
         },
@@ -110,7 +117,7 @@ test.describe('Digital Letters - Create TTL', () => {
 
     // Verify TTL created
     await expectToPassEventually(async () => {
-      const ttl = await getTtl(messageUri);
+      const ttl = await getTtl(SENDER_ID_SKIPS_NOTIFY, messageReference);
 
       expect(ttl.length).toBe(1);
     });
