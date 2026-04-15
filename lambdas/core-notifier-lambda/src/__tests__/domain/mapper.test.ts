@@ -63,7 +63,7 @@ describe('mapper', () => {
           type: 'Message',
           attributes: {
             routingPlanId: 'routing-config-123',
-            messageReference: 'msg-ref-123',
+            messageReference: 'test-sender-id_msg-ref-123',
             billingReference: 'test-sender-id',
             recipient: {
               nhsNumber: '9999999999',

@@ -75,6 +75,7 @@
     "lambdas/report-event-transformer",
     "lambdas/move-scanned-files-lambda",
     "lambdas/report-generator",
+    "lambdas/nhsapp-status-handler",
     "utils/utils",
     "utils/sender-management",
     "src/cloudevents",
