@@ -98,8 +98,9 @@ describe('scheduled-event-handler', () => {
       expect(event.data.reportDate).toBe('2024-01-14');
       expect(event.specversion).toBe('1.0');
       expect(event.id).toBeDefined();
+      expect(event.plane).toBe('data');
       expect(event.source).toBe(
-        '/nhs/england/notify/production/primary/data-plane/digitalletters/reporting',
+        '/nhs/england/notify/production/primary/digitalletters/reporting',
       );
       expect(event.subject).toBe('customer/test-sender-123');
       expect(event.type).toBe(
@@ -107,6 +108,11 @@ describe('scheduled-event-handler', () => {
       );
       expect(event.time).toBe('2024-01-15T12:00:00.000Z');
       expect(event.severitynumber).toBe(2);
+      expect(event.dataschema).toBe(
+        'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-reporting-generate-report-data.schema.json',
+      );
+      expect(event.dataschemaversion).toBe('1.0.0');
+      expect(event.datacontenttype).toBe('application/json');
 
       expect(() => validateGenerateReport(event, mockLogger)).not.toThrow();
     });

@@ -27,8 +27,9 @@ test.describe('Digital Letters - Create TTL', () => {
   const baseEvent: MESHInboxMessageDownloaded = {
     id: 'id',
     specversion: '1.0',
-    source:
-      '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
+    plane: 'data',
+    dataschemaversion: '1.0.0',
+    source: '/nhs/england/notify/production/primary/digitalletters/mesh',
     subject:
       'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
     type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
@@ -51,6 +52,7 @@ test.describe('Digital Letters - Create TTL', () => {
   test('should create TTL and publish item enqueued event following message downloaded event', async () => {
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
+    const messageReference = letterId;
 
     await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
       [
@@ -60,6 +62,7 @@ test.describe('Digital Letters - Create TTL', () => {
           data: {
             ...baseEvent.data,
             messageUri,
+            messageReference,
           },
         },
       ],
@@ -68,7 +71,10 @@ test.describe('Digital Letters - Create TTL', () => {
 
     // Verify TTL created
     await expectToPassEventually(async () => {
-      const ttl = await getTtl(messageUri);
+      const ttl = await getTtl(
+        SENDER_ID_VALID_FOR_NOTIFY_SANDBOX,
+        messageReference,
+      );
 
       expect(ttl.length).toBe(1);
     });
@@ -91,6 +97,7 @@ test.describe('Digital Letters - Create TTL', () => {
   test('should create TTL and publish item enqueued event following message downloaded event - direct to print', async () => {
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
+    const messageReference = letterId;
 
     await eventPublisher.sendEvents<MESHInboxMessageDownloaded>(
       [
@@ -100,6 +107,7 @@ test.describe('Digital Letters - Create TTL', () => {
           data: {
             ...baseEvent.data,
             messageUri,
+            messageReference,
             senderId: SENDER_ID_SKIPS_NOTIFY,
           },
         },
@@ -109,7 +117,7 @@ test.describe('Digital Letters - Create TTL', () => {
 
     // Verify TTL created
     await expectToPassEventually(async () => {
-      const ttl = await getTtl(messageUri);
+      const ttl = await getTtl(SENDER_ID_SKIPS_NOTIFY, messageReference);
 
       expect(ttl.length).toBe(1);
     });

@@ -21,11 +21,11 @@ const mockEvent: DynamoDBStreamEvent = {
       dynamodb: {
         ApproximateCreationDateTime: 1_234_567_890,
         Keys: {
-          PK: { S: 'https://example.com/ttl/resource' },
+          PK: { S: 'sender1_ref1' },
           SK: { S: 'METADATA' },
         },
         OldImage: {
-          PK: { S: 'https://example.com/ttl/resource' },
+          PK: { S: 'sender1_ref1' },
           SK: { S: 'METADATA' },
           dateOfExpiry: { S: 'dateOfExpiry' },
           event: {
@@ -33,11 +33,13 @@ const mockEvent: DynamoDBStreamEvent = {
               id: { S: '550e8400-e29b-41d4-a716-446655440001' },
               specversion: { S: '1.0' },
               source: {
-                S: '/nhs/england/notify/production/primary/data-plane/digitalletters/mesh',
+                S: '/nhs/england/notify/production/primary/digitalletters/mesh',
               },
               subject: {
                 S: 'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
               },
+              plane: { S: 'data' },
+              dataschemaversion: { S: '1.0.0' },
               type: {
                 S: 'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
               },
@@ -108,8 +110,7 @@ describe('createHandler', () => {
       [
         expect.objectContaining({
           specversion: '1.0',
-          source:
-            '/nhs/england/notify/production/primary/data-plane/digitalletters/queue',
+          source: '/nhs/england/notify/production/primary/digitalletters/queue',
           subject:
             'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
           type: 'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',

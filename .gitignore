@@ -14,6 +14,7 @@ version.json
 
 # Don't track ephemeral local build files
 target/
+.turbo
 
 # Python build artifacts
 *.egg-info/

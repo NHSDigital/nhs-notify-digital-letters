@@ -24,8 +24,7 @@ class ReportSenderProcessor:  # pylint: disable=too-many-instance-attributes
 
         environment = 'development'
         deployment = 'primary'
-        plane = 'data-plane'
-        self.__cloud_event_source = f'/nhs/england/notify/{environment}/{deployment}/{plane}/digitalletters/reporting'
+        self.__cloud_event_source = f'/nhs/england/notify/{environment}/{deployment}/digitalletters/reporting'
 
     def _parse_and_validate_event(self, sqs_record) -> ReportGenerated:
         """Extract report generated data from SQS record"""
@@ -93,6 +92,9 @@ class ReportSenderProcessor:  # pylint: disable=too-many-instance-attributes
             'specversion': '1.0',
             'source': self.__cloud_event_source,
             'subject': f'customer/{sender_id}',
+            'plane': 'data',
+            'dataschemaversion': '1.0.0',
+            'datacontenttype': 'application/json',
             'type': 'uk.nhs.notify.digital.letters.reporting.report.sent.v1',
             'time': now,
             'recordedtime': now,

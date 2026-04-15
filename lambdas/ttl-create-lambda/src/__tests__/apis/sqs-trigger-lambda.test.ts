@@ -26,8 +26,7 @@ describe('createHandler', () => {
   const itemEnqueuedEvent: ItemEnqueued = {
     ...messageDownloadedEvent,
     id: '550e8400-e29b-41d4-a716-446655440001',
-    source:
-      '/nhs/england/notify/production/primary/data-plane/digitalletters/queue',
+    source: '/nhs/england/notify/production/primary/digitalletters/queue',
     type: 'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
     time: '2023-06-20T12:00:00.250Z',
     recordedtime: '2023-06-20T12:00:00.250Z',
