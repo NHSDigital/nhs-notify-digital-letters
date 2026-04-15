@@ -60,6 +60,9 @@ config:: _install-dependencies version dependencies # Configure development envi
 serve-docs:
 	$(MAKE) -C docs s
 
+perf-test:
+	npm run start:nft --workspace=nft-event-generator
+
 version:
 	rm -f .version
 	make version-create-effective-file dir=.

@@ -1,0 +1,22 @@
+{
+  "data": {
+    "billingRef": "1y3q9v1zzzz",
+    "domainId": "00f3b388-bbe9-41c9-9e76-052d37ee8988_2503cbd5-6722-4e90-9fbd-5f1e96d65c22",
+    "groupId": "client_template",
+    "origin": {
+      "domain": "letter-rendering",
+      "event": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "source": "/data-plane/letter-rendering/prod/render-pdf"
+    },
+    "specificationId": "1y3q9v1zzzz",
+    "supplierId": "supplier-1"
+  },
+  "datacontenttype": "application/json",
+  "dataschemaversion": "1.0.17",
+  "plane": "data",
+  "severitynumber": 2,
+  "severitytext": "INFO",
+  "source": "/data-plane/supplier-api/prod/update-status",
+  "specversion": "1.0",
+  "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+}

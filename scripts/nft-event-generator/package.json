@@ -1,0 +1,42 @@
+{
+  "author": "",
+  "dependencies": {
+    "@aws-sdk/client-eventbridge": "^3.914.0",
+    "@nhsdigital/nhs-notify-event-schemas-status-published": "^1.0.1",
+    "csv-parse": "^6.1.0",
+    "digital-letters-events": "^0.0.1",
+    "tsx": "^4.20.6",
+    "yargs": "^17.7.2"
+  },
+  "description": "This script generates events such LetterEvent from Supplier API and sends them to the AWS event bus: **`nhs-main-nudge-inbound-event-queue`**",
+  "devDependencies": {
+    "@jest/diff-sequences": "^30.0.1",
+    "@tsconfig/node22": "^22.0.5",
+    "@types/csv-parse": "^1.1.12",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.5.2",
+    "@types/yargs": "^17.0.33",
+    "eslint": "^9.37.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "exit-x": "^0.2.2",
+    "jest": "^30.2.0",
+    "jest-html-reporter": "^4.3.0",
+    "jest-mock-extended": "^4.0.0",
+    "ts-jest": "^29.4.5",
+    "typescript": "^5.9.3"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "main": "index.js",
+  "name": "nft-event-generator",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "start": "tsx src/cli.ts",
+    "start:nft": "npm start -- --environment nft --numberOfEvents 2 --interval 2000",
+    "test:unit": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "type": "commonjs",
+  "version": "1.0.0"
+}
