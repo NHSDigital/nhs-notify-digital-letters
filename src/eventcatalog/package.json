@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@eventcatalog/core": "^2.64.3"
+    "@eventcatalog/core": "^3.28.1"
   },
   "devDependencies": {
     "http-server": "^14.1.1"
