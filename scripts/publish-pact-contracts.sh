@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 
-published_version=$(npm view @nhsdigital/notify-digital-letters-consumer-contracts --json 2>/dev/null | jq -r '.["dist-tags"].latest')
-
 set -euo pipefail
+
+published_version=$(npm view @nhsdigital/notify-digital-letters-consumer-contracts --json 2>/dev/null | jq -r '.["dist-tags"].latest')
 
 # Fail if there are uncommitted changes as this indicates unexpected changes to the contracts
 git diff --quiet tests/pact-tests
 
 local_version=$(cat pact-contracts/package.json | jq -r '.version')
 
-branch=$(git branch --show-current)
-
-if [[ ! $branch == "main" ]]; then
+if [[ ! $BRANCH_NAME == "main" ]]; then
     echo "Not publishing package because this is not the main branch"
     exit 0
 fi

@@ -1,10 +1,5 @@
 {
   "description": "NHS Notify Digital Letters Pact contracts",
-  "exports": {
-    "./pacts/*.json": {
-      "default": "./pacts/*.json"
-    }
-  },
   "files": [
     "pacts"
   ],

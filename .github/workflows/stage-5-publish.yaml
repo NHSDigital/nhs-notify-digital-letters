@@ -68,6 +68,7 @@ jobs:
           name: pact-contracts
       - name: "Publish pact contracts package"
         run: |
+          export BRANCH_NAME=${GITHUB_HEAD_REF:-$(echo $GITHUB_REF | sed 's#refs/heads/##')}
           scripts/publish-pact-contracts.sh
 
 
