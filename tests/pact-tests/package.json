@@ -1,7 +1,6 @@
 {
   "dependencies": {
-    "@comms/utils": "file:../../utils/comms-utils",
-    "@nhsdigital/nhs-notify-event-schemas-status-published": "^1.0.0",
+    "@nhsdigital/nhs-notify-event-schemas-status-published": "^1.0.1",
     "@pact-foundation/pact": "^16.0.4",
     "jest": "^29.7.0"
   },

@@ -1,7 +1,0 @@
-{
-  "main": "index.js",
-  "name": "@comms/utils",
-  "private": true,
-  "types": "index.d.ts",
-  "version": "0.0.1"
-}
