@@ -1,6 +1,6 @@
 import { MessageProviderPact } from '@pact-foundation/pact';
 
-import ChannelStatusPublishedEventCreated from '@nhsdigital/nhs-notify-event-schemas-status-published/examples/ChannelStatusPublishedEvent/v1/created.json';
+import ChannelStatusPublishedEventPaperLetterOptedOut from '@nhsdigital/nhs-notify-event-schemas-status-published/examples/ChannelStatusPublishedEvent/v1/paper_letter_opted_out.json';
 
 import {
   PACT_FILE,
@@ -14,15 +14,8 @@ describe('Channel status published provider tests', () => {
       provider: PACT_PROVIDER,
       pactUrls: [PACT_FILE],
       messageProviders: {
-        [PACT_MESSAGE_DESCRIPTION]: () => ({
-          // This should be updated to an example with the paperletteroptedout supplier
-          // status from schemas package, once we've updated core.
-          ...ChannelStatusPublishedEventCreated,
-          data: {
-            ...ChannelStatusPublishedEventCreated.data,
-            supplierStatus: 'paperletteroptedout',
-          },
-        }),
+        [PACT_MESSAGE_DESCRIPTION]: () =>
+          ChannelStatusPublishedEventPaperLetterOptedOut,
       },
       logLevel: 'error',
     });

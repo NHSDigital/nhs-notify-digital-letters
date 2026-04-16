@@ -50,7 +50,7 @@ describe('Pact message consumer - ChannelStatusPublished event', () => {
               /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/,
               createdEvent.data.timestamp,
             ),
-            supplierStatus: 'paperletteroptedout',
+            supplierStatus: 'paper_letter_opted_out',
           },
           dataschema: MatchersV3.regex(
             /^https:\/\/notify\.nhs\.uk\/cloudevents\/schemas\/messaging\/channel-status\.published\.\d+\.\d+\.\d+\.schema\.json$/,
