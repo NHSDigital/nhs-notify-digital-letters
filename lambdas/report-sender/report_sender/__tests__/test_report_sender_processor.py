@@ -230,8 +230,9 @@ class TestReportSenderProcessor:
         """Test successful publishing of ReportSent event"""
         mesh_mailbox_reports_id = "MAILBOX001"
         report_reference = "report-reference-123"
+        sent_mesh_message_id = "mesh-msg-id-abc123"
 
-        processor._publish_report_sent_event(SENDER_ID, mesh_mailbox_reports_id, report_reference)
+        processor._publish_report_sent_event(SENDER_ID, mesh_mailbox_reports_id, report_reference, sent_mesh_message_id)
 
         # Verify event was published
         mock_event_publisher.send_events.assert_called_once()
@@ -244,6 +245,7 @@ class TestReportSenderProcessor:
         assert event['subject'] == f'customer/{SENDER_ID}'
         assert event['data']['senderId'] == SENDER_ID
         assert event['data']['meshMailboxReportsId'] == mesh_mailbox_reports_id
+        assert event['data']['sentMeshMessageId'] == sent_mesh_message_id
         assert event['specversion'] == '1.0'
         assert event['plane'] == 'data'
         assert event['dataschemaversion'] == '1.0.0'
@@ -265,9 +267,10 @@ class TestReportSenderProcessor:
         mesh_mailbox_reports_id = "MAILBOX001"
         mock_event_publisher.send_events.return_value = [{'id': 'failed-event'}]
         report_reference = "report-reference-123"
+        sent_mesh_message_id = "mesh-msg-id-abc123"
 
         with pytest.raises(RuntimeError) as exc_info:
-            processor._publish_report_sent_event(SENDER_ID, mesh_mailbox_reports_id, report_reference)
+            processor._publish_report_sent_event(SENDER_ID, mesh_mailbox_reports_id, report_reference, sent_mesh_message_id)
 
         assert "Failed to publish ReportingReportSent event" in str(exc_info.value)
         mock_logger.error.assert_called()
