@@ -3,7 +3,7 @@ import path from 'node:path';
 export const PACT_CONSUMER = 'digital-letters';
 export const PACT_PROVIDER = 'status-published';
 export const PACT_MESSAGE_DESCRIPTION =
-  'ChannelStatusPublished-letter-opted-out';
+  'ChannelStatusPublished-paper_letter_opted_out';
 export const PACT_DIRECTORY = path.resolve(
   __dirname,
   '../.pacts/status-published',
