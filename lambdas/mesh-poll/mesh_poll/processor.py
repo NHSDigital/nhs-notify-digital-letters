@@ -116,7 +116,7 @@ class MeshMessageProcessor:  # pylint: disable=too-many-instance-attributes
                     "data": {
                         "meshMessageId": message_id,
                         "senderId": sender_id,
-                        "failureCode": "LID_MESH_0001"
+                        "failureCode": "DL_CLIV_006"
                     }
                 }
 
