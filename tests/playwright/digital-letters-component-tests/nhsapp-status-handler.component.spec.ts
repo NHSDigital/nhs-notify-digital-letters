@@ -12,10 +12,10 @@ import expectToPassEventually from 'helpers/expectations';
 import { purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
-test.describe('Digital Letters - Create TTL', () => {
-  test.beforeAll(async () => {
-    await purgeQueue(NHSAPP_STATUS_HANDLER_DLQ_NAME);
-  });
+test.describe('Digital Letters - NHSApp Status Handler', () => {
+  // test.beforeAll(async () => {
+  //   await purgeQueue(NHSAPP_STATUS_HANDLER_DLQ_NAME);
+  // });
 
   const baseEvent: MESHInboxMessageDownloaded = {
     id: 'id',

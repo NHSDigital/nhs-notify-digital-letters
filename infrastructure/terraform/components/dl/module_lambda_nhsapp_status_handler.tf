@@ -20,7 +20,7 @@ module "nhsapp_status_handler" {
 
   function_s3_bucket      = local.acct.s3_buckets["lambda_function_artefacts"]["id"]
   function_code_base_path = local.aws_lambda_functions_dir_path
-  function_code_dir       = "nhsapp-status-handler-lambda/dist"
+  function_code_dir       = "nhsapp-status-handler/dist"
   function_include_common = true
   handler_function_name   = "handler"
   runtime                 = "nodejs22.x"
