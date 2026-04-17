@@ -191,7 +191,11 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     await invokeLambda(MESH_POLL_LAMBDA_NAME);
 
     await expectMeshInboxMessageReceivedEvent(meshMessageId);
-    await expectMeshInboxMessageInvalidEvent(meshMessageId, messageReference, 'DL_CLIV_005');
+    await expectMeshInboxMessageInvalidEvent(
+      meshMessageId,
+      messageReference,
+      'DL_CLIV_005',
+    );
 
     await expectToPassEventually(async () => {
       const filteredLogs = await getLogsFromCloudwatch(
@@ -427,7 +431,11 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     const messageReference = uuidv4();
     const messageContent = JSON.stringify(validPdmRequest);
 
-    await uploadMeshMessage(duplicateMeshMessageId, messageReference, messageContent);
+    await uploadMeshMessage(
+      duplicateMeshMessageId,
+      messageReference,
+      messageContent,
+    );
 
     // Pre-upload the document to S3 with a DIFFERENT meshMessageId in metadata to simulate trust duplicate
     const documentKey = `document-reference/${senderId}/${messageReference}`;
