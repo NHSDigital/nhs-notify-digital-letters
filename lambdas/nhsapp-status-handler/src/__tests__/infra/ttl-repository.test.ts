@@ -1,4 +1,4 @@
-import { DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { nhsAppStatusEvent } from '__tests__/data';
 import { TtlRepository } from 'infra/ttl-repository';
 
@@ -12,18 +12,22 @@ describe('TtlRepository', () => {
     repo = new TtlRepository(tableName, dynamoDocumentClient);
   });
 
-  it('deletes item', async () => {
-    await repo.delete(nhsAppStatusEvent.data.messageReference);
+  it('marks item as withdrawn', async () => {
+    await repo.markWithdrawn(nhsAppStatusEvent.data.messageReference);
 
-    const deleteCommand: DeleteCommand =
+    const updateCommand: UpdateCommand =
       dynamoDocumentClient.send.mock.calls[0][0];
-    expect(deleteCommand.input).toStrictEqual({
+    expect(updateCommand.input).toStrictEqual({
       TableName: tableName,
       Key: {
-        PK: { S: nhsAppStatusEvent.data.messageReference },
-        SK: { S: 'TTL' },
+        PK: nhsAppStatusEvent.data.messageReference,
+        SK: 'TTL',
       },
-      ReturnValues: 'ALL_OLD',
+      UpdateExpression: 'set withdrawn = :val1',
+      ExpressionAttributeValues: {
+        ':val1': true,
+      },
+      ReturnValues: 'ALL_NEW',
     });
   });
 
@@ -32,7 +36,7 @@ describe('TtlRepository', () => {
     dynamoDocumentClient.send.mockRejectedValue(error);
 
     await expect(
-      repo.delete(nhsAppStatusEvent.data.messageReference),
+      repo.markWithdrawn(nhsAppStatusEvent.data.messageReference),
     ).rejects.toThrow(error);
   });
 });

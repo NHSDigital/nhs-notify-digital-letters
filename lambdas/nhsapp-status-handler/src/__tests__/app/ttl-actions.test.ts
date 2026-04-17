@@ -8,13 +8,13 @@ describe('TtlActions', () => {
   let ttlActions: TtlActions;
 
   beforeEach(() => {
-    repo = { delete: jest.fn() } as any;
+    repo = { markWithdrawn: jest.fn() } as any;
     logger = { warn: jest.fn(), info: jest.fn() };
     ttlActions = new TtlActions(repo, logger);
   });
 
-  it('returns success when delete succeeds', async () => {
-    repo.delete.mockResolvedValue({ event: messageDownloadedEvent });
+  it('returns success when markWithdrawn succeeds', async () => {
+    repo.markWithdrawn.mockResolvedValue({ event: messageDownloadedEvent });
 
     const result = await ttlActions.delete(nhsAppStatusEvent);
 
@@ -22,14 +22,14 @@ describe('TtlActions', () => {
       result: 'success',
       ttlItem: { event: messageDownloadedEvent },
     });
-    expect(repo.delete).toHaveBeenCalledWith(
+    expect(repo.markWithdrawn).toHaveBeenCalledWith(
       nhsAppStatusEvent.data.messageReference,
     );
   });
 
   it('returns success when TTL record not found', async () => {
     // eslint-disable-next-line unicorn/no-useless-undefined
-    repo.delete.mockResolvedValue(undefined);
+    repo.markWithdrawn.mockResolvedValue(undefined);
 
     const result = await ttlActions.delete(nhsAppStatusEvent);
 
@@ -41,21 +41,21 @@ describe('TtlActions', () => {
         messageReference: nhsAppStatusEvent.data.messageReference,
       }),
     );
-    expect(repo.delete).toHaveBeenCalledWith(
+    expect(repo.markWithdrawn).toHaveBeenCalledWith(
       nhsAppStatusEvent.data.messageReference,
     );
   });
 
-  it('returns failed and logs error when delete throws', async () => {
+  it('returns failed and logs error when markWithdrawn throws', async () => {
     const error = new Error('fail');
-    repo.delete.mockRejectedValue(error);
+    repo.markWithdrawn.mockRejectedValue(error);
 
     const result = await ttlActions.delete(nhsAppStatusEvent);
 
     expect(result).toEqual({ result: 'failed' });
     expect(logger.warn).toHaveBeenCalledWith(
       expect.objectContaining({
-        description: expect.stringContaining('Error deleting TTL record'),
+        description: expect.stringContaining('Error marking TTL withdrawn'),
         err: error,
       }),
     );

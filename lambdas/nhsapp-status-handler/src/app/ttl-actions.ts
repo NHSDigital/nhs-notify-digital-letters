@@ -19,10 +19,12 @@ export class TtlActions {
     let ttlItem: TtlItem;
 
     try {
-      ttlItem = await this.ttlRepository.delete(item.data.messageReference);
+      ttlItem = await this.ttlRepository.markWithdrawn(
+        item.data.messageReference,
+      );
     } catch (error) {
       this.logger.warn({
-        description: 'Error deleting TTL record',
+        description: 'Error marking TTL withdrawn',
         err: error,
       });
 

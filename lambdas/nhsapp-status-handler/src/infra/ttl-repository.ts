@@ -1,8 +1,8 @@
-import { DeleteCommand, DeleteCommandOutput } from '@aws-sdk/lib-dynamodb';
+import { UpdateCommand, UpdateCommandOutput } from '@aws-sdk/lib-dynamodb';
 import { TtlRecord } from 'types/types';
 
 interface IDynamoCaller {
-  send: (updateCommand: DeleteCommand) => Promise<DeleteCommandOutput>;
+  send: (command: UpdateCommand) => Promise<UpdateCommandOutput>;
 }
 
 export class TtlRepository {
@@ -11,20 +11,20 @@ export class TtlRepository {
     private readonly dynamoDocumentClient: IDynamoCaller,
   ) {}
 
-  public async delete(messageReference: string) {
+  public async markWithdrawn(messageReference: string) {
     const params = {
       TableName: this.tableName,
       Key: {
-        PK: {
-          S: messageReference,
-        },
-        SK: {
-          S: 'TTL',
-        },
+        PK: messageReference,
+        SK: 'TTL',
       },
-      ReturnValues: 'ALL_OLD' as const,
+      UpdateExpression: 'set withdrawn = :val1',
+      ExpressionAttributeValues: {
+        ':val1': true,
+      },
+      ReturnValues: 'ALL_NEW' as const,
     };
-    const request = new DeleteCommand(params);
+    const request = new UpdateCommand(params);
     const output = await this.dynamoDocumentClient.send(request);
 
     return output.Attributes as TtlRecord | undefined;

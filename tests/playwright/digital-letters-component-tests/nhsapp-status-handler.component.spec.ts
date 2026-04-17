@@ -41,7 +41,7 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
     },
   };
 
-  test('should delete TTL and publish digital.letter.read event following a channel.status.PUBLISHED event', async () => {
+  test('should mark TTL withdrawn and publish digital.letter.read event following a channel.status.PUBLISHED event', async () => {
     const event = {
       ...baseEvent,
       data: {
@@ -63,13 +63,6 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
     const putResponseCode = await putTtl(ttlItem);
     expect(putResponseCode).toBe(200);
 
-    // Verify TTL created
-    await expectToPassEventually(async () => {
-      const ttl = await getTtl(concatedReference);
-
-      expect(ttl.length).toBe(1);
-    });
-
     await eventPublisher.sendEvents<any>(
       [
         {
@@ -84,7 +77,13 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
       () => true,
     );
 
-    // Verify digital.letter.read event published
+    await expectToPassEventually(async () => {
+      const ttl = await getTtl(concatedReference);
+
+      expect(ttl.length).toBe(1);
+      expect(ttl[0]).toHaveProperty('withdrawn', true);
+    });
+
     await expectToPassEventually(async () => {
       const eventLogEntry = await getLogsFromCloudwatch(
         `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
