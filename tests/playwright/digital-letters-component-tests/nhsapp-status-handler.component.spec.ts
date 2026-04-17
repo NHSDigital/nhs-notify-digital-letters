@@ -73,6 +73,8 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
     await eventPublisher.sendEvents<any>(
       [
         {
+          source: '/nhs/england/notify/comms-mgr-dev/dev/data-plane/messaging',
+          type: 'uk.nhs.notify.channel.status.PUBLISHED.v1',
           data: {
             messageReference: concatedReference,
             supplierStatus: 'PaperLetterOptedOut',

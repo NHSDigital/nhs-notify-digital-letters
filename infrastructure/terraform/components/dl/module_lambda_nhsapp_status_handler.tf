@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "nhsapp_status_handler" {
     effect = "Allow"
 
     actions = [
-      "dynamodb:PutItem",
+      "dynamodb:DeleteItem",
     ]
 
     resources = [
