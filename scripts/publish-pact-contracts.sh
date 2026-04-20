@@ -22,7 +22,7 @@ if [[ $local_version == $published_version ]]; then
     exit 0
 fi
 
-if ! ls pact-contracts/pacts/**/*.json >/dev/null 2>&1; then
+if ! find pact-contracts/pacts -type f -name '*.json' -print -quit | grep -q .; then
     echo "Cannot publish package: no pact .json files found under pact-contracts/pacts"
     exit 1
 fi
