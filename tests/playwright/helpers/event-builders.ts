@@ -202,7 +202,7 @@ export function buildInvalidAttachmentReceivedEvent(
     data: {
       messageReference,
       senderId,
-      failureCode: 'DL_CLIV_002',
+      reasonCode: 'DL_CLIV_002',
     },
   } as InvalidAttachmentReceived;
 }
