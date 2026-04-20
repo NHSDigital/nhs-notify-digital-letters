@@ -2,12 +2,18 @@ import {
   PutEventsCommand,
   PutEventsResultEntry,
 } from '@aws-sdk/client-eventbridge';
-import { sampleSupplierApiLetterEvent } from '__tests__/fixtures/sample-supplier-api-letter-event';
 import { PublishableEvent } from 'destinations/destination-client';
 import { mock } from 'jest-mock-extended';
 import { sendEventsToEventBus } from 'destinations/send-events-to-event-bus';
 
 const environment = 'dev';
+
+const sampleEvent = {
+  id: '550e8400-e29b-41d4-a716-446655440001',
+  source: '/data-plane/supplier-api/dev/update-status',
+  type: 'uk.nhs.notify.supplier-api.letter.ACCEPTED.v1',
+  time: '2023-06-20T12:00:00.000Z',
+};
 
 const mockEventBridgeClient = { send: jest.fn() };
 jest.mock('@aws-sdk/client-eventbridge', () => {
@@ -31,7 +37,7 @@ describe('sendEventsToEventBus', () => {
   it('should send the expected request to EventBridge', async () => {
     mockEventBridgeClient.send.mockResolvedValue(successfulSendResponse);
 
-    await sendEventsToEventBus(environment, [sampleSupplierApiLetterEvent], 5);
+    await sendEventsToEventBus(environment, [sampleEvent], 5);
 
     expect(mockEventBridgeClient.send).toHaveBeenCalled();
     const putEventsCommand: PutEventsCommand =
@@ -40,15 +46,15 @@ describe('sendEventsToEventBus', () => {
     expect(putEventsCommand.input.Entries).toHaveLength(1);
     const entry = putEventsCommand.input.Entries![0];
     expect(entry.EventBusName).toBe(`nhs-${environment}-dl`);
-    expect(entry.Source).toBe(sampleSupplierApiLetterEvent.source);
-    expect(entry.DetailType).toBe(sampleSupplierApiLetterEvent.type);
-    expect(entry.Detail).toBe(JSON.stringify(sampleSupplierApiLetterEvent));
+    expect(entry.Source).toBe(sampleEvent.source);
+    expect(entry.DetailType).toBe(sampleEvent.type);
+    expect(entry.Detail).toBe(JSON.stringify(sampleEvent));
   });
 
   it('should send a request for each batch of messages', async () => {
     const events: PublishableEvent[] = Array.from(
       { length: 52 },
-      () => sampleSupplierApiLetterEvent,
+      () => sampleEvent,
     );
     mockEventBridgeClient.send.mockResolvedValue(successfulSendResponse);
 
@@ -66,7 +72,7 @@ describe('sendEventsToEventBus', () => {
 
     const events: PublishableEvent[] = Array.from(
       { length: 30 },
-      () => sampleSupplierApiLetterEvent,
+      () => sampleEvent,
     );
 
     await sendEventsToEventBus(environment, events, 5);
@@ -83,7 +89,7 @@ describe('sendEventsToEventBus', () => {
       Entries: [failedEntry],
     });
 
-    await sendEventsToEventBus(environment, [sampleSupplierApiLetterEvent], 5);
+    await sendEventsToEventBus(environment, [sampleEvent], 5);
 
     expect(console.warn).toHaveBeenCalled();
   });

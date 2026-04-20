@@ -1,8 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import paperLetterOptOutEventTemplate from 'event-templates/paper-letter-opt-out-event.json';
-import { CsvRow } from 'utils/csv-reader';
-
 import { type ChannelStatusPublishedEventV1 } from '@nhsdigital/nhs-notify-event-schemas-status-published';
+import { CsvRow } from 'utils/csv-reader';
 
 type GeneratePaperLetterOptOutEventsParams = {
   csvRows: CsvRow[];
@@ -16,20 +14,33 @@ function generatePaperLetterOptOutEvent(
   const { messageReference, senderId } = row;
 
   return {
-    ...paperLetterOptOutEventTemplate,
-    specversion: '1.0' as const,
-    type: 'uk.nhs.notify.channel.status.PUBLISHED.v1' as const,
-    plane: 'data' as const,
-    datacontenttype: 'application/json' as const,
+    specversion: '1.0',
+    type: 'uk.nhs.notify.channel.status.PUBLISHED.v1',
+    plane: 'data',
+    datacontenttype: 'application/json',
     dataschema:
-      paperLetterOptOutEventTemplate.dataschema as ChannelStatusPublishedEventV1['dataschema'],
+      'https://notify.nhs.uk/cloudevents/schemas/messaging/channel-status.published.1.0.1.schema.json',
+    dataschemaversion: '1.0.1',
+    sequence: '00000000000451468843',
+    traceparent: '00-4d678967f96e353c07a0a31c1849b500-07f83ba58dd8df70-01',
+    subject:
+      'customer/037f5f76-352c-445f-89a7-c3d18776ce86/message/3COesqsClaLyf0WNuLuhz1RDbWs/plan/3COezubdtrUFJlDOV4ucAQ93Akr',
     id: randomUUID(),
     time: new Date().toISOString(),
     source: `/nhs/england/notify/comms-mgr-dev/${environment}/data-plane/messaging`,
     data: {
-      ...paperLetterOptOutEventTemplate.data,
       messageReference,
       clientId: senderId,
+      messageId: '3COesqsClaLyf0WNuLuhz1RDbWs',
+      channel: 'nhsapp',
+      channelStatus: 'delivered',
+      previousChannelStatus: 'delivered',
+      supplierStatus: 'paper_letter_opted_out',
+      previousSupplierStatus: 'read',
+      cascadeType: 'primary',
+      cascadeOrder: 1,
+      timestamp: '2026-02-05T14:29:55Z',
+      retryCount: 0,
     },
   };
 }
