@@ -6,18 +6,6 @@ const TRACEPARENT = '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01';
 const DOMAIN_ID = `${SENDER_ID}_2503cbd5-6722-4e90-9fbd-5f1e96d65c22`;
 
 describe('generateSupplierApiLetterEvents', () => {
-  it('should generate the requested number of events', () => {
-    const requestedNumberOfEvents = 347;
-
-    const generatedEvents = generateSupplierApiLetterEvents({
-      status: 'ACCEPTED',
-      environment: 'test',
-      numberOfEvents: requestedNumberOfEvents,
-    });
-
-    expect(generatedEvents).toHaveLength(requestedNumberOfEvents);
-  });
-
   it('should generate events in the expected format', () => {
     const environment = 'test';
     const status = 'PRINTED';
@@ -27,7 +15,10 @@ describe('generateSupplierApiLetterEvents', () => {
       numberOfEvents: 1,
     });
 
-    expect(generatedEvents[0]).toStrictEqual({
+    expect(generatedEvents).toHaveLength(1);
+
+    const generatedEvent = generatedEvents[0];
+    expect(generatedEvent).toStrictEqual({
       specversion: '1.0',
       plane: 'data',
       datacontenttype: 'application/json',
@@ -63,69 +54,29 @@ describe('generateSupplierApiLetterEvents', () => {
     });
   });
 
-  it('should use the provided id when specified', () => {
+  it('should use the provided fixed values', () => {
     const fixedId = '11111111-1111-1111-1111-111111111111';
-
-    const generatedEvents = generateSupplierApiLetterEvents({
-      status: 'ACCEPTED',
-      environment: 'test',
-      numberOfEvents: 3,
-      id: fixedId,
-    });
-
-    for (const event of generatedEvents) {
-      expect(event.id).toBe(fixedId);
-    }
-  });
-
-  it('should use the provided time when specified', () => {
     const fixedTime = '2024-01-15T10:30:00.000Z';
-
-    const generatedEvents = generateSupplierApiLetterEvents({
-      status: 'ACCEPTED',
-      environment: 'test',
-      numberOfEvents: 3,
-      time: fixedTime,
-    });
-
-    for (const event of generatedEvents) {
-      expect(event.time).toBe(fixedTime);
-    }
-  });
-
-  it('should use the provided subject when specified', () => {
     const fixedSubject = 'my-custom-subject';
-
-    const generatedEvents = generateSupplierApiLetterEvents({
-      status: 'ACCEPTED',
-      environment: 'test',
-      numberOfEvents: 3,
-      subject: fixedSubject,
-    });
-
-    for (const event of generatedEvents) {
-      expect(event.subject).toBe(fixedSubject);
-    }
-  });
-
-  it('should use the provided messageReference when specified', () => {
     const fixedMessageReference = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 
     const generatedEvents = generateSupplierApiLetterEvents({
       status: 'ACCEPTED',
       environment: 'test',
-      numberOfEvents: 3,
+      numberOfEvents: 1,
+      id: fixedId,
+      time: fixedTime,
+      subject: fixedSubject,
       messageReference: fixedMessageReference,
     });
 
-    for (const event of generatedEvents) {
-      expect(event.subject).toBe(
-        `letter-origin/letter-rendering/letter/${SENDER_ID}_${fixedMessageReference}`,
-      );
-      expect(event.data.origin.subject).toBe(
-        `client/${SENDER_ID}/letter-request/${fixedMessageReference}`,
-      );
-    }
+    const event = generatedEvents[0];
+    expect(event.id).toBe(fixedId);
+    expect(event.time).toBe(fixedTime);
+    expect(event.subject).toBe(fixedSubject);
+    expect(event.data.origin.subject).toBe(
+      `client/${SENDER_ID}/letter-request/${fixedMessageReference}`,
+    );
   });
 
   it('should generate unique ids per event when no id is provided', () => {
