@@ -55,7 +55,7 @@ export const createHandler = ({
             return { outcome: { result: 'failed' } };
           }
 
-          const result = await ttlActions.delete(item);
+          const result = await ttlActions.markWithdrawn(item);
 
           if (result.result === 'failed') {
             batchItemFailures.push({ itemIdentifier: messageId });

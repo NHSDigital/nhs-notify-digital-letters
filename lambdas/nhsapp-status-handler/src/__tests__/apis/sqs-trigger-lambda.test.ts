@@ -43,14 +43,14 @@ describe('createHandler', () => {
   };
 
   beforeEach(() => {
-    ttlActions = { delete: jest.fn() };
+    ttlActions = { markWithdrawn: jest.fn() };
     eventPublisher = { sendEvents: jest.fn().mockResolvedValue([]) };
     logger = { error: jest.fn(), info: jest.fn(), warn: jest.fn() };
     handler = createHandler({ ttlActions, eventPublisher, logger });
   });
 
   it('processes a valid SQS event and returns success', async () => {
-    ttlActions.delete.mockResolvedValue({
+    ttlActions.markWithdrawn.mockResolvedValue({
       result: 'success',
       ttlItem: { event: messageDownloadedEvent },
     });
@@ -61,7 +61,7 @@ describe('createHandler', () => {
     const res = await handler(event);
 
     expect(res.batchItemFailures).toEqual([]);
-    expect(ttlActions.delete).toHaveBeenCalledWith(nhsAppStatusEvent);
+    expect(ttlActions.markWithdrawn).toHaveBeenCalledWith(nhsAppStatusEvent);
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
       [digitalLetterReadEvent],
       validateDigitalLetterRead,
@@ -131,14 +131,16 @@ describe('createHandler', () => {
     });
   });
 
-  it('handles ttlActions.delete failure', async () => {
-    ttlActions.delete.mockResolvedValue({ result: 'failed' });
+  it('handles ttlActions.markWithdrawn failure', async () => {
+    ttlActions.markWithdrawn.mockResolvedValue({ result: 'failed' });
     const event: SQSEvent = {
       Records: [{ body: JSON.stringify(eventBusEvent), messageId: 'msg1' }],
     } as any;
 
     const res = await handler(event);
 
+    expect(ttlActions.markWithdrawn).toHaveBeenCalledWith(nhsAppStatusEvent);
+    expect(eventPublisher.sendEvents).not.toHaveBeenCalled();
     expect(res.batchItemFailures).toEqual([{ itemIdentifier: 'msg1' }]);
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
@@ -202,7 +204,7 @@ describe('createHandler', () => {
   });
 
   it('processes multiple successful events and sends them as a batch', async () => {
-    ttlActions.delete.mockResolvedValue({
+    ttlActions.markWithdrawn.mockResolvedValue({
       result: 'success',
       ttlItem: { event: messageDownloadedEvent },
     });
@@ -217,7 +219,7 @@ describe('createHandler', () => {
     const res = await handler(sqsEvent);
 
     expect(res.batchItemFailures).toEqual([]);
-    expect(ttlActions.delete).toHaveBeenCalledTimes(3);
+    expect(ttlActions.markWithdrawn).toHaveBeenCalledTimes(3);
     expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
       [digitalLetterReadEvent, digitalLetterReadEvent, digitalLetterReadEvent],
       validateDigitalLetterRead,
@@ -231,7 +233,7 @@ describe('createHandler', () => {
   });
 
   it('handles partial event publishing failures and logs warning', async () => {
-    ttlActions.delete.mockResolvedValue({
+    ttlActions.markWithdrawn.mockResolvedValue({
       result: 'success',
       ttlItem: { event: messageDownloadedEvent },
     });
@@ -260,7 +262,7 @@ describe('createHandler', () => {
   });
 
   it('handles event publishing exception and logs warning', async () => {
-    ttlActions.delete.mockResolvedValue({
+    ttlActions.markWithdrawn.mockResolvedValue({
       result: 'success',
       ttlItem: { event: messageDownloadedEvent },
     });
@@ -286,7 +288,7 @@ describe('createHandler', () => {
   });
 
   it('does not call eventPublisher when no successful events', async () => {
-    ttlActions.delete.mockResolvedValue({ result: 'failed' });
+    ttlActions.markWithdrawn.mockResolvedValue({ result: 'failed' });
 
     const event: SQSEvent = {
       Records: [{ body: JSON.stringify(eventBusEvent), messageId: 'msg1' }],
@@ -305,7 +307,7 @@ describe('createHandler', () => {
   });
 
   it('does not call eventPublisher when no TTL record is found', async () => {
-    ttlActions.delete.mockResolvedValue({ result: 'success' });
+    ttlActions.markWithdrawn.mockResolvedValue({ result: 'success' });
 
     const event: SQSEvent = {
       Records: [{ body: JSON.stringify(eventBusEvent), messageId: 'msg1' }],
@@ -324,7 +326,7 @@ describe('createHandler', () => {
   });
 
   it('handles mixed success and failure scenarios', async () => {
-    ttlActions.delete
+    ttlActions.markWithdrawn
       .mockResolvedValueOnce({
         result: 'success',
         ttlItem: { event: messageDownloadedEvent },

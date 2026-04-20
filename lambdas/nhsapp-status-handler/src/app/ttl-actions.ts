@@ -15,7 +15,7 @@ export class TtlActions {
     private readonly logger: Logger,
   ) {}
 
-  async delete(item: NhsAppStatus): Promise<TtlActionOutcome> {
+  async markWithdrawn(item: NhsAppStatus): Promise<TtlActionOutcome> {
     let ttlItem: TtlItem;
 
     try {

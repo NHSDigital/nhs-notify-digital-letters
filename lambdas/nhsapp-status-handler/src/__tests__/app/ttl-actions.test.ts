@@ -16,7 +16,7 @@ describe('TtlActions', () => {
   it('returns success when markWithdrawn succeeds', async () => {
     repo.markWithdrawn.mockResolvedValue({ event: messageDownloadedEvent });
 
-    const result = await ttlActions.delete(nhsAppStatusEvent);
+    const result = await ttlActions.markWithdrawn(nhsAppStatusEvent);
 
     expect(result).toEqual({
       result: 'success',
@@ -31,7 +31,7 @@ describe('TtlActions', () => {
     // eslint-disable-next-line unicorn/no-useless-undefined
     repo.markWithdrawn.mockResolvedValue(undefined);
 
-    const result = await ttlActions.delete(nhsAppStatusEvent);
+    const result = await ttlActions.markWithdrawn(nhsAppStatusEvent);
 
     expect(result).toEqual({ result: 'success' });
 
@@ -50,7 +50,7 @@ describe('TtlActions', () => {
     const error = new Error('fail');
     repo.markWithdrawn.mockRejectedValue(error);
 
-    const result = await ttlActions.delete(nhsAppStatusEvent);
+    const result = await ttlActions.markWithdrawn(nhsAppStatusEvent);
 
     expect(result).toEqual({ result: 'failed' });
     expect(logger.warn).toHaveBeenCalledWith(
