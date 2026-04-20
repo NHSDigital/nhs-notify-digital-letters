@@ -15,7 +15,9 @@ export class TtlActions {
     private readonly logger: Logger,
   ) {}
 
-  async markWithdrawn(item: ChannelStatusPublishedEvent): Promise<TtlActionOutcome> {
+  async markWithdrawn(
+    item: ChannelStatusPublishedEvent,
+  ): Promise<TtlActionOutcome> {
     let ttlItem: TtlItem;
 
     try {

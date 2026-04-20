@@ -8,7 +8,9 @@ export const $ChannelStatusPublishedEvent = z.object({
   }),
 });
 
-export type ChannelStatusPublishedEvent = z.infer<typeof $ChannelStatusPublishedEvent>;
+export type ChannelStatusPublishedEvent = z.infer<
+  typeof $ChannelStatusPublishedEvent
+>;
 
 export type TtlRecord = {
   event: MESHInboxMessageDownloaded;
