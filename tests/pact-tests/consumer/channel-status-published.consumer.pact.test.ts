@@ -13,8 +13,7 @@ import {
 } from '../utils/pact-config';
 
 async function handle(event: unknown) {
-  // This should ultimately reference the actual event validation code
-  // being implemented in CCM-15676
+  // The schema used by the nhsapp-status-handler to validate the event.
   $ChannelStatusPublishedEvent.parse(event);
 }
 
