@@ -1,3 +1,4 @@
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { nhsAppStatusEvent } from '__tests__/data';
 import { TtlRepository } from 'infra/ttl-repository';
@@ -23,12 +24,26 @@ describe('TtlRepository', () => {
         PK: nhsAppStatusEvent.data.messageReference,
         SK: 'TTL',
       },
+      ConditionExpression: 'attribute_exists(PK)',
       UpdateExpression: 'set withdrawn = :val1',
       ExpressionAttributeValues: {
         ':val1': true,
       },
       ReturnValues: 'ALL_NEW',
     });
+  });
+
+
+  it('returns undefined on ConditionalCheckFailedException', async () => {
+    const error = new ConditionalCheckFailedException({
+      message: 'ConditionalCheckFailedException',
+      $metadata: {},
+    });
+    dynamoDocumentClient.send.mockRejectedValue(error);
+
+    const result = await repo.markWithdrawn(nhsAppStatusEvent.data.messageReference);
+
+    expect(result).toBeUndefined();
   });
 
   it('errors on dynamo error', async () => {

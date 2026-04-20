@@ -1,3 +1,4 @@
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { UpdateCommand, UpdateCommandOutput } from '@aws-sdk/lib-dynamodb';
 import { TtlRecord } from 'types/types';
 
@@ -18,6 +19,7 @@ export class TtlRepository {
         PK: messageReference,
         SK: 'TTL',
       },
+      ConditionExpression: 'attribute_exists(PK)',
       UpdateExpression: 'set withdrawn = :val1',
       ExpressionAttributeValues: {
         ':val1': true,
@@ -25,9 +27,15 @@ export class TtlRepository {
       ReturnValues: 'ALL_NEW' as const,
     };
     const request = new UpdateCommand(params);
-    const output = await this.dynamoDocumentClient.send(request);
-
-    return output.Attributes as TtlRecord | undefined;
+    try {
+      const output = await this.dynamoDocumentClient.send(request);
+      return output.Attributes as TtlRecord;
+    } catch (error) {
+      if (error instanceof ConditionalCheckFailedException) {
+        return;
+      }
+      throw error;
+    }
   }
 }
 
