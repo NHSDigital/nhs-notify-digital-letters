@@ -83,15 +83,44 @@ describe('createHandler', () => {
 
   it('handles event validation failure and logs error', async () => {
     const event: SQSEvent = {
-      Records: [{ body: '{}', messageId: 'msg2' }],
+      Records: [{ body: '{}', messageId: 'msg1' }],
     } as any;
 
     const res = await handler(event);
 
-    expect(res.batchItemFailures).toEqual([{ itemIdentifier: 'msg2' }]);
+    expect(res.batchItemFailures).toEqual([{ itemIdentifier: 'msg1' }]);
     expect(logger.warn).toHaveBeenCalledWith(
       expect.objectContaining({
-        description: expect.stringContaining('Error parsing sqs item'),
+        description: expect.stringContaining('Error parsing sqs record'),
+        messageReference: 'not present',
+      }),
+    );
+    expect(logger.info).toHaveBeenCalledWith({
+      description: 'Processed SQS Event.',
+      failed: 1,
+      retrieved: 1,
+      success: 0,
+    });
+  });
+
+  it('handles event validation failure and logs error with message reference if present', async () => {
+    const messageReference = randomUUID();
+    const event: SQSEvent = {
+      Records: [
+        {
+          body: `{ "detail": { "data": { "messageReference": "${messageReference}" } } }`,
+          messageId: 'msg1',
+        },
+      ],
+    } as any;
+
+    const res = await handler(event);
+
+    expect(res.batchItemFailures).toEqual([{ itemIdentifier: 'msg1' }]);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: expect.stringContaining('Error parsing sqs record'),
+        messageReference,
       }),
     );
     expect(logger.info).toHaveBeenCalledWith({
@@ -105,12 +134,12 @@ describe('createHandler', () => {
   it('handles ttlActions.delete failure', async () => {
     ttlActions.delete.mockResolvedValue({ result: 'failed' });
     const event: SQSEvent = {
-      Records: [{ body: JSON.stringify(eventBusEvent), messageId: 'msg3' }],
+      Records: [{ body: JSON.stringify(eventBusEvent), messageId: 'msg1' }],
     } as any;
 
     const res = await handler(event);
 
-    expect(res.batchItemFailures).toEqual([{ itemIdentifier: 'msg3' }]);
+    expect(res.batchItemFailures).toEqual([{ itemIdentifier: 'msg1' }]);
     expect(logger.info).toHaveBeenCalledWith({
       description: 'Processed SQS Event.',
       failed: 1,
@@ -121,12 +150,12 @@ describe('createHandler', () => {
 
   it('handles thrown error and logs', async () => {
     const event: SQSEvent = {
-      Records: [{ body: 'I am not json', messageId: 'msg4' }],
+      Records: [{ body: 'I am not json', messageId: 'msg1' }],
     } as any;
 
     const res = await handler(event);
 
-    expect(res.batchItemFailures).toEqual([{ itemIdentifier: 'msg4' }]);
+    expect(res.batchItemFailures).toEqual([{ itemIdentifier: 'msg1' }]);
     expect(logger.warn).toHaveBeenCalledWith(
       expect.objectContaining({
         description: expect.stringContaining(

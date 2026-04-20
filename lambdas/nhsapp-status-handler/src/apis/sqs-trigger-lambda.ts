@@ -46,7 +46,9 @@ export const createHandler = ({
           if (!parseSuccess) {
             logger.warn({
               err: parseError,
-              description: 'Error parsing sqs item',
+              messageReference:
+                sqsEventDetail?.data?.messageReference || 'not present',
+              description: 'Error parsing sqs record',
             });
 
             batchItemFailures.push({ itemIdentifier: messageId });
