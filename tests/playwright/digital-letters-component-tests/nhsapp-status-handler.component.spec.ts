@@ -153,8 +153,8 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
         const eventLogEntry = await getLogsFromCloudwatch(
           NHSAPP_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
           [
-            '$.message.description = "Error parsing sqs item"',
-            `$.message.description = "${concatedReference}"`,
+            '$.message.description = "Error parsing sqs record"',
+            `$.message.messageReference = "${concatedReference}"`,
             String.raw`$.message.err.message = "*\"invalid_value\"*"`,
             String.raw`$.message.err.message = "*\"supplierStatus\"*"`,
           ],
