@@ -11,7 +11,7 @@ import {
   MESHInboxMessageDownloaded,
   validateDigitalLetterRead,
 } from 'digital-letters-events';
-import { $NhsAppStatus } from 'types/types';
+import { $ChannelStatusPublishedEvent } from 'types/types';
 
 interface ProcessingResult {
   outcome: TtlActionOutcome;
@@ -41,12 +41,13 @@ export const createHandler = ({
             data: item,
             error: parseError,
             success: parseSuccess,
-          } = $NhsAppStatus.safeParse(sqsEventDetail);
+          } = $ChannelStatusPublishedEvent.safeParse(sqsEventDetail);
 
           if (!parseSuccess) {
             logger.warn({
               err: parseError,
-              messageReference: sqsEventDetail?.data?.messageReference || 'not present',
+              messageReference:
+                sqsEventDetail?.data?.messageReference || 'not present',
               description: 'Error parsing sqs record',
             });
 
@@ -54,7 +55,7 @@ export const createHandler = ({
             return { outcome: { result: 'failed' } };
           }
 
-          const result = await ttlActions.delete(item);
+          const result = await ttlActions.markWithdrawn(item);
 
           if (result.result === 'failed') {
             batchItemFailures.push({ itemIdentifier: messageId });
