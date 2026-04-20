@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import {
   ENV,
   NHSAPP_STATUS_HANDLER_DLQ_NAME,
+  NHSAPP_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
 import { SENDER_ID_VALID_FOR_NOTIFY_SANDBOX } from 'constants/tests-constants';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
@@ -9,7 +10,7 @@ import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import { getTtl, putTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
-import { purgeQueue } from 'helpers/sqs-helpers';
+import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - NHSApp Status Handler', () => {
@@ -41,7 +42,7 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
     },
   };
 
-  test('should mark TTL withdrawn and publish digital.letter.read event following a channel.status.PUBLISHED event', async () => {
+  test('should mark TTL withdrawn and publish digital.letter.read event', async () => {
     const event = {
       ...baseEvent,
       data: {
@@ -96,5 +97,77 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
 
       expect(eventLogEntry.length).toEqual(1);
     });
+  });
+
+  test('should handle missing TTL record', async () => {
+    const concatedReference = `${uuidv4()}_${uuidv4()}`;
+
+    await eventPublisher.sendEvents<any>(
+      [
+        {
+          source: '/nhs/england/notify/comms-mgr-dev/dev/data-plane/messaging',
+          type: 'uk.nhs.notify.channel.status.PUBLISHED.v1',
+          data: {
+            messageReference: concatedReference,
+            supplierStatus: 'PaperLetterOptedOut',
+          },
+        },
+      ],
+      () => true,
+    );
+
+    await expectToPassEventually(async () => {
+      const eventLogEntry = await getLogsFromCloudwatch(
+        NHSAPP_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
+        [
+          '$.message.description = "TTL record not found"',
+          `$.message.messageReference = "${concatedReference}"`,
+        ],
+      );
+
+      expect(eventLogEntry.length).toEqual(1);
+    }, 150);
+  });
+
+  test('should send invalid event to nhsapp status handler dlq', async () => {
+    test.setTimeout(160_000);
+
+    const concatedReference = `${uuidv4()}_${uuidv4()}`;
+
+    await eventPublisher.sendEvents<any>(
+      [
+        {
+          source: '/nhs/england/notify/comms-mgr-dev/dev/data-plane/messaging',
+          type: 'uk.nhs.notify.channel.status.PUBLISHED.v1',
+          data: {
+            messageReference: concatedReference,
+            supplierStatus: 'I am not valid',
+          },
+        },
+      ],
+      () => true,
+    );
+
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          NHSAPP_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
+          [
+            '$.message.description = "Error parsing sqs item"',
+            `$.message.description = "${concatedReference}"`,
+            String.raw`$.message.err.message = "*\"invalid_value\"*"`,
+            String.raw`$.message.err.message = "*\"supplierStatus\"*"`,
+          ],
+        );
+
+        expect(eventLogEntry.length).toEqual(1);
+      }, 150),
+
+      expectMessageContainingString(
+        NHSAPP_STATUS_HANDLER_DLQ_NAME,
+        concatedReference,
+        150,
+      ),
+    ]);
   });
 });
