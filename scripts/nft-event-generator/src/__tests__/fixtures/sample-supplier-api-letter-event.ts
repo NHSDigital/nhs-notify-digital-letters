@@ -1,6 +1,6 @@
-import { SupplierApiLetterEvent } from 'generators/supplier-api-letter-events';
+import { LetterEvent } from '@nhsdigital/nhs-notify-event-schemas-supplier-api/src/events/letter-events';
 
-export const sampleSupplierApiLetterEvent: SupplierApiLetterEvent = {
+export const sampleSupplierApiLetterEvent: LetterEvent = {
   id: '550e8400-e29b-41d4-a716-446655440001',
   specversion: '1.0',
   source: '/data-plane/supplier-api/dev/update-status',

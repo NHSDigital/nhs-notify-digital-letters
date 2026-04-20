@@ -2,7 +2,8 @@
   "author": "",
   "dependencies": {
     "@aws-sdk/client-eventbridge": "^3.914.0",
-    "@nhsdigital/nhs-notify-event-schemas-status-published": "^1.0.1",
+    "@nhsdigital/nhs-notify-event-schemas-status-published": "1.0.1",
+    "@nhsdigital/nhs-notify-event-schemas-supplier-api": "1.0.17",
     "csv-parse": "^6.1.0",
     "digital-letters-events": "^0.0.1",
     "tsx": "^4.20.6",

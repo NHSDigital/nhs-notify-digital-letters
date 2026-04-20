@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import supplierApiLetterEventTemplate from 'event-templates/supplier-api-letter-event.json';
 
+import { LetterEvent } from '@nhsdigital/nhs-notify-event-schemas-supplier-api/src/events/letter-events';
+
 export const LETTER_STATUSES = [
   'ACCEPTED',
   'REJECTED',
@@ -16,39 +18,6 @@ export const LETTER_STATUSES = [
 ] as const;
 
 export type LetterStatus = (typeof LETTER_STATUSES)[number];
-
-export type SupplierApiLetterEvent = {
-  id: string;
-  specversion: '1.0';
-  source: string;
-  type: string;
-  plane: 'data';
-  dataschema: string;
-  dataschemaversion: string;
-  subject: string;
-  time: string;
-  recordedtime: string;
-  datacontenttype: 'application/json';
-  traceparent: string;
-  severitynumber: number;
-  severitytext?: string;
-  data: SupplierApiLetterData;
-};
-
-type SupplierApiLetterData = {
-  domainId: string;
-  groupId: string;
-  specificationId: string;
-  supplierId: string;
-  billingRef: string;
-  status: LetterStatus;
-  origin: {
-    domain: string;
-    event: string;
-    source: string;
-    subject: string;
-  };
-};
 
 const SENDER_ID = '00f3b388-bbe9-41c9-9e76-052d37ee8988';
 
@@ -71,7 +40,7 @@ function generateSupplierApiLetterEvent(
     subject?: string;
     messageReference?: string;
   } = {},
-): SupplierApiLetterEvent {
+): LetterEvent {
   const now = new Date();
   const id = overrides.id ?? randomUUID();
   const messageReference = overrides.messageReference ?? randomUUID();
@@ -94,12 +63,16 @@ function generateSupplierApiLetterEvent(
     dataschema: `https://notify.nhs.uk/cloudevents/schemas/supplier-api/letter.${status}.${supplierApiLetterEventTemplate.dataschemaversion}.schema.json`,
     data: {
       ...supplierApiLetterEventTemplate.data,
+      domainId: supplierApiLetterEventTemplate.data
+        .domainId as LetterEvent['data']['domainId'],
       status,
       origin: {
         ...supplierApiLetterEventTemplate.data.origin,
         subject: `client/${SENDER_ID}/letter-request/${messageReference}`,
       },
     },
+    severitytext:
+      supplierApiLetterEventTemplate.severitytext as LetterEvent['severitytext'],
   };
 }
 
@@ -111,8 +84,8 @@ export function generateSupplierApiLetterEvents({
   status,
   subject,
   time,
-}: GenerateEventsParams): SupplierApiLetterEvent[] {
-  const events: SupplierApiLetterEvent[] = [];
+}: GenerateEventsParams): LetterEvent[] {
+  const events: LetterEvent[] = [];
 
   for (let i = 0; i < numberOfEvents; i++) {
     events.push(
