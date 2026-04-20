@@ -4,8 +4,7 @@ import {
   MessageConsumerPact,
   asynchronousBodyHandler,
 } from '@pact-foundation/pact';
-import { z } from 'zod';
-
+import { $ChannelStatusPublishedEvent } from 'utils';
 import {
   PACT_CONSUMER,
   PACT_DIRECTORY,
@@ -13,17 +12,10 @@ import {
   PACT_PROVIDER,
 } from '../utils/pact-config';
 
-const ChannelStatusPublishedEventSchema = z.object({
-  data: z.object({
-    messageReference: z.string(),
-    supplierStatus: z.literal('paper_letter_opted_out'),
-  }),
-});
-
 async function handle(event: unknown) {
   // This should ultimately reference the actual event validation code
   // being implemented in CCM-15676
-  ChannelStatusPublishedEventSchema.parse(event);
+  $ChannelStatusPublishedEvent.parse(event);
 }
 
 describe('Pact message consumer - ChannelStatusPublished event', () => {

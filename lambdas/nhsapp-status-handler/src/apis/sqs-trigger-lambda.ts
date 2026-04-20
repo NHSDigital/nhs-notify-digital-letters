@@ -5,13 +5,12 @@ import type {
 } from 'aws-lambda';
 import { randomUUID } from 'node:crypto';
 import type { TtlActionOutcome, TtlActions } from 'app/ttl-actions';
-import { EventPublisher, Logger } from 'utils';
+import { $ChannelStatusPublishedEvent, EventPublisher, Logger } from 'utils';
 import {
   DigitalLetterRead,
   MESHInboxMessageDownloaded,
   validateDigitalLetterRead,
 } from 'digital-letters-events';
-import { $ChannelStatusPublishedEvent } from 'types/types';
 
 interface ProcessingResult {
   outcome: TtlActionOutcome;

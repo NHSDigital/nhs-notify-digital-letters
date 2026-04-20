@@ -1,6 +1,6 @@
-import { Logger } from 'utils';
+import { ChannelStatusPublishedEvent, Logger } from 'utils';
 import { TtlRepository } from 'infra/ttl-repository';
-import { ChannelStatusPublishedEvent, TtlRecord } from 'types/types';
+import { TtlRecord } from 'types/types';
 
 export type TtlItem = TtlRecord | undefined;
 

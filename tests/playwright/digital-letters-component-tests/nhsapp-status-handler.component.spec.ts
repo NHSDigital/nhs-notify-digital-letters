@@ -73,7 +73,7 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
           type: 'uk.nhs.notify.channel.status.PUBLISHED.v1',
           data: {
             messageReference: concatedReference,
-            supplierStatus: 'PaperLetterOptedOut',
+            supplierStatus: 'paper_letter_opted_out',
           },
         },
       ],
@@ -114,7 +114,7 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
           type: 'uk.nhs.notify.channel.status.PUBLISHED.v1',
           data: {
             messageReference: concatedReference,
-            supplierStatus: 'PaperLetterOptedOut',
+            supplierStatus: 'paper_letter_opted_out',
           },
         },
       ],

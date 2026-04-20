@@ -1,5 +1,5 @@
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
-import { ChannelStatusPublishedEvent } from 'types/types';
+import { ChannelStatusPublishedEvent } from 'utils';
 
 export const messageDownloadedEvent: MESHInboxMessageDownloaded = {
   id: '550e8400-e29b-41d4-a716-446655440001',
@@ -29,6 +29,6 @@ export const messageDownloadedEvent: MESHInboxMessageDownloaded = {
 export const nhsAppStatusEvent: ChannelStatusPublishedEvent = {
   data: {
     messageReference: `${messageDownloadedEvent.data.senderId}_${messageDownloadedEvent.data.messageReference}`,
-    supplierStatus: 'PaperLetterOptedOut',
+    supplierStatus: 'paper_letter_opted_out',
   },
 };
