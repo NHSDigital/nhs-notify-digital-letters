@@ -42,6 +42,15 @@ describe('SQS Handler', () => {
       const testPdf = fivePagePdf();
       mockGetS3ObjectBufferFromUri.mockResolvedValue(testPdf);
 
+      eventPublisher.sendEvents.mockImplementation(
+        async (events, validateFn) => {
+          for (const event of events) {
+            validateFn(event, logger);
+          }
+          return [];
+        },
+      );
+
       const response = await handler(recordEvent([fileSafeEvent]));
 
       expect(mockGetS3ObjectBufferFromUri).toHaveBeenCalledWith(
@@ -205,6 +214,80 @@ describe('SQS Handler', () => {
       expect(result).toEqual({
         batchItemFailures: [{ itemIdentifier: '1' }],
       });
+    });
+
+    it('should publish InvalidAttachmentReceived event when PDF parsing fails (non-PDF attachment)', async () => {
+      const testPdfBuffer = Buffer.from('not a valid PDF file');
+      mockGetS3ObjectBufferFromUri.mockResolvedValue(testPdfBuffer);
+
+      eventPublisher.sendEvents.mockImplementation(
+        async (events, validateFn) => {
+          for (const event of events) {
+            validateFn(event, logger);
+          }
+          return [];
+        },
+      );
+
+      const event = recordEvent([fileSafeEvent]);
+
+      const result = await handler(event);
+
+      expect(eventPublisher.sendEvents).toHaveBeenCalledWith(
+        [
+          {
+            ...fileSafeEvent,
+            id: '550e8400-e29b-41d4-a716-446655440001',
+            time: '2023-06-20T12:00:00.250Z',
+            recordedtime: '2023-06-20T12:00:00.250Z',
+            dataschema:
+              'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-invalid-attachment-received-data.schema.json',
+            type: 'uk.nhs.notify.digital.letters.print.invalid.attachment.received.v1',
+            source:
+              '/nhs/england/notify/production/primary/digitalletters/print',
+            data: {
+              senderId: fileSafeEvent.data.senderId,
+              messageReference: fileSafeEvent.data.messageReference,
+              reasonCode: 'DL_CLIV_002',
+            },
+          },
+        ],
+        expect.any(Function),
+      );
+
+      expect(logger.warn).toHaveBeenCalledWith({
+        messageReference: fileSafeEvent.data.messageReference,
+        reasonCode: 'DL_CLIV_002',
+        description: 'Failed to analyze PDF - invalid attachment format',
+      });
+
+      expect(logger.info).toHaveBeenCalledWith(
+        '1 of 1 records processed successfully',
+      );
+
+      expect(result).toEqual({ batchItemFailures: [] });
+    });
+
+    it('should throw error for unknown event type during validation', async () => {
+      const testPdf = fivePagePdf();
+      mockGetS3ObjectBufferFromUri.mockResolvedValue(testPdf);
+
+      eventPublisher.sendEvents.mockImplementation(
+        async (events, validateFn) => {
+          const modifiedEvent = {
+            ...events[0],
+            type: 'uk.nhs.notify.unknown.event.type',
+          };
+          validateFn(modifiedEvent, logger);
+          return [];
+        },
+      );
+
+      const event = recordEvent([fileSafeEvent]);
+
+      await expect(handler(event)).rejects.toThrow(
+        'Unknown event type: uk.nhs.notify.unknown.event.type',
+      );
     });
   });
 });
