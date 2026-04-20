@@ -33,7 +33,6 @@ describe('TtlRepository', () => {
     });
   });
 
-
   it('returns undefined on ConditionalCheckFailedException', async () => {
     const error = new ConditionalCheckFailedException({
       message: 'ConditionalCheckFailedException',
@@ -41,7 +40,9 @@ describe('TtlRepository', () => {
     });
     dynamoDocumentClient.send.mockRejectedValue(error);
 
-    const result = await repo.markWithdrawn(nhsAppStatusEvent.data.messageReference);
+    const result = await repo.markWithdrawn(
+      nhsAppStatusEvent.data.messageReference,
+    );
 
     expect(result).toBeUndefined();
   });

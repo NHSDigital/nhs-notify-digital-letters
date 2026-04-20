@@ -12,7 +12,9 @@ export class TtlRepository {
     private readonly dynamoDocumentClient: IDynamoCaller,
   ) {}
 
-  public async markWithdrawn(messageReference: string) {
+  public async markWithdrawn(
+    messageReference: string,
+  ): Promise<TtlRecord | undefined> {
     const params = {
       TableName: this.tableName,
       Key: {
@@ -29,10 +31,11 @@ export class TtlRepository {
     const request = new UpdateCommand(params);
     try {
       const output = await this.dynamoDocumentClient.send(request);
+
       return output.Attributes as TtlRecord;
     } catch (error) {
       if (error instanceof ConditionalCheckFailedException) {
-        return;
+        return undefined;
       }
       throw error;
     }
