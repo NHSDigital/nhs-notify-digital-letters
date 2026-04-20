@@ -226,8 +226,10 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
         {
           id: uuidv4(),
           specversion: '1.0',
-          source:
-            '/nhs/england/notify/development/primary/data-plane/digitalletters/mesh',
+          plane: 'data',
+          dataschemaversion: '1.0.0',
+          datacontenttype: 'application/json',
+          source: '/nhs/england/notify/development/primary/digitalletters/mesh',
           subject:
             'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000',
           type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
@@ -306,7 +308,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
           '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1"',
           String.raw`$.details.event_detail = "*\"meshMessageId\":\"${meshMessageId}\"*"`,
           String.raw`$.details.event_detail = "*\"senderId\":\"${senderId}\"*"`,
-          String.raw`$.details.event_detail = "*\"failureCode\":\"LID_MESH_0001\"*"`,
+          String.raw`$.details.event_detail = "*\"failureCode\":\"DL_CLIV_006\"*"`,
         ],
       );
 
@@ -354,8 +356,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
         {
           id: uuidv4(),
           specversion: '1.0',
-          source:
-            '/nhs/england/notify/development/primary/data-plane/digitalletters/mesh',
+          source: '/nhs/england/notify/development/primary/digitalletters/mesh',
           subject:
             'customer/00000000-0000-0000-0000-000000000000/recipient/00000000-0000-0000-0000-000000000000',
           type: 'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
@@ -367,6 +368,9 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
             '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
           dataschema:
             'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-mesh-inbox-message-received-data.schema.json',
+          dataschemaversion: '1.0.0',
+          datacontenttype: 'application/json',
+          plane: 'data',
           data: {
             meshMessageId,
             senderId,

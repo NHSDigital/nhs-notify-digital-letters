@@ -27,8 +27,9 @@ test.describe('Digital Letters - Print Sender', () => {
         {
           id: letterId,
           specversion: '1.0',
-          source:
-            '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+          plane: 'data',
+          dataschemaversion: '1.0.0',
+          source: '/nhs/england/notify/production/primary/digitalletters/print',
           subject:
             'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
           type: 'uk.nhs.notify.digital.letters.print.pdf.analysed.v1',
@@ -76,8 +77,9 @@ test.describe('Digital Letters - Print Sender', () => {
     const event = {
       id: uuidv4(),
       specversion: '1.0',
-      source:
-        '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+      plane: 'data',
+      dataschemaversion: '1.0.0',
+      source: '/nhs/england/notify/production/primary/digitalletters/print',
       subject:
         'customer/920fca11-596a-4eca-9c47-99f624614658/recipient/769acdd4-6a47-496f-999f-76a6fd2c3959',
       type: 'uk.nhs.notify.digital.letters.print.pdf.analysed.v1',

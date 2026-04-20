@@ -58,7 +58,7 @@ describe('SQS Handler', () => {
               'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-pdf-analysed-data.schema.json',
             type: 'uk.nhs.notify.digital.letters.print.pdf.analysed.v1',
             source:
-              '/nhs/england/notify/production/primary/data-plane/digitalletters/print',
+              '/nhs/england/notify/production/primary/digitalletters/print',
             data: {
               senderId: fileSafeEvent.data.senderId,
               messageReference: fileSafeEvent.data.messageReference,

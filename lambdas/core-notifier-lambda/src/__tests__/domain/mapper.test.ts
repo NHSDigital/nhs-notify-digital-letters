@@ -28,6 +28,8 @@ describe('mapper', () => {
     specversion: '1.0',
     id: 'event-123',
     source: 'pdm-service',
+    plane: 'data',
+    dataschemaversion: '1.0.0',
     subject: 'resource/available',
     type: 'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
     time: '2024-01-15T10:30:00Z',

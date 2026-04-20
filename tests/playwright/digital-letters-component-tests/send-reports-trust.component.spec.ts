@@ -25,8 +25,10 @@ test.describe('Digital Letters - Send reports to Trust', () => {
         {
           id: uuidv4(),
           specversion: '1.0',
+          plane: 'data',
+          dataschemaversion: '1.0.0',
           source:
-            '/nhs/england/notify/development/dev-12345/data-plane/digitalletters/reporting',
+            '/nhs/england/notify/development/dev-12345/digitalletters/reporting',
           subject: `report/${uuidv4()}`,
           type: 'uk.nhs.notify.digital.letters.reporting.report.generated.v1',
           time: new Date().toISOString(),
@@ -69,12 +71,12 @@ test.describe('Digital Letters - Send reports to Trust', () => {
       );
 
       for (const event of parsedEvents) {
-        const { reportReference } = event.data;
-        expect(reportReference).toBeDefined();
-        //  Mock MESH uses NON_PII_S3_BUCKET_NAME bucket, the object key starts with the local_id (i.e. the report reference).
+        const { sentMeshMessageId } = event.data;
+        expect(sentMeshMessageId).toBeTruthy();
+        //  Mock MESH uses NON_PII_S3_BUCKET_NAME bucket, the object key is the sentMeshMessageId.
         const storedMessage = await downloadFromS3(
           NON_PII_S3_BUCKET_NAME,
-          `mock-mesh/mock-mailbox/out/${trustMeshMailboxReportsId}/${reportReference}`,
+          `mock-mesh/mock-mailbox/out/${trustMeshMailboxReportsId}/${sentMeshMessageId}`,
         );
 
         expect(storedMessage.body).toContain(messageContent);

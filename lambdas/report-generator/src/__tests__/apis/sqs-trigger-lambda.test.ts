@@ -23,7 +23,10 @@ const createMockSQSRecord = (
       id: event.id || mockUuid,
       source:
         event.source ||
-        '/nhs/england/notify/development/primary/data-plane/digitalletters/reporting',
+        '/nhs/england/notify/development/primary/digitalletters/reporting',
+      plane: 'data',
+      dataschemaversion: '1.0.0',
+      datacontenttype: 'application/json',
       specversion: event.specversion || '1.0',
       type:
         event.type ||
