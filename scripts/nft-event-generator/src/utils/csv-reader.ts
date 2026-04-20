@@ -1,12 +1,12 @@
 import { parse } from 'csv-parse/sync';
 import { readFileSync } from 'node:fs';
 
-export type CsvRow = {
+export type PaperLetterOptOutRow = {
   messageReference: string;
   senderId: string;
 };
 
-export function readCsvFile(filePath: string): CsvRow[] {
+export function readCsvFile(filePath: string): PaperLetterOptOutRow[] {
   const fileContent = readFileSync(filePath, 'utf8');
 
   const records = parse(fileContent, {

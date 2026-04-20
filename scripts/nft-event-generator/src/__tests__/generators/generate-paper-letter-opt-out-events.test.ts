@@ -1,9 +1,9 @@
 import { generatePaperLetterOptOutEvents } from 'generators/paper-letter-opt-out-events';
-import { CsvRow } from 'utils/csv-reader';
+import { PaperLetterOptOutRow } from 'utils/csv-reader';
 
 const environment = 'nft';
 
-const sampleRows: CsvRow[] = [
+const sampleRows: PaperLetterOptOutRow[] = [
   {
     messageReference: '037f5f76-352c-445f-89a7-c3d18776ce86',
     senderId: 'sender-001',
@@ -13,7 +13,7 @@ const sampleRows: CsvRow[] = [
 describe('generatePaperLetterOptOutEvents', () => {
   it('should generate events in the expected format', () => {
     const events = generatePaperLetterOptOutEvents({
-      csvRows: [sampleRows[0]],
+      csvRows: sampleRows,
       environment,
     });
 

@@ -1,15 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import { type ChannelStatusPublishedEventV1 } from '@nhsdigital/nhs-notify-event-schemas-status-published';
-import { CsvRow } from 'utils/csv-reader';
+import { PaperLetterOptOutRow } from 'utils/csv-reader';
 
 type GeneratePaperLetterOptOutEventsParams = {
-  csvRows: CsvRow[];
+  csvRows: PaperLetterOptOutRow[];
   environment: string;
 };
 
 function generatePaperLetterOptOutEvent(
   environment: string,
-  row: CsvRow,
+  row: PaperLetterOptOutRow,
 ): ChannelStatusPublishedEventV1 {
   const { messageReference, senderId } = row;
 
