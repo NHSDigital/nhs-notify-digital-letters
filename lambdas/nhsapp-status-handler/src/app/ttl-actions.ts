@@ -1,6 +1,6 @@
 import { Logger } from 'utils';
 import { TtlRepository } from 'infra/ttl-repository';
-import { NhsAppStatus, TtlRecord } from 'types/types';
+import { ChannelStatusPublishedEvent, TtlRecord } from 'types/types';
 
 export type TtlItem = TtlRecord | undefined;
 
@@ -15,7 +15,7 @@ export class TtlActions {
     private readonly logger: Logger,
   ) {}
 
-  async markWithdrawn(item: NhsAppStatus): Promise<TtlActionOutcome> {
+  async markWithdrawn(item: ChannelStatusPublishedEvent): Promise<TtlActionOutcome> {
     let ttlItem: TtlItem;
 
     try {

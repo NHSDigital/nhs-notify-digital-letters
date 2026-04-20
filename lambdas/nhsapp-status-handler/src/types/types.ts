@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 
-export const $NhsAppStatus = z.object({
+export const $ChannelStatusPublishedEvent = z.object({
   data: z.object({
     messageReference: z.string(),
     supplierStatus: z.literal('PaperLetterOptedOut'),
   }),
 });
 
-export type NhsAppStatus = z.infer<typeof $NhsAppStatus>;
+export type ChannelStatusPublishedEvent = z.infer<typeof $ChannelStatusPublishedEvent>;
 
 export type TtlRecord = {
   event: MESHInboxMessageDownloaded;

@@ -11,7 +11,7 @@ import {
   MESHInboxMessageDownloaded,
   validateDigitalLetterRead,
 } from 'digital-letters-events';
-import { $NhsAppStatus } from 'types/types';
+import { $ChannelStatusPublishedEvent } from 'types/types';
 
 interface ProcessingResult {
   outcome: TtlActionOutcome;
@@ -41,7 +41,7 @@ export const createHandler = ({
             data: item,
             error: parseError,
             success: parseSuccess,
-          } = $NhsAppStatus.safeParse(sqsEventDetail);
+          } = $ChannelStatusPublishedEvent.safeParse(sqsEventDetail);
 
           if (!parseSuccess) {
             logger.warn({
