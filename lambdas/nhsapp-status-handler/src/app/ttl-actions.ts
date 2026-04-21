@@ -13,7 +13,7 @@ export class TtlActions {
   constructor(
     private readonly ttlRepository: TtlRepository,
     private readonly logger: Logger,
-  ) { }
+  ) {}
 
   async markWithdrawn(
     item: ChannelStatusPublishedEvent,
@@ -23,9 +23,7 @@ export class TtlActions {
     let ttlItem: TtlItem;
 
     try {
-      ttlItem = await this.ttlRepository.markWithdrawn(
-        messageReference,
-      );
+      ttlItem = await this.ttlRepository.markWithdrawn(messageReference);
     } catch (error) {
       this.logger.warn({
         description: 'Error marking TTL withdrawn',

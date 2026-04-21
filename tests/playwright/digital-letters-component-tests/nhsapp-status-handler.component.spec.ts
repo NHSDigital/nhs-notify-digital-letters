@@ -113,7 +113,7 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
         );
 
         expect(eventLogEntry.length).toEqual(1);
-      }, 150)
+      }, 150),
     ]);
   });
 
