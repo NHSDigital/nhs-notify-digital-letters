@@ -22,6 +22,12 @@ describe('TtlActions', () => {
       result: 'success',
       ttlItem: { event: messageDownloadedEvent },
     });
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: expect.stringContaining('TTL record marked as withdrawn'),
+        messageReference: nhsAppStatusEvent.data.messageReference,
+      }),
+    );
     expect(repo.markWithdrawn).toHaveBeenCalledWith(
       nhsAppStatusEvent.data.messageReference,
     );
@@ -56,6 +62,7 @@ describe('TtlActions', () => {
     expect(logger.warn).toHaveBeenCalledWith(
       expect.objectContaining({
         description: expect.stringContaining('Error marking TTL withdrawn'),
+        messageReference: nhsAppStatusEvent.data.messageReference,
         err: error,
       }),
     );
