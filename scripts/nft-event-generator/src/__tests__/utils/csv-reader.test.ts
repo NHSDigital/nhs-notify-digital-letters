@@ -14,7 +14,7 @@ describe('readCsvFile', () => {
     });
     expect(rows[1]).toEqual({
       messageReference: '207f50c2-5a79-4421-a2d5-1b137e955a07',
-      senderId: 'smoke_test_sender_mailbox',
+      senderId: 'smoke_test_sender_mailbox3',
     });
   });
 });
