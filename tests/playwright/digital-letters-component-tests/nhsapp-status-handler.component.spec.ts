@@ -90,7 +90,7 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
     });
 
     await Promise.all([
-      await expectToPassEventually(async () => {
+      expectToPassEventually(async () => {
         const eventLogEntry = await getLogsFromCloudwatch(
           `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
           [
@@ -103,7 +103,7 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
         expect(eventLogEntry.length).toEqual(1);
       }),
 
-      await expectToPassEventually(async () => {
+      expectToPassEventually(async () => {
         const eventLogEntry = await getLogsFromCloudwatch(
           NHSAPP_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
           [
