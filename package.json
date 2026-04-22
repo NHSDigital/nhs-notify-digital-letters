@@ -81,6 +81,7 @@
     "lambdas/nhsapp-status-handler",
     "utils/utils",
     "utils/sender-management",
+    "scripts",
     "src/cloudevents",
     "src/digital-letters-events",
     "src/python-schema-generator",
