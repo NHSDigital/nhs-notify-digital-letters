@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test';
 import {
+  EVENT_BUS_LOG_GROUP_NAME,
   MESH_DOWNLOAD_DLQ_NAME,
   MESH_DOWNLOAD_LAMBDA_LOG_GROUP_NAME,
   MESH_POLL_LAMBDA_NAME,
   NON_PII_S3_BUCKET_NAME,
   PII_S3_BUCKET_NAME,
-  EVENT_BUS_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
@@ -101,9 +101,9 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
       (detail) => {
-        const data = (
-          detail as { data?: { meshMessageId?: string; senderId?: string } }
-        ).data;
+        const { data } = detail as {
+          data?: { meshMessageId?: string; senderId?: string };
+        };
         return (
           data?.meshMessageId === meshMessageId && data?.senderId === senderId
         );
@@ -118,11 +118,9 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
       (detail) => {
-        const data = (
-          detail as {
-            data?: { messageReference?: string; senderId?: string };
-          }
-        ).data;
+        const { data } = detail as {
+          data?: { messageReference?: string; senderId?: string };
+        };
         return (
           data?.messageReference === messageReference &&
           data?.senderId === senderId
@@ -140,16 +138,14 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1',
       (detail) => {
-        const data = (
-          detail as {
-            data?: {
-              meshMessageId?: string;
-              messageReference?: string;
-              senderId?: string;
-              failureCode?: string;
-            };
-          }
-        ).data;
+        const { data } = detail as {
+          data?: {
+            meshMessageId?: string;
+            messageReference?: string;
+            senderId?: string;
+            failureCode?: string;
+          };
+        };
         return (
           data?.meshMessageId === meshMessageId &&
           data?.messageReference === messageReference &&

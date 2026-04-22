@@ -2,7 +2,10 @@ import {
   DeleteMessageCommand,
   ReceiveMessageCommand,
 } from '@aws-sdk/client-sqs';
-import { TEST_OBSERVER_QUEUE_NAME, SQS_URL_PREFIX } from 'constants/backend-constants';
+import {
+  SQS_URL_PREFIX,
+  TEST_OBSERVER_QUEUE_NAME,
+} from 'constants/backend-constants';
 import { sqsClient } from 'utils';
 
 const queueUrl = `${SQS_URL_PREFIX}${TEST_OBSERVER_QUEUE_NAME}`;
@@ -32,20 +35,20 @@ export async function expectEventOnTestObserverQueue(
     );
 
     for (const msg of Messages) {
-      if (!msg.Body) continue;
+      if (msg.Body) {
+        const envelope = JSON.parse(msg.Body) as Record<string, unknown>;
+        const detailType = envelope['detail-type'] as string | undefined;
+        const detail = envelope.detail as Record<string, unknown> | undefined;
 
-      const envelope = JSON.parse(msg.Body) as Record<string, unknown>;
-      const detailType = envelope['detail-type'] as string | undefined;
-      const detail = envelope['detail'] as Record<string, unknown> | undefined;
-
-      if (detailType === eventType && detail && matchFn(detail)) {
-        await sqsClient.send(
-          new DeleteMessageCommand({
-            QueueUrl: queueUrl,
-            ReceiptHandle: msg.ReceiptHandle!,
-          }),
-        );
-        return detail;
+        if (detailType === eventType && detail && matchFn(detail)) {
+          await sqsClient.send(
+            new DeleteMessageCommand({
+              QueueUrl: queueUrl,
+              ReceiptHandle: msg.ReceiptHandle!,
+            }),
+          );
+          return detail;
+        }
       }
     }
   }
