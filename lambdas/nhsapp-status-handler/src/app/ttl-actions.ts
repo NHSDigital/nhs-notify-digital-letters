@@ -4,10 +4,9 @@ import { TtlRecord } from 'types/types';
 
 export type TtlItem = TtlRecord | undefined;
 
-export type TtlActionOutcome = {
-  result: 'success' | 'failed';
-  ttlItem?: TtlItem;
-};
+export type TtlActionOutcome =
+  | { result: 'success'; ttlItem: TtlItem }
+  | { result: 'failed' };
 
 export class TtlActions {
   constructor(
