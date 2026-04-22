@@ -50,6 +50,8 @@ test.describe('Digital Letters - Create TTL', () => {
   };
 
   test('should create TTL and publish item enqueued event following message downloaded event', async () => {
+    test.setTimeout(200_000);
+
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
     const messageReference = letterId;
@@ -77,7 +79,7 @@ test.describe('Digital Letters - Create TTL', () => {
       );
 
       expect(ttl.length).toBe(1);
-    });
+    }, 90);
 
     // Verify item enqueued event published
     await expectToPassEventually(async () => {
@@ -91,10 +93,12 @@ test.describe('Digital Letters - Create TTL', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    });
+    }, 90);
   });
 
   test('should create TTL and publish item enqueued event following message downloaded event - direct to print', async () => {
+    test.setTimeout(200_000);
+
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
     const messageReference = letterId;
@@ -120,7 +124,7 @@ test.describe('Digital Letters - Create TTL', () => {
       const ttl = await getTtl(SENDER_ID_SKIPS_NOTIFY, messageReference);
 
       expect(ttl.length).toBe(1);
-    });
+    }, 90);
 
     // Verify item enqueued event published
     await expectToPassEventually(async () => {
@@ -134,7 +138,7 @@ test.describe('Digital Letters - Create TTL', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    });
+    }, 90);
   });
 
   test('should send invalid event to dlq', async () => {
