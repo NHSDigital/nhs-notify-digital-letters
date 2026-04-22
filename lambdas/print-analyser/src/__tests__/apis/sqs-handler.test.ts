@@ -176,21 +176,31 @@ describe('SQS Handler', () => {
         throw new Error('A forced error scenario');
       });
 
+      eventPublisher.sendEvents.mockImplementation(
+        async (events, validateFn) => {
+          for (const event of events) {
+            validateFn(event, logger);
+          }
+          return [];
+        },
+      );
+
       const event = recordEvent([fileSafeEvent]);
       const result = await handler(event);
 
+      expect(eventPublisher.sendEvents).toHaveBeenCalled();
       expect(logger.warn).toHaveBeenCalledWith({
-        err: 'A forced error scenario',
-        description: 'Failed processing message',
+        err: expect.objectContaining({ message: 'A forced error scenario' }),
+        messageReference: fileSafeEvent.data.messageReference,
+        reasonCode: 'DL_CLIV_002',
+        description: 'Failed to analyze PDF - invalid attachment format',
       });
 
       expect(logger.info).toHaveBeenCalledWith(
-        '0 of 1 records processed successfully',
+        '1 of 1 records processed successfully',
       );
 
-      expect(result).toEqual({
-        batchItemFailures: [{ itemIdentifier: '1' }],
-      });
+      expect(result).toEqual({ batchItemFailures: [] });
     });
 
     it('should return failed items to the queue if PDF analysis fails', async () => {
@@ -203,7 +213,7 @@ describe('SQS Handler', () => {
       const result = await handler(event);
 
       expect(logger.warn).toHaveBeenCalledWith({
-        err: 'S3 GetObject failed',
+        err: expect.objectContaining({ message: 'S3 GetObject failed' }),
         description: 'Failed processing message',
       });
 
@@ -256,6 +266,7 @@ describe('SQS Handler', () => {
       );
 
       expect(logger.warn).toHaveBeenCalledWith({
+        err: expect.any(Error),
         messageReference: fileSafeEvent.data.messageReference,
         reasonCode: 'DL_CLIV_002',
         description: 'Failed to analyze PDF - invalid attachment format',

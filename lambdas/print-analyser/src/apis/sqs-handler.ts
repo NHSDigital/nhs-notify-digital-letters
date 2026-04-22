@@ -100,8 +100,6 @@ function generateInvalidAttachmentEvent(
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-print-invalid-attachment-received-data.schema.json',
     type: 'uk.nhs.notify.digital.letters.print.invalid.attachment.received.v1',
-    // NOTE: CCM-13892 Generate event digital letters source property from scratch
-    source: '/nhs/england/notify/production/primary/digitalletters/print',
     data: {
       senderId,
       messageReference,
@@ -146,34 +144,29 @@ export const createHandler = ({
           const pdfBuffer = await getS3ObjectBufferFromUri(
             event.data.letterUri,
           );
-          const pdfInfo = await analysePdf(pdfBuffer);
-          validEvents.push(generateUpdatedEvent(event, pdfInfo));
-        } catch (error: any) {
-          const isPdfParsingError =
-            error.message?.includes('PDF') ||
-            error.message?.includes('parse') ||
-            error.message?.includes('Invalid') ||
-            error.name === 'PDFParsingError';
 
-          if (isPdfParsingError) {
-            const invalidAttachmentEvent = generateInvalidAttachmentEvent(
-              validatedRecord.event,
-            );
+          try {
+            const pdfInfo = await analysePdf(pdfBuffer);
+            validEvents.push(generateUpdatedEvent(event, pdfInfo));
+          } catch (pdfError: any) {
+            const invalidAttachmentEvent =
+              generateInvalidAttachmentEvent(event);
             validEvents.push(invalidAttachmentEvent);
             logger.warn({
-              messageReference: validatedRecord.event.data.messageReference,
+              err: pdfError,
+              messageReference: event.data.messageReference,
               reasonCode: 'DL_CLIV_002',
               description: 'Failed to analyze PDF - invalid attachment format',
             });
-          } else {
-            logger.warn({
-              err: error.message,
-              description: 'Failed processing message',
-            });
-            batchItemFailures.push({
-              itemIdentifier: validatedRecord.messageId,
-            });
           }
+        } catch (error: any) {
+          logger.warn({
+            err: error,
+            description: 'Failed processing message',
+          });
+          batchItemFailures.push({
+            itemIdentifier: validatedRecord.messageId,
+          });
         }
       }),
     );
