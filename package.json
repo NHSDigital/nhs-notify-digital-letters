@@ -54,6 +54,7 @@
     "generate-python-dependencies": "make -C src/python-schema-generator generate",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
+    "test:contract": "turbo run test:contract",
     "test:unit": "turbo run test:unit",
     "typecheck": "turbo run typecheck"
   },
@@ -82,6 +83,7 @@
     "src/digital-letters-events",
     "src/python-schema-generator",
     "src/typescript-schema-generator",
-    "tests/playwright"
+    "tests/playwright",
+    "tests/pact-tests"
   ]
 }

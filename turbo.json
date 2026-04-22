@@ -16,6 +16,11 @@
         "^lint:fix"
       ]
     },
+    "test:contract": {
+      "dependsOn": [
+        "^test:contract"
+      ]
+    },
     "test:unit": {
       "dependsOn": [
         "^test:unit"
