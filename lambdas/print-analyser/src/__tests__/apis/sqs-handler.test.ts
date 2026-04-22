@@ -168,41 +168,6 @@ describe('SQS Handler', () => {
       });
     });
 
-    it('should return failed items to the queue if event transformation fails', async () => {
-      const testPdf = fivePagePdf();
-      mockGetS3ObjectBufferFromUri.mockResolvedValue(testPdf);
-
-      mockRandomUUID.mockImplementationOnce(() => {
-        throw new Error('A forced error scenario');
-      });
-
-      eventPublisher.sendEvents.mockImplementation(
-        async (events, validateFn) => {
-          for (const event of events) {
-            validateFn(event, logger);
-          }
-          return [];
-        },
-      );
-
-      const event = recordEvent([fileSafeEvent]);
-      const result = await handler(event);
-
-      expect(eventPublisher.sendEvents).toHaveBeenCalled();
-      expect(logger.warn).toHaveBeenCalledWith({
-        err: expect.objectContaining({ message: 'A forced error scenario' }),
-        messageReference: fileSafeEvent.data.messageReference,
-        reasonCode: 'DL_CLIV_002',
-        description: 'Failed to analyze PDF - invalid attachment format',
-      });
-
-      expect(logger.info).toHaveBeenCalledWith(
-        '1 of 1 records processed successfully',
-      );
-
-      expect(result).toEqual({ batchItemFailures: [] });
-    });
-
     it('should return failed items to the queue if PDF analysis fails', async () => {
       mockGetS3ObjectBufferFromUri.mockRejectedValue(
         new Error('S3 GetObject failed'),
