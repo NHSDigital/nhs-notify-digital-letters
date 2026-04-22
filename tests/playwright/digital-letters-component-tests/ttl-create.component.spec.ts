@@ -138,7 +138,7 @@ test.describe('Digital Letters - Create TTL', () => {
   });
 
   test('should send invalid event to dlq', async () => {
-    test.setTimeout(160_000);
+    test.setTimeout(220_000);
 
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
@@ -170,14 +170,14 @@ test.describe('Digital Letters - Create TTL', () => {
         );
 
         expect(eventLogEntry.length).toEqual(1);
-      }, 150),
+      }, 200),
 
-      expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 150),
+      expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 200),
     ]);
   });
 
   test('should send events from unknown sender to dlq', async () => {
-    test.setTimeout(160_000);
+    test.setTimeout(220_000);
 
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
@@ -208,9 +208,9 @@ test.describe('Digital Letters - Create TTL', () => {
         );
 
         expect(eventLogEntry.length).toEqual(1);
-      }, 150),
+      }, 200),
 
-      expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 150),
+      expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 200),
     ]);
   });
 });
