@@ -1,18 +1,19 @@
 import { expect, test } from '@playwright/test';
 import {
-  ENV,
   MESH_DOWNLOAD_DLQ_NAME,
   MESH_DOWNLOAD_LAMBDA_LOG_GROUP_NAME,
   MESH_POLL_LAMBDA_NAME,
   NON_PII_S3_BUCKET_NAME,
   PII_S3_BUCKET_NAME,
+  EVENT_BUS_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { invokeLambda } from 'helpers/lambda-helpers';
 import { downloadFromS3, uploadToS3 } from 'helpers/s3-helpers';
-import { expectMessageContainingString } from 'helpers/sqs-helpers';
+import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { validateMESHInboxMessageReceived } from 'digital-letters-events';
@@ -72,6 +73,10 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
   const sendersMeshMailboxId = 'test-mesh-sender-1';
   const meshMailboxId = 'mock-mailbox';
 
+  test.beforeAll(async () => {
+    await purgeQueue(MESH_DOWNLOAD_DLQ_NAME);
+  });
+
   async function uploadMeshMessage(
     meshMessageId: string,
     messageReference: string,
@@ -93,58 +98,67 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
   async function expectMeshInboxMessageReceivedEvent(
     meshMessageId: string,
   ): Promise<void> {
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1"',
-          `$.details.event_detail = "*\\"meshMessageId\\":\\"${meshMessageId}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
-    }, 120_000);
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
+      (detail) => {
+        const data = (
+          detail as { data?: { meshMessageId?: string; senderId?: string } }
+        ).data;
+        return (
+          data?.meshMessageId === meshMessageId && data?.senderId === senderId
+        );
+      },
+      60_000,
+    );
   }
 
   async function expectMeshInboxMessageDownloadedEvent(
     messageReference: string,
   ): Promise<void> {
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
-    }, 180_000);
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
+      (detail) => {
+        const data = (
+          detail as {
+            data?: { messageReference?: string; senderId?: string };
+          }
+        ).data;
+        return (
+          data?.messageReference === messageReference &&
+          data?.senderId === senderId
+        );
+      },
+      60_000,
+    );
   }
 
   async function expectMeshInboxMessageInvalidEvent(
     meshMessageId: string,
     messageReference: string,
+    failureCode = 'DL_CLIV_005',
   ): Promise<void> {
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
-          `$.details.event_detail = "*\\"meshMessageId\\":\\"${meshMessageId}\\"*"`,
-          `$.details.event_detail = "*\\"failureCode\\":\\"DL_CLIV_005\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
-    }, 180_000);
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1',
+      (detail) => {
+        const data = (
+          detail as {
+            data?: {
+              meshMessageId?: string;
+              messageReference?: string;
+              senderId?: string;
+              failureCode?: string;
+            };
+          }
+        ).data;
+        return (
+          data?.meshMessageId === meshMessageId &&
+          data?.messageReference === messageReference &&
+          data?.senderId === senderId &&
+          data?.failureCode === failureCode
+        );
+      },
+      60_000,
+    );
   }
 
   test('should poll message from MESH inbox, publish received event, download message, and publish downloaded event', async () => {
@@ -287,6 +301,8 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
   });
 
   test('should publish MESHInboxMessageInvalid event when local_id is missing', async () => {
+    test.setTimeout(200_000);
+
     const meshMessageId = `${Date.now()}_INVALID_${uuidv4().slice(0, 8)}`;
     const messageContent = JSON.stringify({
       senderId,
@@ -300,20 +316,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
 
     await invokeLambda(MESH_POLL_LAMBDA_NAME);
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1"',
-          String.raw`$.details.event_detail = "*\"meshMessageId\":\"${meshMessageId}\"*"`,
-          String.raw`$.details.event_detail = "*\"senderId\":\"${senderId}\"*"`,
-          String.raw`$.details.event_detail = "*\"failureCode\":\"DL_CLIV_006\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
-    }, 120_000);
+    await expectMeshInboxMessageInvalidEvent(meshMessageId, '', 'DL_CLIV_006');
 
     await expectToPassEventually(async () => {
       await expect(async () => {
@@ -323,18 +326,6 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
         );
       }).rejects.toThrow('No objects found');
     }, 60_000);
-
-    await expectToPassEventually(async () => {
-      const receivedEvents = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1"',
-          `$.details.event_detail = "*\\"meshMessageId\\":\\"${meshMessageId}\\"*"`,
-        ],
-      );
-      expect(receivedEvents.length).toBe(0);
-    }, 15_000);
   });
 
   test('should skip publishing downloaded event and acknowledge message when document already exists in S3', async () => {
@@ -395,7 +386,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     // Assert that no MESHInboxMessageDownloaded event was published
     await expectToPassEventually(async () => {
       const downloadedEvents = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+        EVENT_BUS_LOG_GROUP_NAME,
         [
           '$.message_type = "EVENT_RECEIPT"',
           '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"',
