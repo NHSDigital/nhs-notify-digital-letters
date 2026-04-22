@@ -60,6 +60,7 @@
   },
   "version": "0.0.1",
   "workspaces": [
+    "docs",
     "lambdas/file-scanner-lambda",
     "lambdas/key-generation",
     "lambdas/refresh-apim-access-token",
