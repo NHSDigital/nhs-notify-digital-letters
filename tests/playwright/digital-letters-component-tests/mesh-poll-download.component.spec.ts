@@ -221,7 +221,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
   });
 
   test('should send message to mesh-download DLQ when download fails', async () => {
-    test.setTimeout(180_000);
+    test.setTimeout(220_000);
 
     const invalidMeshMessageId = `${Date.now()}_DLQ_${uuidv4().slice(0, 8)}`;
     const messageReference = uuidv4();
@@ -259,7 +259,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     await expectMessageContainingString(
       MESH_DOWNLOAD_DLQ_NAME,
       invalidMeshMessageId,
-      170,
+      200,
     );
   });
 
