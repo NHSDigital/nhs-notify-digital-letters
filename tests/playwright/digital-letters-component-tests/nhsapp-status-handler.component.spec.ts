@@ -117,6 +117,80 @@ test.describe('Digital Letters - NHSApp Status Handler', () => {
     ]);
   });
 
+  test('should handle duplicate event for the same TTL record', async () => {
+    const event = {
+      ...baseEvent,
+      data: {
+        ...baseEvent.data,
+        messageReference: uuidv4(),
+      },
+    };
+
+    const concatedReference = `${event.data.senderId}_${event.data.messageReference}`;
+
+    const ttlItem = {
+      PK: concatedReference,
+      SK: 'TTL',
+      dateOfExpiry: '2023-12-31#0',
+      event,
+      ttl: Date.now() / 1000 + 3600,
+    };
+
+    const channelStatusPublishedEvent = {
+      source: '/nhs/england/notify/comms-mgr-dev/dev/data-plane/messaging',
+      type: 'uk.nhs.notify.channel.status.PUBLISHED.v1',
+      data: {
+        messageReference: concatedReference,
+        supplierStatus: 'paper_letter_opted_out',
+      },
+    };
+
+    const putResponseCode = await putTtl(ttlItem);
+    expect(putResponseCode).toBe(200);
+
+    await eventPublisher.sendEvents<any>(
+      [channelStatusPublishedEvent, channelStatusPublishedEvent],
+      () => true,
+    );
+
+    await expectToPassEventually(async () => {
+      const ttl = await getTtl(
+        event.data.senderId,
+        event.data.messageReference,
+      );
+
+      expect(ttl.length).toBe(1);
+      expect(ttl[0]).toHaveProperty('withdrawn', true);
+    });
+
+    await Promise.all([
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
+          [
+            '$.message_type = "EVENT_RECEIPT"',
+            '$.details.detail_type = "uk.nhs.notify.digital.letters.queue.digital.letter.read.v1"',
+            `$.details.event_detail = "*\\"messageReference\\":\\"${event.data.messageReference}\\"*"`,
+          ],
+        );
+
+        expect(eventLogEntry.length).toEqual(2);
+      }),
+
+      expectToPassEventually(async () => {
+        const eventLogEntry = await getLogsFromCloudwatch(
+          NHSAPP_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
+          [
+            '$.message.description = "TTL record marked as withdrawn"',
+            `$.message.messageReference = "${concatedReference}"`,
+          ],
+        );
+
+        expect(eventLogEntry.length).toEqual(2);
+      }, 150),
+    ]);
+  });
+
   test('should handle missing TTL record', async () => {
     const concatedReference = `${uuidv4()}_${uuidv4()}`;
 
