@@ -5,7 +5,7 @@ import {
 import { Sender } from 'utils';
 import { randomUUID } from 'node:crypto';
 
-// The linter won't allow this to be a class if the pubic function is not using "this"
+// The linter won't allow this to be a class if the public function is not using "this"
 export function mapPdmEventToMessageRequestSkipped(
   pdmResourceAvailable: PDMResourceAvailable,
   sender: Sender,

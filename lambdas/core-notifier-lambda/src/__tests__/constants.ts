@@ -21,7 +21,8 @@ export const mockRequest1: SingleMessageRequest = {
         odsCode: 'A12345',
       },
       personalisation: {
-        digitalLetterURL: 'https://example.com/digital-letters?letterid=12345',
+        digitalLetterURL:
+          'https://example.com/patient/digital-letters/letter?id=12345',
       },
     },
   },
