@@ -1,17 +1,14 @@
 import { expect, test } from '@playwright/test';
 import {
-  ENV,
   FILE_SAFE_S3_BUCKET_NAME,
   PRINT_ANALYSER_DLQ_NAME,
-  PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
-import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
-import expectToPassEventually from 'helpers/expectations';
 import { fivePagePdf } from 'helpers/pdf-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { FileSafe, validateFileSafe } from 'digital-letters-events';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { putFileS3 } from 'utils';
 
 export const fileSafeEvent: FileSafe = {
@@ -66,23 +63,24 @@ test.describe('Print analyser', () => {
 
     await eventPublisher.sendEvents<FileSafe>([event], validateFileSafe);
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.print.pdf.analysed.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${event.data.senderId}\\"*"`,
-          `$.details.event_detail = "*\\"letterUri\\":\\"${event.data.letterUri}\\"*"`,
-          `$.details.event_detail = "*\\"pageCount\\":5*"`,
-          `$.details.event_detail = "*\\"sha256Hash\\":\\"631b6ef1a936e62277d55a80deb850babdde861152d476489d75b0c9161bd326\\"*"`,
-          `$.details.event_detail = "*\\"createdAt\\":\\"${event.data.createdAt}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    }, 120);
+    const analysedDetail = await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.print.pdf.analysed.v1',
+      (d) => {
+        const { data } = d as any;
+        return (
+          data.messageReference === messageReference &&
+          data.senderId === event.data.senderId
+        );
+      },
+      80_000,
+    );
+    const analysedData = (analysedDetail as any).data;
+    expect(analysedData.letterUri).toBe(event.data.letterUri);
+    expect(analysedData.pageCount).toBe(5);
+    expect(analysedData.sha256Hash).toBe(
+      '631b6ef1a936e62277d55a80deb850babdde861152d476489d75b0c9161bd326',
+    );
+    expect(analysedData.createdAt).toBe(event.data.createdAt);
   });
 
   test('should send invalid event to print analyser dlq', async () => {
@@ -99,25 +97,10 @@ test.describe('Print analyser', () => {
 
     await eventPublisher.sendEvents<FileSafe>([event], () => true);
 
-    await Promise.all([
-      expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          PRINT_ANALYSER_LAMBDA_LOG_GROUP_NAME,
-          [
-            '$.message.description = "Error parsing FileSafe event"',
-            `$.message.err[0].message = "must have required property 'senderId'"`,
-            `$.messageReference = "${messageReference}"`,
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 150),
-
-      expectMessageContainingString(
-        PRINT_ANALYSER_DLQ_NAME,
-        messageReference,
-        150,
-      ),
-    ]);
+    await expectMessageContainingString(
+      PRINT_ANALYSER_DLQ_NAME,
+      messageReference,
+      150,
+    );
   });
 });

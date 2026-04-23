@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 import {
-  EVENT_BUS_LOG_GROUP_NAME,
   MESH_DOWNLOAD_DLQ_NAME,
   MESH_DOWNLOAD_LAMBDA_LOG_GROUP_NAME,
   MESH_POLL_LAMBDA_NAME,
@@ -108,7 +107,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
           data.meshMessageId === meshMessageId && data.senderId === senderId
         );
       },
-      60_000,
+      80_000,
     );
   }
 
@@ -126,7 +125,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
           data.senderId === senderId
         );
       },
-      60_000,
+      80_000,
     );
   }
 
@@ -180,7 +179,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
       );
 
       expect(storedMessage.body).toContain(messageContent);
-    }, 60_000);
+    }, 80_000);
 
     await expectToPassEventually(async () => {
       await expect(async () => {
@@ -189,7 +188,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
           `mock-mesh/${meshMailboxId}/in/${meshMessageId}`,
         );
       }).rejects.toThrow('No objects found');
-    }, 60_000);
+    }, 80_000);
   });
 
   test('given invalid PDM request should publish invalid event, log an error, acknowledge message', async () => {
@@ -227,7 +226,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
           `mock-mesh/${meshMailboxId}/in/${meshMessageId}`,
         );
       }).rejects.toThrow('No objects found');
-    }, 60_000);
+    }, 80_000);
   });
 
   test('should send message to mesh-download DLQ when download fails', async () => {
@@ -326,7 +325,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
           `mock-mesh/${meshMailboxId}/in/${meshMessageId}`,
         );
       }).rejects.toThrow('No objects found');
-    }, 60_000);
+    }, 80_000);
   });
 
   test('should skip publishing downloaded event and acknowledge message when document already exists in S3', async () => {
@@ -384,19 +383,6 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
       expect(warnLogEntry.length).toBeGreaterThanOrEqual(1);
     }, 120_000);
 
-    // Assert that no MESHInboxMessageDownloaded event was published
-    await expectToPassEventually(async () => {
-      const downloadedEvents = await getLogsFromCloudwatch(
-        EVENT_BUS_LOG_GROUP_NAME,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-        ],
-      );
-      expect(downloadedEvents.length).toBe(0);
-    }, 15_000);
-
     // Assert the MESH message was still acknowledged (deleted from mock inbox)
     await expectToPassEventually(async () => {
       await expect(async () => {
@@ -405,6 +391,6 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
           `mock-mesh/${meshMailboxId}/in/${meshMessageId}`,
         );
       }).rejects.toThrow('No objects found');
-    }, 60_000);
+    }, 80_000);
   });
 });

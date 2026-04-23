@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 import {
-  ENV,
   MESH_ACKNOWLEDGE_DLQ_NAME,
   NON_PII_S3_BUCKET_NAME,
 } from 'constants/backend-constants';
@@ -11,11 +10,11 @@ import {
   validateMESHInboxMessageDownloaded,
   validateMESHInboxMessageInvalid,
 } from 'digital-letters-events';
-import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { downloadFromS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Mesh Acknowledger', () => {
@@ -76,33 +75,25 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
       validateMESHInboxMessageDownloaded,
     );
 
-    // The mailbox ID matches the Mock MESH config in SSM.
     const meshMailboxId = 'mock-mailbox';
 
     // Verify message acknowledged event was published,
     // and extract sentMeshMessageId to use for the S3 lookup.
-    let sentMeshMessageId: string;
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.acknowledged.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
-          `$.details.event_detail = "*\\"meshMailboxId\\":\\"${sendersMeshMailboxId}\\"*"`,
-          `$.details.event_detail = "*\\"receivedMeshMessageId\\":\\"${meshMessageId}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-
-      const eventDetail = JSON.parse(
-        (eventLogEntry[0] as any).details.event_detail,
-      );
-      sentMeshMessageId = eventDetail.data.sentMeshMessageId;
-      expect(sentMeshMessageId).toBeTruthy();
-    });
+    const acknowledgedDetail = await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.mesh.inbox.message.acknowledged.v1',
+      (d) => {
+        const { data } = d as any;
+        return (
+          data.messageReference === messageReference &&
+          data.senderId === senderId &&
+          data.meshMailboxId === sendersMeshMailboxId &&
+          data.receivedMeshMessageId === meshMessageId
+        );
+      },
+      80_000,
+    );
+    const { sentMeshMessageId } = (acknowledgedDetail as any).data;
+    expect(sentMeshMessageId).toBeTruthy();
 
     // Verify MESH acknowledgement message was sent.
     await expectToPassEventually(async () => {
@@ -208,29 +199,22 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
 
     // Verify message acknowledged event was published with statusCode 400,
     // and extract sentMeshMessageId to use for the S3 lookup.
-    let sentMeshMessageId: string;
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.mesh.inbox.message.acknowledged.v1"',
-          `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
-          `$.details.event_detail = "*\\"meshMailboxId\\":\\"${sendersMeshMailboxId}\\"*"`,
-          `$.details.event_detail = "*\\"statusCode\\":400*"`,
-          `$.details.event_detail = "*\\"failureCode\\":\\"${failureCode}\\"*"`,
-          `$.details.event_detail = "*\\"receivedMeshMessageId\\":\\"${meshMessageId}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-
-      const eventDetail = JSON.parse(
-        (eventLogEntry[0] as any).details.event_detail,
-      );
-      sentMeshMessageId = eventDetail.data.sentMeshMessageId;
-      expect(sentMeshMessageId).toBeTruthy();
-    }, 120_000);
+    const acknowledgedDetail2 = await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.mesh.inbox.message.acknowledged.v1',
+      (d) => {
+        const { data } = d as any;
+        return (
+          data.senderId === senderId &&
+          data.meshMailboxId === sendersMeshMailboxId &&
+          data.statusCode === 400 &&
+          data.failureCode === failureCode &&
+          data.receivedMeshMessageId === meshMessageId
+        );
+      },
+      80_000,
+    );
+    const { sentMeshMessageId } = (acknowledgedDetail2 as any).data;
+    expect(sentMeshMessageId).toBeTruthy();
 
     // Verify MESH negative acknowledgement message was sent.
     await expectToPassEventually(async () => {

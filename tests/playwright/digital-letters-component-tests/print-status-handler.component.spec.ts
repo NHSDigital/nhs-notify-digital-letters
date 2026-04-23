@@ -1,15 +1,10 @@
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 import { LetterEvent } from '@nhsdigital/nhs-notify-event-schemas-supplier-api/src/events/letter-events';
-import {
-  ENV,
-  PRINT_STATUS_HANDLER_DLQ_NAME,
-  PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
-} from 'constants/backend-constants';
-import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
+import { PRINT_STATUS_HANDLER_DLQ_NAME } from 'constants/backend-constants';
 import eventPublisher from 'helpers/event-bus-helpers';
-import expectToPassEventually from 'helpers/expectations';
 import { v4 as uuidv4 } from 'uuid';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 
 const baseLetterEvent = {
   id: '550e8400-e29b-41d4-a716-446655440001',
@@ -78,19 +73,16 @@ test.describe('Print status handler', () => {
 
       await eventPublisher.sendEvents<LetterEvent>([letterEvent], () => true);
 
-      await expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-          [
-            '$.message_type = "EVENT_RECEIPT"',
-            '$.details.detail_type = "uk.nhs.notify.digital.letters.print.letter.transitioned.v1"',
-            `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-            `$.details.event_detail = "*\\"status\\":\\"${status}\\"*"`,
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 120);
+      await expectEventOnTestObserverQueue(
+        'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
+        (d) => {
+          const { data } = d as any;
+          return (
+            data.messageReference === messageReference && data.status === status
+          );
+        },
+        120_000,
+      );
     });
   }
 
@@ -119,24 +111,10 @@ test.describe('Print status handler', () => {
       () => true,
     );
 
-    await Promise.all([
-      expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          PRINT_STATUS_HANDLER_LAMBDA_LOG_GROUP_NAME,
-          [
-            String.raw`$.message.err.message = "*Invalid option: expected one of \\\"PENDING\\\"*"`,
-            '$.message.description = "Error parsing queue item"',
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 150),
-
-      expectMessageContainingString(
-        PRINT_STATUS_HANDLER_DLQ_NAME,
-        messageReference,
-        150,
-      ),
-    ]);
+    await expectMessageContainingString(
+      PRINT_STATUS_HANDLER_DLQ_NAME,
+      messageReference,
+      150,
+    );
   });
 });

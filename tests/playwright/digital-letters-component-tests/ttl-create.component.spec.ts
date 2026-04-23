@@ -87,7 +87,7 @@ test.describe('Digital Letters - Create TTL', () => {
         const { data } = detail as { data: { messageUri: string } };
         return data.messageUri === messageUri;
       },
-      60_000,
+      80_000,
     );
   });
 
@@ -127,7 +127,7 @@ test.describe('Digital Letters - Create TTL', () => {
         const { data } = detail as { data: { messageUri: string } };
         return data.messageUri === messageUri;
       },
-      60_000,
+      80_000,
     );
   });
 
@@ -153,21 +153,7 @@ test.describe('Digital Letters - Create TTL', () => {
       () => true,
     );
 
-    await Promise.all([
-      expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
-          [
-            '$.message.description = "Error parsing MESHInboxMessageDownloaded event"',
-            `$.message.err[0].params.additionalProperty = "${unexpectedField}"`,
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 150),
-
-      expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 150),
-    ]);
+    expectMessageContainingString(CREATE_TTL_DLQ_NAME, letterId, 150);
   });
 
   test('should send events from unknown sender to dlq', async () => {

@@ -55,8 +55,8 @@ test.describe('Digital Letters - Send reports to Trust', () => {
     const detail = await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.reporting.report.sent.v1',
       (d) =>
-        (d.data as any)?.meshMailboxReportsId === meshMailboxReportsId &&
-        (d.data as any)?.senderId === senderId,
+        (d.data as any).meshMailboxReportsId === meshMailboxReportsId &&
+        (d.data as any).senderId === senderId,
       120_000,
     );
 

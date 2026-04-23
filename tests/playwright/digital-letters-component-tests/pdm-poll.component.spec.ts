@@ -69,7 +69,7 @@ test.describe('PDM Poll', () => {
       const availableDetail = await expectEventOnTestObserverQueue(
         'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
         (d) => (d as any).data.messageReference === messageReference,
-        60_000,
+        80_000,
       );
       expect((availableDetail as any).data.odsCode).toBe('Y05868');
       expect((availableDetail as any).data.nhsNumber).toBe('9912003071');
@@ -99,7 +99,7 @@ test.describe('PDM Poll', () => {
       const unavailableDetail = await expectEventOnTestObserverQueue(
         'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
         (d) => (d as any).data.messageReference === messageReference,
-        60_000,
+        80_000,
       );
       expect((unavailableDetail as any).data.retryCount).toBe(0);
     });
@@ -131,7 +131,7 @@ test.describe('PDM Poll', () => {
       const availableDetail2 = await expectEventOnTestObserverQueue(
         'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
         (d) => (d as any).data.messageReference === messageReference,
-        60_000,
+        80_000,
       );
       expect((availableDetail2 as any).data.odsCode).toBe('Y05868');
       expect((availableDetail2 as any).data.nhsNumber).toBe('9912003071');
@@ -167,7 +167,7 @@ test.describe('PDM Poll', () => {
             data.messageReference === messageReference && data.retryCount === 1
           );
         },
-        60_000,
+        80_000,
       );
       expect((unavailableDetail2 as any).data.retryCount).toBe(1);
     });
@@ -197,7 +197,7 @@ test.describe('PDM Poll', () => {
       const exceededDetail = await expectEventOnTestObserverQueue(
         'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
         (d) => (d as any).data.messageReference === messageReference,
-        60_000,
+        80_000,
       );
       expect((exceededDetail as any).data.retryCount).toBe(10);
     });

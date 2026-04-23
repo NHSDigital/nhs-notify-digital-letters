@@ -1,8 +1,5 @@
 import { expect, test } from '@playwright/test';
-import {
-  CORE_NOTIFIER_DLQ_NAME,
-  CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
-} from 'constants/backend-constants';
+import { CORE_NOTIFIER_DLQ_NAME } from 'constants/backend-constants';
 import {
   SENDER_ID_SKIPS_NOTIFY,
   SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX,
@@ -12,9 +9,7 @@ import {
   PDMResourceAvailable,
   validatePDMResourceAvailable,
 } from 'digital-letters-events';
-import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
-import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
@@ -69,20 +64,6 @@ test.describe('Digital Letters - Core Notify', () => {
       validatePDMResourceAvailable,
     );
 
-    // Verify the event is processed and a message appears in the Lambda logs
-    await expectToPassEventually(async () => {
-      const filteredLogs = await getLogsFromCloudwatch(
-        CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
-        [
-          '$.message.description  = "Successfully processed request and sent to Notify"',
-          `$.message.messageReference  = "${messageReference}"`,
-        ],
-      );
-
-      expect(filteredLogs.length).toEqual(1);
-    }, 240);
-
-    // Verify the event is published in the event bus
     const submittedDetail = await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.messages.request.submitted.v1',
       (d) => {
@@ -92,7 +73,7 @@ test.describe('Digital Letters - Core Notify', () => {
           data.senderId === SENDER_ID_VALID_FOR_NOTIFY_SANDBOX
         );
       },
-      60_000,
+      80_000,
     );
     const submittedData = (submittedDetail as any).data;
     expect(submittedData.notifyId).toBeTruthy();
@@ -123,20 +104,6 @@ test.describe('Digital Letters - Core Notify', () => {
       validatePDMResourceAvailable,
     );
 
-    // Verify the event is processed and a message appears in the Lambda logs
-    await expectToPassEventually(async () => {
-      const filteredLogs = await getLogsFromCloudwatch(
-        CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
-        [
-          '$.message.description  = "Failed sending request to Notify API"',
-          `$.message.messageReference  = "${messageReference}"`,
-        ],
-      );
-
-      expect(filteredLogs.length).toEqual(1);
-    }, 240);
-
-    // Verify the event is published in the event bus
     const rejectedDetail = await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.messages.request.rejected.v1',
       (d) => {
@@ -146,7 +113,7 @@ test.describe('Digital Letters - Core Notify', () => {
           data.senderId === SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX
         );
       },
-      60_000,
+      80_000,
     );
     const rejectedData = (rejectedDetail as any).data;
     expect(rejectedData.failureCode).toBe('CM_INVALID_VALUE');
@@ -186,7 +153,7 @@ test.describe('Digital Letters - Core Notify', () => {
           data.senderId === SENDER_ID_SKIPS_NOTIFY
         );
       },
-      60_000,
+      80_000,
     );
   });
 

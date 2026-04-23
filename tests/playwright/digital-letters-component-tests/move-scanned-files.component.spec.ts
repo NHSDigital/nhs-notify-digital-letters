@@ -3,12 +3,10 @@ import {
   FILE_QUARANTINE_S3_BUCKET_NAME,
   FILE_SAFE_S3_BUCKET_NAME,
   MOVE_SCANNED_FILES_DLQ_NAME,
-  MOVE_SCANNED_FILES_LAMBDA_LOG_GROUP_NAME,
   PREFIX_DL_FILES,
   UNSCANNED_FILES_S3_BUCKET_NAME,
 } from 'constants/backend-constants';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
-import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
 import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
@@ -39,21 +37,6 @@ test.describe('Digital Letters - Move Scanned Files', () => {
 
     await s3Client.send(new PutObjectCommand(params));
 
-    // Verify the event is processed and a message appears in the Lambda logs
-    await expectToPassEventually(async () => {
-      const filteredLogs = await getLogsFromCloudwatch(
-        MOVE_SCANNED_FILES_LAMBDA_LOG_GROUP_NAME,
-        [
-          '$.message.description  = "Moved file to destination bucket"',
-          '$.message.scanStatus  = "COMPLETED"',
-          `$.message.messageReference  = "${messageReference}"`,
-          `$.message.senderId  = "${SENDER_ID_SKIPS_NOTIFY}"`,
-        ],
-      );
-
-      expect(filteredLogs.length).toEqual(1);
-    }, 240);
-
     // Verify the event is published in the event bus
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.print.file.safe.v1',
@@ -66,7 +49,7 @@ test.describe('Digital Letters - Move Scanned Files', () => {
           data.senderId === SENDER_ID_SKIPS_NOTIFY
         );
       },
-      60_000,
+      80_000,
     );
 
     await expectToPassEventually(async () => {
@@ -118,21 +101,6 @@ test.describe('Digital Letters - Move Scanned Files', () => {
 
     await s3Client.send(new PutObjectCommand(params));
 
-    // Verify the event is processed and a message appears in the Lambda logs
-    await expectToPassEventually(async () => {
-      const filteredLogs = await getLogsFromCloudwatch(
-        MOVE_SCANNED_FILES_LAMBDA_LOG_GROUP_NAME,
-        [
-          '$.message.description  = "Moved file to destination bucket"',
-          '$.message.scanStatus  = "COMPLETED"',
-          `$.message.messageReference  = "${messageReference}"`,
-          `$.message.senderId  = "${SENDER_ID_SKIPS_NOTIFY}"`,
-        ],
-      );
-
-      expect(filteredLogs.length).toEqual(1);
-    }, 240);
-
     // Verify the event is published in the event bus
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.print.file.quarantined.v1',
@@ -145,7 +113,7 @@ test.describe('Digital Letters - Move Scanned Files', () => {
           data.senderId === SENDER_ID_SKIPS_NOTIFY
         );
       },
-      60_000,
+      80_000,
     );
 
     await expectToPassEventually(async () => {

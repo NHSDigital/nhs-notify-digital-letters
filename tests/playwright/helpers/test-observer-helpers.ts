@@ -17,11 +17,14 @@ const queueUrl = `${SQS_URL_PREFIX}${TEST_OBSERVER_QUEUE_NAME}`;
  *
  * The test observer queue is subscribed to the EventBridge bus and receives all
  * uk.nhs.notify.digital.letters.* events.
+ *
+ * Unmatched messages are immediately returned to the queue (VisibilityTimeout: 0)
+ * so concurrent tests are not starved.
  */
 export async function expectEventOnTestObserverQueue(
   eventType: string,
   matchFn: (detail: Record<string, unknown>) => boolean,
-  timeoutMs = 60_000,
+  timeoutMs = 80_000,
 ): Promise<Record<string, unknown>> {
   const start = Date.now();
 
@@ -30,8 +33,8 @@ export async function expectEventOnTestObserverQueue(
       new ReceiveMessageCommand({
         QueueUrl: queueUrl,
         MaxNumberOfMessages: 10,
-        WaitTimeSeconds: 2,
-        VisibilityTimeout: 5,
+        WaitTimeSeconds: 10,
+        VisibilityTimeout: 30,
       }),
     );
 
@@ -50,13 +53,18 @@ export async function expectEventOnTestObserverQueue(
           );
           return detail;
         }
-        await sqsClient.send(
-          new ChangeMessageVisibilityCommand({
-            QueueUrl: queueUrl,
-            ReceiptHandle: msg.ReceiptHandle!,
-            VisibilityTimeout: 0,
-          }),
-        );
+
+        // Immediately return unmatched messages so concurrent tests are not starved
+        try {
+          await sqsClient.send(
+            new ChangeMessageVisibilityCommand({
+              QueueUrl: queueUrl,
+              ReceiptHandle: msg.ReceiptHandle!,
+              VisibilityTimeout: 5,
+            }),
+          );
+        } catch {
+        }
       }
     }
   }

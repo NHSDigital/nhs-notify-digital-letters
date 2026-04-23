@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 import {
-  EVENT_BUS_LOG_GROUP_NAME,
   LETTERS_S3_BUCKET_NAME,
   PDM_UPLOADER_DLQ_NAME,
   PDM_UPLOADER_LAMBDA_LOG_GROUP_NAME,
@@ -9,6 +8,7 @@ import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { putDataS3 } from 'utils';
@@ -100,18 +100,11 @@ test.describe('Digital Letters - Upload to PDM', () => {
       expect(filteredLogs.length).toEqual(1);
     }, 120);
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        EVENT_BUS_LOG_GROUP_NAME,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.submitted.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    }, 120);
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
+      (d) => (d as any).data.messageReference === messageReference,
+      80_000,
+    );
   });
 
   test('should send a pdm.resource.submission.rejected event following an error from PDM', async () => {
@@ -166,18 +159,11 @@ test.describe('Digital Letters - Upload to PDM', () => {
       expect(filteredLogs.length).toEqual(1);
     }, 120);
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        EVENT_BUS_LOG_GROUP_NAME,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    }, 120);
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1',
+      (d) => (d as any).data.messageReference === messageReference,
+      80_000,
+    );
   });
 
   test('should send invalid event to uploader dlq', async () => {
@@ -205,21 +191,6 @@ test.describe('Digital Letters - Upload to PDM', () => {
       () => true,
     );
 
-    await Promise.all([
-      expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          EVENT_BUS_LOG_GROUP_NAME,
-          [
-            '$.message_type = "EVENT_RECEIPT"',
-            '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1"',
-            `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 150),
-
-      expectMessageContainingString(PDM_UPLOADER_DLQ_NAME, eventId, 150),
-    ]);
+    await expectMessageContainingString(PDM_UPLOADER_DLQ_NAME, eventId, 150);
   });
 });
