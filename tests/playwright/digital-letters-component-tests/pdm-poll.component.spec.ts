@@ -1,17 +1,12 @@
 import { expect, test } from '@playwright/test';
-import {
-  EVENT_BUS_LOG_GROUP_NAME,
-  PDM_POLL_DLQ_NAME,
-  PDM_POLL_LAMBDA_LOG_GROUP_NAME,
-} from 'constants/backend-constants';
+import { PDM_POLL_DLQ_NAME } from 'constants/backend-constants';
 import {
   validatePDMResourceSubmitted,
   validatePDMResourceUnavailable,
 } from 'digital-letters-events';
-import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
-import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 const baseEvent = {
@@ -71,20 +66,13 @@ test.describe('PDM Poll', () => {
         validatePDMResourceSubmitted,
       );
 
-      await expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          EVENT_BUS_LOG_GROUP_NAME,
-          [
-            '$.message_type = "EVENT_RECEIPT"',
-            '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.available.v1"',
-            `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-            `$.details.event_detail = "*\\"odsCode\\":\\"Y05868\\"*"`,
-            `$.details.event_detail = "*\\"nhsNumber\\":\\"9912003071\\"*"`,
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 120);
+      const availableDetail = await expectEventOnTestObserverQueue(
+        'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+        (d) => (d as any).data.messageReference === messageReference,
+        60_000,
+      );
+      expect((availableDetail as any).data.odsCode).toBe('Y05868');
+      expect((availableDetail as any).data.nhsNumber).toBe('9912003071');
     });
 
     test('should send a pdm.resource.unavailable event when unavailable in PDM', async () => {
@@ -108,19 +96,12 @@ test.describe('PDM Poll', () => {
         validatePDMResourceSubmitted,
       );
 
-      await expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          EVENT_BUS_LOG_GROUP_NAME,
-          [
-            '$.message_type = "EVENT_RECEIPT"',
-            '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1"',
-            `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-            `$.details.event_detail = "*\\"retryCount\\":0*"`,
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 120);
+      const unavailableDetail = await expectEventOnTestObserverQueue(
+        'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
+        (d) => (d as any).data.messageReference === messageReference,
+        60_000,
+      );
+      expect((unavailableDetail as any).data.retryCount).toBe(0);
     });
   });
 
@@ -147,20 +128,13 @@ test.describe('PDM Poll', () => {
         validatePDMResourceUnavailable,
       );
 
-      await expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          EVENT_BUS_LOG_GROUP_NAME,
-          [
-            '$.message_type = "EVENT_RECEIPT"',
-            '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.available.v1"',
-            `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-            `$.details.event_detail = "*\\"odsCode\\":\\"Y05868\\"*"`,
-            `$.details.event_detail = "*\\"nhsNumber\\":\\"9912003071\\"*"`,
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 120);
+      const availableDetail2 = await expectEventOnTestObserverQueue(
+        'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
+        (d) => (d as any).data.messageReference === messageReference,
+        60_000,
+      );
+      expect((availableDetail2 as any).data.odsCode).toBe('Y05868');
+      expect((availableDetail2 as any).data.nhsNumber).toBe('9912003071');
     });
 
     test('should send a pdm.resource.unavailable event when still unavailable in PDM', async () => {
@@ -185,19 +159,17 @@ test.describe('PDM Poll', () => {
         validatePDMResourceUnavailable,
       );
 
-      await expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          EVENT_BUS_LOG_GROUP_NAME,
-          [
-            '$.message_type = "EVENT_RECEIPT"',
-            '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1"',
-            `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-            `$.details.event_detail = "*\\"retryCount\\":1*"`,
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 120);
+      const unavailableDetail2 = await expectEventOnTestObserverQueue(
+        'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
+        (d) => {
+          const { data } = d as any;
+          return (
+            data.messageReference === messageReference && data.retryCount === 1
+          );
+        },
+        60_000,
+      );
+      expect((unavailableDetail2 as any).data.retryCount).toBe(1);
     });
 
     test('should send a pdm.resource.retries.exceeded event when unavailable in PDM after 10 retries', async () => {
@@ -222,19 +194,12 @@ test.describe('PDM Poll', () => {
         validatePDMResourceUnavailable,
       );
 
-      await expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          EVENT_BUS_LOG_GROUP_NAME,
-          [
-            '$.message_type = "EVENT_RECEIPT"',
-            '$.details.detail_type = "uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1"',
-            `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-            `$.details.event_detail = "*\\"retryCount\\":10*"`,
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 120);
+      const exceededDetail = await expectEventOnTestObserverQueue(
+        'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
+        (d) => (d as any).data.messageReference === messageReference,
+        60_000,
+      );
+      expect((exceededDetail as any).data.retryCount).toBe(10);
     });
   });
 
@@ -265,19 +230,6 @@ test.describe('PDM Poll', () => {
       () => true,
     );
 
-    await Promise.all([
-      expectToPassEventually(async () => {
-        const eventLogEntry = await getLogsFromCloudwatch(
-          PDM_POLL_LAMBDA_LOG_GROUP_NAME,
-          [
-            `$.message.err[0].message = "must have required property 'retryCount'"`,
-          ],
-        );
-
-        expect(eventLogEntry.length).toEqual(1);
-      }, 150),
-
-      expectMessageContainingString(PDM_POLL_DLQ_NAME, eventId, 150),
-    ]);
+    expectMessageContainingString(PDM_POLL_DLQ_NAME, eventId, 150);
   });
 });

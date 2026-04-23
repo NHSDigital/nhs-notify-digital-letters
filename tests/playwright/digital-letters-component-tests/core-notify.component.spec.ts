@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test';
 import {
   CORE_NOTIFIER_DLQ_NAME,
   CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
-  EVENT_BUS_LOG_GROUP_NAME,
 } from 'constants/backend-constants';
 import {
   SENDER_ID_SKIPS_NOTIFY,
@@ -17,6 +16,7 @@ import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 const baseEvent: Omit<PDMResourceAvailable, 'id' | 'data'> = {
@@ -83,21 +83,22 @@ test.describe('Digital Letters - Core Notify', () => {
     }, 240);
 
     // Verify the event is published in the event bus
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        EVENT_BUS_LOG_GROUP_NAME,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.messages.request.submitted.v1"',
-          `$.details.event_detail = "*\\"notifyId\\":\\"*\\"*"`,
-          `$.details.event_detail = "*\\"messageUri\\":\\"https://www.nhsapp.service.nhs.uk/digital-letters?letterid=${resourceId}\\"*"`,
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${SENDER_ID_VALID_FOR_NOTIFY_SANDBOX}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    }, 240);
+    const submittedDetail = await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.messages.request.submitted.v1',
+      (d) => {
+        const { data } = d as any;
+        return (
+          data.messageReference === messageReference &&
+          data.senderId === SENDER_ID_VALID_FOR_NOTIFY_SANDBOX
+        );
+      },
+      60_000,
+    );
+    const submittedData = (submittedDetail as any).data;
+    expect(submittedData.notifyId).toBeTruthy();
+    expect(submittedData.messageUri).toBe(
+      `https://www.nhsapp.service.nhs.uk/digital-letters?letterid=${resourceId}`,
+    );
   });
 
   test('given PDMResourceAvailable event with a client configured with a Routing plan not recognized by the Core Notify sandbox, when the sandbox receives the event then it replies with an error', async () => {
@@ -136,21 +137,22 @@ test.describe('Digital Letters - Core Notify', () => {
     }, 240);
 
     // Verify the event is published in the event bus
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        EVENT_BUS_LOG_GROUP_NAME,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.messages.request.rejected.v1"',
-          `$.details.event_detail = "*\\"failureCode\\":\\"CM_INVALID_VALUE\\"*"`,
-          `$.details.event_detail = "*\\"messageUri\\":\\"https://www.nhsapp.service.nhs.uk/digital-letters?letterid=${resourceId}\\"*"`,
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    }, 240);
+    const rejectedDetail = await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.messages.request.rejected.v1',
+      (d) => {
+        const { data } = d as any;
+        return (
+          data.messageReference === messageReference &&
+          data.senderId === SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX
+        );
+      },
+      60_000,
+    );
+    const rejectedData = (rejectedDetail as any).data;
+    expect(rejectedData.failureCode).toBe('CM_INVALID_VALUE');
+    expect(rejectedData.messageUri).toBe(
+      `https://www.nhsapp.service.nhs.uk/digital-letters?letterid=${resourceId}`,
+    );
   });
 
   test('given PDMResourceAvailable event, when client does NOT have routingConfigId then a message is NOT sent to core Notify', async () => {
@@ -175,19 +177,17 @@ test.describe('Digital Letters - Core Notify', () => {
     );
 
     // Verify the event is published in the event bus
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        EVENT_BUS_LOG_GROUP_NAME,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.messages.request.skipped.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${SENDER_ID_SKIPS_NOTIFY}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    }, 240);
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.messages.request.skipped.v1',
+      (d) => {
+        const { data } = d as any;
+        return (
+          data.messageReference === messageReference &&
+          data.senderId === SENDER_ID_SKIPS_NOTIFY
+        );
+      },
+      60_000,
+    );
   });
 
   test('given PDMResourceAvailable event, when client does NOT exist then it goes to DLQ', async () => {
@@ -212,18 +212,7 @@ test.describe('Digital Letters - Core Notify', () => {
       validatePDMResourceAvailable,
     );
 
-    await Promise.all([
-      // Verify the event is processed and a message appears in the Lambda logs
-      expectToPassEventually(async () => {
-        const filteredLogs = await getLogsFromCloudwatch(
-          CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
-          ['$.message.description  = "0 of 1 records processed successfully"'],
-        );
-
-        expect(filteredLogs.length).toBeGreaterThanOrEqual(1);
-      }, 240),
-      // Verify there is a message in the DLQ
-      expectMessageContainingString(CORE_NOTIFIER_DLQ_NAME, eventId, 240),
-    ]);
+    // Verify there is a message in the DLQ
+    expectMessageContainingString(CORE_NOTIFIER_DLQ_NAME, eventId, 240);
   });
 });

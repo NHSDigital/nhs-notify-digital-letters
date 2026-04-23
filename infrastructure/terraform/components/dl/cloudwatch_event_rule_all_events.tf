@@ -18,3 +18,10 @@ resource "aws_cloudwatch_event_target" "reporting_firehose" {
   role_arn       = aws_iam_role.eventbridge_firehose.arn
   event_bus_name = aws_cloudwatch_event_bus.main.name
 }
+
+resource "aws_cloudwatch_event_target" "test_observer_sqs" {
+  rule           = aws_cloudwatch_event_rule.all_events.name
+  target_id      = "test-observer-sqs-target"
+  arn            = module.sqs_test_observer.sqs_queue_arn
+  event_bus_name = aws_cloudwatch_event_bus.main.name
+}

@@ -32,6 +32,7 @@ export const PRINT_SENDER_DLQ_NAME = `${CSI}-print-sender-dlq`;
 export const MOVE_SCANNED_FILES_NAME = `${CSI}-move-scanned-files-queue`;
 export const MOVE_SCANNED_FILES_DLQ_NAME = `${CSI}-move-scanned-files-dlq`;
 export const REPORT_SENDER_DLQ_NAME = `${CSI}-report-sender-dlq`;
+export const TEST_OBSERVER_QUEUE_NAME = `${CSI}-test-observer-queue`;
 
 // Queue Url Prefix
 export const SQS_URL_PREFIX = `https://sqs.${REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/`;
@@ -81,3 +82,4 @@ export const MINIMUM_PROCESSOR_BUFFER_INTERVAL = 0;
 // Athena
 export const ATHENA_WORKGROUP_NAME = CSI;
 export const CREATE_TTL_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-ttl-create`;
+export const TTL_HANDLE_EXPIRY_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-ttl-handle-expiry`;

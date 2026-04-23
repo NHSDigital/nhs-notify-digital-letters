@@ -5,9 +5,8 @@ import {
   REPORTING_S3_BUCKET_NAME,
   REPORT_SENDER_DLQ_NAME,
 } from 'constants/backend-constants';
-import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
-import expectToPassEventually from 'helpers/expectations';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { downloadFromS3, uploadToS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
@@ -53,35 +52,23 @@ test.describe('Digital Letters - Send reports to Trust', () => {
   async function expectReportSentEventAndMeshMessageSent(
     meshMailboxReportsId: string,
   ): Promise<void> {
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.reporting.report.sent.v1"',
-          `$.details.event_detail = "*\\"meshMailboxReportsId\\":\\"${meshMailboxReportsId}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${senderId}\\"*"`,
-        ],
-      );
+    const detail = await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.reporting.report.sent.v1',
+      (d) =>
+        (d.data as any)?.meshMailboxReportsId === meshMailboxReportsId &&
+        (d.data as any)?.senderId === senderId,
+      120_000,
+    );
 
-      expect(eventLogEntry.length).toBeGreaterThanOrEqual(1);
+    const { sentMeshMessageId } = detail.data as any;
+    expect(sentMeshMessageId).toBeTruthy();
+    //  Mock MESH uses NON_PII_S3_BUCKET_NAME bucket, the object key is the sentMeshMessageId.
+    const storedMessage = await downloadFromS3(
+      NON_PII_S3_BUCKET_NAME,
+      `mock-mesh/mock-mailbox/out/${trustMeshMailboxReportsId}/${sentMeshMessageId}`,
+    );
 
-      const parsedEvents = eventLogEntry.map((entry: any) =>
-        JSON.parse(entry.details.event_detail),
-      );
-
-      for (const event of parsedEvents) {
-        const { sentMeshMessageId } = event.data;
-        expect(sentMeshMessageId).toBeTruthy();
-        //  Mock MESH uses NON_PII_S3_BUCKET_NAME bucket, the object key is the sentMeshMessageId.
-        const storedMessage = await downloadFromS3(
-          NON_PII_S3_BUCKET_NAME,
-          `mock-mesh/mock-mailbox/out/${trustMeshMailboxReportsId}/${sentMeshMessageId}`,
-        );
-
-        expect(storedMessage.body).toContain(messageContent);
-      }
-    }, 120_000);
+    expect(storedMessage.body).toContain(messageContent);
   }
 
   test('should send a ReportSent event following a successful reportGenerated event', async () => {
@@ -95,9 +82,7 @@ test.describe('Digital Letters - Send reports to Trust', () => {
     await uploadToS3(messageContent, REPORTING_S3_BUCKET_NAME, reportKey);
     await publishReportGeneratedEvent(reportKey);
 
-    await expectToPassEventually(async () => {
-      await expectReportSentEventAndMeshMessageSent(trustMeshMailboxReportsId);
-    }, 120_000);
+    await expectReportSentEventAndMeshMessageSent(trustMeshMailboxReportsId);
   });
 
   test('should send message to report-sender DLQ when file does not exists', async () => {

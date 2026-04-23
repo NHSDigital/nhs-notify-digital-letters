@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test';
 import {
   CREATE_TTL_DLQ_NAME,
   CREATE_TTL_LAMBDA_LOG_GROUP_NAME,
-  ENV,
 } from 'constants/backend-constants';
 import {
   SENDER_ID_SKIPS_NOTIFY,
@@ -17,6 +16,7 @@ import { getTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Create TTL', () => {
@@ -50,6 +50,7 @@ test.describe('Digital Letters - Create TTL', () => {
   };
 
   test('should create TTL and publish item enqueued event following message downloaded event', async () => {
+    test.setTimeout(110_000); // 30s TTL check + 60s event + 20s buffer
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
     const messageReference = letterId;
@@ -80,21 +81,18 @@ test.describe('Digital Letters - Create TTL', () => {
     });
 
     // Verify item enqueued event published
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.queue.item.enqueued.v1"',
-          `$.details.event_detail = "*\\"messageUri\\":\\"${messageUri}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    });
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+      (detail) => {
+        const { data } = detail as { data: { messageUri: string } };
+        return data.messageUri === messageUri;
+      },
+      60_000,
+    );
   });
 
   test('should create TTL and publish item enqueued event following message downloaded event - direct to print', async () => {
+    test.setTimeout(110_000); // 30s TTL check + 60s event + 20s buffer
     const letterId = uuidv4();
     const messageUri = `https://example.com/ttl/resource/${letterId}`;
     const messageReference = letterId;
@@ -123,18 +121,14 @@ test.describe('Digital Letters - Create TTL', () => {
     });
 
     // Verify item enqueued event published
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.queue.item.enqueued.v1"',
-          `$.details.event_detail = "*\\"messageUri\\":\\"${messageUri}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    });
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
+      (detail) => {
+        const { data } = detail as { data: { messageUri: string } };
+        return data.messageUri === messageUri;
+      },
+      60_000,
+    );
   });
 
   test('should send invalid event to dlq', async () => {
