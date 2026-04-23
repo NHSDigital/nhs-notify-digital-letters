@@ -21,8 +21,7 @@ export const mockRequest1: SingleMessageRequest = {
         odsCode: 'A12345',
       },
       personalisation: {
-        digitalLetterURL:
-          'https://www.nhsapp.service.nhs.uk/digital-letters?letterid=12345',
+        digitalLetterURL: 'https://example.com/digital-letters?letterid=12345',
       },
     },
   },
