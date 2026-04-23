@@ -84,7 +84,7 @@ test.describe('Digital Letters - Create TTL', () => {
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
       (detail) => {
-        const data = (detail as { data: { messageUri: string } }).data;
+        const { data } = detail as { data: { messageUri: string } };
         return data.messageUri === messageUri;
       },
       60_000,
@@ -124,7 +124,7 @@ test.describe('Digital Letters - Create TTL', () => {
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
       (detail) => {
-        const data = (detail as { data: { messageUri: string } }).data;
+        const { data } = detail as { data: { messageUri: string } };
         return data.messageUri === messageUri;
       },
       60_000,

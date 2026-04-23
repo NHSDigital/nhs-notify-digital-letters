@@ -7,7 +7,6 @@ import {
 } from 'constants/backend-constants';
 import eventPublisher from 'helpers/event-bus-helpers';
 import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
-import expectToPassEventually from 'helpers/expectations';
 import { downloadFromS3, uploadToS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';

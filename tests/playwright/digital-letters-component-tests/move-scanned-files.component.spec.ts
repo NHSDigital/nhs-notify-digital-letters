@@ -58,11 +58,9 @@ test.describe('Digital Letters - Move Scanned Files', () => {
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.print.file.safe.v1',
       (detail) => {
-        const data = (
-          detail as {
-            data: { messageReference?: string; senderId?: string };
-          }
-        ).data;
+        const { data } = detail as {
+          data: { messageReference?: string; senderId?: string };
+        };
         return (
           data.messageReference === messageReference &&
           data.senderId === SENDER_ID_SKIPS_NOTIFY
@@ -139,11 +137,9 @@ test.describe('Digital Letters - Move Scanned Files', () => {
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.print.file.quarantined.v1',
       (detail) => {
-        const data = (
-          detail as {
-            data: { messageReference?: string; senderId?: string };
-          }
-        ).data;
+        const { data } = detail as {
+          data: { messageReference?: string; senderId?: string };
+        };
         return (
           data.messageReference === messageReference &&
           data.senderId === SENDER_ID_SKIPS_NOTIFY

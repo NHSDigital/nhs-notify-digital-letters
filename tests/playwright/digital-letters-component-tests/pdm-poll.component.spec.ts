@@ -1,15 +1,10 @@
 import { expect, test } from '@playwright/test';
-import {
-  PDM_POLL_DLQ_NAME,
-  PDM_POLL_LAMBDA_LOG_GROUP_NAME,
-} from 'constants/backend-constants';
+import { PDM_POLL_DLQ_NAME } from 'constants/backend-constants';
 import {
   validatePDMResourceSubmitted,
   validatePDMResourceUnavailable,
 } from 'digital-letters-events';
-import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
-import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
 import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
@@ -167,8 +162,10 @@ test.describe('PDM Poll', () => {
       const unavailableDetail2 = await expectEventOnTestObserverQueue(
         'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
         (d) => {
-          const data = (d as any).data;
-          return data.messageReference === messageReference && data.retryCount === 1;
+          const { data } = d as any;
+          return (
+            data.messageReference === messageReference && data.retryCount === 1
+          );
         },
         60_000,
       );

@@ -118,7 +118,7 @@ test.describe('Digital Letters - Handle TTL', () => {
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
       (detail) => {
-        const data = (detail as { data: { messageUri: string } }).data;
+        const { data } = detail as { data: { messageUri: string } };
         return data.messageUri === messageUri;
       },
       120_000,

@@ -86,7 +86,7 @@ test.describe('Digital Letters - Core Notify', () => {
     const submittedDetail = await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.messages.request.submitted.v1',
       (d) => {
-        const data = (d as any).data;
+        const { data } = d as any;
         return (
           data.messageReference === messageReference &&
           data.senderId === SENDER_ID_VALID_FOR_NOTIFY_SANDBOX
@@ -140,7 +140,7 @@ test.describe('Digital Letters - Core Notify', () => {
     const rejectedDetail = await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.messages.request.rejected.v1',
       (d) => {
-        const data = (d as any).data;
+        const { data } = d as any;
         return (
           data.messageReference === messageReference &&
           data.senderId === SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX
@@ -180,7 +180,7 @@ test.describe('Digital Letters - Core Notify', () => {
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.messages.request.skipped.v1',
       (d) => {
-        const data = (d as any).data;
+        const { data } = d as any;
         return (
           data.messageReference === messageReference &&
           data.senderId === SENDER_ID_SKIPS_NOTIFY
