@@ -64,6 +64,7 @@ export async function expectEventOnTestObserverQueue(
             }),
           );
         } catch {
+          // Receipt handle already expired. SQS returns the message automatically
         }
       }
     }
