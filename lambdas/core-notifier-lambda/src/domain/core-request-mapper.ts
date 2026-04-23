@@ -28,7 +28,7 @@ export class CoreRequestMapper {
         type: 'Message',
         attributes: {
           routingPlanId: sender.routingConfigId!,
-          messageReference,
+          messageReference: `${sender.senderId}_${messageReference}`,
           billingReference: sender.senderId,
           recipient: {
             nhsNumber: data.nhsNumber,

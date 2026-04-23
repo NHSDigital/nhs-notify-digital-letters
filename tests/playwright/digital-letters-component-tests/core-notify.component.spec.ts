@@ -75,7 +75,7 @@ test.describe('Digital Letters - Core Notify', () => {
         CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
         [
           '$.message.description  = "Successfully processed request and sent to Notify"',
-          `$.message.messageReference  = "${messageReference}"`,
+          `$.message.messageReference  = "${SENDER_ID_VALID_FOR_NOTIFY_SANDBOX}_${messageReference}"`,
         ],
       );
 
@@ -128,7 +128,7 @@ test.describe('Digital Letters - Core Notify', () => {
         CORE_NOTIFIER_LAMBDA_LOG_GROUP_NAME,
         [
           '$.message.description  = "Failed sending request to Notify API"',
-          `$.message.messageReference  = "${messageReference}"`,
+          `$.message.messageReference  = "${SENDER_ID_THAT_TRIGGERS_ERROR_IN_NOTIFY_SANDBOX}_${messageReference}"`,
         ],
       );
 

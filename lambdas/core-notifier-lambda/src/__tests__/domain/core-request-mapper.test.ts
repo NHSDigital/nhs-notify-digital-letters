@@ -29,7 +29,7 @@ describe('CoreRequestMapper', () => {
     dataschema:
       'https://notify.nhs.uk/cloudevents/schemas/digital-letters/2025-10-draft/data/digital-letters-pdm-resource-available-data.schema.json',
     data: {
-      messageReference: 'msg-ref-123',
+      messageReference: 'test-sender-id_msg-ref-123',
       senderId: 'sender-456',
       resourceId: 'resource-789',
       nhsNumber: '9999999999',
