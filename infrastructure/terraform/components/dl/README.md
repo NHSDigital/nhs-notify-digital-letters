@@ -72,6 +72,7 @@ No requirements.
 | <a name="module_mesh_download"></a> [mesh\_download](#module\_mesh\_download) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip | n/a |
 | <a name="module_mesh_poll"></a> [mesh\_poll](#module\_mesh\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip | n/a |
 | <a name="module_move_scanned_files"></a> [move\_scanned\_files](#module\_move\_scanned\_files) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip | n/a |
+| <a name="module_nhsapp_status_handler"></a> [nhsapp\_status\_handler](#module\_nhsapp\_status\_handler) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip | n/a |
 | <a name="module_pdm_mock"></a> [pdm\_mock](#module\_pdm\_mock) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip | n/a |
 | <a name="module_pdm_poll"></a> [pdm\_poll](#module\_pdm\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip | n/a |
 | <a name="module_pdm_uploader"></a> [pdm\_uploader](#module\_pdm\_uploader) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-lambda.zip | n/a |
@@ -95,6 +96,7 @@ No requirements.
 | <a name="module_sqs_mesh_acknowledge"></a> [sqs\_mesh\_acknowledge](#module\_sqs\_mesh\_acknowledge) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-sqs.zip | n/a |
 | <a name="module_sqs_mesh_download"></a> [sqs\_mesh\_download](#module\_sqs\_mesh\_download) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-sqs.zip | n/a |
 | <a name="module_sqs_move_scanned_files"></a> [sqs\_move\_scanned\_files](#module\_sqs\_move\_scanned\_files) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-sqs.zip | n/a |
+| <a name="module_sqs_nhsapp_status_handler"></a> [sqs\_nhsapp\_status\_handler](#module\_sqs\_nhsapp\_status\_handler) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-sqs.zip | n/a |
 | <a name="module_sqs_pdm_poll"></a> [sqs\_pdm\_poll](#module\_sqs\_pdm\_poll) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-sqs.zip | n/a |
 | <a name="module_sqs_pdm_uploader"></a> [sqs\_pdm\_uploader](#module\_sqs\_pdm\_uploader) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-sqs.zip | n/a |
 | <a name="module_sqs_print_analyser"></a> [sqs\_print\_analyser](#module\_sqs\_print\_analyser) | https://github.com/NHSDigital/nhs-notify-shared-modules/releases/download/3.0.6/terraform-sqs.zip | n/a |
