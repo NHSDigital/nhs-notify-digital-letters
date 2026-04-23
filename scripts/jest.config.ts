@@ -3,7 +3,7 @@ import type { Config } from 'jest';
 const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>'],
+  roots: ['<rootDir>/nft-event-generator'],
   testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
     '^.+\\.ts$': [
@@ -17,7 +17,7 @@ const config: Config = {
           target: 'ES2020',
           moduleResolution: 'node',
           noEmit: true,
-          typeRoots: ['../../node_modules/@types'],
+          typeRoots: ['../node_modules/@types'],
         },
         diagnostics: {
           ignoreCodes: [1343], // Ignore TS1343: import.meta errors
@@ -25,16 +25,16 @@ const config: Config = {
       },
     ],
   },
-  modulePaths: ['<rootDir>/src'],
+  modulePaths: ['<rootDir>/nft-event-generator/src'],
   collectCoverageFrom: [
-    'src/**/*.{ts,js}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-    '!src/**/*.test.ts',
-    '!src/**/*.spec.ts',
-    '!src/cli.ts',
+    'nft-event-generator/src/**/*.{ts,js}',
+    '!nft-event-generator/src/**/*.d.ts',
+    '!nft-event-generator/src/**/__tests__/**',
+    '!nft-event-generator/src/**/*.test.ts',
+    '!nft-event-generator/src/**/*.spec.ts',
+    '!nft-event-generator/src/cli.ts',
   ],
-  coverageDirectory: 'coverage',
+  coverageDirectory: 'nft-event-generator/coverage',
   coveragePathIgnorePatterns: ['/node_modules/', '/__tests__/'],
   coverageThreshold: {
     global: {

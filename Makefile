@@ -61,7 +61,7 @@ serve-docs:
 	$(MAKE) -C docs s
 
 perf-test:
-	npm run start:nft --workspace=nft-event-generator
+	npm run start:nft --workspace=nhs-notify-digital-letters-scripts
 
 version:
 	rm -f .version
