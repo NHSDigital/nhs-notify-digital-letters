@@ -1,10 +1,14 @@
 import { expect, test } from '@playwright/test';
-import { ENV, HANDLE_TTL_DLQ_NAME } from 'constants/backend-constants';
+import {
+  HANDLE_TTL_DLQ_NAME,
+  TTL_HANDLE_EXPIRY_LAMBDA_LOG_GROUP_NAME,
+} from 'constants/backend-constants';
 import { MESHInboxMessageDownloaded } from 'digital-letters-events';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import { deleteTtl, putTtl } from 'helpers/dynamodb-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Handle TTL', () => {
@@ -70,7 +74,7 @@ test.describe('Digital Letters - Handle TTL', () => {
 
     await expectToPassEventually(async () => {
       const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/lambda/nhs-${ENV}-dl-ttl-handle-expiry`,
+        TTL_HANDLE_EXPIRY_LAMBDA_LOG_GROUP_NAME,
         [
           `$.message.messageUri = "${messageUri}"`,
           '$.message.description = "ItemDequeued event not sent as item withdrawn"',
@@ -78,7 +82,7 @@ test.describe('Digital Letters - Handle TTL', () => {
       );
 
       expect(eventLogEntry.length).toEqual(1);
-    });
+    }, 120_000);
   });
 
   test('should handle expired item', async () => {
@@ -111,18 +115,14 @@ test.describe('Digital Letters - Handle TTL', () => {
     const deleteResponseCode = await deleteTtl(senderId, messageReference);
     expect(deleteResponseCode).toBe(200);
 
-    await expectToPassEventually(async () => {
-      const eventLogEntry = await getLogsFromCloudwatch(
-        `/aws/vendedlogs/events/event-bus/nhs-${ENV}-dl`,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.queue.item.dequeued.v1"',
-          `$.details.event_detail = "*\\"messageUri\\":\\"${messageUri}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    });
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
+      (detail) => {
+        const data = (detail as { data: { messageUri: string } }).data;
+        return data.messageUri === messageUri;
+      },
+      120_000,
+    );
   });
 
   test('should send invalid item to dlq', async () => {

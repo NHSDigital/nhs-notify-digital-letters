@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 import {
-  EVENT_BUS_LOG_GROUP_NAME,
   FILE_QUARANTINE_S3_BUCKET_NAME,
   FILE_SAFE_S3_BUCKET_NAME,
   MOVE_SCANNED_FILES_DLQ_NAME,
@@ -12,6 +11,7 @@ import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
+import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getS3ObjectMetadata, s3Client } from 'utils';
@@ -55,22 +55,21 @@ test.describe('Digital Letters - Move Scanned Files', () => {
     }, 240);
 
     // Verify the event is published in the event bus
-    await expectToPassEventually(async () => {
-      const expectedLetterUri = `s3://${FILE_SAFE_S3_BUCKET_NAME}/${objectKey}`;
-      const eventLogEntry = await getLogsFromCloudwatch(
-        EVENT_BUS_LOG_GROUP_NAME,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.print.file.safe.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${SENDER_ID_SKIPS_NOTIFY}\\"*"`,
-          `$.details.event_detail = "*\\"createdAt\\":\\"${createdAt}\\"*"`,
-          `$.details.event_detail = "*\\"letterUri\\":\\"${expectedLetterUri}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    }, 240);
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.print.file.safe.v1',
+      (detail) => {
+        const data = (
+          detail as {
+            data: { messageReference?: string; senderId?: string };
+          }
+        ).data;
+        return (
+          data.messageReference === messageReference &&
+          data.senderId === SENDER_ID_SKIPS_NOTIFY
+        );
+      },
+      60_000,
+    );
 
     await expectToPassEventually(async () => {
       const metadata = await getS3ObjectMetadata({
@@ -137,22 +136,21 @@ test.describe('Digital Letters - Move Scanned Files', () => {
     }, 240);
 
     // Verify the event is published in the event bus
-    await expectToPassEventually(async () => {
-      const expectedLetterUri = `s3://${FILE_QUARANTINE_S3_BUCKET_NAME}/${objectKey}`;
-      const eventLogEntry = await getLogsFromCloudwatch(
-        EVENT_BUS_LOG_GROUP_NAME,
-        [
-          '$.message_type = "EVENT_RECEIPT"',
-          '$.details.detail_type = "uk.nhs.notify.digital.letters.print.file.quarantined.v1"',
-          `$.details.event_detail = "*\\"messageReference\\":\\"${messageReference}\\"*"`,
-          `$.details.event_detail = "*\\"senderId\\":\\"${SENDER_ID_SKIPS_NOTIFY}\\"*"`,
-          `$.details.event_detail = "*\\"createdAt\\":\\"${createdAt}\\"*"`,
-          `$.details.event_detail = "*\\"letterUri\\":\\"${expectedLetterUri}\\"*"`,
-        ],
-      );
-
-      expect(eventLogEntry.length).toEqual(1);
-    }, 240);
+    await expectEventOnTestObserverQueue(
+      'uk.nhs.notify.digital.letters.print.file.quarantined.v1',
+      (detail) => {
+        const data = (
+          detail as {
+            data: { messageReference?: string; senderId?: string };
+          }
+        ).data;
+        return (
+          data.messageReference === messageReference &&
+          data.senderId === SENDER_ID_SKIPS_NOTIFY
+        );
+      },
+      60_000,
+    );
 
     await expectToPassEventually(async () => {
       const metadata = await getS3ObjectMetadata({

@@ -82,3 +82,4 @@ export const MINIMUM_PROCESSOR_BUFFER_INTERVAL = 0;
 // Athena
 export const ATHENA_WORKGROUP_NAME = CSI;
 export const CREATE_TTL_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-ttl-create`;
+export const TTL_HANDLE_EXPIRY_LAMBDA_LOG_GROUP_NAME = `/aws/lambda/${CSI}-ttl-handle-expiry`;

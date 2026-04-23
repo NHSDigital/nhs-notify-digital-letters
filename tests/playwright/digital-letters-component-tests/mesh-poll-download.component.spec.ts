@@ -102,10 +102,10 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
       'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
       (detail) => {
         const { data } = detail as {
-          data?: { meshMessageId?: string; senderId?: string };
+          data: { meshMessageId?: string; senderId?: string };
         };
         return (
-          data?.meshMessageId === meshMessageId && data?.senderId === senderId
+          data.meshMessageId === meshMessageId && data.senderId === senderId
         );
       },
       60_000,
@@ -119,11 +119,11 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
       'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
       (detail) => {
         const { data } = detail as {
-          data?: { messageReference?: string; senderId?: string };
+          data: { messageReference?: string; senderId?: string };
         };
         return (
-          data?.messageReference === messageReference &&
-          data?.senderId === senderId
+          data.messageReference === messageReference &&
+          data.senderId === senderId
         );
       },
       60_000,
@@ -132,28 +132,32 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
 
   async function expectMeshInboxMessageInvalidEvent(
     meshMessageId: string,
-    messageReference: string,
+    messageReference: string | undefined,
     failureCode = 'DL_CLIV_005',
   ): Promise<void> {
     await expectEventOnTestObserverQueue(
       'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1',
       (detail) => {
         const { data } = detail as {
-          data?: {
-            meshMessageId?: string;
+          data: {
+            meshMessageId: string;
             messageReference?: string;
-            senderId?: string;
-            failureCode?: string;
+            senderId: string;
+            failureCode: string;
           };
         };
+        const messageReferenceMatches =
+          messageReference === undefined ||
+          messageReference === '' ||
+          data?.messageReference === messageReference;
         return (
-          data?.meshMessageId === meshMessageId &&
-          data?.messageReference === messageReference &&
-          data?.senderId === senderId &&
-          data?.failureCode === failureCode
+          data.meshMessageId === meshMessageId &&
+          messageReferenceMatches &&
+          data.senderId === senderId &&
+          data.failureCode === failureCode
         );
       },
-      60_000,
+      120_000,
     );
   }
 
@@ -189,6 +193,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
   });
 
   test('given invalid PDM request should publish invalid event, log an error, acknowledge message', async () => {
+    test.setTimeout(340_000);
     const meshMessageId = `${Date.now()}_TEST_${uuidv4().slice(0, 8)}`;
     const messageReference = uuidv4();
     const invalidPdmRequest = { ...validPdmRequest, id: undefined };

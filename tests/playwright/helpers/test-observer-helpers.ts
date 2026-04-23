@@ -1,4 +1,5 @@
 import {
+  ChangeMessageVisibilityCommand,
   DeleteMessageCommand,
   ReceiveMessageCommand,
 } from '@aws-sdk/client-sqs';
@@ -49,6 +50,13 @@ export async function expectEventOnTestObserverQueue(
           );
           return detail;
         }
+        await sqsClient.send(
+          new ChangeMessageVisibilityCommand({
+            QueueUrl: queueUrl,
+            ReceiptHandle: msg.ReceiptHandle!,
+            VisibilityTimeout: 0,
+          }),
+        );
       }
     }
   }
