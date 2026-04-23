@@ -84,16 +84,11 @@ class MeshDownloadProcessor:
             self._validate_fhir_content(content)
         except Exception as e:
             logger.error("FHIR content is invalid", error=str(e))
-
             self._publish_message_invalid_event(incoming_event=event, failure_code='DL_CLIV_005')
-
             message.acknowledge()
             logger.info("Acknowledged message")
-
             return
 
-        duplicate = False
-        trust_duplicate = False
         try:
             uri = self._store_message_content(
                 sender_id=data.senderId,
@@ -108,34 +103,30 @@ class MeshDownloadProcessor:
                 mesh_message_id=data.meshMessageId,
                 message_reference=data.messageReference
             )
-            duplicate = True
             self.__internal_duplicate_download_metric.record(1)
+            message.acknowledge()
+            logger.info("Acknowledged message")
+            return 'skipped'
         except DocumentAlreadyExistsError:
             logger.warning(
                 "Trust duplicate detected. Same senderId + messageReference but different meshMessageId",
                 mesh_message_id=data.meshMessageId,
                 message_reference=data.messageReference
             )
-            trust_duplicate = True
             self.__trust_duplicate_download_metric.record(1)
-
-        if trust_duplicate:
             self._publish_message_invalid_event(incoming_event=event, failure_code='DL_CLIV_004')
             message.acknowledge()
             logger.info("Acknowledged message")
             return 'duplicate'
 
-        if not duplicate:
-            self._publish_downloaded_event(
-                incoming_event=event,
-                message_uri=uri
-            )
-            self.__download_metric.record(1)
-
+        self._publish_downloaded_event(
+            incoming_event=event,
+            message_uri=uri
+        )
+        self.__download_metric.record(1)
         message.acknowledge()
         logger.info("Acknowledged message")
-
-        return 'skipped' if duplicate else 'downloaded'
+        return 'downloaded'
 
     def _store_message_content(self, sender_id, message_reference, mesh_message_id, message_content, logger):
         s3_key = self.__document_store.store_document(

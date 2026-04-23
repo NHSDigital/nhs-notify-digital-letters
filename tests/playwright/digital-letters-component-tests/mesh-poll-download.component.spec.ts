@@ -171,6 +171,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
       );
 
       expect(storedMessage.body).toContain(messageContent);
+      expect(storedMessage.metadata?.mesh_message_id).toBe(meshMessageId);
     }, 60_000);
 
     await expectToPassEventually(async () => {
