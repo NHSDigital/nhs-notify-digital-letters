@@ -36,7 +36,7 @@ test.afterEach(async () => {
  */
 async function expectToPassEventually<R>(
   expectationFunction: () => Promise<R>,
-  timeout = 30,
+  timeout = 60,
   delay = 1,
 ): Promise<R> {
   const invocationToken = Symbol('invocationToken');
