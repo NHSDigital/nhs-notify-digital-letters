@@ -14,15 +14,6 @@ export default defineConfig({
       testMatch: 'senders.setup.ts',
     },
     {
-      name: 'firehose:setup',
-      testMatch: 'firehose.setup.ts',
-      teardown: 'firehose:teardown',
-    },
-    {
-      name: 'firehose:teardown',
-      testMatch: 'firehose.teardown.ts',
-    },
-    {
       name: 'component:setup',
       testMatch: 'component.setup.ts',
     },

@@ -261,6 +261,18 @@ variable "sqs_visibility_timeout_seconds" {
   default     = "270"
 }
 
+variable "firehose_destination_buffer_interval" {
+  type        = number
+  description = "The Firehose destination buffer interval in seconds. Lower values reduce latency for tests but increase costs. Minimum is 60, default (Terraform) is 300."
+  default     = 300
+}
+
+variable "firehose_processor_buffer_interval" {
+  type        = number
+  description = "The Firehose Lambda processor buffer interval in seconds. Should be 1 more than firehose_destination_buffer_interval to ensure destination flushes first. Minimum is 0."
+  default     = 301
+}
+
 variable "lambda_timeout_seconds" {
   type        = string
   description = "The timeout of the lambdas that are triggered by SQS. "

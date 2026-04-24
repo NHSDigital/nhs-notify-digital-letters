@@ -27,8 +27,8 @@
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
     "test:component": "playwright test -c config/component/component.config.ts --project component",
-    "test:component:setup": "playwright test -c config/component/component.config.ts --project senders:setup --project firehose:setup --project component:setup",
-    "test:component:teardown": "playwright test -c config/component/component.config.ts --project firehose:teardown --project component:teardown",
+    "test:component:setup": "playwright test -c config/component/component.config.ts --project senders:setup --project component:setup",
+    "test:component:teardown": "playwright test -c config/component/component.config.ts --project component:teardown",
     "test:unit": "echo \"Unit tests not required\"",
     "typecheck": "tsc --noEmit"
   },
