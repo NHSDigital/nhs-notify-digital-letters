@@ -29,7 +29,6 @@ export default defineConfig({
     {
       name: 'component',
       testMatch: '*.component.spec.ts',
-      teardown: 'component:teardown',
     },
     {
       name: 'component:teardown',
