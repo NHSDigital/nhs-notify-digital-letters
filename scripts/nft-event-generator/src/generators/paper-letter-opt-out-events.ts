@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { type ChannelStatusPublishedEventV1 } from '@nhsdigital/nhs-notify-event-schemas-status-published';
 import { PaperLetterOptOutRow } from 'utils/csv-reader';
 
+/* eslint-disable no-console */
+
 type GeneratePaperLetterOptOutEventsParams = {
   csvRows: PaperLetterOptOutRow[];
   environment: string;

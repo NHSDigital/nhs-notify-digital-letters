@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 
 import { LetterEvent } from '@nhsdigital/nhs-notify-event-schemas-supplier-api/src/events/letter-events';
 
+/* eslint-disable no-console */
+
 export const LETTER_STATUSES = [
   'ACCEPTED',
   'REJECTED',

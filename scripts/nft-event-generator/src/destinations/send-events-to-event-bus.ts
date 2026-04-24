@@ -7,6 +7,8 @@ import {
   PublishableEvent,
 } from 'destinations/destination-client';
 
+/* eslint-disable no-console */
+
 /**
  * Internal shape expected from events sent to EventBridge.
  * Matches the CloudEvent structure used by SupplierApiLetterEvent

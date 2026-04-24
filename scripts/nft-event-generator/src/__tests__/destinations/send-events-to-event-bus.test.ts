@@ -5,7 +5,7 @@ import {
 import { PublishableEvent } from 'destinations/destination-client';
 import { mock } from 'jest-mock-extended';
 import { sendEventsToEventBus } from 'destinations/send-events-to-event-bus';
-
+/* eslint-disable no-console */
 const environment = 'dev';
 
 const sampleEvent = {
