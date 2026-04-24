@@ -6,6 +6,7 @@ export type NotifySendMessageConfig = {
   apimAccessTokenSsmParameterName: string;
   apimBaseUrl: string;
   environment: string;
+  dlMetricsNamespace: string;
 };
 
 export function loadConfig(): NotifySendMessageConfig {
@@ -21,5 +22,6 @@ export function loadConfig(): NotifySendMessageConfig {
     ),
     apimBaseUrl: defaultConfigReader.getValue('APIM_BASE_URL'),
     environment: defaultConfigReader.getValue('ENVIRONMENT'),
+    dlMetricsNamespace: defaultConfigReader.getValue('DL_METRICS_NAMESPACE'),
   };
 }

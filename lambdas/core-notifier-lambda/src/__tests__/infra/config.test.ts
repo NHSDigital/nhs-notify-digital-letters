@@ -23,6 +23,7 @@ describe('loadConfig', () => {
       apimAccessTokenSsmParameterName: '/test/apim/access-token',
       apimBaseUrl: 'https://api.test.nhs.uk',
       environment: 'test',
+      dlMetricsNamespace: 'test-namespace',
     };
 
     mockGetValue
@@ -30,12 +31,13 @@ describe('loadConfig', () => {
       .mockReturnValueOnce(mockConfig.eventPublisherDlqUrl)
       .mockReturnValueOnce(mockConfig.apimAccessTokenSsmParameterName)
       .mockReturnValueOnce(mockConfig.apimBaseUrl)
-      .mockReturnValueOnce(mockConfig.environment);
+      .mockReturnValueOnce(mockConfig.environment)
+      .mockReturnValueOnce(mockConfig.dlMetricsNamespace);
 
     const result = loadConfig();
 
     expect(result).toEqual(mockConfig);
-    expect(mockGetValue).toHaveBeenCalledTimes(5);
+    expect(mockGetValue).toHaveBeenCalledTimes(6);
     expect(mockGetValue).toHaveBeenNthCalledWith(
       1,
       'EVENT_PUBLISHER_EVENT_BUS_ARN',
@@ -47,6 +49,7 @@ describe('loadConfig', () => {
     );
     expect(mockGetValue).toHaveBeenNthCalledWith(4, 'APIM_BASE_URL');
     expect(mockGetValue).toHaveBeenNthCalledWith(5, 'ENVIRONMENT');
+    expect(mockGetValue).toHaveBeenNthCalledWith(6, 'DL_METRICS_NAMESPACE');
   });
 
   it('returns config with correct types', () => {
@@ -55,7 +58,8 @@ describe('loadConfig', () => {
       .mockReturnValueOnce('https://dlq')
       .mockReturnValueOnce('/param')
       .mockReturnValueOnce('https://api')
-      .mockReturnValueOnce('prod');
+      .mockReturnValueOnce('prod')
+      .mockReturnValueOnce('test-namespace');
 
     const result: NotifySendMessageConfig = loadConfig();
 
@@ -64,5 +68,6 @@ describe('loadConfig', () => {
     expect(typeof result.apimAccessTokenSsmParameterName).toBe('string');
     expect(typeof result.apimBaseUrl).toBe('string');
     expect(typeof result.environment).toBe('string');
+    expect(typeof result.dlMetricsNamespace).toBe('string');
   });
 });

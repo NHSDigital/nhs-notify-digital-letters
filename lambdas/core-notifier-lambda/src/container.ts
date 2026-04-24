@@ -11,6 +11,7 @@ import { NotifyMessageProcessor } from 'app/notify-message-processor';
 import type { SqsHandlerDependencies } from 'apis/sqs-handler';
 import { loadConfig } from 'infra/config';
 import { SenderManagement } from 'sender-management';
+import { MetricHandler } from '../../../utils/utils/src/cloudwatch/metric-handler';
 
 export async function createContainer(): Promise<SqsHandlerDependencies> {
   const parameterStore = new ParameterStoreCache();
@@ -38,7 +39,11 @@ export async function createContainer(): Promise<SqsHandlerDependencies> {
     logger,
   });
 
-  const { eventPublisherDlqUrl, eventPublisherEventBusArn } = config;
+  const { eventPublisherDlqUrl, eventPublisherEventBusArn, dlMetricsNamespace } = config;
+  const metricHandler = new MetricHandler(dlMetricsNamespace, [{
+      Name: 'Environment',
+      Value: 'environment',
+    }]);
 
   const eventPublisher = new EventPublisher({
     eventBusArn: eventPublisherEventBusArn,
@@ -46,6 +51,7 @@ export async function createContainer(): Promise<SqsHandlerDependencies> {
     logger,
     sqsClient,
     eventBridgeClient,
+    metricHandler,
   });
 
   return {
