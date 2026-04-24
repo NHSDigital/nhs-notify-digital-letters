@@ -4,7 +4,7 @@ import {
 } from 'digital-letters-events';
 import { Sender } from 'utils';
 import { randomUUID } from 'node:crypto';
-import { buildNhsAppResourceUrl } from 'domain/utils';
+import { buildNhsAppResourceUrl } from 'domain/build-nhsapp-resource-url';
 
 export class MessageRequestSubmittedMapper {
   private readonly nhsAppBaseUrl: string;

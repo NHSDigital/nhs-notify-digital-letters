@@ -1,7 +1,7 @@
 import { PDMResourceAvailable } from 'digital-letters-events';
 import { Sender, logger } from 'utils';
 import type { SingleMessageRequest } from 'domain/request';
-import { buildNhsAppResourceUrl } from 'domain/utils';
+import { buildNhsAppResourceUrl } from 'domain/build-nhsapp-resource-url';
 
 export class CoreRequestMapper {
   private readonly nhsAppBaseUrl: string;
@@ -17,9 +17,12 @@ export class CoreRequestMapper {
     const { data } = pdmResourceAvailable;
     const { messageReference } = data;
 
+    const coreMessageReference = `${sender.senderId}_${messageReference}`;
+
     logger.info({
       description: 'Mapping resource available',
       messageReference,
+      coreMessageReference,
       senderId: sender.senderId,
     });
 
@@ -28,7 +31,7 @@ export class CoreRequestMapper {
         type: 'Message',
         attributes: {
           routingPlanId: sender.routingConfigId!,
-          messageReference: `${sender.senderId}_${messageReference}`,
+          messageReference: coreMessageReference,
           billingReference: sender.senderId,
           recipient: {
             nhsNumber: data.nhsNumber,

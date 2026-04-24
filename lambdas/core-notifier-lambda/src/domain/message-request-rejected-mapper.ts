@@ -4,7 +4,7 @@ import {
 } from 'digital-letters-events';
 import { Sender } from 'utils';
 import { randomUUID } from 'node:crypto';
-import { buildNhsAppResourceUrl } from 'domain/utils';
+import { buildNhsAppResourceUrl } from 'domain/build-nhsapp-resource-url';
 
 const CORE_API_FAILURE_CODE = 'DL_INTE_001';
 
