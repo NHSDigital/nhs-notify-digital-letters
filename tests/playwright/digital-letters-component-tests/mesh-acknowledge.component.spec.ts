@@ -14,7 +14,10 @@ import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { downloadFromS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  MESH_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Mesh Acknowledger', () => {
@@ -80,6 +83,7 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
     // Verify message acknowledged event was published,
     // and extract sentMeshMessageId to use for the S3 lookup.
     const acknowledgedDetail = await expectEventOnTestObserverQueue(
+      MESH_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.mesh.inbox.message.acknowledged.v1',
       (d) => {
         const { data } = d as any;
@@ -200,6 +204,7 @@ test.describe('Digital Letters - Mesh Acknowledger', () => {
     // Verify message acknowledged event was published with statusCode 400,
     // and extract sentMeshMessageId to use for the S3 lookup.
     const acknowledgedDetail2 = await expectEventOnTestObserverQueue(
+      MESH_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.mesh.inbox.message.acknowledged.v1',
       (d) => {
         const { data } = d as any;

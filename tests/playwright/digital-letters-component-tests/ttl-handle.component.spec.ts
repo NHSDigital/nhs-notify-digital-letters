@@ -8,7 +8,10 @@ import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import { deleteTtl, putTtl } from 'helpers/dynamodb-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  QUEUE_ITEMS_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Handle TTL', () => {
@@ -116,6 +119,7 @@ test.describe('Digital Letters - Handle TTL', () => {
     expect(deleteResponseCode).toBe(200);
 
     await expectEventOnTestObserverQueue(
+      QUEUE_ITEMS_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.queue.item.dequeued.v1',
       (detail) => {
         const { data } = detail as { data: { messageUri: string } };

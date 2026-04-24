@@ -8,7 +8,10 @@ import { fivePagePdf } from 'helpers/pdf-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { FileSafe, validateFileSafe } from 'digital-letters-events';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  PRINT_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 import { putFileS3 } from 'utils';
 
 export const fileSafeEvent: FileSafe = {
@@ -64,6 +67,7 @@ test.describe('Print analyser', () => {
     await eventPublisher.sendEvents<FileSafe>([event], validateFileSafe);
 
     const analysedDetail = await expectEventOnTestObserverQueue(
+      PRINT_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.print.pdf.analysed.v1',
       (d) => {
         const { data } = d as any;

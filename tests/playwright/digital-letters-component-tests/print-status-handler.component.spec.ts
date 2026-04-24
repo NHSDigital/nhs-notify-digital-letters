@@ -4,7 +4,10 @@ import { PRINT_STATUS_HANDLER_DLQ_NAME } from 'constants/backend-constants';
 import eventPublisher from 'helpers/event-bus-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  PRINT_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 
 const baseLetterEvent = {
   id: '550e8400-e29b-41d4-a716-446655440001',
@@ -74,6 +77,7 @@ test.describe('Print status handler', () => {
       await eventPublisher.sendEvents<LetterEvent>([letterEvent], () => true);
 
       await expectEventOnTestObserverQueue(
+        PRINT_OBSERVER_QUEUE_URL,
         'uk.nhs.notify.digital.letters.print.letter.transitioned.v1',
         (d) => {
           const { data } = d as any;

@@ -12,7 +12,10 @@ import expectToPassEventually from 'helpers/expectations';
 import { invokeLambda } from 'helpers/lambda-helpers';
 import { downloadFromS3, uploadToS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  MESH_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { validateMESHInboxMessageReceived } from 'digital-letters-events';
@@ -98,6 +101,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     meshMessageId: string,
   ): Promise<void> {
     await expectEventOnTestObserverQueue(
+      MESH_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.mesh.inbox.message.received.v1',
       (detail) => {
         const { data } = detail as {
@@ -115,6 +119,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     messageReference: string,
   ): Promise<void> {
     await expectEventOnTestObserverQueue(
+      MESH_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.mesh.inbox.message.downloaded.v1',
       (detail) => {
         const { data } = detail as {
@@ -135,6 +140,7 @@ test.describe('Digital Letters - MESH Poll and Download', () => {
     failureCode = 'DL_CLIV_005',
   ): Promise<void> {
     await expectEventOnTestObserverQueue(
+      MESH_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.mesh.inbox.message.invalid.v1',
       (detail) => {
         const { data } = detail as {

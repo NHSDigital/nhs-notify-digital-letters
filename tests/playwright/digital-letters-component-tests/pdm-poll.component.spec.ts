@@ -6,7 +6,10 @@ import {
 } from 'digital-letters-events';
 import eventPublisher from 'helpers/event-bus-helpers';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  PDM_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 const baseEvent = {
@@ -67,6 +70,7 @@ test.describe('PDM Poll', () => {
       );
 
       const availableDetail = await expectEventOnTestObserverQueue(
+        PDM_OBSERVER_QUEUE_URL,
         'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
         (d) => (d as any).data.messageReference === messageReference,
         80_000,
@@ -97,6 +101,7 @@ test.describe('PDM Poll', () => {
       );
 
       const unavailableDetail = await expectEventOnTestObserverQueue(
+        PDM_OBSERVER_QUEUE_URL,
         'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
         (d) => (d as any).data.messageReference === messageReference,
         80_000,
@@ -129,6 +134,7 @@ test.describe('PDM Poll', () => {
       );
 
       const availableDetail2 = await expectEventOnTestObserverQueue(
+        PDM_OBSERVER_QUEUE_URL,
         'uk.nhs.notify.digital.letters.pdm.resource.available.v1',
         (d) => (d as any).data.messageReference === messageReference,
         80_000,
@@ -160,6 +166,7 @@ test.describe('PDM Poll', () => {
       );
 
       const unavailableDetail2 = await expectEventOnTestObserverQueue(
+        PDM_OBSERVER_QUEUE_URL,
         'uk.nhs.notify.digital.letters.pdm.resource.unavailable.v1',
         (d) => {
           const { data } = d as any;
@@ -195,6 +202,7 @@ test.describe('PDM Poll', () => {
       );
 
       const exceededDetail = await expectEventOnTestObserverQueue(
+        PDM_OBSERVER_QUEUE_URL,
         'uk.nhs.notify.digital.letters.pdm.resource.retries.exceeded.v1',
         (d) => (d as any).data.messageReference === messageReference,
         80_000,

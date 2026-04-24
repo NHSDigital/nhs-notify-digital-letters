@@ -6,7 +6,10 @@ import {
   REPORT_SENDER_DLQ_NAME,
 } from 'constants/backend-constants';
 import eventPublisher from 'helpers/event-bus-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  REPORTING_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 import { downloadFromS3, uploadToS3 } from 'helpers/s3-helpers';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
 import { v4 as uuidv4 } from 'uuid';
@@ -53,6 +56,7 @@ test.describe('Digital Letters - Send reports to Trust', () => {
     meshMailboxReportsId: string,
   ): Promise<void> {
     const detail = await expectEventOnTestObserverQueue(
+      REPORTING_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.reporting.report.sent.v1',
       (d) =>
         (d.data as any).meshMailboxReportsId === meshMailboxReportsId &&

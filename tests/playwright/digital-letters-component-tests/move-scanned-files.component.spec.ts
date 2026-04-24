@@ -9,7 +9,10 @@ import {
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString } from 'helpers/sqs-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  PRINT_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getS3ObjectMetadata, s3Client } from 'utils';
@@ -39,6 +42,7 @@ test.describe('Digital Letters - Move Scanned Files', () => {
 
     // Verify the event is published in the event bus
     await expectEventOnTestObserverQueue(
+      PRINT_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.print.file.safe.v1',
       (detail) => {
         const { data } = detail as {
@@ -103,6 +107,7 @@ test.describe('Digital Letters - Move Scanned Files', () => {
 
     // Verify the event is published in the event bus
     await expectEventOnTestObserverQueue(
+      PRINT_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.print.file.quarantined.v1',
       (detail) => {
         const { data } = detail as {

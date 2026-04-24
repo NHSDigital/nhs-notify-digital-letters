@@ -16,7 +16,10 @@ import { getTtl } from 'helpers/dynamodb-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  QUEUE_ITEMS_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 test.describe('Digital Letters - Create TTL', () => {
@@ -82,6 +85,7 @@ test.describe('Digital Letters - Create TTL', () => {
 
     // Verify item enqueued event published
     await expectEventOnTestObserverQueue(
+      QUEUE_ITEMS_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
       (detail) => {
         const { data } = detail as { data: { messageUri: string } };
@@ -122,6 +126,7 @@ test.describe('Digital Letters - Create TTL', () => {
 
     // Verify item enqueued event published
     await expectEventOnTestObserverQueue(
+      QUEUE_ITEMS_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.queue.item.enqueued.v1',
       (detail) => {
         const { data } = detail as { data: { messageUri: string } };

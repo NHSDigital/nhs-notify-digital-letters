@@ -8,7 +8,10 @@ import { getLogsFromCloudwatch } from 'helpers/cloudwatch-helpers';
 import eventPublisher from 'helpers/event-bus-helpers';
 import expectToPassEventually from 'helpers/expectations';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  PDM_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 import { SENDER_ID_SKIPS_NOTIFY } from 'constants/tests-constants';
 import { putDataS3 } from 'utils';
@@ -101,6 +104,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
     }, 120);
 
     await expectEventOnTestObserverQueue(
+      PDM_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.pdm.resource.submitted.v1',
       (d) => (d as any).data.messageReference === messageReference,
       80_000,
@@ -160,6 +164,7 @@ test.describe('Digital Letters - Upload to PDM', () => {
     }, 120);
 
     await expectEventOnTestObserverQueue(
+      PDM_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.pdm.resource.submission.rejected.v1',
       (d) => (d as any).data.messageReference === messageReference,
       80_000,

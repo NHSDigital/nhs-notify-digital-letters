@@ -34,6 +34,14 @@ export const MOVE_SCANNED_FILES_DLQ_NAME = `${CSI}-move-scanned-files-dlq`;
 export const REPORT_SENDER_DLQ_NAME = `${CSI}-report-sender-dlq`;
 export const TEST_OBSERVER_QUEUE_NAME = `${CSI}-test-observer-queue`;
 
+// Per-component test observer queues
+export const TEST_OBSERVER_MESH_QUEUE_NAME = `${CSI}-test-observer-mesh-queue`;
+export const TEST_OBSERVER_PDM_QUEUE_NAME = `${CSI}-test-observer-pdm-queue`;
+export const TEST_OBSERVER_MESSAGES_QUEUE_NAME = `${CSI}-test-observer-messages-queue`;
+export const TEST_OBSERVER_PRINT_QUEUE_NAME = `${CSI}-test-observer-print-queue`;
+export const TEST_OBSERVER_QUEUE_ITEMS_QUEUE_NAME = `${CSI}-test-observer-queue-items-queue`;
+export const TEST_OBSERVER_REPORTING_QUEUE_NAME = `${CSI}-test-observer-reporting-queue`;
+
 // Queue Url Prefix
 export const SQS_URL_PREFIX = `https://sqs.${REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/`;
 

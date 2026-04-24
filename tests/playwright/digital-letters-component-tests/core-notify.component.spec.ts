@@ -11,7 +11,10 @@ import {
 } from 'digital-letters-events';
 import eventPublisher from 'helpers/event-bus-helpers';
 import { expectMessageContainingString, purgeQueue } from 'helpers/sqs-helpers';
-import { expectEventOnTestObserverQueue } from 'helpers/test-observer-helpers';
+import {
+  MESSAGES_OBSERVER_QUEUE_URL,
+  expectEventOnTestObserverQueue,
+} from 'helpers/test-observer-helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 const baseEvent: Omit<PDMResourceAvailable, 'id' | 'data'> = {
@@ -65,6 +68,7 @@ test.describe('Digital Letters - Core Notify', () => {
     );
 
     const submittedDetail = await expectEventOnTestObserverQueue(
+      MESSAGES_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.messages.request.submitted.v1',
       (d) => {
         const { data } = d as any;
@@ -105,6 +109,7 @@ test.describe('Digital Letters - Core Notify', () => {
     );
 
     const rejectedDetail = await expectEventOnTestObserverQueue(
+      MESSAGES_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.messages.request.rejected.v1',
       (d) => {
         const { data } = d as any;
@@ -145,6 +150,7 @@ test.describe('Digital Letters - Core Notify', () => {
 
     // Verify the event is published in the event bus
     await expectEventOnTestObserverQueue(
+      MESSAGES_OBSERVER_QUEUE_URL,
       'uk.nhs.notify.digital.letters.messages.request.skipped.v1',
       (d) => {
         const { data } = d as any;

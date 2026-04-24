@@ -5,23 +5,32 @@ import {
 } from '@aws-sdk/client-sqs';
 import {
   SQS_URL_PREFIX,
-  TEST_OBSERVER_QUEUE_NAME,
+  TEST_OBSERVER_MESH_QUEUE_NAME,
+  TEST_OBSERVER_MESSAGES_QUEUE_NAME,
+  TEST_OBSERVER_PDM_QUEUE_NAME,
+  TEST_OBSERVER_PRINT_QUEUE_NAME,
+  TEST_OBSERVER_QUEUE_ITEMS_QUEUE_NAME,
+  TEST_OBSERVER_REPORTING_QUEUE_NAME,
 } from 'constants/backend-constants';
 import { sqsClient } from 'utils';
 
-const queueUrl = `${SQS_URL_PREFIX}${TEST_OBSERVER_QUEUE_NAME}`;
+export const MESH_OBSERVER_QUEUE_URL = `${SQS_URL_PREFIX}${TEST_OBSERVER_MESH_QUEUE_NAME}`;
+export const PDM_OBSERVER_QUEUE_URL = `${SQS_URL_PREFIX}${TEST_OBSERVER_PDM_QUEUE_NAME}`;
+export const MESSAGES_OBSERVER_QUEUE_URL = `${SQS_URL_PREFIX}${TEST_OBSERVER_MESSAGES_QUEUE_NAME}`;
+export const PRINT_OBSERVER_QUEUE_URL = `${SQS_URL_PREFIX}${TEST_OBSERVER_PRINT_QUEUE_NAME}`;
+export const QUEUE_ITEMS_OBSERVER_QUEUE_URL = `${SQS_URL_PREFIX}${TEST_OBSERVER_QUEUE_ITEMS_QUEUE_NAME}`;
+export const REPORTING_OBSERVER_QUEUE_URL = `${SQS_URL_PREFIX}${TEST_OBSERVER_REPORTING_QUEUE_NAME}`;
 
 /**
- * Polls the test observer SQS queue for an event matching the given type and predicate.
+ * Polls a test observer SQS queue for an event matching the given type and predicate.
  * Deletes the matched message from the queue and returns the event detail.
  *
- * The test observer queue is subscribed to the EventBridge bus and receives all
- * uk.nhs.notify.digital.letters.* events.
- *
- * Unmatched messages are immediately returned to the queue (VisibilityTimeout: 0)
- * so concurrent tests are not starved.
+ * Each queue subscribes to a filtered subset of uk.nhs.notify.digital.letters.* events
+ * Unmatched messages are immediately returned (VisibilityTimeout: 0) so concurrent
+ * tests within the same spec are not starved.
  */
 export async function expectEventOnTestObserverQueue(
+  queueUrl: string,
   eventType: string,
   matchFn: (detail: Record<string, unknown>) => boolean,
   timeoutMs = 80_000,
@@ -60,7 +69,7 @@ export async function expectEventOnTestObserverQueue(
             new ChangeMessageVisibilityCommand({
               QueueUrl: queueUrl,
               ReceiptHandle: msg.ReceiptHandle!,
-              VisibilityTimeout: 5,
+              VisibilityTimeout: 0,
             }),
           );
         } catch {
