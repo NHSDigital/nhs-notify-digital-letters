@@ -21,7 +21,7 @@ export async function expectMessageContainingString(
     QueueUrl: getQueueUrl(queueName),
     MaxNumberOfMessages: 10,
     WaitTimeSeconds: 1,
-    VisibilityTimeout: 2,
+    VisibilityTimeout: 5,
   };
 
   await expectToPassEventually(async () => {
