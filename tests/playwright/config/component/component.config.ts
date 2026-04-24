@@ -29,7 +29,6 @@ export default defineConfig({
     {
       name: 'component',
       testMatch: '*.component.spec.ts',
-      dependencies: ['senders:setup', 'firehose:setup', 'component:setup'],
       teardown: 'component:teardown',
     },
     {

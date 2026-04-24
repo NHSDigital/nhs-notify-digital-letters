@@ -54,7 +54,32 @@ runs:
       shell: bash
       run: |
         npm ci
+    - name: "Cache Playwright browsers"
+      id: cache-playwright
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('tests/playwright/package-lock.json') }}
+        restore-keys: |
+          playwright-${{ runner.os }}-
+    - name: "Install Playwright browsers"
+      if: steps.cache-playwright.outputs.cache-hit != 'true'
+      shell: bash
+      run: npx playwright install --with-deps
+    - name: "Cache generated dependencies"
+      id: cache-generated-deps
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: |
+          schemas/digital-letters/
+          output/digital-letters/
+          src/digital-letters-events/types/
+          src/digital-letters-events/validators/
+          src/digital-letters-events/digital_letters_events/models/
+          src/digital-letters-events/guard-functions/
+        key: generated-deps-${{ runner.os }}-${{ hashFiles('src/cloudevents/**', 'src/typescript-schema-generator/**', 'src/python-schema-generator/**') }}
     - name: "Generate dependencies"
+      if: steps.cache-generated-deps.outputs.cache-hit != 'true'
       shell: bash
       run: |
         npm run generate-dependencies
