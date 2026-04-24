@@ -62,11 +62,8 @@ jobs:
         run: |
           echo "Nothing to save"
   test-integration:
-    name: "Integration test (shard ${{ matrix.shard }} of ${{ strategy.job-total }})"
+    name: "Integration test"
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       # Calls out to the nhs-notify-internal repo.
@@ -88,7 +85,7 @@ jobs:
             --targetEnvironment "$TARGET_ENVIRONMENT" \
             --targetAccountGroup "$TARGET_ACCOUNT_GROUP" \
             --targetComponent "dl" \
-            --shard "${{ matrix.shard }}/4"
+            --enableSharding "true"
   test-accessibility:
     name: "Accessibility test"
     runs-on: ubuntu-latest
